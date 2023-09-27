@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/nav"
+    app:startDestination="@id/menuFragment">
+
+    <fragment
+        android:id="@+id/menuFragment"
+        android:name="com.example.navsample.MenuFragment"
+        android:label="fragment_menu"
+        tools:layout="@layout/fragment_menu" >
+        <action
+            android:id="@+id/action_menuFragment_to_shopListFragment"
+            app:destination="@id/shopListFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/shopListFragment"
+        android:name="com.example.navsample.ShopListFragment"
+        android:label="fragment_shop_list"
+        tools:layout="@layout/fragment_shop_list" >
+        <action
+            android:id="@+id/action_shopListFragment_to_cameraFragment"
+            app:destination="@id/cameraFragment" />
+        <argument
+            android:name="bitmap"
+            app:argType="android.graphics.Bitmap"
+            app:nullable="true"
+            android:defaultValue="@null" />
+    </fragment>
+    <fragment
+        android:id="@+id/cameraFragment"
+        android:name="com.example.navsample.CameraFragment"
+        android:label="fragment_camera"
+        tools:layout="@layout/fragment_camera" >
+        <action
+            android:id="@+id/action_cameraFragment_to_shopListFragment"
+            app:destination="@id/shopListFragment" />
+
+    </fragment>
+</navigation>
