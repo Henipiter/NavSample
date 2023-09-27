@@ -28,7 +28,6 @@
             android:autofillHints="Product name"
             android:ems="10"
             android:inputType="text"
-            android:text="Product name"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
@@ -44,13 +43,13 @@
 
         <EditText
             android:id="@+id/productPriceInput"
+            android:inputType="number"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="32dp"
             android:autofillHints="Product price"
             android:ems="10"
-            android:inputType="text"
-            android:text="Product price"
+            android:text="0"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/productNameInput"
@@ -60,19 +59,73 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Category"
-            app:layout_constraintBottom_toTopOf="@+id/spinner"
-            app:layout_constraintEnd_toEndOf="@+id/spinner"
-            app:layout_constraintStart_toStartOf="@+id/spinner" />
+            app:layout_constraintBottom_toTopOf="@+id/productCategoryInput"
+            app:layout_constraintEnd_toEndOf="@+id/productCategoryInput"
+            app:layout_constraintStart_toStartOf="@+id/productCategoryInput" />
 
         <Spinner
-            android:id="@+id/spinner"
+            android:spinnerMode="dropdown"
+            android:id="@+id/productCategoryInput"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="32dp"
+            android:textSize="15sp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/productPriceInput" />
 
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Store name"
+            app:layout_constraintBottom_toTopOf="@+id/storeNameInput"
+            app:layout_constraintEnd_toEndOf="@+id/storeNameInput"
+            app:layout_constraintStart_toStartOf="@+id/storeNameInput" />
+
+        <EditText
+            android:id="@+id/storeNameInput"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="32dp"
+            android:autofillHints="Product price"
+            android:ems="10"
+            android:inputType="text"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/productCategoryInput"
+            tools:ignore="LabelFor" />
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Receipt date"
+            app:layout_constraintBottom_toTopOf="@+id/receiptDateInput"
+            app:layout_constraintEnd_toEndOf="@+id/receiptDateInput"
+            app:layout_constraintStart_toStartOf="@+id/receiptDateInput" />
+        <Button
+            android:id="@+id/receiptDateInput"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="48dp"
+            android:layout_marginTop="32dp"
+            android:text="01-01-2023"
+            app:layout_constraintTop_toBottomOf="@+id/storeNameInput"
+            app:layout_constraintStart_toStartOf="parent" />
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Receipt time"
+            app:layout_constraintBottom_toTopOf="@+id/receiptTimeInput"
+            app:layout_constraintEnd_toEndOf="@+id/receiptTimeInput"
+            app:layout_constraintStart_toStartOf="@+id/receiptTimeInput" />
+        <Button
+            android:id="@+id/receiptTimeInput"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="48dp"
+            android:layout_marginTop="32dp"
+            android:text="01:12"
+            app:layout_constraintTop_toBottomOf="@+id/storeNameInput"
+            app:layout_constraintEnd_toEndOf="parent" />
 
         <EditText
             android:id="@+id/test"
@@ -86,7 +139,7 @@
             android:inputType="textMultiLine"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/spinner" />
+            app:layout_constraintTop_toBottomOf="@+id/receiptDateInput" />
 
 
         <Button
