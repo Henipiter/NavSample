@@ -1,10 +1,13 @@
 package com.example.navsample
 
+import android.content.ContentValues
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
+import android.media.Image
 import android.os.Build
 import android.os.Bundle
+import android.provider.MediaStore
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
@@ -57,39 +60,48 @@ class CameraFragment : Fragment() {
 
         binding.bottomText.setOnClickListener {
             takePhoto()
-            var bitmapVal: Bitmap? = null
-            if (capturedImage != null) {
-                bitmapVal = imageToBitMap(capturedImage!!)
-            }
-            val action = CameraFragmentDirections.actionCameraFragmentToShopListFragment(bitmapVal)
+
+            val action = CameraFragmentDirections.actionCameraFragmentToShopListFragment()
             Navigation.findNavController(it).navigate(action)
         }
 
         cameraExecutor = Executors.newSingleThreadExecutor()
     }
 
-    private fun imageToBitMap(imageProxy: ImageProxy): Bitmap {
-        val buffer = imageProxy.planes[0].buffer
-        val bytes = ByteArray(buffer.capacity())
-        buffer[bytes]
-        val bitmapImage = BitmapFactory.decodeByteArray(bytes, 0, bytes.size)
-        imageProxy.close()
-        return bitmapImage
-    }
+
 
     private fun takePhoto() {
         val imageCapture = imageCapture ?: return
-        Log.e(TAG, "OOOO")
+
+
+
+        val contentValues = ContentValues().apply {
+            put(MediaStore.MediaColumns.DISPLAY_NAME, "receipt.jpg")
+            put(MediaStore.MediaColumns.MIME_TYPE, "image/jpeg")
+            if(Build.VERSION.SDK_INT > Build.VERSION_CODES.P) {
+                put(MediaStore.Images.Media.RELATIVE_PATH, "Pictures/CameraX-Image")
+            }
+        }
+
+        // Create output options object which contains file + metadata
+        val outputOptions = ImageCapture.OutputFileOptions
+            .Builder(requireContext().contentResolver,
+                MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
+                contentValues)
+            .build()
+
         imageCapture.takePicture(
+            outputOptions,
             ContextCompat.getMainExecutor(requireContext()),
-            object : ImageCapture.OnImageCapturedCallback() {
+            object : ImageCapture.OnImageSavedCallback {
                 override fun onError(exc: ImageCaptureException) {
                     Log.e(TAG, "Photo capture failed: ${exc.message}", exc)
+                    Toast.makeText(requireContext(), exc.message, Toast.LENGTH_SHORT).show()
                 }
 
-                override fun onCaptureSuccess(image: ImageProxy) {
-                    val msg = "Photo capture succeeded"
-                    capturedImage = image
+                override fun
+                        onImageSaved(output: ImageCapture.OutputFileResults){
+                    val msg = "Photo capture succeeded: ${output.savedUri}"
                     Toast.makeText(requireContext(), msg, Toast.LENGTH_SHORT).show()
                     Log.d(TAG, msg)
                 }
@@ -108,7 +120,9 @@ class CameraFragment : Fragment() {
                     it.setSurfaceProvider(binding.cameraView.surfaceProvider)
                 }
 
-            imageCapture = ImageCapture.Builder().build()
+            imageCapture = ImageCapture.Builder()
+                .setCaptureMode(ImageCapture.CAPTURE_MODE_MINIMIZE_LATENCY)
+                .build()
 
             val cameraSelector = CameraSelector.DEFAULT_BACK_CAMERA
             try {

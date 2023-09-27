@@ -2,6 +2,7 @@ plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
     id("androidx.navigation.safeargs.kotlin")
+    id("kotlin-parcelize")
 }
 
 android {
@@ -87,7 +88,7 @@ dependencies {
     implementation("androidx.appcompat:appcompat:1.6.1")
     implementation("com.google.mlkit:vision-common:17.3.0")
     implementation ("com.google.mlkit:text-recognition:16.0.0")
-
+    implementation ("com.github.chrisbanes:PhotoView:2.3.0")
 
 
 }
