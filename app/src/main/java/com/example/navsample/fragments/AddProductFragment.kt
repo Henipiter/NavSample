@@ -31,7 +31,7 @@ class AddProductFragment : Fragment() {
 
     var picker: TimePickerDialog? = null
     var calendar = Calendar.getInstance()
-    private lateinit var  categoryList: List<String>
+    private lateinit var categoryList: List<String>
     private var addNewCategory = false
 
     override fun onCreateView(
@@ -60,16 +60,22 @@ class AddProductFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         val databaseHelper = DatabaseHelper(requireContext())
-        categoryList = databaseHelper.readAllCategoryData().map{it.category ?: "null"}
+        categoryList = databaseHelper.readAllCategoryData().map { it.category ?: "null" }
 
-        val defaultColor = binding.productCategoryLayout.boxStrokeColor
+
         ArrayAdapter(
             requireContext(),
             android.R.layout.simple_list_item_1,
             categoryList
         ).also { adapter ->
             binding.productCategoryInput.setAdapter(adapter)
+
         }
+        binding.productCategoryInput.setOnLongClickListener {
+            Toast.makeText(requireContext(), "CLICK", Toast.LENGTH_SHORT).show()
+            true
+        }
+
         binding.productCategoryInput.setOnFocusChangeListener { _, hasFocus ->
             if (!hasFocus) {
                 val actual = binding.productCategoryInput.text.toString()
@@ -82,15 +88,33 @@ class AddProductFragment : Fragment() {
                         Toast.LENGTH_SHORT
                     ).show()
                 }
-                if(!categoryList.contains(fixed)){
+                if (!categoryList.contains(fixed)) {
                     addNewCategory = true
-                    binding.productCategoryLayout.boxStrokeColor =  ContextCompat.getColor(requireContext(), R.color.orange)
+                    binding.productCategoryInputInfo.visibility = View.VISIBLE
+
+                } else {
+                    addNewCategory = false
+                    binding.productCategoryInputInfo.visibility = View.INVISIBLE
 
                 }
-                else{
-                    addNewCategory = false
-                    binding.productCategoryLayout.boxStrokeColor =  defaultColor
 
+            }
+        }
+        binding.productPriceInput.setOnFocusChangeListener { _, hasFocus ->
+            if (!hasFocus) {
+                val actual = binding.productPriceInput.text.toString()
+                val split = actual.split(".")
+                if (split.size >= 2 && (split[1].length > 2 || split[1].length == 0)) {
+                    var fixed = split[0]
+                    if (split[1].length > 2) {
+                        fixed = split[0] + "." + split[1].substring(0, 2)
+                    }
+                    binding.productPriceInput.setText(fixed)
+                    Toast.makeText(
+                        requireContext(),
+                        "Max 2 numbers after delimiter is valid",
+                        Toast.LENGTH_SHORT
+                    ).show()
                 }
 
             }
@@ -158,7 +182,7 @@ class AddProductFragment : Fragment() {
                 receiptId
             )
             val category = Category(null, binding.productCategoryInput.text.toString())
-            if(addNewCategory) {
+            if (addNewCategory) {
                 databaseHelper.addCategory(category)
             }
             databaseHelper.addProduct(product)

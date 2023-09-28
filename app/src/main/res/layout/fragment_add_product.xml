@@ -12,54 +12,67 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
-        <TextView
-            android:layout_width="wrap_content"
+        <com.google.android.material.textfield.TextInputLayout
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+            android:id="@+id/productNameLayout"
+            android:hint="Product name"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Product name"
-            app:layout_constraintBottom_toTopOf="@+id/productNameInput"
-            app:layout_constraintEnd_toEndOf="@+id/productNameInput"
-            app:layout_constraintStart_toStartOf="@+id/productNameInput" />
-
-        <EditText
-            android:id="@+id/productNameInput"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="32dp"
-            android:autofillHints="Product name"
-            android:ems="10"
-            android:inputType="text"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            tools:ignore="LabelFor" />
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Product price"
-            app:layout_constraintBottom_toTopOf="@+id/productPriceInput"
-            app:layout_constraintEnd_toEndOf="@+id/productPriceInput"
-            app:layout_constraintStart_toStartOf="@+id/productPriceInput" />
-
-        <EditText
-            android:id="@+id/productPriceInput"
-            android:inputType="number"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
             android:layout_marginTop="32dp"
-            android:autofillHints="Product price"
-            android:ems="10"
-            android:text="0"
+            android:layout_marginHorizontal="64dp">
+
+            <AutoCompleteTextView
+                android:padding="13dp"
+                android:id="@+id/productNameInput"
+                android:inputType="textNoSuggestions"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                tools:ignore="LabelFor" />
+        </com.google.android.material.textfield.TextInputLayout>
+
+
+        <com.google.android.material.textfield.TextInputLayout
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+            android:id="@+id/productPriceLayout"
+            android:hint="Product price"
+
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/productNameInput"
-            tools:ignore="LabelFor" />
+            app:layout_constraintTop_toBottomOf="@+id/productNameLayout"
+            android:layout_marginTop="32dp"
+            android:layout_marginHorizontal="64dp">
+
+            <AutoCompleteTextView
+                android:id="@+id/productPriceInput"
+                android:padding="13dp"
+                android:inputType="numberDecimal"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                tools:ignore="LabelFor" />
+        </com.google.android.material.textfield.TextInputLayout>
 
         <TextView
+            android:id="@+id/productPriceInputInfo"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Category"
-            app:layout_constraintBottom_toTopOf="@+id/productCategoryLayout"
+            android:visibility="invisible"
+            android:text="Price is not valid"
+            app:layout_constraintTop_toBottomOf="@+id/productPriceLayout"
+            app:layout_constraintEnd_toEndOf="@+id/productPriceLayout"
+            app:layout_constraintStart_toStartOf="@+id/productPriceLayout" />
+
+        <TextView
+            android:id="@+id/productCategoryInputInfo"
+            android:visibility="invisible"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="New category will be added"
+            app:layout_constraintTop_toBottomOf="@+id/productCategoryLayout"
             app:layout_constraintEnd_toEndOf="@+id/productCategoryLayout"
             app:layout_constraintStart_toStartOf="@+id/productCategoryLayout" />
 
@@ -72,39 +85,48 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             android:layout_marginTop="32dp"
-            android:layout_marginHorizontal="96dp"
-            app:layout_constraintTop_toBottomOf="@+id/productPriceInput">
+            android:layout_marginHorizontal="64dp"
+            app:layout_constraintTop_toBottomOf="@+id/productPriceLayout">
 
-        <AutoCompleteTextView xmlns:android="http://schemas.android.com/apk/res/android"
+        <AutoCompleteTextView
             android:id="@+id/productCategoryInput"
             android:inputType="textCapCharacters"
-            android:backgroundTint="@color/black"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"/>
+            android:layout_height="match_parent"
+            tools:ignore="LabelFor" />
         </com.google.android.material.textfield.TextInputLayout>
 
 
-
-        <TextView
-            android:layout_width="wrap_content"
+        <com.google.android.material.textfield.TextInputLayout
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
+            android:id="@+id/storeNameLayout"
+            android:hint="Store name"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Store name"
-            app:layout_constraintBottom_toTopOf="@+id/storeNameInput"
-            app:layout_constraintEnd_toEndOf="@+id/storeNameInput"
-            app:layout_constraintStart_toStartOf="@+id/storeNameInput" />
-
-        <EditText
-            android:id="@+id/storeNameInput"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="32dp"
-            android:autofillHints="Product price"
-            android:ems="10"
-            android:inputType="text"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/productCategoryLayout"
-            tools:ignore="LabelFor" />
+            android:layout_marginTop="32dp"
+            android:layout_marginHorizontal="64dp"
+            app:layout_constraintTop_toBottomOf="@+id/productCategoryLayout">
+
+            <AutoCompleteTextView
+                android:id="@+id/storeNameInput"
+                android:inputType="textCapCharacters"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                tools:ignore="LabelFor" />
+        </com.google.android.material.textfield.TextInputLayout>
+        <TextView
+            android:id="@+id/storeNameInputInfo"
+            android:visibility="invisible"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="New store will be added"
+            app:layout_constraintTop_toBottomOf="@+id/storeNameLayout"
+            app:layout_constraintEnd_toEndOf="@+id/storeNameLayout"
+            app:layout_constraintStart_toStartOf="@+id/storeNameLayout" />
+
+
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -119,7 +141,7 @@
             android:layout_marginStart="48dp"
             android:layout_marginTop="32dp"
             android:text="01-01-2023"
-            app:layout_constraintTop_toBottomOf="@+id/storeNameInput"
+            app:layout_constraintTop_toBottomOf="@+id/storeNameLayout"
             app:layout_constraintStart_toStartOf="parent" />
         <TextView
             android:layout_width="wrap_content"
@@ -135,7 +157,7 @@
             android:layout_marginEnd="48dp"
             android:layout_marginTop="32dp"
             android:text="01:12"
-            app:layout_constraintTop_toBottomOf="@+id/storeNameInput"
+            app:layout_constraintTop_toBottomOf="@+id/storeNameLayout"
             app:layout_constraintEnd_toEndOf="parent" />
 
         <EditText
