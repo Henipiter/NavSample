@@ -1,4 +1,4 @@
-package com.example.navsample
+package com.example.navsample.fragments
 
 
 import android.os.Bundle
@@ -12,6 +12,10 @@ import androidx.navigation.Navigation
 import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.example.navsample.CustomAdapter
+import com.example.navsample.DTO.Product
+import com.example.navsample.DatabaseHelper
+import com.example.navsample.R
 import com.example.navsample.databinding.FragmentShopListBinding
 import java.util.ArrayList
 
@@ -102,7 +106,7 @@ class ShopListFragment : Fragment(), CustomAdapter.ItemClickListener {
 
     private fun storeDataInArrays() {
         productList.clear()
-        productList.addAll(databaseHelper.readAllData())
+        productList.addAll(databaseHelper.readAllProductData())
         if (productList.size == 0) {
             Toast.makeText(requireContext(), "No data", Toast.LENGTH_SHORT).show()
         }

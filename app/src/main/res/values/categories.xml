@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="countries_array">
+        <item>FOOD</item>
+        <item>CLOTHES</item>
+        <item>OTHER</item>
+    </string-array>
+</resources>

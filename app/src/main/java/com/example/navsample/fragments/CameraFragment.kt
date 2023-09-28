@@ -1,10 +1,7 @@
-package com.example.navsample
+package com.example.navsample.fragments
 
 import android.content.ContentValues
 import android.content.pm.PackageManager
-import android.graphics.Bitmap
-import android.graphics.BitmapFactory
-import android.media.Image
 import android.os.Build
 import android.os.Bundle
 import android.provider.MediaStore

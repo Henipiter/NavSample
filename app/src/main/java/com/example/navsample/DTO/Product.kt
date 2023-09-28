@@ -1,4 +1,4 @@
-package com.example.navsample
+package com.example.navsample.DTO
 
 import android.os.Parcelable
 import kotlinx.parcelize.Parcelize

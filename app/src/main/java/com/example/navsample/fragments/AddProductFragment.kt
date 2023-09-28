@@ -1,4 +1,4 @@
-package com.example.navsample
+package com.example.navsample.fragments
 
 import android.app.DatePickerDialog
 import android.app.TimePickerDialog
@@ -9,9 +9,15 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ArrayAdapter
+import android.widget.Toast
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.navigation.Navigation
 import androidx.navigation.fragment.navArgs
+import com.example.navsample.DTO.Category
+import com.example.navsample.DTO.Product
+import com.example.navsample.DatabaseHelper
+import com.example.navsample.R
 import com.example.navsample.databinding.FragmentAddProductBinding
 import java.util.Date
 import java.util.Locale
@@ -25,6 +31,8 @@ class AddProductFragment : Fragment() {
 
     var picker: TimePickerDialog? = null
     var calendar = Calendar.getInstance()
+    private lateinit var  categoryList: List<String>
+    private var addNewCategory = false
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -51,11 +59,48 @@ class AddProductFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        val databaseHelper = DatabaseHelper(requireContext())
+        categoryList = databaseHelper.readAllCategoryData().map{it.category ?: "null"}
 
-        binding.productCategoryInput.setSelection(1)
+        val defaultColor = binding.productCategoryLayout.boxStrokeColor
+        ArrayAdapter(
+            requireContext(),
+            android.R.layout.simple_list_item_1,
+            categoryList
+        ).also { adapter ->
+            binding.productCategoryInput.setAdapter(adapter)
+        }
+        binding.productCategoryInput.setOnFocusChangeListener { _, hasFocus ->
+            if (!hasFocus) {
+                val actual = binding.productCategoryInput.text.toString()
+                val fixed = actual.replace(" ", "_").uppercase()
+                if (actual != fixed) {
+                    binding.productCategoryInput.setText(actual)
+                    Toast.makeText(
+                        requireContext(),
+                        "Only uppercase without spaces",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
+                if(!categoryList.contains(fixed)){
+                    addNewCategory = true
+                    binding.productCategoryLayout.boxStrokeColor =  ContextCompat.getColor(requireContext(), R.color.orange)
+
+                }
+                else{
+                    addNewCategory = false
+                    binding.productCategoryLayout.boxStrokeColor =  defaultColor
+
+                }
+
+            }
+        }
+
+
         if (args.product != null) {
             binding.productNameInput.setText(args.product!!.name)
             binding.productPriceInput.setText(args.product!!.price.toString())
+            binding.productCategoryInput.setText(args.product!!.category)
 
 
 
@@ -103,28 +148,25 @@ class AddProductFragment : Fragment() {
         }
 
         binding.confirmAddProductButton.setOnClickListener {
-            val databaseHelper = DatabaseHelper(requireContext())
             val receiptId: String =
                 binding.storeNameInput.text.toString() + "_" + binding.receiptDateInput.text.toString() + "_" + binding.receiptTimeInput.text.toString()
             val product = Product(
                 null,
                 binding.productNameInput.text.toString(),
                 binding.productPriceInput.text.toString().toFloat(),
-                binding.productCategoryInput.selectedItem.toString(),
+                binding.productCategoryInput.text.toString(),
                 receiptId
             )
+            val category = Category(null, binding.productCategoryInput.text.toString())
+            if(addNewCategory) {
+                databaseHelper.addCategory(category)
+            }
             databaseHelper.addProduct(product)
 
             Navigation.findNavController(it)
                 .navigate(R.id.action_addProductFragment_to_shopListFragment)
 
         }
-
-        binding.productCategoryInput.adapter = ArrayAdapter(
-            requireContext(),
-            android.R.layout.simple_spinner_item,
-            ProductCategory.values()
-        )
     }
 
     private fun setHourAndMinutes(sHour: Int, sMinute: Int) {
