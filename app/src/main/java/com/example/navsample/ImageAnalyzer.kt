@@ -15,49 +15,72 @@ class ImageAnalyzer {
 
     val recognizer = TextRecognition.getClient(TextRecognizerOptions.DEFAULT_OPTIONS)
     var imageWidth = 0
+    var valueNIP: String? = null
+    var valuePTU: String? = null
+    var valuePLN: String? = null
+    var valueDate: String? = null
+    var valueTime: String? = null
+    var companyName: String? = null
+    var validNIP = false
 
     data class Cell(var data: String, val x: Int, val y: Int)
 
-    private fun findKeywords(lineList: List<String>) {
-        val constPTU = "PTU"
-        val constPLN = "PLN"
-        val dateRegex =
-            """^(?:(?:31(\\/|-|\\.)(?:0?[13578]|1[02]))\\1|(?:(?:29|30)(\\/|-|\\.)(?:0?[13-9]|1[0-2])\\2))(?:(?:1[6-9]|[2-9]\\d)?\\d{2})\$|^(?:29(\\/|-|\\.)0?2\\3(?:(?:(?:1[6-9]|[2-9]\\d)?(?:0[48]|[2468][048]|[13579][26])|(?:(?:16|[2468][048]|[3579][26])00))))\$|^(?:0?[1-9]|1\\d|2[0-8])(\\/|-|\\.)(?:(?:0?[1-9])|(?:1[0-2]))\\4(?:(?:1[6-9]|[2-9]\\d)?\\d{2})\$"""
-                .toRegex()
-        val timeRegex = """^([0-1]?[0-9]|2[0-3]):[0-5][0-9]\$""".toRegex()
+    private fun findKeywords(lineList: String) {
+        val regexNIPfirst = """NIP(\.{0,1}:{0,1})\s*([0-9]{10}|.{13})"""
+        val regexNIPsecond = """(.IP|N.P|NI.)(\.{0,1}:{0,1})\s*([0-9]{10}|.{13})"""
+        val regexPTUfirst =
+            """(.UMA|S.MA|SU.A|SUM.|.odatek|P.datek|Po.atek|Pod.tek|Poda.ek|Podat.k|Podate.)\s*(PTU)\s*[0-9]+[\.,][0-9][0-9]"""
+        val regexPTUsecond =
+            """(.UMA|S.MA|SU.A|SUM.|.odatek|P.datek|Po.atek|Pod.tek|Poda.ek|Podat.k|Podate.)\s*(.TU|P.U|PT.)\s*[0-9]+[\.,][0-9][0-9]"""
+        val regexPLNfirst = """(SUMA|.UMA|S.MA|SU.A|SUM.):"{0,1}\s*(PLN)\s*[0-9]+[\.,][0-9][0-9]"""
+        val regexPLNsecond =
+            """(SUMA|.UMA|S.MA|SU.A|SUM.):{0,1}\s*(.LN|P.N|PL.)\s*[0-9]+[\.,][0-9][0-9]"""
+        val regexDate =
+            """(([0-2][0-9]|3[0-1])-(0[0-9]|1[0-2])-20([0-9][0-9]))|(([0-2][0-9]|3[0-1])\.(0[0-9]|1[0-2])\.20([0-9][0-9]))|(20([0-9][0-9])\.(0[0-9]|1[0-2])\.([0-2][0-9]|3[0-1]))|(20([0-9][0-9])-(0[0-9]|1[0-2])-([0-2][0-9]|3[0-1]))"""
 
-        var valuePTU: String? = null
-        var valuePLN: String? = null
-        var valueDate: String? = null
-        var valueTime: String? = null
-        var valuePTUIterator = 0
-        var valuePLNIterator = 0
-        var valueDateIterator = 0
-        var valueTimeIterator = 0
-        var iterator = 0
-        for (line in lineList) {
-            if (valuePTU == null) {
-                valuePTUIterator = iterator
-                valuePTU = getValueAfterKeyword(line, constPTU)
-            }
-            if (valuePLN == null) {
-                valuePLNIterator = iterator
-                valuePLN = getValueAfterKeyword(line, constPLN)
-            }
-            if (valueDate == null) {
-                valueDateIterator = iterator
-                valueDate = dateRegex.find(line, 0)?.value
-            }
-            if (valueTime == null) {
-                valueTimeIterator = iterator
-                valueTime = timeRegex.find(line, 0)?.value
-            }
-            iterator++
+        val regexTime = """\s+([0-9]|0[0-9]|1[0-9]|2[0-3])\s*:\s*[0-5][0-9]"""
+
+        val regexPrice = """[0-9]+[\.,][0-9][0-9]"""
+        val regexNumber = """.{10}"""
+
+
+        valueNIP =
+            Regex(regexNIPfirst).find(lineList)?.value
+                ?: Regex(regexNIPsecond).find(lineList)?.value
+        valueNIP = valueNIP?.replace("\\s|-".toRegex(), "")
+        valueNIP= valueNIP?.substring(valueNIP?.length!! -10)
+
+
+
+        valuePTU = Regex(regexPTUfirst).find(lineList)?.value
+            ?: Regex(regexPTUsecond).find(lineList)?.value
+        valuePTU = valuePTU?.let { Regex(regexPrice).find(it)?.value }
+        valuePLN = Regex(regexPLNfirst).find(lineList)?.value
+            ?: Regex(regexPLNsecond).find(lineList)?.value
+        valuePLN = valuePLN?.let { Regex(regexPrice).find(it)?.value }
+        valueDate = Regex(regexDate).find(lineList)?.value
+        valueTime = Regex(regexTime).find(lineList)?.value?.replace("\\s".toRegex(), "")
+        validNIP = verifyNIP(valueNIP)
+        companyName = lineList.split("\n")[0]
+
+        Log.i("ImageProcess", "valueNIP " + valueNIP + "valid:" + validNIP.toString())
+        Log.i("ImageProcess", "companyName " + companyName)
+        Log.i("ImageProcess", "valuePTU " + valuePTU)
+        Log.i("ImageProcess", "valuePLN " + valuePLN)
+        Log.i("ImageProcess", "valueDate " + valueDate)
+        Log.i("ImageProcess", "valueTime " + valueTime)
+    }
+
+    private fun verifyNIP(valueNIP: String?): Boolean {
+        if (valueNIP == null || !Regex("""[0-9]{10}""").matches(valueNIP)) {
+            return false
         }
-        Log.i("ImageProcess", valuePTUIterator.toString() + "valuePTU" + valuePTU)
-        Log.i("ImageProcess", valuePLNIterator.toString() + "valuePLN" + valuePLN)
-        Log.i("ImageProcess", valueDateIterator.toString() + "valueDate" + valueDate)
-        Log.i("ImageProcess", valueTimeIterator.toString() + "valueTime" + valueTime)
+        val weight = arrayOf(6, 5, 7, 2, 3, 4, 5, 6, 7)
+        var sum = 0
+        for (i in 0..8) {
+            sum += valueNIP[i].digitToInt() * weight[i]
+        }
+        return sum % 11 == valueNIP[9].digitToInt()
     }
 
     private fun getValueAfterKeyword(line: String, keywords: String): String? {
@@ -88,11 +111,12 @@ class ImageAnalyzer {
                 val blocks = it.result.textBlocks
 
                 val sortedCellList = sortText(blocks)
-//                val lineList = convertCellsIntoString(sortedCellList).joinToString(separator = "\n")
-//                val productContent = getProductContent(lineList)
+                val lineList = convertCellsIntoString(sortedCellList).joinToString(separator = "\n")
+                Log.i("ImageProcess", lineList)
+                val productContent = getProductContent(lineList)
 
-//                Log.i("ImageProcess", productContent)
-//                findKeywords(lineList)
+                Log.i("ImageProcess", productContent)
+                findKeywords(lineList)
             }
 
 
@@ -100,7 +124,7 @@ class ImageAnalyzer {
     }
 
     private fun getProductContent(line: String): String {
-        val startKeywords = arrayOf("PARAGON FISKALNY", "PARAGON", "FISKALNY")
+        val startKeywords = arrayOf("PARAGON FISKALNY", "PARAGONFISKALNY", "PARAGON", "FISKALNY")
         val endKeywords = arrayOf("SUMA PTU", "SUMA PLN", "PTU")
 
         var startIndex = 0
@@ -143,18 +167,18 @@ class ImageAnalyzer {
             }
 
         }
-        for (line in sortedList) {
-            Log.i("ImageProcess", line.data + "\t" + line.x + "." + line.y)
-        }
-        Log.i("ImageProcess", "=========================")
-        Log.i("ImageProcess", "=========================")
-        Log.i("ImageProcess", "=========================")
+//        for (line in sortedList) {
+//            Log.i("ImageProcess", line.data + "\t" + line.x + "." + line.y)
+//        }
+//        Log.i("ImageProcess", "=========================")
+//        Log.i("ImageProcess", "=========================")
+//        Log.i("ImageProcess", "=========================")
         val newSortedList = ArrayList<Cell>()
 
         var row: Cell? = null
         for (cell in sortedList) {
 
-            if (abs(row?.y?.minus(cell.y) ?: 21)<20 ||  cell.x > imageWidth * 0.4)
+            if (abs(row?.y?.minus(cell.y) ?: 21) < 20 || cell.x > imageWidth * 0.4)
                 row?.data += " " + cell.data
             else {
                 if (row != null) {
@@ -164,11 +188,11 @@ class ImageAnalyzer {
             }
 
         }
-        for (line in newSortedList) {
+//        for (line in newSortedList) {
 //            Log.i("ImageProcess", line.data + "\t" + line.x + "." + line.y)
-            Log.i("ImageProcess", line.data )
-        }
-        return sortedList
+////            Log.i("ImageProcess", line.data )
+//        }
+        return newSortedList
 
     }
 
@@ -181,20 +205,17 @@ class ImageAnalyzer {
 
         var str = ""
         for (cell in sortedList) {
-            if (cell.y > lastY + 60) {
-                lines.add(str)
-                str = ""
-                lastY = cell.y
-            }
-
-            str += cell.data + " "
+//            if (cell.y > lastY + 60) {
+//                lines.add(str)
+//                str = ""
+//                lastY = cell.y
+//            }
+//            str += cell.data + " "
+            lines.add(cell.data + " ")
         }
-        for (line in lines) {
-            Log.i("ImageProcess", line)
-        }
-        Log.i("ImageProcess", "=========================")
-        Log.i("ImageProcess", "=========================")
-        Log.i("ImageProcess", "=========================")
+//        for (line in lines) {
+//            Log.i("ImageProcess", line)
+//        }
         return lines
     }
 

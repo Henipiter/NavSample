@@ -7,6 +7,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.camera.core.ExperimentalGetImage
 import androidx.fragment.app.Fragment
 import androidx.navigation.Navigation
 import androidx.navigation.fragment.navArgs
@@ -15,8 +16,10 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.navsample.CustomAdapter
 import com.example.navsample.DTO.Product
 import com.example.navsample.DatabaseHelper
+import com.example.navsample.ImageAnalyzer
 import com.example.navsample.R
 import com.example.navsample.databinding.FragmentShopListBinding
+import com.google.mlkit.vision.common.InputImage
 import java.util.ArrayList
 
 
@@ -33,7 +36,8 @@ class ShopListFragment : Fragment(), CustomAdapter.ItemClickListener {
     private lateinit var databaseHelper: DatabaseHelper
     private var productList: ArrayList<Product> = ArrayList()
     private var receiptId: String? = "receiptId"
-
+    private var analyzedImage: InputImage? = null
+    private val imageAnalyzer = ImageAnalyzer()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
@@ -43,6 +47,7 @@ class ShopListFragment : Fragment(), CustomAdapter.ItemClickListener {
         return binding.root
     }
 
+    @ExperimentalGetImage
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         databaseHelper = DatabaseHelper(requireContext())
@@ -83,18 +88,36 @@ class ShopListFragment : Fragment(), CustomAdapter.ItemClickListener {
             Navigation.findNavController(it)
                 .navigate(R.id.action_shopListFragment_to_addProductFragment)
         }
+        binding.receiptInfo.setOnClickListener{
+            binding.receiptInfo.setText(
+                "valueNIP " + imageAnalyzer.valueNIP +
+                        "\nvalidNIP?" + imageAnalyzer.validNIP.toString() +
+                        "\ncompanyName " + imageAnalyzer.companyName +
+                        "\nvaluePTU " + imageAnalyzer.valuePTU +
+                        "\nvaluePLN " + imageAnalyzer.valuePLN +
+                        "\nvalueDate " + imageAnalyzer.valueDate +
+                        "\nvalueTime " + imageAnalyzer.valueTime
 
+            )
+        }
 
         val pickPhoto = registerForActivityResult(
             ActivityResultContracts.GetContent()
         ) {
-            binding.receiptImage.setImageURI(it)
-            binding.receiptImageBig.setImageURI(it)
+            if (it != null) {
+                analyzedImage = InputImage.fromFilePath(requireContext(), it)
+                binding.receiptImage.setImageURI(it)
+                binding.receiptImageBig.setImageURI(it)
+
+
+
+                val text = analyzedImage?.let { it1 -> imageAnalyzer.processImageProxy(it1) }
+
+            }
 
         }
         binding.storageButton.setOnClickListener {
             pickPhoto.launch("image/*")
-
 
         }
 

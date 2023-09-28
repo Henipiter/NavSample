@@ -69,6 +69,19 @@
             android:paddingHorizontal="16dp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/relativeLayout" />
+        <EditText
+            android:id="@+id/receiptInfo"
+            android:layout_width="match_parent"
+            android:layout_height="400dp"
+            android:background="@color/teal_700"
+            android:ems="10"
+            android:gravity="start|top"
+            android:inputType="textMultiLine"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="@+id/recyclerViewEvent"
+            app:layout_constraintBottom_toBottomOf="@+id/recyclerViewEvent" />
+
     </androidx.constraintlayout.widget.ConstraintLayout>
 
 </FrameLayout>
