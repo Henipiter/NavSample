@@ -50,7 +50,8 @@ class ImageAnalyzer {
     @ExperimentalGetImage
     fun processImageProxy(
         inputImage: InputImage,
-        context: Context
+        context: Context,
+        onFinish: () -> Unit
     ): String? {
         done = false
         imageWidth = inputImage.width
@@ -77,6 +78,7 @@ class ImageAnalyzer {
             }
 
         Toast.makeText(context, "Done", Toast.LENGTH_SHORT).show()
+        onFinish.invoke()
         return readText
     }
 
