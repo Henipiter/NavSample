@@ -58,7 +58,7 @@ class CameraFragment : Fragment() {
         binding.bottomText.setOnClickListener {
             takePhoto()
 
-            val action = CameraFragmentDirections.actionCameraFragmentToShopListFragment()
+            val action = CameraFragmentDirections.actionCameraFragmentToImageImportFragment()
             Navigation.findNavController(it).navigate(action)
         }
 

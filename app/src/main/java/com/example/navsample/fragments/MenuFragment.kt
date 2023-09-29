@@ -23,7 +23,7 @@ class MenuFragment : Fragment() {
         _binding = FragmentMenuBinding.inflate(inflater, container, false)
 
         binding.addReceipt.setOnClickListener {
-            Navigation.findNavController(it).navigate(R.id.action_menuFragment_to_shopListFragment)
+            Navigation.findNavController(it).navigate(R.id.action_menuFragment_to_imageImportFragment)
         }
 
 

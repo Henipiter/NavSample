@@ -1,9 +1,12 @@
 package com.example.navsample
 
 
+import android.content.Context
 import android.graphics.Bitmap
 import android.util.Log
+import android.widget.Toast
 import androidx.camera.core.ExperimentalGetImage
+import com.example.navsample.DTO.Receipt
 import com.google.mlkit.vision.common.InputImage
 import com.google.mlkit.vision.text.Text
 import com.google.mlkit.vision.text.TextRecognition
@@ -21,14 +24,17 @@ class ImageAnalyzer {
     private var rawValueNIP: String? = null
     private var rawValuePTU: String? = null
     private var rawValuePLN: String? = null
-    var valueNIP: String? = null
-    var valuePTU: String? = null
-    var valuePLN: String? = null
-    var valueDate: String? = null
-    var valueTime: String? = null
-    var companyName: String? = null
-    var validNIP = false
+    private var valueNIP: String? = null
+    private var valuePTU: String? = null
+    private var valuePLN: String? = null
+    private var valueDate: String? = null
+    private var valueTime: String? = null
+    private var companyName: String? = null
+    private var validNIP = false
+    var done = false
 
+    var biggestCellWithPLN: Cell? = null
+    var cellAbovePLN: Cell? = null
     var pixelCompanyName: Pixel? = null
     var pixelNIP: Pixel? = null
     var pixelPTU: Pixel? = null
@@ -36,12 +42,17 @@ class ImageAnalyzer {
     var pixelDate: Pixel? = null
     var pixelTime: Pixel? = null
 
+    var receipt: Receipt? = null
+
     data class Cell(var data: String, var x1: Int, var y1: Int, var x2: Int, var y2: Int)
     data class Pixel(var x1: Int, var y1: Int, var x2: Int, var y2: Int)
+
     @ExperimentalGetImage
     fun processImageProxy(
-        inputImage: InputImage
+        inputImage: InputImage,
+        context: Context
     ): String? {
+        done = false
         imageWidth = inputImage.width
 //        bitmap = inputImage.bitmapInternal!!.copy(inputImage.bitmapInternal!!.config,true)
         bitmap = Bitmap.createBitmap(1500, 2000, Bitmap.Config.ARGB_8888)
@@ -65,19 +76,85 @@ class ImageAnalyzer {
                 findCellWithKeywords(sortedCellList)
             }
 
-
+        Toast.makeText(context, "Done", Toast.LENGTH_SHORT).show()
         return readText
     }
+
+    private fun sortText(blocks: List<Text.TextBlock>): List<Cell> {
+        val cells: ArrayList<Cell> = ArrayList()
+        for (block in blocks) {
+            for (line in block.lines) {
+                val data = line.text
+                val x1 = line.cornerPoints?.get(0)?.x ?: 0
+                val y1 = line.cornerPoints?.get(0)?.y ?: 0
+                val x2 = line.cornerPoints?.get(2)?.x ?: 0
+                val y2 = line.cornerPoints?.get(2)?.y ?: 0
+                cells.add(Cell(data, x1, y1, x2, y2))
+            }
+        }
+        val sortedList = cells.sortedWith(compareBy({ it.y1 }, { it.x1 })).toMutableList()
+
+        for (i in 1..<sortedList.size) {
+            val first = sortedList[i - 1]
+            val second = sortedList[i]
+            if (first.x1 - 100 > second.x1 && first.y1 + 40 > second.y1) {
+                sortedList[i - 1] = second
+                sortedList[i] = first
+            }
+        }
+//        for (line in sortedList) {
+//            Log.i("ImageProcess", line.data + "\t" + line.x + "." + line.y)
+//        }
+//        Log.i("ImageProcess", "=========================")
+//        Log.i("ImageProcess", "=========================")
+//        Log.i("ImageProcess", "=========================")
+        val newSortedList = ArrayList<Cell>()
+
+        var row: Cell? = null
+        for (cell in sortedList) {
+            if (abs(row?.y1?.minus(cell.y1) ?: 21) < 20 || cell.x1 > imageWidth * 0.4) {
+                row?.data += " " + cell.data
+                row?.x2 = cell.x2
+                row?.y2 = cell.y2
+            } else {
+                if (row != null) {
+                    newSortedList.add(row)
+                }
+                row = Cell(cell.data, cell.x1, cell.y1, cell.x2, cell.y2)
+            }
+        }
+//        for (line in newSortedList) {
+//            Log.i("ImageProcess", line.data + "\t" + line.x + "." + line.y)
+////            Log.i("ImageProcess", line.data )
+//        }
+        return newSortedList
+    }
+
+    private fun convertCellsIntoString(sortedList: List<Cell>): List<String> {
+        Log.i("ImageProcess", "=========================")
+        Log.i("ImageProcess", "=========================")
+        Log.i("ImageProcess", "=========================")
+        val lines = ArrayList<String>()
+        for (cell in sortedList) {
+            lines.add(cell.data + " ")
+        }
+//        for (line in lines) {
+//            Log.i("ImageProcess", line)
+//        }
+        return lines
+    }
+
     private fun findKeywords(lineList: String) {
         val regexNIPfirst = """NIP(\.{0,1}:{0,1})\s*([0-9]{10}|.{13})"""
         val regexNIPsecond = """(.IP|N.P|NI.)(\.{0,1}:{0,1})\s*([0-9]{10}|.{13})"""
         val regexPTUfirst =
-            """(.UMA|S.MA|SU.A|SUM.|.odatek|P.datek|Po.atek|Pod.tek|Poda.ek|Podat.k|Podate.)\s*(PTU)\s*[0-9]+[\.,][0-9][0-9]"""
+            """(.UMA|S.MA|SU.A|SUM.|.odatek|P.datek|Po.atek|Pod.tek|Poda.ek|Podat.k|Podate.)\s*\s*(PTU)\s*[0-9]+[\.,][0-9][0-9]"""
         val regexPTUsecond =
             """(.UMA|S.MA|SU.A|SUM.|.odatek|P.datek|Po.atek|Pod.tek|Poda.ek|Podat.k|Podate.)\s*(.TU|P.U|PT.)\s*[0-9]+[\.,][0-9][0-9]"""
-        val regexPLNfirst = """(SUMA|.UMA|S.MA|SU.A|SUM.):"{0,1}\s*(PLN)\s*[0-9]+[\.,][0-9][0-9]"""
+        val regexPLNfirst =
+            """(SUMA|.UMA|S.MA|SU.A|SUM.)\s*:{0,1}\s*(PLN)\s*[0-9]+[\.,][0-9][0-9]"""
         val regexPLNsecond =
-            """(SUMA|.UMA|S.MA|SU.A|SUM.):{0,1}\s*(.LN|P.N|PL.)\s*[0-9]+[\.,][0-9][0-9]"""
+            """(SUMA|.UMA|S.MA|SU.A|SUM.)\s*:{0,1}\s*(.LN|P.N|PL.)\s*[0-9]+[\.,][0-9][0-9]"""
         val regexDate =
             """(([0-2][0-9]|3[0-1])-(0[0-9]|1[0-2])-20([0-9][0-9]))|(([0-2][0-9]|3[0-1])\.(0[0-9]|1[0-2])\.20([0-9][0-9]))|(20([0-9][0-9])\.(0[0-9]|1[0-2])\.([0-2][0-9]|3[0-1]))|(20([0-9][0-9])-(0[0-9]|1[0-2])-([0-2][0-9]|3[0-1]))"""
 
@@ -104,12 +181,15 @@ class ImageAnalyzer {
         validNIP = verifyNIP(valueNIP)
         companyName = lineList.split("\n")[0]
 
+        receipt = Receipt(null, companyName, valueNIP, valuePLN, valuePTU, valueDate, valueTime)
         Log.i("ImageProcess", "valueNIP valueNIP valid: $validNIP.toString()")
         Log.i("ImageProcess", "companyName $companyName")
         Log.i("ImageProcess", "valuePTU $valuePTU")
         Log.i("ImageProcess", "valuePLN $valuePLN")
         Log.i("ImageProcess", "valueDate $valueDate")
         Log.i("ImageProcess", "valueTime $valueTime")
+
+        done = true
     }
 
     private fun verifyNIP(valueNIP: String?): Boolean {
@@ -134,8 +214,6 @@ class ImageAnalyzer {
         }
         return null
     }
-
-
 
 
     private fun findCellWithKeywords(sortedCellList: List<Cell>) {
@@ -168,7 +246,7 @@ class ImageAnalyzer {
             val pixel = Pixel(cell.x1, cell.y1, cell.x2, cell.y2)
             return pixel
         }
-        return  null
+        return null
     }
 
     private fun getProductContent(line: String): String {
@@ -194,72 +272,5 @@ class ImageAnalyzer {
         return line.substring(startIndex, endIndex)
     }
 
-    private fun sortText(blocks: List<Text.TextBlock>): List<Cell> {
-        val cells: ArrayList<Cell> = ArrayList()
-        for (block in blocks) {
-            for (line in block.lines) {
-                val data = line.text
-                val x1 = line.cornerPoints?.get(0)?.x ?: 0
-                val y1 = line.cornerPoints?.get(0)?.y ?: 0
-                val x2 = line.cornerPoints?.get(2)?.x ?: 0
-                val y2 = line.cornerPoints?.get(2)?.y ?: 0
-                cells.add(Cell(data, x1, y1, x2, y2))
-            }
-        }
-        val sortedList = cells.sortedWith(compareBy({ it.y1 }, { it.x1 })).toMutableList()
-
-        for (i in 1..<sortedList.size) {
-            val first = sortedList[i - 1]
-            val second = sortedList[i]
-            if (first.x1 - 100 > second.x1 && first.y1 + 40 > second.y1) {
-                sortedList[i - 1] = second
-                sortedList[i] = first
-            }
-
-        }
-//        for (line in sortedList) {
-//            Log.i("ImageProcess", line.data + "\t" + line.x + "." + line.y)
-//        }
-//        Log.i("ImageProcess", "=========================")
-//        Log.i("ImageProcess", "=========================")
-//        Log.i("ImageProcess", "=========================")
-        val newSortedList = ArrayList<Cell>()
-
-        var row: Cell? = null
-        for (cell in sortedList) {
-
-            if (abs(row?.y1?.minus(cell.y1) ?: 21) < 20 || cell.x1 > imageWidth * 0.4) {
-                row?.data += " " + cell.data
-                row?.x2 = cell.x2
-                row?.y2 = cell.y2
-            } else {
-                if (row != null) {
-                    newSortedList.add(row)
-                }
-                row = Cell(cell.data, cell.x1, cell.y1, cell.x2, cell.y2)
-            }
-
-        }
-//        for (line in newSortedList) {
-//            Log.i("ImageProcess", line.data + "\t" + line.x + "." + line.y)
-////            Log.i("ImageProcess", line.data )
-//        }
-        return newSortedList
-
-    }
-
-    private fun convertCellsIntoString(sortedList: List<Cell>): List<String> {
-        Log.i("ImageProcess", "=========================")
-        Log.i("ImageProcess", "=========================")
-        Log.i("ImageProcess", "=========================")
-        val lines = ArrayList<String>()
-        for (cell in sortedList) {
-            lines.add(cell.data + " ")
-        }
-//        for (line in lines) {
-//            Log.i("ImageProcess", line)
-//        }
-        return lines
-    }
 
 }

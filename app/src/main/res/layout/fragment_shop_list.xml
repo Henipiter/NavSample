@@ -9,78 +9,40 @@
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent">
+
+
         <Button
             android:id="@+id/manual_button"
-            android:layout_width="0dp"
+            android:layout_width="150dp"
             android:layout_height="wrap_content"
-            android:text="Manual"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toEndOf="@+id/receipt_image"
-            app:layout_constraintTop_toTopOf="@+id/receipt_image" />
-
-        <Button
-            android:id="@+id/storage_button"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:text="Storage"
-            app:layout_constraintBottom_toTopOf="@+id/camera_button"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toEndOf="@+id/receipt_image"
-            app:layout_constraintTop_toBottomOf="@+id/manual_button" />
-
-        <Button
-            android:id="@+id/camera_button"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:text="Camera"
-            app:layout_constraintBottom_toBottomOf="@+id/receipt_image"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toEndOf="@+id/receipt_image" />
-
-        <ImageView
-            android:id="@+id/receipt_image"
-            android:layout_width="200dp"
-            android:layout_height="200dp"
-            android:layout_marginTop="16dp"
-            android:contentDescription="receipt_image"
-            app:layout_constraintEnd_toEndOf="parent"
+            android:text="Add"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:srcCompat="@android:drawable/ic_menu_gallery" />
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/relativeLayout" />
         <RelativeLayout
             android:id="@+id/relativeLayout"
             android:layout_width="match_parent"
-            android:layout_height="0dp"
-            app:layout_constraintBottom_toBottomOf="@+id/receipt_image"
+            android:layout_height="300dp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent">
+
             <com.github.chrisbanes.photoview.PhotoView
                 android:id="@+id/receipt_image_big"
-                android:src="@android:drawable/ic_menu_gallery"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"/>
+                android:layout_height="match_parent"
+                android:src="@android:drawable/ic_menu_gallery" />
         </RelativeLayout>
+
+
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/recyclerViewEvent"
             android:layout_width="match_parent"
             android:layout_height="0dp"
-            android:layout_marginTop="16dp"
+            android:layout_marginTop="64dp"
             android:paddingHorizontal="16dp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/relativeLayout" />
-        <EditText
-            android:id="@+id/receiptInfo"
-            android:layout_width="match_parent"
-            android:layout_height="400dp"
-            android:background="@color/teal_700"
-            android:ems="10"
-            android:gravity="start|top"
-            android:inputType="textMultiLine"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="@+id/recyclerViewEvent"
-            app:layout_constraintBottom_toBottomOf="@+id/recyclerViewEvent" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
