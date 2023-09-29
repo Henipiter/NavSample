@@ -2,6 +2,7 @@ package com.example.navsample.fragments
 
 import android.content.ContentValues
 import android.content.pm.PackageManager
+import android.graphics.Bitmap
 import android.os.Build
 import android.os.Bundle
 import android.provider.MediaStore
@@ -57,9 +58,6 @@ class CameraFragment : Fragment() {
 
         binding.bottomText.setOnClickListener {
             takePhoto()
-
-            val action = CameraFragmentDirections.actionCameraFragmentToImageImportFragment()
-            Navigation.findNavController(it).navigate(action)
         }
 
         cameraExecutor = Executors.newSingleThreadExecutor()
@@ -96,11 +94,11 @@ class CameraFragment : Fragment() {
                     Toast.makeText(requireContext(), exc.message, Toast.LENGTH_SHORT).show()
                 }
 
-                override fun
-                        onImageSaved(output: ImageCapture.OutputFileResults){
+                override fun onImageSaved(output: ImageCapture.OutputFileResults){
                     val msg = "Photo capture succeeded: ${output.savedUri}"
                     Toast.makeText(requireContext(), msg, Toast.LENGTH_SHORT).show()
                     Log.d(TAG, msg)
+                    Navigation.findNavController(binding.root).popBackStack()
                 }
             }
         )

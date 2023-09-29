@@ -28,7 +28,7 @@
             android:visibility="invisible"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="New category will be added"
+            android:text="New store will be added"
             app:layout_constraintBottom_toTopOf="@+id/storeNameLayout"
             app:layout_constraintEnd_toEndOf="@+id/storeNameLayout"
             app:layout_constraintStart_toStartOf="@+id/storeNameLayout" />

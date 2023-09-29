@@ -81,17 +81,7 @@ class ImageAnalyzer {
     }
 
     private fun sortText(blocks: List<Text.TextBlock>): List<Cell> {
-        val cells: ArrayList<Cell> = ArrayList()
-        for (block in blocks) {
-            for (line in block.lines) {
-                val data = line.text
-                val x1 = line.cornerPoints?.get(0)?.x ?: 0
-                val y1 = line.cornerPoints?.get(0)?.y ?: 0
-                val x2 = line.cornerPoints?.get(2)?.x ?: 0
-                val y2 = line.cornerPoints?.get(2)?.y ?: 0
-                cells.add(Cell(data, x1, y1, x2, y2))
-            }
-        }
+        val cells = mergeBlockIntoCells(blocks)
         val sortedList = cells.sortedWith(compareBy({ it.y1 }, { it.x1 })).toMutableList()
 
         for (i in 1..<sortedList.size) {
@@ -108,7 +98,93 @@ class ImageAnalyzer {
 //        Log.i("ImageProcess", "=========================")
 //        Log.i("ImageProcess", "=========================")
 //        Log.i("ImageProcess", "=========================")
-        val newSortedList = ArrayList<Cell>()
+        return squashCellInSameLine(sortedList)
+    }
+
+    private fun mergeBlockIntoCells(blocks: List<Text.TextBlock>): ArrayList<Cell> {
+        var maxHeightOnRightSide = 0
+        val cells: ArrayList<Cell> = ArrayList()
+        for (block in blocks) {
+            for (line in block.lines) {
+                val data = line.text
+                val x1 = line.cornerPoints?.get(0)?.x ?: 0
+                val y1 = line.cornerPoints?.get(0)?.y ?: 0
+                val x2 = line.cornerPoints?.get(2)?.x ?: 0
+                val y2 = line.cornerPoints?.get(2)?.y ?: 0
+                val currentCell = Cell(data, x1, y1, x2, y2)
+                cells.add(currentCell)
+
+                if (x1 > imageWidth * 0.4 && Regex("""[0-9]+\s*[,\.]\s*[0-9]\s*[0-9]""").matches(data)
+                    && y2 - y1 > maxHeightOnRightSide
+                ){
+
+                    maxHeightOnRightSide = y2 - y1
+                    biggestCellWithPLN = currentCell
+                    biggestCellWithPLN?.data = data.replace("\\s".toRegex(), "")
+                    Log.i(
+                        "ImageProcess",
+                        "biggestCellWithPLN" + biggestCellWithPLN!!.data + "=" + biggestCellWithPLN!!.y1 + "|"+maxHeightOnRightSide
+                    )
+                }
+            }
+        }
+        findCellAbovePLN(cells)
+        if (biggestCellWithPLN != null) {
+            Log.i(
+                "ImageProcess",
+                "biggestCellWithPLN" + biggestCellWithPLN!!.data + "\t" + biggestCellWithPLN!!.x1 + "." + biggestCellWithPLN!!.y1
+            )
+            valuePLN = biggestCellWithPLN!!.data
+            rawValuePLN = biggestCellWithPLN!!.data
+            pixelPLN = Pixel(
+                biggestCellWithPLN!!.x1, biggestCellWithPLN!!.y1, biggestCellWithPLN!!.x2,
+                biggestCellWithPLN!!.y2
+            )
+        }
+        if (cellAbovePLN != null) {
+            Log.i(
+                "ImageProcess",
+                "cellAbovePLN" + cellAbovePLN!!.data + "\t" + cellAbovePLN!!.x1 + "." + cellAbovePLN!!.y1
+            )
+
+            valuePTU = cellAbovePLN!!.data
+            rawValuePTU = cellAbovePLN!!.data
+            pixelPTU = Pixel(
+                cellAbovePLN!!.x1, cellAbovePLN!!.y1, cellAbovePLN!!.x2, cellAbovePLN!!.y2
+            )
+        }
+        return cells
+    }
+
+    private fun findCellAbovePLN(cells: List<Cell>) {
+        val yLimit = biggestCellWithPLN?.y1
+        var currentY = 0
+
+        for (cell in cells) {
+            val result = Regex("""[0-9]+\s*[,\.]\s*[0-9]\s*[0-9]""").find(cell.data)?.value?.replace("\\s".toRegex(), "")
+
+            Log.i("ImageProcess", "E0" + cell.data + "("+cell.x1)
+            if(cell.x1 > imageWidth * 0.4 && result != null) {
+                Log.i("ImageProcess", "E1" + result)
+                if(result != biggestCellWithPLN?.data){
+                    Log.i("ImageProcess", "E2" + result + cell.x1)
+
+                }
+            }
+
+
+            if (cell.x1 > imageWidth * 0.4 && result != null && result != biggestCellWithPLN?.data
+                && cell.y1 > currentY && cell.y1 < yLimit!!
+            ) {
+                currentY = cell.y1
+                cellAbovePLN = cell
+                cellAbovePLN?.data = result
+            }
+        }
+    }
+
+    private fun squashCellInSameLine(sortedList: MutableList<Cell>): ArrayList<Cell> {
+        val squashedCell = ArrayList<Cell>()
 
         var row: Cell? = null
         for (cell in sortedList) {
@@ -118,7 +194,7 @@ class ImageAnalyzer {
                 row?.y2 = cell.y2
             } else {
                 if (row != null) {
-                    newSortedList.add(row)
+                    squashedCell.add(row)
                 }
                 row = Cell(cell.data, cell.x1, cell.y1, cell.x2, cell.y2)
             }
@@ -127,7 +203,7 @@ class ImageAnalyzer {
 //            Log.i("ImageProcess", line.data + "\t" + line.x + "." + line.y)
 ////            Log.i("ImageProcess", line.data )
 //        }
-        return newSortedList
+        return squashedCell
     }
 
     private fun convertCellsIntoString(sortedList: List<Cell>): List<String> {
@@ -160,8 +236,7 @@ class ImageAnalyzer {
 
         val regexTime = """\s+([0-9]|0[0-9]|1[0-9]|2[0-3])\s*:\s*[0-5][0-9]"""
 
-        val regexPrice = """[0-9]+[\.,][0-9][0-9]"""
-        val regexNumber = """.{10}"""
+        val regexPrice = """[0-9]+\s*[,\.]\s*[0-9]\s*[0.9]"""
 
         rawValueNIP =
             Regex(regexNIPfirst).find(lineList)?.value
@@ -169,13 +244,17 @@ class ImageAnalyzer {
         valueNIP = rawValueNIP?.replace("\\s|-".toRegex(), "")
         valueNIP = valueNIP?.substring(valueNIP?.length!! - 10)
 
-        rawValuePTU = Regex(regexPTUfirst).find(lineList)?.value
-            ?: Regex(regexPTUsecond).find(lineList)?.value
-        valuePTU = rawValuePTU?.let { Regex(regexPrice).find(it)?.value }
+        if (rawValuePTU == null) {
+            rawValuePTU = Regex(regexPTUfirst).find(lineList)?.value
+                ?: Regex(regexPTUsecond).find(lineList)?.value
+            valuePTU = rawValuePTU?.let { Regex(regexPrice).find(it)?.value }
+        }
 
-        rawValuePLN = Regex(regexPLNfirst).find(lineList)?.value
-            ?: Regex(regexPLNsecond).find(lineList)?.value
-        valuePLN = rawValuePLN?.let { Regex(regexPrice).find(it)?.value }
+        if (rawValuePLN == null) {
+            rawValuePLN = Regex(regexPLNfirst).find(lineList)?.value
+                ?: Regex(regexPLNsecond).find(lineList)?.value
+            valuePLN = rawValuePLN?.let { Regex(regexPrice).find(it)?.value }
+        }
         valueDate = Regex(regexDate).find(lineList)?.value
         valueTime = Regex(regexTime).find(lineList)?.value?.replace("\\s".toRegex(), "")
         validNIP = verifyNIP(valueNIP)
@@ -203,18 +282,6 @@ class ImageAnalyzer {
         }
         return sum % 11 == valueNIP[9].digitToInt()
     }
-
-    private fun getValueAfterKeyword(line: String, keywords: String): String? {
-        val index = line.indexOf(keywords, 0, true)
-        if (index > -1) {
-            val split = line.split(" ")
-            if (split[0] == keywords && (split[1].contains(",") || split[1].contains("."))) {
-                return split[1]
-            }
-        }
-        return null
-    }
-
 
     private fun findCellWithKeywords(sortedCellList: List<Cell>) {
         Log.i("ImageProcess", "rawValueNIP" + rawValueNIP)
@@ -250,7 +317,8 @@ class ImageAnalyzer {
     }
 
     private fun getProductContent(line: String): String {
-        val startKeywords = arrayOf("PARAGON FISKALNY", "PARAGONFISKALNY", "PARAGON", "FISKALNY")
+        val startKeywords =
+            arrayOf("PARAGON FISKALNY", "PARAGONFISKALNY", "PARAGON", "FISKALNY")
         val endKeywords = arrayOf("SUMA PTU", "SUMA PLN", "PTU")
 
         var startIndex = 0
