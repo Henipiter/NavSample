@@ -57,9 +57,6 @@ class CameraFragment : Fragment() {
 
         binding.bottomText.setOnClickListener {
             takePhoto()
-
-            val action = CameraFragmentDirections.actionCameraFragmentToImageImportFragment()
-            Navigation.findNavController(it).navigate(action)
         }
 
         cameraExecutor = Executors.newSingleThreadExecutor()
@@ -101,6 +98,8 @@ class CameraFragment : Fragment() {
                     val msg = "Photo capture succeeded: ${output.savedUri}"
                     Toast.makeText(requireContext(), msg, Toast.LENGTH_SHORT).show()
                     Log.d(TAG, msg)
+                    val action = CameraFragmentDirections.actionCameraFragmentToImageImportFragment()
+                    Navigation.findNavController(binding.root).navigate(action)
                 }
             }
         )
