@@ -19,13 +19,16 @@ import androidx.camera.core.Preview
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.activityViewModels
 import androidx.navigation.Navigation
 import com.example.navsample.databinding.FragmentCameraBinding
+import com.example.navsample.viewmodels.AddRecipeViewModel
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 
 class CameraFragment : Fragment() {
 
+    private val viewModel: AddRecipeViewModel by activityViewModels()
     private var _binding: FragmentCameraBinding? = null
     private val binding get() = _binding!!
 
@@ -96,10 +99,12 @@ class CameraFragment : Fragment() {
                 override fun
                         onImageSaved(output: ImageCapture.OutputFileResults){
                     val msg = "Photo capture succeeded: ${output.savedUri}"
+                    viewModel.imageUri.value = output.savedUri
                     Toast.makeText(requireContext(), msg, Toast.LENGTH_SHORT).show()
                     Log.d(TAG, msg)
                     val action = CameraFragmentDirections.actionCameraFragmentToImageImportFragment()
-                    Navigation.findNavController(binding.root).navigate(action)
+                    Navigation.findNavController(binding.root).popBackStack()
+
                 }
             }
         )
