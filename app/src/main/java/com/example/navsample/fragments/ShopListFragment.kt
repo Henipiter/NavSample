@@ -1,7 +1,12 @@
 package com.example.navsample.fragments
 
 
+import android.graphics.Bitmap
+import android.graphics.Canvas
+import android.graphics.Color
+import android.graphics.Paint
 import android.os.Bundle
+import android.provider.MediaStore
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -20,7 +25,6 @@ import com.example.navsample.ImageAnalyzer
 import com.example.navsample.R
 import com.example.navsample.databinding.FragmentShopListBinding
 import com.google.mlkit.vision.common.InputImage
-import java.util.ArrayList
 
 
 class ShopListFragment : Fragment(), CustomAdapter.ItemClickListener {
@@ -38,6 +42,7 @@ class ShopListFragment : Fragment(), CustomAdapter.ItemClickListener {
     private var receiptId: String? = "receiptId"
     private var analyzedImage: InputImage? = null
     private val imageAnalyzer = ImageAnalyzer()
+    private lateinit var  analyzedBitmap: Bitmap
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
@@ -99,16 +104,33 @@ class ShopListFragment : Fragment(), CustomAdapter.ItemClickListener {
                         "\nvalueTime " + imageAnalyzer.valueTime
 
             )
+            if (imageAnalyzer.pixelNIP != null) {
+                val canvas = Canvas(analyzedBitmap)
+                val paint = Paint()
+                paint.color = Color.RED
+                paint.strokeWidth = 100F
+                val pixelNIP = imageAnalyzer.pixelNIP
+                if(pixelNIP != null) {
+                    canvas.drawLine(pixelNIP.x1.toFloat(), pixelNIP.y1.toFloat(), pixelNIP.x2.toFloat(), pixelNIP.y2.toFloat(), paint)
+                }
+
+                binding.receiptImage.setImageURI(null)
+                binding.receiptImageBig.setImageURI(null)
+                binding.receiptImageBig.setImageBitmap(imageAnalyzer.bitmap)
+
+            }
         }
 
         val pickPhoto = registerForActivityResult(
             ActivityResultContracts.GetContent()
         ) {
             if (it != null) {
-                analyzedImage = InputImage.fromFilePath(requireContext(), it)
-                binding.receiptImage.setImageURI(it)
-                binding.receiptImageBig.setImageURI(it)
 
+                analyzedBitmap = MediaStore.Images.Media.getBitmap(requireContext().getContentResolver(), it)
+
+                analyzedImage = InputImage.fromFilePath(requireContext(), it)
+                binding.receiptImage.setImageBitmap(analyzedBitmap)
+                binding.receiptImageBig.setImageBitmap(analyzedBitmap)
 
 
                 val text = analyzedImage?.let { it1 -> imageAnalyzer.processImageProxy(it1) }
