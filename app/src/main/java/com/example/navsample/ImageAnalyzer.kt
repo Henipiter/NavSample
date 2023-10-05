@@ -345,7 +345,7 @@ class ImageAnalyzer {
                 }
             }
         }
-        val lengthX = (maxX - minX)
+        val lengthX = (maxX - minX) / 2
 
         var beginReceiptCell: Line? = null
         for (line in rotatedLines) {
@@ -364,7 +364,7 @@ class ImageAnalyzer {
         val productListOnRecipe = ArrayList<Line>()
         for (line in rotatedLines) {
             if (line.p0.y > beginReceiptCell.p3.y) {
-                if (line.p0.x <= minX + lengthX / 6) {
+                if (line.p0.x <= minX + lengthX / 2) {
                     //NOWY PRODUKT NA PARAGONIE
                     productListOnRecipe.add(line)
                 }
@@ -382,16 +382,22 @@ class ImageAnalyzer {
             if (line.p0.y > beginReceiptCell.p3.y && line.p0.x > minX + lengthX / 2) {
 
 
-                Log.i("ImageProcess", "LINE ( ${line.p3.x}, ${line.p3.y} ), ${line.data} ")
+//                Log.i("ImageProcess", "LINE ( ${line.p3.x}, ${line.p3.y} ), ${line.data} ")
                 for (productIndex in 1..<sortedProductListOnRecipe.size) {
-                    Log.i(
-                        "ImageProcess",
-                        "PRODUCT ( ${sortedProductListOnRecipe[productIndex].p3.x}, ${sortedProductListOnRecipe[productIndex].p3.y} ), ${sortedProductListOnRecipe[productIndex].data} "
-                    )
+//                    Log.i(
+//                        "ImageProcess",
+//                        "PRODUCT ( ${sortedProductListOnRecipe[productIndex].p3.x}, ${sortedProductListOnRecipe[productIndex].p3.y} ), ${sortedProductListOnRecipe[productIndex].data} "
+//                    )
                     val productNow = sortedProductListOnRecipe[productIndex]
-                    Log.i("ImageProcess","L${(productNow.p0.y+productNow.p3.y)/2}>${ line.p3.y}")
+//                    Log.i(
+//                        "ImageProcess",
+//                        "L${(productNow.p0.y + productNow.p3.y) / 2}>${line.p3.y}"
+//                    )
                     if ((productNow.p0.y + productNow.p3.y) / 2 > line.p3.y) {
-                        Log.i("ImageProcess", "YYYY\nLINE ( ${line.p3.y} ), ${line.data} \nPRODUCT ${sortedProductListOnRecipe[productIndex-1].p3.y} ), ${sortedProductListOnRecipe[productIndex-1].data}")
+//                        Log.i(
+//                            "ImageProcess",
+//                            "YYYY\nLINE ( ${line.p3.y} ), ${line.data} \nPRODUCT ${sortedProductListOnRecipe[productIndex - 1].p3.y} ), ${sortedProductListOnRecipe[productIndex - 1].data}"
+//                        )
 
                         sortedProductListOnRecipe[productIndex - 1].data += " " + line.data
                         sortedProductListOnRecipe[productIndex - 1].p1 = line.p1
@@ -410,7 +416,7 @@ class ImageAnalyzer {
 //            Log.i("ImageProcess", "${product.data}")
             val pr = parseStringToProduct(product.data)
             productList.add(pr)
-            Log.i("ImageProcess", "${product.data.replace(",", ".")}, ${pr}")
+            Log.i("ImageProcess", "${product.data}\n${pr}")
 
         }
 
@@ -422,101 +428,82 @@ class ImageAnalyzer {
     private fun parseStringToProduct(productInformation: String): Product {
         val regexPrice = """[0-9]+\s*[,\.]\s*[0-9]\s*[0-9]"""
 //        Regex(regexPTUfirst).find(lineList)?.value
-        var productInfo = productInformation.replace("\\s+".toRegex(), " ")
+        val productInfo = productInformation.replace("\\s+".toRegex(), " ")
         var itemAmount = ""
         var itemPrice = ""
         var finalPrice = ""
         var amountSeparator = ""
         var ptuType = ""
         ////////////////////////////
-        var amountSeparatorIndex = -1
+        val amountSeparatorIndex: Int
         if (productInfo.contains("*")) {
             amountSeparator = "*"
             amountSeparatorIndex = productInfo.lastIndexOf(amountSeparator)
         } else if (productInfo.contains("x")) {
             amountSeparator = "x"
             amountSeparatorIndex = productInfo.lastIndexOf(amountSeparator)
-        }
-        else{
+        } else {
             return Product()
         }
 
-        val indexOfSpaceBeforeItemPrice = productInfo.lastIndexOf(" ", amountSeparatorIndex-1)
-        val name = productInfo.substring(0,indexOfSpaceBeforeItemPrice-1).trim()
-        itemAmount = productInfo.substring(indexOfSpaceBeforeItemPrice, amountSeparatorIndex).replace("\\s*".toRegex(), "")
+//        val indexOfSpaceBeforeItemPrice = productInfo.lastIndexOf(" ", amountSeparatorIndex - 1)
+        var isDigit = false
+        var indexOfBeginingOfItemAmount = 0
+        for (index in amountSeparatorIndex - 1 downTo 0) {
+            if (isDigit && !productInfo[index].isDigit() && productInfo[index] != '.' && productInfo[index] != ',' ) {
+                indexOfBeginingOfItemAmount = index
+                break
+            }
+
+            if (!isDigit && productInfo[index].isDigit()) {
+                isDigit = true
+            }
+        }
+        val name = productInfo.substring(0, indexOfBeginingOfItemAmount+1).trim()
+        itemAmount = productInfo.substring(indexOfBeginingOfItemAmount, amountSeparatorIndex)
+            .replace("\\s*".toRegex(), "")
 
         var isBeforeDelimiter = false
-        for (index in  productInfo.length-1 downTo  indexOfSpaceBeforeItemPrice+1 ){
+        for (index in productInfo.length - 1 downTo indexOfBeginingOfItemAmount + 1) {
 
             val character = productInfo[index]
 
             if (isBeforeDelimiter && !character.isDigit()) {
                 break
             }
-            if ( !isBeforeDelimiter && (character=='.' || character==',') ){
+            if (!isBeforeDelimiter && (character == '.' || character == ',')) {
                 isBeforeDelimiter = true
             }
             finalPrice = character + finalPrice
         }
-        finalPrice=finalPrice.replace("\\s*".toRegex(),"")
-        if((finalPrice.length > 0 &&!finalPrice[finalPrice.length-1].isDigit()) || (finalPrice.length>4 && (finalPrice[finalPrice.length-4] == '.' || finalPrice[finalPrice.length-4]==','))){
-            ptuType = finalPrice[finalPrice.length-1].toString()
-            finalPrice = finalPrice.substring(0, finalPrice.length-1)
+        finalPrice = finalPrice.replace("\\s*".toRegex(), "")
+        if ((finalPrice.length > 0 && !finalPrice[finalPrice.length - 1].isDigit()) || (finalPrice.length > 4 && (finalPrice[finalPrice.length - 4] == '.' || finalPrice[finalPrice.length - 4] == ','))) {
+            ptuType = finalPrice[finalPrice.length - 1].toString()
+            finalPrice = finalPrice.substring(0, finalPrice.length - 1)
         }
-        itemPrice = productInfo.substring(indexOfSpaceBeforeItemPrice+1+ itemAmount.length, productInfo.lastIndexOf(finalPrice))
-        itemPrice = itemPrice.replace("*", "").replace("x", "").replace("=", "").replace(":", "").trim()
-        if(itemPrice.contains(" ")) {
+        itemPrice = productInfo.substring(
+            amountSeparatorIndex +1,
+            productInfo.lastIndexOf(finalPrice)
+        )
+        itemPrice =
+            itemPrice.replace("*", "").replace("x", "").replace("=", "").replace(":", "").trim()
+        if (itemPrice.contains(" ")) {
             itemPrice = itemPrice.substring(0, itemPrice.indexOf(" "))
         }
-        if(itemPrice.contains(".") || itemPrice.contains(",") ) {
+        if (itemPrice.contains(".") || itemPrice.contains(",")) {
             itemPrice = itemPrice.replace("\\s*".toRegex(), "")
-            val index = Math.max( itemPrice.indexOf("."),  itemPrice.indexOf(","))+3
-            if(index>0) {
+            var index = Math.max(itemPrice.indexOf("."), itemPrice.indexOf(",")) + 3
+            index = Math.min(index, itemPrice.length-1)
+            if (itemPrice.length>0 && index > 0) {
                 itemPrice = itemPrice.substring(0, index)
             }
         }
-
-
-
-
-
-
-//        val split = productInfo.split("\n")
-//        if (split.size < 2) {
-//            return Product()
-//        }
-//
-//
-//        val price = split.get(split.size - 1)
-//
-//
-//
-//        if (amountSeparator != "") {
-//            amount = price.split("*").get(0)
-//            val prices = price.split(amountSeparator).get(1)
-//            val foundPrices = Regex(regexPrice).findAll(prices).toList()
-//            if (foundPrices.isNotEmpty()) {
-//                itemPrice = foundPrices.get(0).value
-//                finalPrice = foundPrices.last().value
-//            }
-//
-//        } else {
-//            val foundPrices = Regex(regexPrice).findAll(price).toList()
-//            if (foundPrices.size >= 2) {
-//                itemPrice = foundPrices.get(foundPrices.size - 2).value
-//                finalPrice = foundPrices.get(foundPrices.size - 1).value
-//            }
-//
-//        }
-//        ptuType = price[price.length - 1].toString()
-
-
         return Product(null, null, name, finalPrice, "c", itemAmount, itemPrice, ptuType)
 
 
     }
 
-    private fun isDigit(x: String):Boolean{
+    private fun isDigit(x: String): Boolean {
         return "\\d+".toRegex().matches(x)
     }
 }
