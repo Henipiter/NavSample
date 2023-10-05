@@ -94,13 +94,9 @@ class ImageImportFragment : Fragment() {
         val markedBitmap = analyzedBitmap.copy(analyzedBitmap.config, true)
 
         val canvas = Canvas(markedBitmap)
-        val paint = Paint(Color.RED)
-        paint.strokeWidth = 100F
-
-        drawRectangle(imageAnalyzer.pixelCompanyName, canvas, paint)
+        val paint = Paint(Color.GREEN)
+        paint.strokeWidth = 10F
         drawRectangle(imageAnalyzer.pixelNIP, canvas, paint)
-        drawRectangle(imageAnalyzer.pixelPLN, canvas, paint)
-        drawRectangle(imageAnalyzer.pixelPTU, canvas, paint)
         drawRectangle(imageAnalyzer.pixelDate, canvas, paint)
         drawRectangle(imageAnalyzer.pixelTime, canvas, paint)
         return getImageUri(markedBitmap)

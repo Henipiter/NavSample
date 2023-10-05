@@ -6,10 +6,13 @@ import kotlinx.parcelize.Parcelize
 @Parcelize
 data class Product(
     var id: String?,
+    var receiptId: String?,
     var name: String?,
-    var price: Float,
+    var finalPrice: String?,
     var category: String?,
-    var receiptId: String?
+    var amount: String?,
+    var itemPrice: String?,
+    var ptuType: String?
 ) : Parcelable {
-    constructor() : this("id", "name", 0F, "category", "receiptId")
+    constructor() : this("id", "receiptId","name", "finalPrice", "category", "amount", "itemPrice", "ptuType")
 }

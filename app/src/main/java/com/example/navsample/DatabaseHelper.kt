@@ -97,7 +97,7 @@ class DatabaseHelper(val context: Context?) :
         val db = this.writableDatabase
         val contentValues = ContentValues()
         contentValues.put(NAME_COLUMN, product.name)
-        contentValues.put(PRICE_COLUMN, product.price)
+        contentValues.put(PRICE_COLUMN, product.finalPrice)
         contentValues.put(CATEGORY_COLUMN, product.category)
         contentValues.put(RECEIPT_ID_COLUMN, product.receiptId)
 
@@ -166,10 +166,11 @@ class DatabaseHelper(val context: Context?) :
             while (cursor.moveToNext()) {
                 val product = Product(
                     cursor.getString(ID_CURSOR_POSITION),
+                    cursor.getString(PRODUCT_RECEIPT_CURSOR_POSITION),
                     cursor.getString(PRODUCT_NAME_CURSOR_POSITION),
-                    cursor.getFloat(PRODUCT_PRICE_CURSOR_POSITION),
+                    cursor.getString(PRODUCT_PRICE_CURSOR_POSITION),
                     cursor.getString(PRODUCT_CATEGORY_CURSOR_POSITION),
-                    cursor.getString(PRODUCT_RECEIPT_CURSOR_POSITION)
+                    null,null,null
                 )
                 products.add(product)
             }
@@ -184,10 +185,11 @@ class DatabaseHelper(val context: Context?) :
                 if (cursor.getString(0) == id) {
                     product = Product(
                         cursor.getString(ID_CURSOR_POSITION),
+                        cursor.getString(PRODUCT_RECEIPT_CURSOR_POSITION),
                         cursor.getString(PRODUCT_NAME_CURSOR_POSITION),
-                        cursor.getFloat(PRODUCT_PRICE_CURSOR_POSITION),
+                        cursor.getString(PRODUCT_PRICE_CURSOR_POSITION),
                         cursor.getString(PRODUCT_CATEGORY_CURSOR_POSITION),
-                        cursor.getString(PRODUCT_RECEIPT_CURSOR_POSITION)
+                        null,null,null
                     )
                     break
                 }

@@ -36,7 +36,7 @@ class CustomAdapter(
 
     override fun onBindViewHolder(holder: MyViewHolder, position: Int) {
         this.position = position
-        holder.prize.text = productList[position].price.toString()
+        holder.prize.text = productList[position].finalPrice.toString()
         holder.productName.text = productList[position].name?.let { trimDescription(it) }
         holder.mainLayout.setOnClickListener {
             itemClickListener.onItemClick(productList[position])

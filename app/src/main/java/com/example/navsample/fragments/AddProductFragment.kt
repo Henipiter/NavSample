@@ -123,7 +123,7 @@ class AddProductFragment : Fragment() {
 
         if (args.product != null) {
             binding.productNameInput.setText(args.product!!.name)
-            binding.productPriceInput.setText(args.product!!.price.toString())
+            binding.productPriceInput.setText(args.product!!.finalPrice.toString())
             binding.productCategoryInput.setText(args.product!!.category)
 
 
@@ -176,10 +176,11 @@ class AddProductFragment : Fragment() {
                 binding.storeNameInput.text.toString() + "_" + binding.receiptDateInput.text.toString() + "_" + binding.receiptTimeInput.text.toString()
             val product = Product(
                 null,
+                receiptId,
                 binding.productNameInput.text.toString(),
-                binding.productPriceInput.text.toString().toFloat(),
+                binding.productPriceInput.text.toString(),
                 binding.productCategoryInput.text.toString(),
-                receiptId
+                null,null,null
             )
             val category = Category(null, binding.productCategoryInput.text.toString())
             if (addNewCategory) {
