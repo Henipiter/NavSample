@@ -21,7 +21,10 @@ class CustomAdapter(
 
     class MyViewHolder(
         var itemView: View,
-        var prize: TextView = itemView.findViewById(R.id.prize),
+        var ptuType: TextView = itemView.findViewById(R.id.ptu_type),
+        var amount: TextView = itemView.findViewById(R.id.amount),
+        var finalPrice: TextView = itemView.findViewById(R.id.final_prize),
+        var itemPrice: TextView = itemView.findViewById(R.id.item_prize),
         var productName: TextView = itemView.findViewById(R.id.product_name),
         var mainLayout: ConstraintLayout = itemView.findViewById(R.id.mainLayout)
     ) : RecyclerView.ViewHolder(itemView){}
@@ -36,15 +39,18 @@ class CustomAdapter(
 
     override fun onBindViewHolder(holder: MyViewHolder, position: Int) {
         this.position = position
-        holder.prize.text = productList[position].finalPrice.toString()
+        holder.ptuType.text = productList[position].ptuType.toString()
+        holder.amount.text = productList[position].amount.toString()
+        holder.itemPrice.text = productList[position].itemPrice.toString()
+        holder.finalPrice.text = productList[position].finalPrice.toString()
         holder.productName.text = productList[position].name?.let { trimDescription(it) }
         holder.mainLayout.setOnClickListener {
             itemClickListener.onItemClick(productList[position])
         }
     }
 
-    public interface ItemClickListener{
-        public fun onItemClick(product: Product)
+    interface ItemClickListener{
+        fun onItemClick(product: Product)
     }
 
     private fun trimDescription(description: String): String {

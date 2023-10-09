@@ -29,9 +29,8 @@ class AddProductFragment : Fragment() {
 
     val args: AddProductFragmentArgs by navArgs()
 
-    var picker: TimePickerDialog? = null
-    var calendar = Calendar.getInstance()
     private lateinit var categoryList: List<String>
+    private var ptuTypeList = arrayOf("A", "B","C","D","E","F","G")
     private var addNewCategory = false
 
     override fun onCreateView(
@@ -42,26 +41,11 @@ class AddProductFragment : Fragment() {
         return binding.root
     }
 
-    private fun decodeReceiptId(receiptId: String?) {
-        if (receiptId != null) {
-            val split = receiptId.split("_")
-            if (split.size == 3) {
-                binding.storeNameInput.setText(split[0])
-                binding.receiptDateInput.text = split[1]
-                binding.receiptTimeInput.text = split[2]
-            } else {
-                binding.storeNameInput.setText("")
-                binding.receiptDateInput.text = "01-01-1970"
-                binding.receiptTimeInput.text = "00:00"
-            }
-        }
-    }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         val databaseHelper = DatabaseHelper(requireContext())
         categoryList = databaseHelper.readAllCategoryData().map { it.category ?: "null" }
-
 
         ArrayAdapter(
             requireContext(),
@@ -69,7 +53,13 @@ class AddProductFragment : Fragment() {
             categoryList
         ).also { adapter ->
             binding.productCategoryInput.setAdapter(adapter)
-
+        }
+        ArrayAdapter(
+            requireContext(),
+            android.R.layout.simple_list_item_1,
+            ptuTypeList
+        ).also { adapter ->
+            binding.ptuTypeInput.setAdapter(adapter)
         }
         binding.productCategoryInput.setOnLongClickListener {
             Toast.makeText(requireContext(), "CLICK", Toast.LENGTH_SHORT).show()
@@ -91,96 +81,57 @@ class AddProductFragment : Fragment() {
                 if (!categoryList.contains(fixed)) {
                     addNewCategory = true
                     binding.productCategoryInputInfo.visibility = View.VISIBLE
-
                 } else {
                     addNewCategory = false
                     binding.productCategoryInputInfo.visibility = View.INVISIBLE
-
                 }
-
             }
         }
-        binding.productPriceInput.setOnFocusChangeListener { _, hasFocus ->
+        binding.productFinalPriceInput.setOnFocusChangeListener { _, hasFocus ->
             if (!hasFocus) {
-                val actual = binding.productPriceInput.text.toString()
+                val actual = binding.productFinalPriceInput.text.toString()
                 val split = actual.split(".")
                 if (split.size >= 2 && (split[1].length > 2 || split[1].length == 0)) {
                     var fixed = split[0]
                     if (split[1].length > 2) {
                         fixed = split[0] + "." + split[1].substring(0, 2)
                     }
-                    binding.productPriceInput.setText(fixed)
+                    binding.productFinalPriceInput.setText(fixed)
                     Toast.makeText(
                         requireContext(),
                         "Max 2 numbers after delimiter is valid",
                         Toast.LENGTH_SHORT
                     ).show()
                 }
-
             }
         }
 
 
         if (args.product != null) {
             binding.productNameInput.setText(args.product!!.name)
-            binding.productPriceInput.setText(args.product!!.finalPrice.toString())
+            binding.productFinalPriceInput.setText(args.product!!.finalPrice.toString())
+            binding.productItemPriceInput.setText(args.product!!.itemPrice.toString())
+            binding.productAmountInput.setText(args.product!!.amount.toString())
+            binding.ptuTypeInput.setText(args.product!!.ptuType.toString())
             binding.productCategoryInput.setText(args.product!!.category)
-
-
-
-            decodeReceiptId(args.product!!.receiptId)
-        } else {
-            binding.receiptDateInput.text =
-                SimpleDateFormat("dd-MM-yyyy", Locale.getDefault()).format(Date())
-            binding.receiptTimeInput.text =
-                SimpleDateFormat("HH:mm", Locale.getDefault()).format(Date())
-
         }
-
-        val dateSetListener =
-            DatePickerDialog.OnDateSetListener { _, year, monthOfYear, dayOfMonth ->
-                calendar.set(Calendar.YEAR, year)
-                calendar.set(Calendar.MONTH, monthOfYear)
-                calendar.set(Calendar.DAY_OF_MONTH, dayOfMonth)
-                updateDateInView()
-            }
-        binding.receiptDateInput.setOnClickListener {
-            DatePickerDialog(
-                requireContext(),
-                dateSetListener,
-                // set DatePickerDialog to point to today's date when it loads up
-                calendar.get(Calendar.YEAR),
-                calendar.get(Calendar.MONTH),
-                calendar.get(Calendar.DAY_OF_MONTH)
-            ).show()
-        }
-        binding.receiptTimeInput.setOnClickListener {
-            val hour = binding.receiptTimeInput.text.subSequence(0, 2).toString().toInt()
-            val minutes = binding.receiptTimeInput.text.subSequence(3, 5).toString().toInt()
-            // time picker dialog
-            picker = TimePickerDialog(
-                requireContext(), { _, sHour, sMinute ->
-                    setHourAndMinutes(sHour, sMinute)
-                }, hour, minutes, true
-            )
-            picker!!.show()
+        else{
+            binding.ptuTypeInput.setText("A")
         }
 
         binding.cancelAddProductButton.setOnClickListener {
-            Navigation.findNavController(it)
-                .navigate(R.id.action_addProductFragment_to_shopListFragment)
+            Navigation.findNavController(it).popBackStack()
         }
 
         binding.confirmAddProductButton.setOnClickListener {
-            val receiptId: String =
-                binding.storeNameInput.text.toString() + "_" + binding.receiptDateInput.text.toString() + "_" + binding.receiptTimeInput.text.toString()
+            val receiptId = "rId"
             val product = Product(
                 null,
                 receiptId,
                 binding.productNameInput.text.toString(),
-                binding.productPriceInput.text.toString(),
+                binding.productFinalPriceInput.text.toString(),
                 binding.productCategoryInput.text.toString(),
-                null,null,null
+                null, null, null
             )
             val category = Category(null, binding.productCategoryInput.text.toString())
             if (addNewCategory) {
@@ -192,26 +143,5 @@ class AddProductFragment : Fragment() {
                 .navigate(R.id.action_addProductFragment_to_shopListFragment)
 
         }
-    }
-
-    private fun setHourAndMinutes(sHour: Int, sMinute: Int) {
-        val hourValue = if (sHour.toString().length == 1) {
-            "0$sHour"
-        } else {
-            sHour.toString()
-        }
-        val minuteValue = if (sMinute.toString().length == 1) {
-            "0$sMinute"
-        } else {
-            sMinute.toString()
-        }
-
-        binding.receiptTimeInput.text = "$hourValue:$minuteValue"
-    }
-
-    private fun updateDateInView() {
-        val myFormat = "dd-MM-yyyy" // mention the format you need
-        val sdf = SimpleDateFormat(myFormat, Locale.US)
-        binding.receiptDateInput.text = sdf.format(calendar.time)
     }
 }

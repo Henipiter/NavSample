@@ -14,5 +14,5 @@ data class Product(
     var itemPrice: String?,
     var ptuType: String?
 ) : Parcelable {
-    constructor() : this("id", "receiptId","name", "finalPrice", "category", "amount", "itemPrice", "ptuType")
+    constructor() : this("---", "---", "---", "---", "---", "---", "---", "---")
 }

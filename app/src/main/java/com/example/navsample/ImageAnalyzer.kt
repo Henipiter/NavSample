@@ -39,6 +39,7 @@ class ImageAnalyzer {
     var pixelTime: Pixel? = null
 
     var receipt: Receipt? = null
+    lateinit var productList: Array<Product>
 
     data class Line(
         var data: String,
@@ -56,7 +57,7 @@ class ImageAnalyzer {
     fun processImageProxy(
         inputImage: InputImage,
         context: Context
-    ): String? {
+    ) {
         done = false
         imageWidth = inputImage.width
 //        bitmap = inputImage.bitmapInternal!!.copy(inputImage.bitmapInternal!!.config,true)
@@ -75,15 +76,14 @@ class ImageAnalyzer {
                 val lineList = convertCellsIntoString(sortedCellList).joinToString(separator = "\n")
                 Log.i("ImageProcess", lineList)
 
-                val productContent = getProductContent(blocks)
+                productList = getProductContent(blocks)
 
-                Log.i("ImageProcess", productContent)
                 findKeywords(lineList)
                 findCellWithKeywords(sortedCellList)
             }
 
         Toast.makeText(context, "Done", Toast.LENGTH_SHORT).show()
-        return readText
+
     }
 
     private fun sortText(blocks: List<Text.TextBlock>): List<Cell> {
@@ -304,7 +304,7 @@ class ImageAnalyzer {
 
     }
 
-    private fun getProductContent(blocks: List<Text.TextBlock>): String {
+    private fun getProductContent(blocks: List<Text.TextBlock>):Array<Product> {
         val firstLine = blocks[0].lines[0]
 
         val pointBottomLeft = Point(
@@ -358,7 +358,7 @@ class ImageAnalyzer {
             }
         }
         if (beginReceiptCell == null) {
-            return "null"
+            return arrayOf()
         }
 
         val productListOnRecipe = ArrayList<Line>()
@@ -414,19 +414,17 @@ class ImageAnalyzer {
         for (product in sortedProductListOnRecipe) {
 //            Log.i("ImageProcess", "( ${product.p3.x}, ${product.p3.y} ) ${product.data} ")
 //            Log.i("ImageProcess", "${product.data}")
-            val pr = parseStringToProduct(product.data)
-            productList.add(pr)
-            Log.i("ImageProcess", "${product.data}\n${pr}")
+            val parsedProduct = parseStringToProduct(product.data)
+            if(parsedProduct.name != "---" ||parsedProduct.finalPrice != "---" ) {
+                productList.add(parsedProduct)
+            }
+            Log.i("ImageProcess", "${product.data}\n${parsedProduct}")
 
         }
-
-
-
-        return ""
+        return productList.toTypedArray()
     }
 
     private fun parseStringToProduct(productInformation: String): Product {
-        val regexPrice = """[0-9]+\s*[,\.]\s*[0-9]\s*[0-9]"""
 //        Regex(regexPTUfirst).find(lineList)?.value
         val productInfo = productInformation.replace("\\s+".toRegex(), " ")
         var itemAmount = ""

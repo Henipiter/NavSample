@@ -29,7 +29,7 @@ class ImageImportFragment : Fragment() {
     private var _binding: FragmentImageImportBinding? = null
     private val binding get() = _binding!!
 
-    val args: ShopListFragmentArgs by navArgs()
+    val args: ImageImportFragmentArgs by navArgs()
 
 
     private var analyzedImage: InputImage? = null
@@ -57,12 +57,15 @@ class ImageImportFragment : Fragment() {
                 .navigate(R.id.action_imageImportFragment_to_cameraFragment)
         }
         binding.manualButton.setOnClickListener {
-            Navigation.findNavController(it)
-                .navigate(R.id.action_imageImportFragment_to_stageBasicInfoFragment)
+            val action = ImageImportFragmentDirections.actionImageImportFragmentToStageBasicInfoFragment(
+                arrayOf()
+            )
+            Navigation.findNavController(it).navigate(action)
         }
         binding.applyButton.setOnClickListener {
             val uri = drawRectangles()
             val action = ImageImportFragmentDirections.actionImageImportFragmentToStageBasicInfoFragment(
+                imageAnalyzer.productList,
                 uri,
                 imageAnalyzer.receipt
             )
@@ -74,7 +77,7 @@ class ImageImportFragment : Fragment() {
         ) {
             if (it != null) {
                 analyzedBitmap =
-                    MediaStore.Images.Media.getBitmap(requireContext().getContentResolver(), it)
+                    MediaStore.Images.Media.getBitmap(requireContext().contentResolver, it)
                 analyzedImage = InputImage.fromFilePath(requireContext(), it)
                 binding.receiptImageBig.setImageBitmap(analyzedBitmap)
                 analyzedImage?.let { it1 -> imageAnalyzer.processImageProxy(it1, requireContext()) }

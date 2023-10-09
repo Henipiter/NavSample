@@ -40,6 +40,9 @@ class ShopListFragment : Fragment(), CustomAdapter.ItemClickListener {
 
     @ExperimentalGetImage
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        if(args.uri != null) {
+            binding.receiptImageBig.setImageURI(args.uri)
+        }
         super.onViewCreated(view, savedInstanceState)
         databaseHelper = DatabaseHelper(requireContext())
         recyclerViewEvent = binding.recyclerViewEvent
@@ -48,16 +51,13 @@ class ShopListFragment : Fragment(), CustomAdapter.ItemClickListener {
         recyclerViewEvent.layoutManager =
             LinearLayoutManager(requireContext(), LinearLayoutManager.VERTICAL, false)
 
-        storeDataInArrays()
+//        storeDataInArrays()
+        storeDataInArraysFromFragment()
         customAdapter.notifyDataSetChanged()
 
         binding.manualButton.setOnClickListener {
             Navigation.findNavController(it)
                 .navigate(R.id.action_shopListFragment_to_addProductFragment)
-        }
-
-        if (args.bitmap != null) {
-            binding.receiptImageBig.setImageBitmap(args.bitmap)
         }
     }
 
@@ -67,6 +67,10 @@ class ShopListFragment : Fragment(), CustomAdapter.ItemClickListener {
         if (productList.size == 0) {
             Toast.makeText(requireContext(), "No data", Toast.LENGTH_SHORT).show()
         }
+    }
+    private fun storeDataInArraysFromFragment(){
+        productList.clear()
+        productList.addAll(args.productList)
     }
 
     override fun onItemClick(product: Product) {

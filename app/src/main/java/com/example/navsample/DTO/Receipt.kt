@@ -13,5 +13,5 @@ data class Receipt(
     var receiptDate: String?,
     var receiptTime: String?
 ) : Parcelable {
-    constructor() : this("id",  "name", "0123456789","10.00", "0.68", "2023-01-01", "12:12")
+    constructor() : this("---",  "---", "---","---", "---", "---", "---")
 }
