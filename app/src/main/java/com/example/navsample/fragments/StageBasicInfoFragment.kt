@@ -19,11 +19,11 @@ import java.util.Locale
 class StageBasicInfoFragment : Fragment() {
     private var _binding: FragmentStageBasicInfoBinding? = null
     private val binding get() = _binding!!
-    val args: StageBasicInfoFragmentArgs by navArgs()
+    private val args: StageBasicInfoFragmentArgs by navArgs()
 
 
-    var picker: TimePickerDialog? = null
-    var calendar = Calendar.getInstance()
+    private var picker: TimePickerDialog? = null
+    private var calendar = Calendar.getInstance()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,

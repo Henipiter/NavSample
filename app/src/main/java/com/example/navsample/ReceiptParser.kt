@@ -4,8 +4,8 @@ import androidx.compose.ui.text.toUpperCase
 import com.example.navsample.DTO.Product
 
 class ReceiptParser {
-    val REGEX_PRICE = """-*(\d+\s*[,\.]\s*\d\s*\d)|(\d+\s+\d\s*\d)"""
-    val REGEX_AMOUNT = """(\d+[,\.]\s*\d*\s*\d*\s*\d*)|(\d+\s*)"""
+    val REGEX_PRICE = """-*(\d+\s*[,.]\s*\d\s*\d)|(\d+\s+\d\s*\d)"""
+    val REGEX_AMOUNT = """(\d+[,.]\s*\d*\s*\d*\s*\d*)|(\d+\s*)"""
 
     data class ReceiptElement(val data: String, val startIndex: Int, val endIndex: Int) {
         constructor() : this("", 1, -1)

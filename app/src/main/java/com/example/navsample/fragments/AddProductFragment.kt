@@ -27,7 +27,7 @@ class AddProductFragment : Fragment() {
     private var _binding: FragmentAddProductBinding? = null
     private val binding get() = _binding!!
 
-    val args: AddProductFragmentArgs by navArgs()
+    private val args: AddProductFragmentArgs by navArgs()
 
     private lateinit var categoryList: List<String>
     private var ptuTypeList = arrayOf("A", "B","C","D","E","F","G")
@@ -91,7 +91,7 @@ class AddProductFragment : Fragment() {
             if (!hasFocus) {
                 val actual = binding.productFinalPriceInput.text.toString()
                 val split = actual.split(".")
-                if (split.size >= 2 && (split[1].length > 2 || split[1].length == 0)) {
+                if (split.size >= 2 && (split[1].length > 2 || split[1].isEmpty())) {
                     var fixed = split[0]
                     if (split[1].length > 2) {
                         fixed = split[0] + "." + split[1].substring(0, 2)

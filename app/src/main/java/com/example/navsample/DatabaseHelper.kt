@@ -75,15 +75,12 @@ class DatabaseHelper(val context: Context?) :
 
     fun deleteProduct(id: String): Boolean {
         val db = this.writableDatabase
-        val result = db.delete(PRODUCT_TABLE_NAME, "$ID_COLUMN=$id", null) > 0
-//        db.close()
-        return result
+        return db.delete(PRODUCT_TABLE_NAME, "$ID_COLUMN=$id", null) > 0
     }
 
     fun deleteCategory(id: String): Boolean {
         val db = this.writableDatabase
-        val result = db.delete(PRODUCT_TABLE_NAME, "$ID_COLUMN=$id", null) > 0
-        return result
+        return db.delete(PRODUCT_TABLE_NAME, "$ID_COLUMN=$id", null) > 0
     }
 
     fun addCategory(category: Category) {
@@ -130,8 +127,7 @@ class DatabaseHelper(val context: Context?) :
         if (db != null) {
             cursor = db.rawQuery(query, null)
         }
-        val result = cursorToProducts(cursor)
-        return result
+        return cursorToProducts(cursor)
     }
 
     fun readOneProductData(id: String): Product {
@@ -142,8 +138,7 @@ class DatabaseHelper(val context: Context?) :
         if (db != null) {
             cursor = db.rawQuery(query, null)
         }
-        val result = cursorToProducts(cursor, id)
-        return result
+        return cursorToProducts(cursor, id)
     }
 
     private fun cursorToCategories(cursor: Cursor?): ArrayList<Category> {

@@ -13,6 +13,8 @@ import com.google.mlkit.vision.text.Text
 import com.google.mlkit.vision.text.TextRecognition
 import com.google.mlkit.vision.text.latin.TextRecognizerOptions
 import kotlin.math.abs
+import kotlin.math.cos
+import kotlin.math.sin
 
 
 class ImageAnalyzer {
@@ -72,7 +74,7 @@ class ImageAnalyzer {
         bitmap = Bitmap.createBitmap(1500, 2000, Bitmap.Config.ARGB_8888)
 
         recognizer.process(inputImage)
-            .addOnSuccessListener { visionText ->
+            .addOnSuccessListener { _ ->
             }
             .addOnFailureListener {
                 Log.e("ImageProcess", it.message.orEmpty())
@@ -168,22 +170,22 @@ class ImageAnalyzer {
     }
 
     private fun findKeywords(lineList: String) {
-        val regexNIPfirst = """NIP(\.{0,1}:{0,1})\s*(\d{10}|.{13})"""
-        val regexNIPsecond = """(.IP|N.P|NI.)(\.{0,1}:{0,1})\s*(\d{10}|.{13})"""
+        val regexNIPfirst = """NIP(\.?:?)\s*(\d{10}|.{13})"""
+        val regexNIPsecond = """(.IP|N.P|NI.)(\.?:?)\s*(\d{10}|.{13})"""
         val regexPTUfirst =
-            """(.UMA|S.MA|SU.A|SUM.|.odatek|P.datek|Po.atek|Pod.tek|Poda.ek|Podat.k|Podate.)\s*\s*(PTU)\s*\d+[\.,]\d\d"""
+            """(.UMA|S.MA|SU.A|SUM.|.odatek|P.datek|Po.atek|Pod.tek|Poda.ek|Podat.k|Podate.)\s*\s*(PTU)\s*\d+[.,]\d\d"""
         val regexPTUsecond =
-            """(.UMA|S.MA|SU.A|SUM.|.odatek|P.datek|Po.atek|Pod.tek|Poda.ek|Podat.k|Podate.)\s*(.TU|P.U|PT.)\s*\d+[\.,]\d\d"""
+            """(.UMA|S.MA|SU.A|SUM.|.odatek|P.datek|Po.atek|Pod.tek|Poda.ek|Podat.k|Podate.)\s*(.TU|P.U|PT.)\s*\d+[.,]\d\d"""
         val regexPLNfirst =
-            """(SUMA|.UMA|S.MA|SU.A|SUM.)\s*:{0,1}\s*(PLN)\s*\d+[\.,]\d\d"""
+            """(SUMA|.UMA|S.MA|SU.A|SUM.)\s*:?\s*(PLN)\s*\d+[.,]\d\d"""
         val regexPLNsecond =
-            """(SUMA|.UMA|S.MA|SU.A|SUM.)\s*:{0,1}\s*(.LN|P.N|PL.)\s*\d+[\.,]\d\d"""
+            """(SUMA|.UMA|S.MA|SU.A|SUM.)\s*:?\s*(.LN|P.N|PL.)\s*\d+[.,]\d\d"""
         val regexDate =
             """(([0-2]\d|3[0-1])-(0\d|1[0-2])-20(\d\d))|(([0-2]\d|3[0-1])\.(0\d|1[0-2])\.20(\d\d))|(20(\d\d)\.(0\d|1[0-2])\.([0-2]\d|3[0-1]))|(20(\d\d)-(0\d|1[0-2])-([0-2]\d|3[0-1]))"""
 
         val regexTime = """\s+(\d|0\d|1\d|2[0-3])\s*:\s*[0-5]\d"""
 
-        val regexPrice = """\d+\s*[,\.]\s*\d\s*\d"""
+        val regexPrice = """\d+\s*[,.]\s*\d\s*\d"""
 
         rawValueNIP =
             Regex(regexNIPfirst).find(lineList)?.value
@@ -233,9 +235,9 @@ class ImageAnalyzer {
     }
 
     private fun findCellWithKeywords(sortedCellList: List<Cell>) {
-        Log.i("ImageProcess", "rawValueNIP" + rawValueNIP)
-        Log.i("ImageProcess", "rawValuePTU" + rawValuePTU)
-        Log.i("ImageProcess", "rawValuePLN" + rawValuePLN)
+        Log.i("ImageProcess", "rawValueNIP$rawValueNIP")
+        Log.i("ImageProcess", "rawValuePTU$rawValuePTU")
+        Log.i("ImageProcess", "rawValuePLN$rawValuePLN")
 
 
         for (cell in sortedCellList) {
@@ -262,8 +264,7 @@ class ImageAnalyzer {
             val x2 = cell.x2
             val y2 = cell.y2
             Log.i("ImageProcess", "( $x1, $y1 ),( $x2, $y2 ) $keyword ")
-            val pixel = Pixel(cell.x1, cell.y1, cell.x2, cell.y2)
-            return pixel
+            return Pixel(cell.x1, cell.y1, cell.x2, cell.y2)
         }
         return null
     }
@@ -271,34 +272,34 @@ class ImageAnalyzer {
     private fun calculateMovedPoint(p: Point, alpha: Double): Point {
         val theta = alpha * Math.PI / 180.0
         return Point(
-            p.x * Math.cos(theta) - p.y * Math.sin(theta),
-            p.x * Math.sin(theta) + p.y * Math.cos(theta)
+            p.x * cos(theta) - p.y * sin(theta),
+            p.x * sin(theta) + p.y * cos(theta)
         )
 
     }
 
     private fun calculateBestAlpha(pointLeft: Point, pointRight: Point): Double {
-        var min_distance = 1000.0
-        var best_alpha = 0
+        var minDistance = 1000.0
+        var bestAlpha = 0
         for (alpha in -45..45) {
             val vertical1 = calculateMovedPoint(pointLeft, alpha.toDouble() / 1)
             val vertical2 = calculateMovedPoint(pointRight, alpha.toDouble() / 1)
             val distance = vertical1.y - vertical2.y
-            if (distance > 0 && distance < min_distance) {
-                min_distance = distance
-                best_alpha = alpha
+            if (distance > 0 && distance < minDistance) {
+                minDistance = distance
+                bestAlpha = alpha
             }
         }
-        return best_alpha.toDouble() / 1
+        return bestAlpha.toDouble() / 1
     }
 
     private fun createLineFromBlock(line: Text.Line): Line {
         return Line(
             line.text,
-            Point(line.cornerPoints!!.get(0).x.toDouble(), line.cornerPoints!!.get(0).y.toDouble()),
-            Point(line.cornerPoints!!.get(1).x.toDouble(), line.cornerPoints!!.get(1).y.toDouble()),
-            Point(line.cornerPoints!!.get(2).x.toDouble(), line.cornerPoints!!.get(2).y.toDouble()),
-            Point(line.cornerPoints!!.get(3).x.toDouble(), line.cornerPoints!!.get(3).y.toDouble())
+            Point(line.cornerPoints!![0].x.toDouble(), line.cornerPoints!![0].y.toDouble()),
+            Point(line.cornerPoints!![1].x.toDouble(), line.cornerPoints!![1].y.toDouble()),
+            Point(line.cornerPoints!![2].x.toDouble(), line.cornerPoints!![2].y.toDouble()),
+            Point(line.cornerPoints!![3].x.toDouble(), line.cornerPoints!![3].y.toDouble())
         )
     }
 

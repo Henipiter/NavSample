@@ -8,8 +8,10 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import androidx.constraintlayout.widget.ConstraintLayout
+import androidx.core.text.isDigitsOnly
 import androidx.recyclerview.widget.RecyclerView
 import com.example.navsample.DTO.Product
+import kotlin.math.roundToInt
 
 class CustomAdapter(
 
@@ -52,26 +54,23 @@ class CustomAdapter(
         val itemPrice = trim(productList[position].itemPrice.toString()).toDoubleOrNull()
         val finalPrice = trim(productList[position].finalPrice.toString()).toDoubleOrNull()
 
-        if (floatAmount == null || itemPrice == null || finalPrice == null || Math.round(floatAmount * itemPrice * 100.0) / 100.0 != finalPrice) {
+        if (floatAmount == null || itemPrice == null || finalPrice == null || (floatAmount * itemPrice * 100.0).roundToInt() / 100.0 != finalPrice) {
             holder.finalPrice.setTextColor(Color.RED)
         }
-
-
     }
 
     private fun trim(x: String):String{
         var delimiter = false
         var newString = ""
-        val xx = x.replace(",", ".")
-        for (i in xx){
-            if(!"0123456789,.".contains(i)){
+        for (i in x){
+            if(i!='.' && !i.isDigit()){
                 return newString
             }
-            if(delimiter && !"0123456789".contains(i)){
+            if(delimiter && ! i.isDigit()){
                 return newString
             }
 
-            if(!delimiter && (i== '.' || i== ',')){
+            if(!delimiter && i== '.' ){
                 delimiter = true
 
             }

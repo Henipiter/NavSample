@@ -29,7 +29,7 @@ class ImageImportFragment : Fragment() {
     private var _binding: FragmentImageImportBinding? = null
     private val binding get() = _binding!!
 
-    val args: ImageImportFragmentArgs by navArgs()
+    private val args: ImageImportFragmentArgs by navArgs()
 
 
     private var analyzedImage: InputImage? = null

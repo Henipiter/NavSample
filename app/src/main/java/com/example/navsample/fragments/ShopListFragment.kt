@@ -23,7 +23,7 @@ class ShopListFragment : Fragment(), CustomAdapter.ItemClickListener {
 
     private var _binding: FragmentShopListBinding? = null
     private val binding get() = _binding!!
-    val args: ShopListFragmentArgs by navArgs()
+    private val args: ShopListFragmentArgs by navArgs()
 
     private lateinit var recyclerViewEvent: RecyclerView
     private lateinit var customAdapter: CustomAdapter
