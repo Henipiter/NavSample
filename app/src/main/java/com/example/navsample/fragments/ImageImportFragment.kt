@@ -106,13 +106,9 @@ class ImageImportFragment : Fragment() {
     }
 
     private fun drawRectangle(pixel: ImageAnalyzer.Pixel?, canvas: Canvas, paint: Paint) {
-        if (pixel == null) {
-            return
+        if (pixel != null) {
+            drawLine(pixel.x2, pixel.y2, pixel.x1, pixel.y2, canvas, paint)
         }
-        drawLine(pixel.x1, pixel.y1, pixel.x2, pixel.y1, canvas, paint)
-        drawLine(pixel.x1, pixel.y1, pixel.x1, pixel.y2, canvas, paint)
-        drawLine(pixel.x2, pixel.y2, pixel.x2, pixel.y1, canvas, paint)
-        drawLine(pixel.x2, pixel.y2, pixel.x1, pixel.y2, canvas, paint)
     }
 
     private fun drawLine(

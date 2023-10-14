@@ -39,7 +39,7 @@ class ImageAnalyzer {
     var pixelTime: Pixel? = null
 
     var receipt: Receipt? = null
-    lateinit var productList: Array<Product>
+    var productList: Array<Product> = arrayOf()
 
     data class Line(
         var data: String,
@@ -47,7 +47,15 @@ class ImageAnalyzer {
         var p1: Point,
         var p2: Point,
         var p3: Point,
-    )
+    ) {
+        constructor(data: String) : this(
+            data,
+            Point(0.0, 0.0),
+            Point(0.0, 0.0),
+            Point(0.0, 0.0),
+            Point(0.0, 0.0)
+        )
+    }
 
     data class Point(var x: Double, var y: Double)
     data class Cell(var data: String, var x1: Int, var y1: Int, var x2: Int, var y2: Int)
@@ -62,10 +70,9 @@ class ImageAnalyzer {
         imageWidth = inputImage.width
 //        bitmap = inputImage.bitmapInternal!!.copy(inputImage.bitmapInternal!!.config,true)
         bitmap = Bitmap.createBitmap(1500, 2000, Bitmap.Config.ARGB_8888)
-        var readText: String? = null
+
         recognizer.process(inputImage)
             .addOnSuccessListener { visionText ->
-                readText = visionText.text
             }
             .addOnFailureListener {
                 Log.e("ImageProcess", it.message.orEmpty())
@@ -161,22 +168,22 @@ class ImageAnalyzer {
     }
 
     private fun findKeywords(lineList: String) {
-        val regexNIPfirst = """NIP(\.{0,1}:{0,1})\s*([0-9]{10}|.{13})"""
-        val regexNIPsecond = """(.IP|N.P|NI.)(\.{0,1}:{0,1})\s*([0-9]{10}|.{13})"""
+        val regexNIPfirst = """NIP(\.{0,1}:{0,1})\s*(\d{10}|.{13})"""
+        val regexNIPsecond = """(.IP|N.P|NI.)(\.{0,1}:{0,1})\s*(\d{10}|.{13})"""
         val regexPTUfirst =
-            """(.UMA|S.MA|SU.A|SUM.|.odatek|P.datek|Po.atek|Pod.tek|Poda.ek|Podat.k|Podate.)\s*\s*(PTU)\s*[0-9]+[\.,][0-9][0-9]"""
+            """(.UMA|S.MA|SU.A|SUM.|.odatek|P.datek|Po.atek|Pod.tek|Poda.ek|Podat.k|Podate.)\s*\s*(PTU)\s*\d+[\.,]\d\d"""
         val regexPTUsecond =
-            """(.UMA|S.MA|SU.A|SUM.|.odatek|P.datek|Po.atek|Pod.tek|Poda.ek|Podat.k|Podate.)\s*(.TU|P.U|PT.)\s*[0-9]+[\.,][0-9][0-9]"""
+            """(.UMA|S.MA|SU.A|SUM.|.odatek|P.datek|Po.atek|Pod.tek|Poda.ek|Podat.k|Podate.)\s*(.TU|P.U|PT.)\s*\d+[\.,]\d\d"""
         val regexPLNfirst =
-            """(SUMA|.UMA|S.MA|SU.A|SUM.)\s*:{0,1}\s*(PLN)\s*[0-9]+[\.,][0-9][0-9]"""
+            """(SUMA|.UMA|S.MA|SU.A|SUM.)\s*:{0,1}\s*(PLN)\s*\d+[\.,]\d\d"""
         val regexPLNsecond =
-            """(SUMA|.UMA|S.MA|SU.A|SUM.)\s*:{0,1}\s*(.LN|P.N|PL.)\s*[0-9]+[\.,][0-9][0-9]"""
+            """(SUMA|.UMA|S.MA|SU.A|SUM.)\s*:{0,1}\s*(.LN|P.N|PL.)\s*\d+[\.,]\d\d"""
         val regexDate =
-            """(([0-2][0-9]|3[0-1])-(0[0-9]|1[0-2])-20([0-9][0-9]))|(([0-2][0-9]|3[0-1])\.(0[0-9]|1[0-2])\.20([0-9][0-9]))|(20([0-9][0-9])\.(0[0-9]|1[0-2])\.([0-2][0-9]|3[0-1]))|(20([0-9][0-9])-(0[0-9]|1[0-2])-([0-2][0-9]|3[0-1]))"""
+            """(([0-2]\d|3[0-1])-(0\d|1[0-2])-20(\d\d))|(([0-2]\d|3[0-1])\.(0\d|1[0-2])\.20(\d\d))|(20(\d\d)\.(0\d|1[0-2])\.([0-2]\d|3[0-1]))|(20(\d\d)-(0\d|1[0-2])-([0-2]\d|3[0-1]))"""
 
-        val regexTime = """\s+([0-9]|0[0-9]|1[0-9]|2[0-3])\s*:\s*[0-5][0-9]"""
+        val regexTime = """\s+(\d|0\d|1\d|2[0-3])\s*:\s*[0-5]\d"""
 
-        val regexPrice = """[0-9]+\s*[,\.]\s*[0-9]\s*[0-9]"""
+        val regexPrice = """\d+\s*[,\.]\s*\d\s*\d"""
 
         rawValueNIP =
             Regex(regexNIPfirst).find(lineList)?.value
@@ -214,7 +221,7 @@ class ImageAnalyzer {
     }
 
     private fun verifyNIP(valueNIP: String?): Boolean {
-        if (valueNIP == null || !Regex("""[0-9]{10}""").matches(valueNIP)) {
+        if (valueNIP == null || !Regex("""\d{10}""").matches(valueNIP)) {
             return false
         }
         val weight = arrayOf(6, 5, 7, 2, 3, 4, 5, 6, 7)
@@ -304,7 +311,7 @@ class ImageAnalyzer {
 
     }
 
-    private fun getProductContent(blocks: List<Text.TextBlock>):Array<Product> {
+    private fun getProductContent(blocks: List<Text.TextBlock>): Array<Product> {
         val firstLine = blocks[0].lines[0]
 
         val pointBottomLeft = Point(
@@ -370,7 +377,6 @@ class ImageAnalyzer {
                 }
             }
         }
-        //SORTOWANIE LISTY PRODUKTOW PO Y
         val sortedProductListOnRecipe =
             productListOnRecipe.sortedWith(compareBy { it.p0.y }).toMutableList()
         Log.i("ImageProcess", "****************************")
@@ -408,101 +414,10 @@ class ImageAnalyzer {
 
             }
         }
-
-        Log.i("ImageProcess", "****************************")
-        val productList = ArrayList<Product>()
-        for (product in sortedProductListOnRecipe) {
-//            Log.i("ImageProcess", "( ${product.p3.x}, ${product.p3.y} ) ${product.data} ")
-//            Log.i("ImageProcess", "${product.data}")
-            val parsedProduct = parseStringToProduct(product.data)
-            if(parsedProduct.name != "---" ||parsedProduct.finalPrice != "---" ) {
-                productList.add(parsedProduct)
-            }
-            Log.i("ImageProcess", "${product.data}\n${parsedProduct}")
-
-        }
-        return productList.toTypedArray()
+        val receiptParser = ReceiptParser()
+        return receiptParser.parseToProducts(sortedProductListOnRecipe)
     }
 
-    private fun parseStringToProduct(productInformation: String): Product {
-//        Regex(regexPTUfirst).find(lineList)?.value
-        val productInfo = productInformation.replace("\\s+".toRegex(), " ")
-        var itemAmount = ""
-        var itemPrice = ""
-        var finalPrice = ""
-        var amountSeparator = ""
-        var ptuType = ""
-        ////////////////////////////
-        val amountSeparatorIndex: Int
-        if (productInfo.contains("*")) {
-            amountSeparator = "*"
-            amountSeparatorIndex = productInfo.lastIndexOf(amountSeparator)
-        } else if (productInfo.contains("x")) {
-            amountSeparator = "x"
-            amountSeparatorIndex = productInfo.lastIndexOf(amountSeparator)
-        } else {
-            return Product()
-        }
 
-//        val indexOfSpaceBeforeItemPrice = productInfo.lastIndexOf(" ", amountSeparatorIndex - 1)
-        var isDigit = false
-        var indexOfBeginingOfItemAmount = 0
-        for (index in amountSeparatorIndex - 1 downTo 0) {
-            if (isDigit && !productInfo[index].isDigit() && productInfo[index] != '.' && productInfo[index] != ',' ) {
-                indexOfBeginingOfItemAmount = index
-                break
-            }
-
-            if (!isDigit && productInfo[index].isDigit()) {
-                isDigit = true
-            }
-        }
-        val name = productInfo.substring(0, indexOfBeginingOfItemAmount+1).trim()
-        itemAmount = productInfo.substring(indexOfBeginingOfItemAmount, amountSeparatorIndex)
-            .replace("\\s*".toRegex(), "")
-
-        var isBeforeDelimiter = false
-        for (index in productInfo.length - 1 downTo indexOfBeginingOfItemAmount + 1) {
-
-            val character = productInfo[index]
-
-            if (isBeforeDelimiter && !character.isDigit()) {
-                break
-            }
-            if (!isBeforeDelimiter && (character == '.' || character == ',')) {
-                isBeforeDelimiter = true
-            }
-            finalPrice = character + finalPrice
-        }
-        finalPrice = finalPrice.replace("\\s*".toRegex(), "")
-        if ((finalPrice.length > 0 && !finalPrice[finalPrice.length - 1].isDigit()) || (finalPrice.length > 4 && (finalPrice[finalPrice.length - 4] == '.' || finalPrice[finalPrice.length - 4] == ','))) {
-            ptuType = finalPrice[finalPrice.length - 1].toString()
-            finalPrice = finalPrice.substring(0, finalPrice.length - 1)
-        }
-        itemPrice = productInfo.substring(
-            amountSeparatorIndex +1,
-            productInfo.lastIndexOf(finalPrice)
-        )
-        itemPrice =
-            itemPrice.replace("*", "").replace("x", "").replace("=", "").replace(":", "").trim()
-        if (itemPrice.contains(" ")) {
-            itemPrice = itemPrice.substring(0, itemPrice.indexOf(" "))
-        }
-        if (itemPrice.contains(".") || itemPrice.contains(",")) {
-            itemPrice = itemPrice.replace("\\s*".toRegex(), "")
-            var index = Math.max(itemPrice.indexOf("."), itemPrice.indexOf(",")) + 3
-            index = Math.min(index, itemPrice.length-1)
-            if (itemPrice.length>0 && index > 0) {
-                itemPrice = itemPrice.substring(0, index)
-            }
-        }
-        return Product(null, null, name, finalPrice, "c", itemAmount, itemPrice, ptuType)
-
-
-    }
-
-    private fun isDigit(x: String): Boolean {
-        return "\\d+".toRegex().matches(x)
-    }
 }
 

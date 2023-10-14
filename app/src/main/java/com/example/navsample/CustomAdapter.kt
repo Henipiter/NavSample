@@ -2,6 +2,7 @@ package com.example.navsample
 
 import android.app.Activity
 import android.content.Context
+import android.graphics.Color
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -27,7 +28,7 @@ class CustomAdapter(
         var itemPrice: TextView = itemView.findViewById(R.id.item_prize),
         var productName: TextView = itemView.findViewById(R.id.product_name),
         var mainLayout: ConstraintLayout = itemView.findViewById(R.id.mainLayout)
-    ) : RecyclerView.ViewHolder(itemView){}
+    ) : RecyclerView.ViewHolder(itemView) {}
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MyViewHolder {
         val inflater = LayoutInflater.from(this.context)
@@ -47,22 +48,54 @@ class CustomAdapter(
         holder.mainLayout.setOnClickListener {
             itemClickListener.onItemClick(productList[position])
         }
+        val floatAmount = trim(productList[position].amount.toString()).toDoubleOrNull()
+        val itemPrice = trim(productList[position].itemPrice.toString()).toDoubleOrNull()
+        val finalPrice = trim(productList[position].finalPrice.toString()).toDoubleOrNull()
+
+        if (floatAmount == null || itemPrice == null || finalPrice == null || Math.round(floatAmount * itemPrice * 100.0) / 100.0 != finalPrice) {
+            holder.finalPrice.setTextColor(Color.RED)
+        }
+
+
     }
 
-    interface ItemClickListener{
+    private fun trim(x: String):String{
+        var delimiter = false
+        var newString = ""
+        val xx = x.replace(",", ".")
+        for (i in xx){
+            if(!"0123456789,.".contains(i)){
+                return newString
+            }
+            if(delimiter && !"0123456789".contains(i)){
+                return newString
+            }
+
+            if(!delimiter && (i== '.' || i== ',')){
+                delimiter = true
+
+            }
+            newString +=i
+        }
+        return newString
+    }
+
+    interface ItemClickListener {
         fun onItemClick(product: Product)
     }
 
     private fun trimDescription(description: String): String {
-        if (!description.contains("\n") && description.length <= 16) {
+        val maxLength = 32
+        if (!description.contains("\n") && description.length <= maxLength) {
             return description
         }
         var trimmedDescription = description.split("\n")[0]
-        if (trimmedDescription.length > 16) {
-            trimmedDescription = trimmedDescription.substring(0, 16)
+        if (trimmedDescription.length > maxLength) {
+            trimmedDescription = trimmedDescription.substring(0, maxLength)
         }
         return "$trimmedDescription..."
     }
+
     override fun getItemCount(): Int {
         return productList.size
     }
