@@ -1,13 +1,12 @@
 package com.example.navsample
 
-import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Assertions.*
-import org.junit.jupiter.api.BeforeAll
-
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.CsvFileSource
 import org.junit.jupiter.params.provider.CsvSource
+import java.text.Normalizer
+import java.util.regex.Pattern
 
 class ReceiptParserTest {
 
@@ -165,8 +164,4 @@ class ReceiptParserTest {
         return modifiedString
     }
 
-    @Test
-    fun a(){
-
-    }
 }

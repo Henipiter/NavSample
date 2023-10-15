@@ -1,6 +1,5 @@
 package com.example.navsample
 
-import androidx.compose.ui.text.toUpperCase
 import com.example.navsample.DTO.Product
 
 class ReceiptParser {
@@ -17,8 +16,6 @@ class ReceiptParser {
     ): Array<Product> {
         //SORTOWANIE LISTY PRODUKTOW PO Y
 
-
-//        Log.i("ImageProcess", "****************************")
         val productList = ArrayList<Product>()
         for (product in sortedProductListOnRecipe) {
 
@@ -121,8 +118,8 @@ class ReceiptParser {
     }
 
     fun findPtuType(productInfo: String): ReceiptElement {
-        for (i in productInfo.length - 1 downTo 0) {
-            if (productInfo[i].isLetterOrDigit()) {
+        for (i in productInfo.length - 1 downTo  productInfo.length - 3) {
+            if (productInfo[i].isLetterOrDigit() && (productInfo[i-3] ==',' || productInfo[i-3]=='.')) {
                 return ReceiptElement(productInfo[i].toString(), i, i)
             }
         }

@@ -12,6 +12,8 @@ import com.google.mlkit.vision.common.InputImage
 import com.google.mlkit.vision.text.Text
 import com.google.mlkit.vision.text.TextRecognition
 import com.google.mlkit.vision.text.latin.TextRecognizerOptions
+import java.text.Normalizer
+import java.util.regex.Pattern
 import kotlin.math.abs
 import kotlin.math.cos
 import kotlin.math.sin
@@ -312,7 +314,14 @@ class ImageAnalyzer {
 
     }
 
+    private fun normalizeText(text: String): String {
+        val normalizedText = Normalizer.normalize(text, Normalizer.Form.NFD)
+        val pattern = Pattern.compile("\\p{InCombiningDiacriticalMarks}+")
+        return pattern.matcher(normalizedText).replaceAll("")
+    }
+
     private fun getProductContent(blocks: List<Text.TextBlock>): Array<Product> {
+
         val firstLine = blocks[0].lines[0]
 
         val pointBottomLeft = Point(
@@ -326,9 +335,6 @@ class ImageAnalyzer {
 
         val alpha = calculateBestAlpha(pointBottomLeft, pointBottomRight)
 
-
-        val startKeywords =
-            arrayOf("PARAGON FISKALNY", "PARAGONFISKALNY")
 
         var minX = 99999.0
         var maxX = -99999.0
@@ -356,10 +362,14 @@ class ImageAnalyzer {
         val lengthX = (maxX - minX) / 2
 
         var beginReceiptCell: Line? = null
+
+        val startKeywords =
+            arrayOf("PARAGON FISKALNY", "PARAGONFISKALNY")
+
         for (line in rotatedLines) {
             for (keyword in startKeywords) {
                 val data = line.data
-                if (data.contains(keyword)) {
+                if (normalizeText(data).contains(keyword)) {
                     beginReceiptCell = line
                     break
                 }
