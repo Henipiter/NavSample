@@ -68,7 +68,8 @@ class ImageAnalyzer {
     @ExperimentalGetImage
     fun processImageProxy(
         inputImage: InputImage,
-        context: Context
+        context: Context,
+        onFinish: () -> Unit
     ) {
         done = false
         imageWidth = inputImage.width
@@ -95,6 +96,7 @@ class ImageAnalyzer {
 
         Toast.makeText(context, "Done", Toast.LENGTH_SHORT).show()
 
+        onFinish.invoke()
     }
 
     private fun sortText(blocks: List<Text.TextBlock>): List<Cell> {
