@@ -37,6 +37,7 @@ class ImageImportFragment : Fragment() {
     private val viewModel: AddRecipeViewModel by activityViewModels()
 
     private var analyzedImage: InputImage? = null
+    private var analyzedUri: Uri? = null
     private val imageAnalyzer = ImageAnalyzer()
     private var analyzedBitmap: Bitmap? = null
 
@@ -50,52 +51,57 @@ class ImageImportFragment : Fragment() {
     @ExperimentalGetImage
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        binding.applyButton.visibility = View.INVISIBLE
 
         initObserver()
 
         if (args.bitmap != null) {
             binding.receiptImageBig.setImageBitmap(args.bitmap)
+            analyzedBitmap = args.bitmap
+            analyzedImage = InputImage.fromBitmap(args.bitmap!!, 0)
         }
 
-        binding.cameraButton.setOnClickListener {
-            Navigation.findNavController(it)
-                .navigate(R.id.action_imageImportFragment_to_cameraFragment)
+
+        binding.loadImage.setOnClickListener {
+
+            val action = ImageImportFragmentDirections.actionImageImportFragmentToCropFragment()
+            Navigation.findNavController(view).navigate(action)
+            binding.applyButton.visibility = View.INVISIBLE
+
+
         }
+
         binding.manualButton.setOnClickListener {
-            val action = ImageImportFragmentDirections.actionImageImportFragmentToStageBasicInfoFragment(
-                arrayOf()
-            )
+            val action =
+                ImageImportFragmentDirections.actionImageImportFragmentToStageBasicInfoFragment(
+                    arrayOf()
+                )
             Navigation.findNavController(it).navigate(action)
         }
+        binding.analyzeButton.setOnClickListener {
+            analyzedImage?.let { it1 ->
+                imageAnalyzer.processImageProxy(
+                    it1,
+                    requireContext()
+                ) {
+                    analyzedUri = drawRectangles()
+                    binding.applyButton.visibility = View.VISIBLE
+                }
+            }
+        }
         binding.applyButton.setOnClickListener {
-            val uri = drawRectangles()
-            val action = ImageImportFragmentDirections.actionImageImportFragmentToStageBasicInfoFragment(
-                imageAnalyzer.productList,
-                uri,
-                imageAnalyzer.receipt
-            )
-            Navigation.findNavController(requireView()).navigate(action)
-        }
-
-        val pickPhoto = registerForActivityResult(
-            ActivityResultContracts.GetContent()
-        ) {
-            if (it != null) {
-                analyzedBitmap =
-                    MediaStore.Images.Media.getBitmap(requireContext().contentResolver, it)
-                analyzedImage = InputImage.fromFilePath(requireContext(), it)
-                binding.receiptImageBig.setImageBitmap(analyzedBitmap)
-                analyzedImage?.let { it1 ->
-                    imageAnalyzer.processImageProxy(
-                        it1,
-                        requireContext()
-                    ) { binding.applyButton.isEnabled = true }
-                } }
-        }
-        binding.storageButton.setOnClickListener {
-            pickPhoto.launch("image/*")
+            analyzedImage?.let { it1 ->
+                val action =
+                    ImageImportFragmentDirections.actionImageImportFragmentToStageBasicInfoFragment(
+                        imageAnalyzer.productList,
+                        analyzedUri,
+                        imageAnalyzer.receipt
+                    )
+                Navigation.findNavController(requireView()).navigate(action)
+            }
         }
     }
+
     private fun initObserver() {
         viewModel.imageUri.observe(viewLifecycleOwner) {
             it?.let {
@@ -105,6 +111,7 @@ class ImageImportFragment : Fragment() {
             }
         }
     }
+
     private fun drawRectangles(): Uri {
 
         if (analyzedBitmap == null) {

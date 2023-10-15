@@ -92,5 +92,22 @@
             app:argType="android.graphics.Bitmap"
             app:nullable="true"
             android:defaultValue="@null" />
+        <action
+            android:id="@+id/action_imageImportFragment_to_cropFragment"
+            app:destination="@id/cropFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/cropFragment"
+        android:name="com.example.navsample.fragments.CropFragment"
+        android:label="fragment_crop"
+        tools:layout="@layout/fragment_crop" >
+        <argument
+            android:name="uri"
+            app:argType="android.net.Uri"
+            app:nullable="true"
+            android:defaultValue="@null" />
+        <action
+            android:id="@+id/action_cropFragment_to_imageImportFragment"
+            app:destination="@id/imageImportFragment" />
     </fragment>
 </navigation>

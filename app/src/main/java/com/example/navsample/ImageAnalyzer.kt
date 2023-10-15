@@ -23,7 +23,7 @@ class ImageAnalyzer {
 
 
     val recognizer = TextRecognition.getClient(TextRecognizerOptions.DEFAULT_OPTIONS)
-    lateinit var bitmap: Bitmap
+//    lateinit var bitmap: Bitmap
     var imageWidth = 0
 
     private var rawValueNIP: String? = null
@@ -74,7 +74,7 @@ class ImageAnalyzer {
         done = false
         imageWidth = inputImage.width
 //        bitmap = inputImage.bitmapInternal!!.copy(inputImage.bitmapInternal!!.config,true)
-        bitmap = Bitmap.createBitmap(1500, 2000, Bitmap.Config.ARGB_8888)
+//        bitmap = Bitmap.createBitmap(1500, 2000, Bitmap.Config.ARGB_8888)
 
         recognizer.process(inputImage)
             .addOnSuccessListener { _ ->

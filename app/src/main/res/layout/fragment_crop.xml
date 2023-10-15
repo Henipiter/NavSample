@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".fragments.CropFragment">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <com.canhub.cropper.CropImageView
+            android:id="@+id/cropImageView"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+
+            app:cropShowLabel="true"
+            app:cropperLabelText="textt"
+            app:cropBorderCornerColor="@color/cardview_shadow_start_color"/>
+
+        <Button
+            android:id="@+id/cameraPictureButton"
+            android:layout_width="150dp"
+            android:layout_height="100dp"
+            android:layout_marginBottom="200dp"
+            android:layout_marginEnd="32dp"
+            android:text="camera"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"  />
+
+        <Button
+            android:id="@+id/storagePictureButton"
+            android:text="storage"
+            android:layout_width="150dp"
+            android:layout_height="100dp"
+            android:layout_marginBottom="200dp"
+            android:layout_marginStart="32dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+</FrameLayout>
