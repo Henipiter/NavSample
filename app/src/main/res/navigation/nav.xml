@@ -19,11 +19,6 @@
         android:name="com.example.navsample.fragments.ShopListFragment"
         android:label="fragment_shop_list"
         tools:layout="@layout/fragment_shop_list" >
-        <argument
-            android:name="uri"
-            app:argType="android.net.Uri"
-            app:nullable="true"
-            android:defaultValue="@null" />
         <action
             android:id="@+id/action_shopListFragment_to_addProductFragment"
             app:destination="@id/addProductFragment" />
@@ -62,11 +57,6 @@
         android:label="fragment_stage_basic_info"
         tools:layout="@layout/fragment_stage_basic_info" >
         <argument
-            android:name="uri"
-            app:argType="android.net.Uri"
-            app:nullable="true"
-            android:defaultValue="@null" />
-        <argument
             android:name="receipt"
             app:argType="com.example.navsample.DTO.Receipt"
             app:nullable="true"
@@ -89,11 +79,6 @@
         <action
             android:id="@+id/action_imageImportFragment_to_stageBasicInfoFragment"
             app:destination="@id/stageBasicInfoFragment" />
-        <argument
-            android:name="bitmap"
-            app:argType="android.graphics.Bitmap"
-            app:nullable="true"
-            android:defaultValue="@null" />
         <action
             android:id="@+id/action_imageImportFragment_to_cropFragment"
             app:destination="@id/cropFragment" />
@@ -103,11 +88,6 @@
         android:name="com.example.navsample.fragments.CropFragment"
         android:label="fragment_crop"
         tools:layout="@layout/fragment_crop" >
-        <argument
-            android:name="uri"
-            app:argType="android.net.Uri"
-            app:nullable="true"
-            android:defaultValue="@null" />
         <action
             android:id="@+id/action_cropFragment_to_imageImportFragment"
             app:destination="@id/imageImportFragment" />

@@ -9,9 +9,11 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.fragment.app.activityViewModels
 import androidx.navigation.Navigation
 import androidx.navigation.fragment.navArgs
 import com.example.navsample.databinding.FragmentStageBasicInfoBinding
+import com.example.navsample.viewmodels.RecipeImageViewModel
 import java.util.Locale
 
 
@@ -19,6 +21,7 @@ class StageBasicInfoFragment : Fragment() {
     private var _binding: FragmentStageBasicInfoBinding? = null
     private val binding get() = _binding!!
     private val args: StageBasicInfoFragmentArgs by navArgs()
+    private val viewModel: RecipeImageViewModel by activityViewModels()
 
 
     private var picker: TimePickerDialog? = null
@@ -32,11 +35,24 @@ class StageBasicInfoFragment : Fragment() {
         return binding.root
     }
 
+
+    private fun initObserver() {
+        viewModel.bitmap.observe(viewLifecycleOwner) {
+            it?.let {
+                if (viewModel.bitmap.value != null) {
+                    binding.receiptImageMarked.setImageBitmap(viewModel.bitmap.value)
+                }
+            }
+        }
+    }
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        initObserver()
+        if (viewModel.bitmap.value != null) {
+            binding.receiptImageMarked.setImageBitmap(viewModel.bitmap.value)
+        }
 
-        if (args.uri != null) {
-            binding.receiptImageMarked.setImageURI(args.uri)
+        if (args.receipt != null) {
             binding.storeNameInput.setText(args.receipt?.storeName)
             binding.storeNIPInput.setText(args.receipt?.storeNIP)
             binding.receiptPTUInput.setText(args.receipt?.receiptPTU)
@@ -51,9 +67,7 @@ class StageBasicInfoFragment : Fragment() {
         }
         binding.addProductsButton.setOnClickListener {
             val action =
-                StageBasicInfoFragmentDirections.actionStageBasicInfoFragmentToShopListFragment(
-                    args.uri, args.productList,
-                )
+                StageBasicInfoFragmentDirections.actionStageBasicInfoFragmentToShopListFragment()
             Navigation.findNavController(it).navigate(action)
         }
         binding.storeNIPInput.setOnFocusChangeListener { _, hasFocus ->
@@ -63,7 +77,6 @@ class StageBasicInfoFragment : Fragment() {
                 } else {
                     binding.storeNIPInputInfo.visibility = View.INVISIBLE
                 }
-
             }
         }
 

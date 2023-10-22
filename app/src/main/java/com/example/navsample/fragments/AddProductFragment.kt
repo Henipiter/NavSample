@@ -1,16 +1,11 @@
 package com.example.navsample.fragments
 
-import android.app.DatePickerDialog
-import android.app.TimePickerDialog
-import android.icu.text.SimpleDateFormat
-import android.icu.util.Calendar
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ArrayAdapter
 import android.widget.Toast
-import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.navigation.Navigation
 import androidx.navigation.fragment.navArgs
@@ -19,8 +14,6 @@ import com.example.navsample.DTO.Product
 import com.example.navsample.DatabaseHelper
 import com.example.navsample.R
 import com.example.navsample.databinding.FragmentAddProductBinding
-import java.util.Date
-import java.util.Locale
 
 class AddProductFragment : Fragment() {
 
@@ -30,7 +23,7 @@ class AddProductFragment : Fragment() {
     private val args: AddProductFragmentArgs by navArgs()
 
     private lateinit var categoryList: List<String>
-    private var ptuTypeList = arrayOf("A", "B","C","D","E","F","G")
+    private var ptuTypeList = arrayOf("A", "B", "C", "D", "E", "F", "G")
     private var addNewCategory = false
 
     override fun onCreateView(
@@ -114,8 +107,7 @@ class AddProductFragment : Fragment() {
             binding.productAmountInput.setText(args.product!!.amount.toString())
             binding.ptuTypeInput.setText(args.product!!.ptuType.toString())
             binding.productCategoryInput.setText(args.product!!.category)
-        }
-        else{
+        } else {
             binding.ptuTypeInput.setText("A")
         }
 

@@ -10,6 +10,7 @@ import android.view.ViewGroup
 import android.widget.Toast
 import androidx.camera.core.ExperimentalGetImage
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.activityViewModels
 import androidx.navigation.Navigation
 import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -23,6 +24,7 @@ import com.example.navsample.DTO.Product
 import com.example.navsample.DatabaseHelper
 import com.example.navsample.R
 import com.example.navsample.databinding.FragmentShopListBinding
+import com.example.navsample.viewmodels.RecipeImageViewModel
 
 
 class ShopListFragment : Fragment(), CustomAdapter.ItemClickListener {
@@ -30,6 +32,7 @@ class ShopListFragment : Fragment(), CustomAdapter.ItemClickListener {
     private var _binding: FragmentShopListBinding? = null
     private val binding get() = _binding!!
     private val args: ShopListFragmentArgs by navArgs()
+    private val viewModel: RecipeImageViewModel by activityViewModels()
 
     private lateinit var recyclerViewEvent: RecyclerView
     private lateinit var customAdapter: CustomAdapter
@@ -44,12 +47,21 @@ class ShopListFragment : Fragment(), CustomAdapter.ItemClickListener {
         return binding.root
     }
 
+
+    private fun initObserver() {
+        viewModel.bitmap.observe(viewLifecycleOwner) {
+            it?.let {
+                if (viewModel.bitmap.value != null) {
+                    binding.receiptImageBig.setImageBitmap(viewModel.bitmap.value)
+                }
+            }
+        }
+    }
     @ExperimentalGetImage
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        if(args.uri != null) {
-            binding.receiptImageBig.setImageURI(args.uri)
-        }
         super.onViewCreated(view, savedInstanceState)
+        initObserver()
+
         databaseHelper = DatabaseHelper(requireContext())
         recyclerViewEvent = binding.recyclerViewEvent
         customAdapter = CustomAdapter(requireActivity(), requireContext(), productList, this)
@@ -87,12 +99,14 @@ class ShopListFragment : Fragment(), CustomAdapter.ItemClickListener {
         val bitmap = BitmapFactory.decodeStream(uri?.let {
             requireContext().contentResolver.openInputStream(it)
         })
-//        binding.receiptImageBig.setImageBitmap(bitmap)
+
+        viewModel.bitmap.value = bitmap
+        viewModel.setImageUri()
     }
     private fun startCameraWithUri() {
         customCropImage.launch(
             CropImageContractOptions(
-                uri = args.uri,
+                uri = viewModel.uri.value,
                 cropImageOptions = CropImageOptions(
                     imageSourceIncludeCamera = false,
                     imageSourceIncludeGallery = false,
