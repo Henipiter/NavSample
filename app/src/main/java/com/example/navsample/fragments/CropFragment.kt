@@ -16,13 +16,13 @@ import com.canhub.cropper.CropImageContract
 import com.canhub.cropper.CropImageContractOptions
 import com.canhub.cropper.CropImageOptions
 import com.example.navsample.databinding.FragmentCropBinding
-import com.example.navsample.viewmodels.RecipeImageViewModel
+import com.example.navsample.viewmodels.ReceiptImageViewModel
 
 class CropFragment : Fragment() {
 
     private var _binding: FragmentCropBinding? = null
     private val binding get() = _binding!!
-    private val viewModel: RecipeImageViewModel by activityViewModels()
+    private val viewModel: ReceiptImageViewModel by activityViewModels()
 
     private var outputUri: Uri? = null
 
@@ -83,7 +83,7 @@ class CropFragment : Fragment() {
         })
 
         viewModel.bitmap.value = bitmap
-        viewModel.setImageUri()
+        viewModel.setImageUriOriginal()
 
     }
 }

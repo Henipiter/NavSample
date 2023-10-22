@@ -13,15 +13,16 @@ import androidx.fragment.app.activityViewModels
 import androidx.navigation.Navigation
 import androidx.navigation.fragment.navArgs
 import com.example.navsample.databinding.FragmentStageBasicInfoBinding
-import com.example.navsample.viewmodels.RecipeImageViewModel
+import com.example.navsample.viewmodels.ReceiptDataViewModel
+import com.example.navsample.viewmodels.ReceiptImageViewModel
 import java.util.Locale
 
 
 class StageBasicInfoFragment : Fragment() {
     private var _binding: FragmentStageBasicInfoBinding? = null
     private val binding get() = _binding!!
-    private val args: StageBasicInfoFragmentArgs by navArgs()
-    private val viewModel: RecipeImageViewModel by activityViewModels()
+    private val receiptImageViewModel: ReceiptImageViewModel by activityViewModels()
+    private val receiptDataViewModel: ReceiptDataViewModel by activityViewModels()
 
 
     private var picker: TimePickerDialog? = null
@@ -37,10 +38,10 @@ class StageBasicInfoFragment : Fragment() {
 
 
     private fun initObserver() {
-        viewModel.bitmap.observe(viewLifecycleOwner) {
+        receiptImageViewModel.bitmap.observe(viewLifecycleOwner) {
             it?.let {
-                if (viewModel.bitmap.value != null) {
-                    binding.receiptImageMarked.setImageBitmap(viewModel.bitmap.value)
+                if (receiptImageViewModel.bitmap.value != null) {
+                    binding.receiptImageMarked.setImageBitmap(receiptImageViewModel.bitmap.value)
                 }
             }
         }
@@ -48,19 +49,20 @@ class StageBasicInfoFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         initObserver()
-        if (viewModel.bitmap.value != null) {
-            binding.receiptImageMarked.setImageBitmap(viewModel.bitmap.value)
+        if (receiptImageViewModel.bitmap.value != null) {
+            binding.receiptImageMarked.setImageBitmap(receiptImageViewModel.bitmap.value)
         }
 
-        if (args.receipt != null) {
-            binding.storeNameInput.setText(args.receipt?.storeName)
-            binding.storeNIPInput.setText(args.receipt?.storeNIP)
-            binding.receiptPTUInput.setText(args.receipt?.receiptPTU)
-            binding.receiptPLNInput.setText(args.receipt?.receiptPLN)
-            binding.receiptDateInput.setText(args.receipt?.receiptDate)
-            binding.receiptTimeInput.setText(args.receipt?.receiptTime)
+        if (receiptDataViewModel.receipt.value != null) {
+            val receipt = receiptDataViewModel.receipt.value
+            binding.storeNameInput.setText(receipt?.storeName)
+            binding.storeNIPInput.setText(receipt?.storeNIP)
+            binding.receiptPTUInput.setText(receipt?.receiptPTU)
+            binding.receiptPLNInput.setText(receipt?.receiptPLN)
+            binding.receiptDateInput.setText(receipt?.receiptDate)
+            binding.receiptTimeInput.setText(receipt?.receiptTime)
 
-            if (!verifyNIP(args.receipt?.storeNIP)) {
+            if (!verifyNIP(receipt?.storeNIP)) {
                 binding.storeNIPInputInfo.visibility = View.VISIBLE
             }
 
@@ -72,7 +74,7 @@ class StageBasicInfoFragment : Fragment() {
         }
         binding.storeNIPInput.setOnFocusChangeListener { _, hasFocus ->
             if (!hasFocus) {
-                if (!verifyNIP(args.receipt?.storeNIP)) {
+                if (!verifyNIP(receiptDataViewModel.receipt.value?.storeNIP)) {
                     binding.storeNIPInputInfo.visibility = View.VISIBLE
                 } else {
                     binding.storeNIPInputInfo.visibility = View.INVISIBLE

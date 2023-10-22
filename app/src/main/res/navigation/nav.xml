@@ -22,11 +22,6 @@
         <action
             android:id="@+id/action_shopListFragment_to_addProductFragment"
             app:destination="@id/addProductFragment" />
-        <argument
-            android:name="productList"
-            app:argType="com.example.navsample.DTO.Product[]"
-            app:nullable="true"
-            android:defaultValue="@null" />
     </fragment>
     <fragment
         android:id="@+id/cameraFragment"
@@ -56,17 +51,9 @@
         android:name="com.example.navsample.fragments.StageBasicInfoFragment"
         android:label="fragment_stage_basic_info"
         tools:layout="@layout/fragment_stage_basic_info" >
-        <argument
-            android:name="receipt"
-            app:argType="com.example.navsample.DTO.Receipt"
-            app:nullable="true"
-            android:defaultValue="@null" />
         <action
             android:id="@+id/action_stageBasicInfoFragment_to_shopListFragment"
             app:destination="@id/shopListFragment" />
-        <argument
-            android:name="productList"
-            app:argType="com.example.navsample.DTO.Product[]" />
     </fragment>
     <fragment
         android:id="@+id/imageImportFragment"

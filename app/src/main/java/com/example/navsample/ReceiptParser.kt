@@ -1,5 +1,6 @@
 package com.example.navsample
 
+import android.util.Log
 import com.example.navsample.DTO.Product
 
 class ReceiptParser {
@@ -13,7 +14,7 @@ class ReceiptParser {
 
     fun parseToProducts(
         sortedProductListOnRecipe: MutableList<ImageAnalyzer.Line>
-    ): Array<Product> {
+    ): ArrayList<Product> {
         //SORTOWANIE LISTY PRODUKTOW PO Y
 
         val productList = ArrayList<Product>()
@@ -23,10 +24,10 @@ class ReceiptParser {
             if (parsedProduct.name != "---" || parsedProduct.finalPrice != "---") {
                 productList.add(parsedProduct)
             }
-//            Log.i("ImageProcess", "${product.data}\n${parsedProduct}")
+            Log.i("ImageProcess", "${product.data}\n${parsedProduct}")
 
         }
-        return productList.toTypedArray()
+        return productList
     }
 
 

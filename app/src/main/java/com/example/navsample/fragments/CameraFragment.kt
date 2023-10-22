@@ -21,7 +21,7 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.navigation.Navigation
 import com.example.navsample.databinding.FragmentCameraBinding
-import com.example.navsample.viewmodels.RecipeImageViewModel
+import com.example.navsample.viewmodels.ReceiptImageViewModel
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 
@@ -31,7 +31,7 @@ class CameraFragment : Fragment() {
     private val binding get() = _binding!!
 
 
-    private val viewModel: RecipeImageViewModel by activityViewModels()
+    private val viewModel: ReceiptImageViewModel by activityViewModels()
     private var imageCapture: ImageCapture? = null
 
     private lateinit var cameraExecutor: ExecutorService

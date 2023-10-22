@@ -12,7 +12,6 @@ import androidx.camera.core.ExperimentalGetImage
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.navigation.Navigation
-import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.canhub.cropper.CropImage
@@ -22,17 +21,21 @@ import com.canhub.cropper.CropImageOptions
 import com.example.navsample.CustomAdapter
 import com.example.navsample.DTO.Product
 import com.example.navsample.DatabaseHelper
+import com.example.navsample.ImageAnalyzer
 import com.example.navsample.R
 import com.example.navsample.databinding.FragmentShopListBinding
-import com.example.navsample.viewmodels.RecipeImageViewModel
+import com.example.navsample.viewmodels.ReceiptDataViewModel
+import com.example.navsample.viewmodels.ReceiptImageViewModel
+import com.google.mlkit.vision.common.InputImage
 
 
-class ShopListFragment : Fragment(), CustomAdapter.ItemClickListener {
+@ExperimentalGetImage class ShopListFragment : Fragment(), CustomAdapter.ItemClickListener {
 
     private var _binding: FragmentShopListBinding? = null
     private val binding get() = _binding!!
-    private val args: ShopListFragmentArgs by navArgs()
-    private val viewModel: RecipeImageViewModel by activityViewModels()
+
+    private val receiptImageViewModel: ReceiptImageViewModel by activityViewModels()
+    private val receiptDataViewModel: ReceiptDataViewModel by activityViewModels()
 
     private lateinit var recyclerViewEvent: RecyclerView
     private lateinit var customAdapter: CustomAdapter
@@ -49,18 +52,38 @@ class ShopListFragment : Fragment(), CustomAdapter.ItemClickListener {
 
 
     private fun initObserver() {
-        viewModel.bitmap.observe(viewLifecycleOwner) {
+        receiptImageViewModel.bitmapCropped.observe(viewLifecycleOwner) {
             it?.let {
-                if (viewModel.bitmap.value != null) {
-                    binding.receiptImageBig.setImageBitmap(viewModel.bitmap.value)
+                if (receiptImageViewModel.bitmapCropped.value != null) {
+                    binding.receiptImageBig.setImageBitmap(receiptImageViewModel.bitmapCropped.value)
                 }
             }
         }
+        receiptDataViewModel.product.observe(viewLifecycleOwner) {
+            it?.let {
+                storeDataInArraysFromFragment()
+            }
+        }
+
     }
+
+    @ExperimentalGetImage
+    private fun analyzeImage() {
+        val imageAnalyzer = ImageAnalyzer()
+        receiptImageViewModel.bitmapCropped.value?.let {
+            imageAnalyzer.analyzeProductList(
+                InputImage.fromBitmap(it, 0)
+            ) {
+                receiptDataViewModel.product.value = imageAnalyzer.productList
+            }
+        }
+    }
+
     @ExperimentalGetImage
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         initObserver()
+        startCameraWithUri()
 
         databaseHelper = DatabaseHelper(requireContext())
         recyclerViewEvent = binding.recyclerViewEvent
@@ -70,8 +93,7 @@ class ShopListFragment : Fragment(), CustomAdapter.ItemClickListener {
             LinearLayoutManager(requireContext(), LinearLayoutManager.VERTICAL, false)
 
 //        storeDataInArrays()
-        storeDataInArraysFromFragment()
-        customAdapter.notifyDataSetChanged()
+//        storeDataInArraysFromFragment()
 
         binding.addNewButton.setOnClickListener {
             Navigation.findNavController(it)
@@ -80,13 +102,7 @@ class ShopListFragment : Fragment(), CustomAdapter.ItemClickListener {
         binding.confirmButton.setOnClickListener {
 
 
-            Navigation.findNavController(binding.root).popBackStack(R.id.menuFragment,false)
-        }
-        binding.receiptImageBig.setOnLongClickListener{
-            startCameraWithUri()
-
-            Toast.makeText(requireContext(), "AA", Toast.LENGTH_SHORT).show();
-            true
+            Navigation.findNavController(binding.root).popBackStack(R.id.menuFragment, false)
         }
     }
 
@@ -95,18 +111,22 @@ class ShopListFragment : Fragment(), CustomAdapter.ItemClickListener {
             handleCropImageResult(it.uriContent)
         }
     }
+
+    @ExperimentalGetImage
     private fun handleCropImageResult(uri: Uri?) {
         val bitmap = BitmapFactory.decodeStream(uri?.let {
             requireContext().contentResolver.openInputStream(it)
         })
 
-        viewModel.bitmap.value = bitmap
-        viewModel.setImageUri()
+        receiptImageViewModel.bitmapCropped.value = bitmap
+        receiptImageViewModel.setImageUriCropped()
+        analyzeImage()
     }
+
     private fun startCameraWithUri() {
         customCropImage.launch(
             CropImageContractOptions(
-                uri = viewModel.uri.value,
+                uri = receiptImageViewModel.uri.value,
                 cropImageOptions = CropImageOptions(
                     imageSourceIncludeCamera = false,
                     imageSourceIncludeGallery = false,
@@ -122,14 +142,12 @@ class ShopListFragment : Fragment(), CustomAdapter.ItemClickListener {
             Toast.makeText(requireContext(), "No data", Toast.LENGTH_SHORT).show()
         }
     }
-    private fun storeDataInArraysFromFragment(){
-        productList.clear()
-        if(args.productList!=null) {
-            productList.addAll(args.productList!!)
-        }
-        else{
-            productList.clear()
-        }
+
+
+    private fun storeDataInArraysFromFragment() {
+        receiptDataViewModel.product.value?.let { productList.addAll(it) }
+        customAdapter.notifyDataSetChanged()
+
     }
 
     override fun onItemClick(product: Product) {

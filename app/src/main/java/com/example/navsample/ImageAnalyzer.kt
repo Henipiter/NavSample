@@ -2,7 +2,6 @@ package com.example.navsample
 
 
 import android.content.Context
-import android.graphics.Bitmap
 import android.util.Log
 import android.widget.Toast
 import androidx.camera.core.ExperimentalGetImage
@@ -36,14 +35,13 @@ class ImageAnalyzer {
     private var valueTime: String? = null
     private var companyName: String? = null
     private var validNIP = false
-    var done = false
 
     var pixelNIP: Pixel? = null
     var pixelDate: Pixel? = null
     var pixelTime: Pixel? = null
 
     var receipt: Receipt? = null
-    var productList: Array<Product> = arrayOf()
+    var productList: ArrayList<Product> = ArrayList()
 
     data class Line(
         var data: String,
@@ -65,16 +63,33 @@ class ImageAnalyzer {
     data class Cell(var data: String, var x1: Int, var y1: Int, var x2: Int, var y2: Int)
     data class Pixel(var x1: Int, var y1: Int, var x2: Int, var y2: Int)
 
+
     @ExperimentalGetImage
-    fun processImageProxy(
+    fun analyzeProductList(
         inputImage: InputImage,
-        context: Context,
         onFinish: () -> Unit
     ) {
-        done = false
+
         imageWidth = inputImage.width
-//        bitmap = inputImage.bitmapInternal!!.copy(inputImage.bitmapInternal!!.config,true)
-//        bitmap = Bitmap.createBitmap(1500, 2000, Bitmap.Config.ARGB_8888)
+
+        recognizer.process(inputImage)
+            .addOnSuccessListener { _ ->
+            }
+            .addOnFailureListener {
+                Log.e("ImageProcess", it.message.orEmpty())
+            }.addOnCompleteListener {
+                val blocks = it.result.textBlocks
+                productList = getProductContent(blocks)
+                onFinish.invoke()
+            }
+    }
+
+    @ExperimentalGetImage
+    fun analyzeReceipt(
+        inputImage: InputImage,
+        onFinish: () -> Unit
+    ) {
+        imageWidth = inputImage.width
 
         recognizer.process(inputImage)
             .addOnSuccessListener { _ ->
@@ -88,15 +103,12 @@ class ImageAnalyzer {
                 val lineList = convertCellsIntoString(sortedCellList).joinToString(separator = "\n")
                 Log.i("ImageProcess", lineList)
 
-                productList = getProductContent(blocks)
-
                 findKeywords(lineList)
                 findCellWithKeywords(sortedCellList)
+                onFinish.invoke()
             }
 
-        Toast.makeText(context, "Done", Toast.LENGTH_SHORT).show()
 
-        onFinish.invoke()
     }
 
     private fun sortText(blocks: List<Text.TextBlock>): List<Cell> {
@@ -223,7 +235,6 @@ class ImageAnalyzer {
         Log.i("ImageProcess", "valueDate $valueDate")
         Log.i("ImageProcess", "valueTime $valueTime")
 
-        done = true
     }
 
     private fun verifyNIP(valueNIP: String?): Boolean {
@@ -322,7 +333,7 @@ class ImageAnalyzer {
         return pattern.matcher(normalizedText).replaceAll("")
     }
 
-    private fun getProductContent(blocks: List<Text.TextBlock>): Array<Product> {
+    private fun getProductContent(blocks: List<Text.TextBlock>): ArrayList<Product> {
 
         val firstLine = blocks[0].lines[0]
 
@@ -369,6 +380,8 @@ class ImageAnalyzer {
             arrayOf("PARAGON FISKALNY", "PARAGONFISKALNY")
 
         for (line in rotatedLines) {
+
+//            Log.d("ImageProcess", line.toString())
             for (keyword in startKeywords) {
                 val data = line.data
                 if (normalizeText(data).contains(keyword)) {
@@ -378,7 +391,7 @@ class ImageAnalyzer {
             }
         }
         if (beginReceiptCell == null) {
-            return arrayOf()
+            return ArrayList()
         }
 
         val productListOnRecipe = ArrayList<Line>()
@@ -393,30 +406,30 @@ class ImageAnalyzer {
         val sortedProductListOnRecipe =
             productListOnRecipe.sortedWith(compareBy { it.p0.y }).toMutableList()
         Log.i("ImageProcess", "****************************")
-//        for (product in sortedProductListOnRecipe) {
-//            Log.i("ImageProcess", "( ${product.p3.x}, ${product.p3.y} ) ${product.data} ")
-//        }
+        for (product in sortedProductListOnRecipe) {
+            Log.i("ImageProcess", "( ${product.p3.x}, ${product.p3.y} ) ${product.data} ")
+        }
         //DODAJ CENY DO PROODUKTOW
         for (line in rotatedLines) {
             if (line.p0.y > beginReceiptCell.p3.y && line.p0.x > minX + lengthX / 2) {
 
 
-//                Log.i("ImageProcess", "LINE ( ${line.p3.x}, ${line.p3.y} ), ${line.data} ")
+                Log.i("ImageProcess", "LINE ( ${line.p3.x}, ${line.p3.y} ), ${line.data} ")
                 for (productIndex in 1..<sortedProductListOnRecipe.size) {
-//                    Log.i(
-//                        "ImageProcess",
-//                        "PRODUCT ( ${sortedProductListOnRecipe[productIndex].p3.x}, ${sortedProductListOnRecipe[productIndex].p3.y} ), ${sortedProductListOnRecipe[productIndex].data} "
-//                    )
+                    Log.i(
+                        "ImageProcess",
+                        "PRODUCT ( ${sortedProductListOnRecipe[productIndex].p3.x}, ${sortedProductListOnRecipe[productIndex].p3.y} ), ${sortedProductListOnRecipe[productIndex].data} "
+                    )
                     val productNow = sortedProductListOnRecipe[productIndex]
-//                    Log.i(
-//                        "ImageProcess",
-//                        "L${(productNow.p0.y + productNow.p3.y) / 2}>${line.p3.y}"
-//                    )
-                    if ((productNow.p0.y + productNow.p3.y) / 2 > line.p3.y) {
-//                        Log.i(
-//                            "ImageProcess",
-//                            "YYYY\nLINE ( ${line.p3.y} ), ${line.data} \nPRODUCT ${sortedProductListOnRecipe[productIndex - 1].p3.y} ), ${sortedProductListOnRecipe[productIndex - 1].data}"
-//                        )
+                    Log.i(
+                        "ImageProcess",
+                        "L${(productNow.p0.y + productNow.p3.y) / 2}>${line.p3.y}"
+                    )
+                    if ((productNow.p0.y + productNow.p3.y) / 2 > line.p3.y || productIndex==sortedProductListOnRecipe.size-1) {
+                        Log.i(
+                            "ImageProcess",
+                            "YYYY\nLINE ( ${line.p3.y} ), ${line.data} \nPRODUCT ${sortedProductListOnRecipe[productIndex - 1].p3.y} ), ${sortedProductListOnRecipe[productIndex - 1].data}"
+                        )
 
                         sortedProductListOnRecipe[productIndex - 1].data += " " + line.data
                         sortedProductListOnRecipe[productIndex - 1].p1 = line.p1
