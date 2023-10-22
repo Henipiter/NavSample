@@ -57,18 +57,14 @@ class ImageImportFragment : Fragment() {
 
         if (args.bitmap != null) {
             binding.receiptImageBig.setImageBitmap(args.bitmap)
-            analyzedBitmap = args.bitmap
+//            analyzedBitmap = args.bitmap
             analyzedImage = InputImage.fromBitmap(args.bitmap!!, 0)
         }
 
-
         binding.loadImage.setOnClickListener {
-
             val action = ImageImportFragmentDirections.actionImageImportFragmentToCropFragment()
             Navigation.findNavController(view).navigate(action)
             binding.applyButton.visibility = View.INVISIBLE
-
-
         }
 
         binding.manualButton.setOnClickListener {
@@ -78,6 +74,7 @@ class ImageImportFragment : Fragment() {
                 )
             Navigation.findNavController(it).navigate(action)
         }
+
         binding.analyzeButton.setOnClickListener {
             analyzedImage?.let { it1 ->
                 imageAnalyzer.processImageProxy(
@@ -89,16 +86,17 @@ class ImageImportFragment : Fragment() {
                 }
             }
         }
+
         binding.applyButton.setOnClickListener {
-            analyzedImage?.let { it1 ->
-                val action =
-                    ImageImportFragmentDirections.actionImageImportFragmentToStageBasicInfoFragment(
-                        imageAnalyzer.productList,
-                        analyzedUri,
-                        imageAnalyzer.receipt
-                    )
-                Navigation.findNavController(requireView()).navigate(action)
-            }
+
+            val action =
+                ImageImportFragmentDirections.actionImageImportFragmentToStageBasicInfoFragment(
+                    imageAnalyzer.productList,
+                    analyzedUri,
+                    imageAnalyzer.receipt
+                )
+            Navigation.findNavController(requireView()).navigate(action)
+
         }
     }
 
@@ -114,19 +112,20 @@ class ImageImportFragment : Fragment() {
 
     private fun drawRectangles(): Uri {
 
-        if (analyzedBitmap == null) {
+        if (args.bitmap == null) {
             return getImageUri(Bitmap.createBitmap(500, 500, Bitmap.Config.ARGB_8888))
         }
-        val analyzedBitmap = analyzedBitmap!!
-        val markedBitmap = analyzedBitmap.copy(analyzedBitmap.config, true)
-
-        val canvas = Canvas(markedBitmap)
-        val paint = Paint(Color.GREEN)
-        paint.strokeWidth = 10F
-        drawRectangle(imageAnalyzer.pixelNIP, canvas, paint)
-        drawRectangle(imageAnalyzer.pixelDate, canvas, paint)
-        drawRectangle(imageAnalyzer.pixelTime, canvas, paint)
-        return getImageUri(markedBitmap)
+//        val analyzedBitmap = analyzedBitmap!!
+//        val markedBitmap = analyzedBitmap.copy(analyzedBitmap.config, true)
+//
+//            val canvas = Canvas(markedBitmap)
+//        val paint = Paint(Color.GREEN)
+//        paint.strokeWidth = 10F
+//        drawRectangle(imageAnalyzer.pixelNIP, canvas, paint)
+//        drawRectangle(imageAnalyzer.pixelDate, canvas, paint)
+//        drawRectangle(imageAnalyzer.pixelTime, canvas, paint)
+//        return getImageUri(markedBitmap)
+        return getImageUri(args.bitmap!!)
     }
 
     private fun drawRectangle(pixel: ImageAnalyzer.Pixel?, canvas: Canvas, paint: Paint) {

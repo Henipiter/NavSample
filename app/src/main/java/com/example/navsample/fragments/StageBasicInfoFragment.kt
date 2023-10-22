@@ -52,7 +52,7 @@ class StageBasicInfoFragment : Fragment() {
         binding.addProductsButton.setOnClickListener {
             val action =
                 StageBasicInfoFragmentDirections.actionStageBasicInfoFragmentToShopListFragment(
-                    args.productList, args.uri
+                    args.uri, args.productList,
                 )
             Navigation.findNavController(it).navigate(action)
         }

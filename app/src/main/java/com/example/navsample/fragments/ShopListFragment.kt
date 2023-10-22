@@ -1,6 +1,8 @@
 package com.example.navsample.fragments
 
 
+import android.graphics.BitmapFactory
+import android.net.Uri
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -12,6 +14,10 @@ import androidx.navigation.Navigation
 import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.canhub.cropper.CropImage
+import com.canhub.cropper.CropImageContract
+import com.canhub.cropper.CropImageContractOptions
+import com.canhub.cropper.CropImageOptions
 import com.example.navsample.CustomAdapter
 import com.example.navsample.DTO.Product
 import com.example.navsample.DatabaseHelper
@@ -55,10 +61,44 @@ class ShopListFragment : Fragment(), CustomAdapter.ItemClickListener {
         storeDataInArraysFromFragment()
         customAdapter.notifyDataSetChanged()
 
-        binding.manualButton.setOnClickListener {
+        binding.addNewButton.setOnClickListener {
             Navigation.findNavController(it)
                 .navigate(R.id.action_shopListFragment_to_addProductFragment)
         }
+        binding.confirmButton.setOnClickListener {
+
+
+            Navigation.findNavController(binding.root).popBackStack(R.id.menuFragment,false)
+        }
+        binding.receiptImageBig.setOnLongClickListener{
+            startCameraWithUri()
+
+            Toast.makeText(requireContext(), "AA", Toast.LENGTH_SHORT).show();
+            true
+        }
+    }
+
+    private val customCropImage = registerForActivityResult(CropImageContract()) {
+        if (it !is CropImage.CancelledResult) {
+            handleCropImageResult(it.uriContent)
+        }
+    }
+    private fun handleCropImageResult(uri: Uri?) {
+        val bitmap = BitmapFactory.decodeStream(uri?.let {
+            requireContext().contentResolver.openInputStream(it)
+        })
+//        binding.receiptImageBig.setImageBitmap(bitmap)
+    }
+    private fun startCameraWithUri() {
+        customCropImage.launch(
+            CropImageContractOptions(
+                uri = args.uri,
+                cropImageOptions = CropImageOptions(
+                    imageSourceIncludeCamera = false,
+                    imageSourceIncludeGallery = false,
+                ),
+            ),
+        )
     }
 
     private fun storeDataInArrays() {
@@ -70,7 +110,12 @@ class ShopListFragment : Fragment(), CustomAdapter.ItemClickListener {
     }
     private fun storeDataInArraysFromFragment(){
         productList.clear()
-        productList.addAll(args.productList)
+        if(args.productList!=null) {
+            productList.addAll(args.productList!!)
+        }
+        else{
+            productList.clear()
+        }
     }
 
     override fun onItemClick(product: Product) {

@@ -30,7 +30,7 @@ class CustomAdapter(
         var itemPrice: TextView = itemView.findViewById(R.id.item_prize),
         var productName: TextView = itemView.findViewById(R.id.product_name),
         var mainLayout: ConstraintLayout = itemView.findViewById(R.id.mainLayout)
-    ) : RecyclerView.ViewHolder(itemView) {}
+    ) : RecyclerView.ViewHolder(itemView)
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MyViewHolder {
         val inflater = LayoutInflater.from(this.context)
@@ -50,6 +50,9 @@ class CustomAdapter(
         holder.mainLayout.setOnClickListener {
             itemClickListener.onItemClick(productList[position])
         }
+        holder.mainLayout.setOnLongClickListener {
+            productList.remove(productList[position])
+        }
         val floatAmount = trim(productList[position].amount.toString()).toDoubleOrNull()
         val itemPrice = trim(productList[position].itemPrice.toString()).toDoubleOrNull()
         val finalPrice = trim(productList[position].finalPrice.toString()).toDoubleOrNull()
@@ -59,22 +62,22 @@ class CustomAdapter(
         }
     }
 
-    private fun trim(x: String):String{
+    private fun trim(x: String): String {
         var delimiter = false
         var newString = ""
-        for (i in x){
-            if(i!='.' && !i.isDigit()){
+        for (i in x) {
+            if (i != '.' && !i.isDigit()) {
                 return newString
             }
-            if(delimiter && ! i.isDigit()){
+            if (delimiter && !i.isDigit()) {
                 return newString
             }
 
-            if(!delimiter && i== '.' ){
+            if (!delimiter && i == '.') {
                 delimiter = true
 
             }
-            newString +=i
+            newString += i
         }
         return newString
     }

@@ -29,7 +29,9 @@
             app:destination="@id/addProductFragment" />
         <argument
             android:name="productList"
-            app:argType="com.example.navsample.DTO.Product[]" />
+            app:argType="com.example.navsample.DTO.Product[]"
+            app:nullable="true"
+            android:defaultValue="@null" />
     </fragment>
     <fragment
         android:id="@+id/cameraFragment"

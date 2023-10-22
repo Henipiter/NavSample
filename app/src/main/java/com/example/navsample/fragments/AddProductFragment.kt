@@ -142,6 +142,8 @@ class AddProductFragment : Fragment() {
             Navigation.findNavController(it)
                 .navigate(R.id.action_addProductFragment_to_shopListFragment)
 
+            val action = AddProductFragmentDirections.actionAddProductFragmentToShopListFragment()
+            Navigation.findNavController(requireView()).navigate(action)
         }
     }
 }
