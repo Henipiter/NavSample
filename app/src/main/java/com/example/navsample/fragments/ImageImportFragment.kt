@@ -28,6 +28,7 @@ class ImageImportFragment : Fragment() {
 
     private var analyzedImage: InputImage? = null
     private val imageAnalyzer = ImageAnalyzer()
+    private var goNext = false
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
@@ -39,7 +40,7 @@ class ImageImportFragment : Fragment() {
     @ExperimentalGetImage
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        binding.applyButton.visibility = View.INVISIBLE
+        binding.indeterminateBar.visibility = View.GONE
 
         initObserver()
 
@@ -48,7 +49,6 @@ class ImageImportFragment : Fragment() {
         binding.loadImage.setOnClickListener {
             val action = ImageImportFragmentDirections.actionImageImportFragmentToCropFragment()
             Navigation.findNavController(view).navigate(action)
-            binding.applyButton.visibility = View.INVISIBLE
         }
 
         binding.manualButton.setOnClickListener {
@@ -58,25 +58,18 @@ class ImageImportFragment : Fragment() {
         }
 
         binding.analyzeButton.setOnClickListener {
+            goNext = true
+            binding.indeterminateBar.visibility = View.VISIBLE
             analyzedImage?.let { it1 ->
                 imageAnalyzer.analyzeReceipt(
                     it1
                 ) {
                     drawRectangles()
-
                     receiptDataViewModel.receipt.value = imageAnalyzer.receipt
-                    binding.applyButton.visibility = View.VISIBLE
                 }
             }
         }
 
-        binding.applyButton.setOnClickListener {
-
-            val action =
-                ImageImportFragmentDirections.actionImageImportFragmentToStageBasicInfoFragment()
-            Navigation.findNavController(requireView()).navigate(action)
-
-        }
     }
 
     private fun initObserver() {
@@ -90,9 +83,14 @@ class ImageImportFragment : Fragment() {
         }
         receiptDataViewModel.receipt.observe(viewLifecycleOwner) {
             it?.let {
-                val action =
-                    ImageImportFragmentDirections.actionImageImportFragmentToStageBasicInfoFragment()
-                Navigation.findNavController(requireView()).navigate(action)
+
+                binding.indeterminateBar.visibility = View.GONE
+                if(goNext == true){
+                    goNext = false
+                    val action =
+                        ImageImportFragmentDirections.actionImageImportFragmentToStageBasicInfoFragment()
+                    Navigation.findNavController(requireView()).navigate(action)
+                }
             }
         }
     }
