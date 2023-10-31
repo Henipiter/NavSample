@@ -7,7 +7,6 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
 import androidx.camera.core.ExperimentalGetImage
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
@@ -19,7 +18,7 @@ import com.canhub.cropper.CropImageContract
 import com.canhub.cropper.CropImageContractOptions
 import com.canhub.cropper.CropImageOptions
 import com.example.navsample.CustomAdapter
-import com.example.navsample.DTO.Product
+import com.example.navsample.DTO.ProductDTO
 import com.example.navsample.DatabaseHelper
 import com.example.navsample.ImageAnalyzer
 import com.example.navsample.R
@@ -29,7 +28,8 @@ import com.example.navsample.viewmodels.ReceiptImageViewModel
 import com.google.mlkit.vision.common.InputImage
 
 
-@ExperimentalGetImage class ShopListFragment : Fragment(), CustomAdapter.ItemClickListener {
+@ExperimentalGetImage
+class ShopListFragment : Fragment(), CustomAdapter.ItemClickListener {
 
     private var _binding: FragmentShopListBinding? = null
     private val binding get() = _binding!!
@@ -41,7 +41,7 @@ import com.google.mlkit.vision.common.InputImage
     private lateinit var customAdapter: CustomAdapter
 
     private lateinit var databaseHelper: DatabaseHelper
-    private var productList: ArrayList<Product> = ArrayList()
+//    private var productList: ArrayList<Product> = ArrayList()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
@@ -61,7 +61,8 @@ import com.google.mlkit.vision.common.InputImage
         }
         receiptDataViewModel.product.observe(viewLifecycleOwner) {
             it?.let {
-                storeDataInArraysFromFragment()
+                customAdapter.productList = it
+                customAdapter.notifyDataSetChanged()
             }
         }
 
@@ -87,7 +88,16 @@ import com.google.mlkit.vision.common.InputImage
 
         databaseHelper = DatabaseHelper(requireContext())
         recyclerViewEvent = binding.recyclerViewEvent
-        customAdapter = CustomAdapter(requireActivity(), requireContext(), productList, this)
+        customAdapter = CustomAdapter(
+            requireContext(),
+            receiptDataViewModel.product.value ?: arrayListOf(), this
+        ) { i: Int ->
+            receiptDataViewModel.product.value?.removeAt(i)
+            customAdapter.productList = receiptDataViewModel.product.value ?: arrayListOf()
+            customAdapter.notifyDataSetChanged()
+        }
+
+
         recyclerViewEvent.adapter = customAdapter
         recyclerViewEvent.layoutManager =
             LinearLayoutManager(requireContext(), LinearLayoutManager.VERTICAL, false)
@@ -135,22 +145,16 @@ import com.google.mlkit.vision.common.InputImage
         )
     }
 
-    private fun storeDataInArrays() {
-        productList.clear()
-        productList.addAll(databaseHelper.readAllProductData())
-        if (productList.size == 0) {
-            Toast.makeText(requireContext(), "No data", Toast.LENGTH_SHORT).show()
-        }
-    }
+//    private fun storeDataInArrays() {
+//        productList.clear()
+//        productList.addAll(databaseHelper.readAllProductData())
+//        if (productList.size == 0) {
+//            Toast.makeText(requireContext(), "No data", Toast.LENGTH_SHORT).show()
+//        }
+//    }
 
 
-    private fun storeDataInArraysFromFragment() {
-        receiptDataViewModel.product.value?.let { productList.addAll(it) }
-        customAdapter.notifyDataSetChanged()
-
-    }
-
-    override fun onItemClick(product: Product) {
+    override fun onItemClick(product: ProductDTO) {
 
         val action = ShopListFragmentDirections.actionShopListFragmentToAddProductFragment(product)
         Navigation.findNavController(requireView()).navigate(action)

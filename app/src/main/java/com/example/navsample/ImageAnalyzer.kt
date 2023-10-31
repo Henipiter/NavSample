@@ -1,12 +1,10 @@
 package com.example.navsample
 
 
-import android.content.Context
 import android.util.Log
-import android.widget.Toast
 import androidx.camera.core.ExperimentalGetImage
-import com.example.navsample.DTO.Product
-import com.example.navsample.DTO.Receipt
+import com.example.navsample.DTO.ProductDTO
+import com.example.navsample.DTO.ReceiptDTO
 import com.google.mlkit.vision.common.InputImage
 import com.google.mlkit.vision.text.Text
 import com.google.mlkit.vision.text.TextRecognition
@@ -40,8 +38,8 @@ class ImageAnalyzer {
     var pixelDate: Pixel? = null
     var pixelTime: Pixel? = null
 
-    var receipt: Receipt? = null
-    var productList: ArrayList<Product> = ArrayList()
+    var receipt: ReceiptDTO? = null
+    var productList: ArrayList<ProductDTO> = ArrayList()
 
     data class Line(
         var data: String,
@@ -227,7 +225,7 @@ class ImageAnalyzer {
         validNIP = verifyNIP(valueNIP)
         companyName = lineList.split("\n")[0]
 
-        receipt = Receipt(null, companyName, valueNIP, valuePLN, valuePTU, valueDate, valueTime)
+        receipt = ReceiptDTO(null, companyName, valueNIP, valuePLN, valuePTU, valueDate, valueTime)
         Log.i("ImageProcess", "valueNIP valueNIP valid: $validNIP.toString()")
         Log.i("ImageProcess", "companyName $companyName")
         Log.i("ImageProcess", "valuePTU $valuePTU")
@@ -333,7 +331,7 @@ class ImageAnalyzer {
         return pattern.matcher(normalizedText).replaceAll("")
     }
 
-    private fun getProductContent(blocks: List<Text.TextBlock>): ArrayList<Product> {
+    private fun getProductContent(blocks: List<Text.TextBlock>): ArrayList<ProductDTO> {
 
         val firstLine = blocks[0].lines[0]
 

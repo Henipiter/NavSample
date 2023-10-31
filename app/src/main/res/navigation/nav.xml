@@ -39,7 +39,7 @@
         tools:layout="@layout/fragment_add_product" >
         <argument
             android:name="product"
-            app:argType="com.example.navsample.DTO.Product"
+            app:argType="com.example.navsample.DTO.ProductDTO"
             app:nullable="true"
             android:defaultValue="@null" />
         <action

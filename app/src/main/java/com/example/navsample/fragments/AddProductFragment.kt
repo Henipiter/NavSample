@@ -9,8 +9,8 @@ import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.navigation.Navigation
 import androidx.navigation.fragment.navArgs
-import com.example.navsample.DTO.Category
-import com.example.navsample.DTO.Product
+import com.example.navsample.DTO.CategoryDTO
+import com.example.navsample.DTO.ProductDTO
 import com.example.navsample.DatabaseHelper
 import com.example.navsample.R
 import com.example.navsample.databinding.FragmentAddProductBinding
@@ -117,7 +117,7 @@ class AddProductFragment : Fragment() {
 
         binding.confirmAddProductButton.setOnClickListener {
             val receiptId = "rId"
-            val product = Product(
+            val product = ProductDTO(
                 null,
                 receiptId,
                 binding.productNameInput.text.toString(),
@@ -125,7 +125,7 @@ class AddProductFragment : Fragment() {
                 binding.productCategoryInput.text.toString(),
                 null, null, null
             )
-            val category = Category(null, binding.productCategoryInput.text.toString())
+            val category = CategoryDTO(null, binding.productCategoryInput.text.toString())
             if (addNewCategory) {
                 databaseHelper.addCategory(category)
             }

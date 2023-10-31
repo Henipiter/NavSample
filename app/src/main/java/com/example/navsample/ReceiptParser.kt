@@ -1,7 +1,7 @@
 package com.example.navsample
 
 import android.util.Log
-import com.example.navsample.DTO.Product
+import com.example.navsample.DTO.ProductDTO
 
 class ReceiptParser {
     val REGEX_PRICE = """-*(\d+\s*[,.]\s*\d\s*\d)|(\d+\s+\d\s*\d)"""
@@ -14,10 +14,10 @@ class ReceiptParser {
 
     fun parseToProducts(
         sortedProductListOnRecipe: MutableList<ImageAnalyzer.Line>
-    ): ArrayList<Product> {
+    ): ArrayList<ProductDTO> {
         //SORTOWANIE LISTY PRODUKTOW PO Y
 
-        val productList = ArrayList<Product>()
+        val productList = ArrayList<ProductDTO>()
         for (product in sortedProductListOnRecipe) {
 
             val parsedProduct = parseStringToProduct(product.data)
@@ -31,7 +31,7 @@ class ReceiptParser {
     }
 
 
-    private fun parseStringToProduct(productInformation: String): Product {
+    private fun parseStringToProduct(productInformation: String): ProductDTO {
         val ptuType = findPtuType(productInformation)
         val finalPrice = findFinalPrice(productInformation)
         val itemPrice = findItemPrice(productInformation, finalPrice.startIndex)
@@ -39,7 +39,7 @@ class ReceiptParser {
         val name = findName(productInformation, itemAmount.startIndex)
 
 
-        return Product(
+        return ProductDTO(
             null,
             null,
             name.data.trim(),

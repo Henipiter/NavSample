@@ -1,24 +1,22 @@
 package com.example.navsample
 
-import android.app.Activity
 import android.content.Context
 import android.graphics.Color
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
+import android.widget.Toast
 import androidx.constraintlayout.widget.ConstraintLayout
-import androidx.core.text.isDigitsOnly
 import androidx.recyclerview.widget.RecyclerView
-import com.example.navsample.DTO.Product
+import com.example.navsample.DTO.ProductDTO
 import kotlin.math.roundToInt
 
 class CustomAdapter(
-
-    var activity: Activity,
     var context: Context,
-    var productList: ArrayList<Product>,
-    var itemClickListener: ItemClickListener
+    var productList: ArrayList<ProductDTO>,
+    var itemClickListener: ItemClickListener,
+    var onFinish: (Int) -> Unit
 ) : RecyclerView.Adapter<CustomAdapter.MyViewHolder>() {
     var position = 0
 
@@ -51,7 +49,11 @@ class CustomAdapter(
             itemClickListener.onItemClick(productList[position])
         }
         holder.mainLayout.setOnLongClickListener {
-            productList.remove(productList[position])
+            Toast.makeText(context, "EE", Toast.LENGTH_SHORT).show()
+            onFinish.invoke(position)
+//            notifyItemRemoved(position)
+            true
+//            productList.remove(productList[position])
         }
         val floatAmount = trim(productList[position].amount.toString()).toDoubleOrNull()
         val itemPrice = trim(productList[position].itemPrice.toString()).toDoubleOrNull()
@@ -83,7 +85,7 @@ class CustomAdapter(
     }
 
     interface ItemClickListener {
-        fun onItemClick(product: Product)
+        fun onItemClick(product: ProductDTO)
     }
 
     private fun trimDescription(description: String): String {

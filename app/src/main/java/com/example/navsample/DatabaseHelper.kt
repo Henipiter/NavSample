@@ -7,8 +7,8 @@ import android.database.sqlite.SQLiteDatabase
 import android.database.sqlite.SQLiteOpenHelper
 import android.util.Log
 import android.widget.Toast
-import com.example.navsample.DTO.Category
-import com.example.navsample.DTO.Product
+import com.example.navsample.DTO.CategoryDTO
+import com.example.navsample.DTO.ProductDTO
 
 class DatabaseHelper(val context: Context?) :
     SQLiteOpenHelper(context, DATABASE_NAME, null, DATABASE_VERSION) {
@@ -83,14 +83,14 @@ class DatabaseHelper(val context: Context?) :
         return db.delete(PRODUCT_TABLE_NAME, "$ID_COLUMN=$id", null) > 0
     }
 
-    fun addCategory(category: Category) {
+    fun addCategory(category: CategoryDTO) {
         val db = this.writableDatabase
         val contentValues = ContentValues()
         contentValues.put(CATEGORY_COLUMN, category.category)
         db.insert(CATEGORY_TABLE_NAME, null, contentValues)
     }
 
-    fun addProduct(product: Product) {
+    fun addProduct(product: ProductDTO) {
         val db = this.writableDatabase
         val contentValues = ContentValues()
         contentValues.put(NAME_COLUMN, product.name)
@@ -107,7 +107,7 @@ class DatabaseHelper(val context: Context?) :
 //        db.close()
     }
 
-    fun readAllCategoryData(): ArrayList<Category> {
+    fun readAllCategoryData(): ArrayList<CategoryDTO> {
         val query = "Select * from $CATEGORY_TABLE_NAME ORDER BY $CATEGORY_COLUMN;"
         Log.i("query", query)
         val db = this.readableDatabase
@@ -118,7 +118,7 @@ class DatabaseHelper(val context: Context?) :
         return cursorToCategories(cursor)
     }
 
-    fun readAllProductData(): ArrayList<Product> {
+    fun readAllProductData(): ArrayList<ProductDTO> {
 //        val query = "Select * from $TABLE_NAME where $RECEIPT_ID_COLUMN='$data' ORDER BY $CATEGORY_COLUMN;"
         val query = "Select * from $PRODUCT_TABLE_NAME ORDER BY $CATEGORY_COLUMN;"
         Log.i("query", query)
@@ -130,7 +130,7 @@ class DatabaseHelper(val context: Context?) :
         return cursorToProducts(cursor)
     }
 
-    fun readOneProductData(id: String): Product {
+    fun readOneProductData(id: String): ProductDTO {
         val query = "Select * from $PRODUCT_TABLE_NAME where $ID_COLUMN='$id';"
         Log.i("query", query)
         val db = this.readableDatabase
@@ -141,11 +141,11 @@ class DatabaseHelper(val context: Context?) :
         return cursorToProducts(cursor, id)
     }
 
-    private fun cursorToCategories(cursor: Cursor?): ArrayList<Category> {
-        val categories = ArrayList<Category>()
+    private fun cursorToCategories(cursor: Cursor?): ArrayList<CategoryDTO> {
+        val categories = ArrayList<CategoryDTO>()
         if (cursor != null) {
             while (cursor.moveToNext()) {
-                val category = Category(
+                val category = CategoryDTO(
                     cursor.getString(ID_CURSOR_POSITION),
                     cursor.getString(CATEGORY_CATEGORY_CURSOR_POSITION)
                 )
@@ -155,11 +155,11 @@ class DatabaseHelper(val context: Context?) :
         return categories
     }
 
-    private fun cursorToProducts(cursor: Cursor?): ArrayList<Product> {
-        val products = ArrayList<Product>()
+    private fun cursorToProducts(cursor: Cursor?): ArrayList<ProductDTO> {
+        val products = ArrayList<ProductDTO>()
         if (cursor != null) {
             while (cursor.moveToNext()) {
-                val product = Product(
+                val product = ProductDTO(
                     cursor.getString(ID_CURSOR_POSITION),
                     cursor.getString(PRODUCT_RECEIPT_CURSOR_POSITION),
                     cursor.getString(PRODUCT_NAME_CURSOR_POSITION),
@@ -173,12 +173,12 @@ class DatabaseHelper(val context: Context?) :
         return products
     }
 
-    private fun cursorToProducts(cursor: Cursor?, id: String): Product {
-        var product = Product()
+    private fun cursorToProducts(cursor: Cursor?, id: String): ProductDTO {
+        var product = ProductDTO()
         if (cursor != null) {
             while (cursor.moveToNext()) {
                 if (cursor.getString(0) == id) {
-                    product = Product(
+                    product = ProductDTO(
                         cursor.getString(ID_CURSOR_POSITION),
                         cursor.getString(PRODUCT_RECEIPT_CURSOR_POSITION),
                         cursor.getString(PRODUCT_NAME_CURSOR_POSITION),

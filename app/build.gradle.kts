@@ -4,6 +4,7 @@ plugins {
     id("androidx.navigation.safeargs.kotlin")
     id("kotlin-parcelize")
     id("de.mannodermaus.android-junit5") version "1.9.3.0"
+    id("com.google.devtools.ksp")
 
 }
 
@@ -55,6 +56,11 @@ android {
 }
 
 dependencies {
+    val room_version = "2.6.0"
+    implementation("androidx.room:room-runtime:$room_version")
+    ksp("androidx.room:room-compiler:$room_version")
+
+    annotationProcessor("androidx.room:room-compiler:$room_version")
 
     implementation("androidx.core:core-ktx:1.12.0")
     implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.6.2")
