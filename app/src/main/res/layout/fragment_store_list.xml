@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    tools:context=".fragments.StoreListFragment">
+
+
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/productCategoryLayout"
+        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="64dp"
+        android:layout_marginTop="32dp"
+        android:hint="Category"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="parent">
+
+        <AutoCompleteTextView
+            android:id="@+id/productCategoryInput"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:inputType="textCapCharacters"
+            tools:ignore="LabelFor" />
+    </com.google.android.material.textfield.TextInputLayout>
+
+
+</FrameLayout>

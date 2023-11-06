@@ -5,16 +5,20 @@ import android.app.TimePickerDialog
 import android.icu.text.SimpleDateFormat
 import android.icu.util.Calendar
 import android.os.Bundle
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.Navigation
-import androidx.navigation.fragment.navArgs
 import com.example.navsample.databinding.FragmentStageBasicInfoBinding
+import com.example.navsample.entities.Receipt
+import com.example.navsample.entities.ReceiptDatabase
+import com.example.navsample.entities.Store
 import com.example.navsample.viewmodels.ReceiptDataViewModel
 import com.example.navsample.viewmodels.ReceiptImageViewModel
+import kotlinx.coroutines.launch
 import java.util.Locale
 
 
@@ -46,16 +50,32 @@ class StageBasicInfoFragment : Fragment() {
             }
         }
     }
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         initObserver()
+        val dao = ReceiptDatabase.getInstance(requireContext()).receiptDao
+
         if (receiptImageViewModel.bitmap.value != null) {
             binding.receiptImageMarked.setImageBitmap(receiptImageViewModel.bitmap.value)
         }
 
         if (receiptDataViewModel.receipt.value != null) {
             val receipt = receiptDataViewModel.receipt.value
-            binding.storeNameInput.setText(receipt?.storeName)
+            if (!verifyNIP(receipt?.storeNIP)) {
+                binding.storeNIPInputInfo.visibility = View.VISIBLE
+            } else {
+                lifecycleScope.launch {
+
+                    val storeDb = receipt?.storeNIP?.let { dao.getStore(it) }
+                    if (storeDb != null) {
+                        binding.storeNameInput.setText(storeDb.name)
+                    } else {
+                        binding.storeNameInput.setText(receipt?.storeName)
+                    }
+                }
+            }
+
             binding.storeNIPInput.setText(receipt?.storeNIP)
             binding.receiptPTUInput.setText(receipt?.receiptPTU)
             binding.receiptPLNInput.setText(receipt?.receiptPLN)
@@ -68,6 +88,25 @@ class StageBasicInfoFragment : Fragment() {
 
         }
         binding.addProductsButton.setOnClickListener {
+            val newStore = Store(
+                binding.storeNIPInput.text.toString(),
+                binding.storeNameInput.text.toString()
+            )
+            val newReceipt = Receipt(
+                binding.storeNIPInput.text.toString(),
+                binding.receiptPLNInput.text.toString().replace(",", ".").toFloat(),
+                binding.receiptPTUInput.text.toString().replace(",", ".").toFloat(),
+                binding.receiptDateInput.text.toString(),
+                binding.receiptTimeInput.text.toString()
+            )
+            receiptDataViewModel.savedStore.value = newStore
+            lifecycleScope.launch {
+                dao.insertStore(newStore)
+                val rowId = dao.insertReceipt(newReceipt)
+                newReceipt.id = dao.getReceiptId(rowId)
+            }
+            receiptDataViewModel.savedReceipt.value = newReceipt
+
             val action =
                 StageBasicInfoFragmentDirections.actionStageBasicInfoFragmentToShopListFragment()
             Navigation.findNavController(it).navigate(action)

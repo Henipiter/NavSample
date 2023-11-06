@@ -6,14 +6,15 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ArrayAdapter
 import android.widget.Toast
+import androidx.core.widget.doOnTextChanged
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.activityViewModels
 import androidx.navigation.Navigation
 import androidx.navigation.fragment.navArgs
-import com.example.navsample.DTO.CategoryDTO
 import com.example.navsample.DTO.ProductDTO
-import com.example.navsample.DatabaseHelper
-import com.example.navsample.R
 import com.example.navsample.databinding.FragmentAddProductBinding
+import com.example.navsample.entities.Category
+import com.example.navsample.viewmodels.ReceiptDataViewModel
 
 class AddProductFragment : Fragment() {
 
@@ -22,35 +23,42 @@ class AddProductFragment : Fragment() {
 
     private val args: AddProductFragmentArgs by navArgs()
 
-    private lateinit var categoryList: List<String>
     private var ptuTypeList = arrayOf("A", "B", "C", "D", "E", "F", "G")
     private var addNewCategory = false
 
+    private val receiptDataViewModel: ReceiptDataViewModel by activityViewModels()
     override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?,
-        savedInstanceState: Bundle?
+        inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
     ): View {
         _binding = FragmentAddProductBinding.inflate(inflater, container, false)
         return binding.root
     }
 
 
+    private fun initObserver() {
+
+        receiptDataViewModel.categoryList.observe(viewLifecycleOwner) {
+            it?.let {
+                ArrayAdapter(
+                    requireContext(),
+                    android.R.layout.simple_list_item_1,
+                    it
+                ).also { adapter ->
+                    binding.productCategoryInput.setAdapter(adapter)
+                }
+            }
+        }
+
+    }
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        val databaseHelper = DatabaseHelper(requireContext())
-        categoryList = databaseHelper.readAllCategoryData().map { it.category ?: "null" }
+
+        receiptDataViewModel.refreshCategoryList()
+        initObserver()
 
         ArrayAdapter(
-            requireContext(),
-            android.R.layout.simple_list_item_1,
-            categoryList
-        ).also { adapter ->
-            binding.productCategoryInput.setAdapter(adapter)
-        }
-        ArrayAdapter(
-            requireContext(),
-            android.R.layout.simple_list_item_1,
-            ptuTypeList
+            requireContext(), android.R.layout.simple_list_item_1, ptuTypeList
         ).also { adapter ->
             binding.ptuTypeInput.setAdapter(adapter)
         }
@@ -59,27 +67,21 @@ class AddProductFragment : Fragment() {
             true
         }
 
-        binding.productCategoryInput.setOnFocusChangeListener { _, hasFocus ->
-            if (!hasFocus) {
-                val actual = binding.productCategoryInput.text.toString()
-                val fixed = actual.replace(" ", "_").uppercase()
-                if (actual != fixed) {
-                    binding.productCategoryInput.setText(actual)
-                    Toast.makeText(
-                        requireContext(),
-                        "Only uppercase without spaces",
-                        Toast.LENGTH_SHORT
-                    ).show()
-                }
-                if (!categoryList.contains(fixed)) {
-                    addNewCategory = true
-                    binding.productCategoryInputInfo.visibility = View.VISIBLE
-                } else {
-                    addNewCategory = false
-                    binding.productCategoryInputInfo.visibility = View.INVISIBLE
-                }
+        binding.productCategoryInput.doOnTextChanged { actual, start, before, count ->
+            if (actual.toString().contains(" ") || Regex(".*[a-z].*").matches(actual.toString())) {
+                val fixed = actual.toString().replace(" ", "_").uppercase()
+                binding.productCategoryInput.setText(fixed)
+                binding.productCategoryInput.setSelection(start + count)
+            }
+            if (receiptDataViewModel.categoryList.value?.contains(binding.productCategoryInput.text.toString()) == false) {
+                addNewCategory = true
+                binding.productCategoryInputInfo.visibility = View.VISIBLE
+            } else {
+                addNewCategory = false
+                binding.productCategoryInputInfo.visibility = View.INVISIBLE
             }
         }
+
         binding.productFinalPriceInput.setOnFocusChangeListener { _, hasFocus ->
             if (!hasFocus) {
                 val actual = binding.productFinalPriceInput.text.toString()
@@ -100,15 +102,16 @@ class AddProductFragment : Fragment() {
         }
 
 
-        if (args.product != null) {
-            binding.productNameInput.setText(args.product!!.name)
-            binding.productFinalPriceInput.setText(args.product!!.finalPrice.toString())
-            binding.productItemPriceInput.setText(args.product!!.itemPrice.toString())
-            binding.productAmountInput.setText(args.product!!.amount.toString())
-            binding.ptuTypeInput.setText(args.product!!.ptuType.toString())
-            binding.productCategoryInput.setText(args.product!!.category)
-        } else {
-            binding.ptuTypeInput.setText("A")
+        if (args.productIndex != -1) {
+            val product = receiptDataViewModel.product.value?.get(args.productIndex)
+            product?.let {
+                binding.productNameInput.setText(product.name)
+                binding.productFinalPriceInput.setText(product.finalPrice.toString())
+                binding.productItemPriceInput.setText(product.itemPrice.toString())
+                binding.productAmountInput.setText(product.amount.toString())
+                binding.ptuTypeInput.setText(product.ptuType.toString())
+                binding.productCategoryInput.setText(product.category)
+            }
         }
 
         binding.cancelAddProductButton.setOnClickListener {
@@ -116,23 +119,30 @@ class AddProductFragment : Fragment() {
         }
 
         binding.confirmAddProductButton.setOnClickListener {
-            val receiptId = "rId"
+            val category = Category(binding.productCategoryInput.text.toString())
+
+
+            if (receiptDataViewModel.categoryList.value?.contains(category.name) == false) {
+                receiptDataViewModel.insertCategoryList(category)
+            }
+
             val product = ProductDTO(
                 null,
-                receiptId,
+                null,
                 binding.productNameInput.text.toString(),
                 binding.productFinalPriceInput.text.toString(),
-                binding.productCategoryInput.text.toString(),
-                null, null, null
+                category.name,
+                binding.productAmountInput.text.toString(),
+                binding.productItemPriceInput.text.toString(),
+                binding.ptuTypeInput.text.toString()
             )
-            val category = CategoryDTO(null, binding.productCategoryInput.text.toString())
-            if (addNewCategory) {
-                databaseHelper.addCategory(category)
-            }
-            databaseHelper.addProduct(product)
 
-            Navigation.findNavController(it)
-                .navigate(R.id.action_addProductFragment_to_shopListFragment)
+            if (args.productIndex != -1) {
+                receiptDataViewModel.product.value!![args.productIndex] = product
+            } else {
+                receiptDataViewModel.product.value!!.add(product)
+            }
+
 
             val action = AddProductFragmentDirections.actionAddProductFragmentToShopListFragment()
             Navigation.findNavController(requireView()).navigate(action)

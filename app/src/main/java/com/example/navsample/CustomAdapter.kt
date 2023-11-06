@@ -16,7 +16,7 @@ class CustomAdapter(
     var context: Context,
     var productList: ArrayList<ProductDTO>,
     var itemClickListener: ItemClickListener,
-    var onFinish: (Int) -> Unit
+    var onDelete: (Int) -> Unit
 ) : RecyclerView.Adapter<CustomAdapter.MyViewHolder>() {
     var position = 0
 
@@ -46,11 +46,11 @@ class CustomAdapter(
         holder.finalPrice.text = productList[position].finalPrice.toString()
         holder.productName.text = productList[position].name?.let { trimDescription(it) }
         holder.mainLayout.setOnClickListener {
-            itemClickListener.onItemClick(productList[position])
+            itemClickListener.onItemClick(position)
         }
         holder.mainLayout.setOnLongClickListener {
             Toast.makeText(context, "EE", Toast.LENGTH_SHORT).show()
-            onFinish.invoke(position)
+            onDelete.invoke(position)
 //            notifyItemRemoved(position)
             true
 //            productList.remove(productList[position])
@@ -85,7 +85,7 @@ class CustomAdapter(
     }
 
     interface ItemClickListener {
-        fun onItemClick(product: ProductDTO)
+        fun onItemClick(productIndex: Int)
     }
 
     private fun trimDescription(description: String): String {

@@ -4,9 +4,8 @@ import androidx.room.Entity
 import androidx.room.PrimaryKey
 
 @Entity
-data class Store (
+data class Store(
     @PrimaryKey(autoGenerate = false)
-    var nip:Int,
-
-    var name:String
+    var nip: String,
+    var name: String
 )

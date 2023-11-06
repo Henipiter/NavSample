@@ -10,6 +10,7 @@ import android.view.ViewGroup
 import androidx.camera.core.ExperimentalGetImage
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.Navigation
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -18,14 +19,15 @@ import com.canhub.cropper.CropImageContract
 import com.canhub.cropper.CropImageContractOptions
 import com.canhub.cropper.CropImageOptions
 import com.example.navsample.CustomAdapter
-import com.example.navsample.DTO.ProductDTO
-import com.example.navsample.DatabaseHelper
 import com.example.navsample.ImageAnalyzer
 import com.example.navsample.R
 import com.example.navsample.databinding.FragmentShopListBinding
+import com.example.navsample.entities.Product
+import com.example.navsample.entities.ReceiptDatabase
 import com.example.navsample.viewmodels.ReceiptDataViewModel
 import com.example.navsample.viewmodels.ReceiptImageViewModel
 import com.google.mlkit.vision.common.InputImage
+import kotlinx.coroutines.launch
 
 
 @ExperimentalGetImage
@@ -40,7 +42,6 @@ class ShopListFragment : Fragment(), CustomAdapter.ItemClickListener {
     private lateinit var recyclerViewEvent: RecyclerView
     private lateinit var customAdapter: CustomAdapter
 
-    private lateinit var databaseHelper: DatabaseHelper
 //    private var productList: ArrayList<Product> = ArrayList()
 
     override fun onCreateView(
@@ -86,7 +87,6 @@ class ShopListFragment : Fragment(), CustomAdapter.ItemClickListener {
         initObserver()
         startCameraWithUri()
 
-        databaseHelper = DatabaseHelper(requireContext())
         recyclerViewEvent = binding.recyclerViewEvent
         customAdapter = CustomAdapter(
             requireContext(),
@@ -110,10 +110,45 @@ class ShopListFragment : Fragment(), CustomAdapter.ItemClickListener {
                 .navigate(R.id.action_shopListFragment_to_addProductFragment)
         }
         binding.confirmButton.setOnClickListener {
-
+            convertProducts()
+            lifecycleScope.launch {
+                val dao = ReceiptDatabase.getInstance(requireContext()).receiptDao
+                receiptDataViewModel.savedProduct.value?.forEach { product ->
+                    dao.insertProduct(product)
+                }
+            }
 
             Navigation.findNavController(binding.root).popBackStack(R.id.menuFragment, false)
         }
+    }
+
+    private fun convertProducts() {
+        val newProducts = ArrayList<Product>()
+        receiptDataViewModel.product.value?.forEach { productDTO ->
+
+
+            var v =
+                newProducts.add(
+                    Product(
+                        receiptDataViewModel.savedReceipt.value?.id
+                            ?: throw IllegalArgumentException("No ID of receipt"),
+                        productDTO.name.toString(),
+                        productDTO.category.toString(),
+
+                        if (productDTO.amount != null) productDTO.amount.toString()
+                            .toFloat() else 0.0f,
+                        if (productDTO.itemPrice != null) productDTO.itemPrice.toString()
+                            .toFloat() else 0.0f,
+                        if (productDTO.finalPrice != null) productDTO.finalPrice.toString()
+                            .toFloat() else 0.0f,
+
+                        productDTO.ptuType.toString(),
+                    )
+                )
+        }
+        receiptDataViewModel.savedProduct.value = newProducts
+
+
     }
 
     private val customCropImage = registerForActivityResult(CropImageContract()) {
@@ -154,9 +189,10 @@ class ShopListFragment : Fragment(), CustomAdapter.ItemClickListener {
 //    }
 
 
-    override fun onItemClick(product: ProductDTO) {
+    override fun onItemClick(productIndex: Int) {
 
-        val action = ShopListFragmentDirections.actionShopListFragmentToAddProductFragment(product)
+        val action =
+            ShopListFragmentDirections.actionShopListFragmentToAddProductFragment(productIndex)
         Navigation.findNavController(requireView()).navigate(action)
 
     }
