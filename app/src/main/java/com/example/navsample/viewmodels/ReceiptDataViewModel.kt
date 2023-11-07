@@ -21,15 +21,22 @@ class ReceiptDataViewModel : ViewModel() {
     var savedReceipt = MutableLiveData<Receipt>(null)
     var savedProduct = MutableLiveData<ArrayList<Product>>(null)
 
-
+    var receiptList = MutableLiveData<ArrayList<Receipt>>(null)
     var categoryList = MutableLiveData<ArrayList<String>>(null)
     var storeList = MutableLiveData<ArrayList<Store>>(null)
 
     val dao = ApplicationContext.context?.let { ReceiptDatabase.getInstance(it).receiptDao }
+    fun refreshReceiptList() {
+        viewModelScope.launch {
+            receiptList.postValue(
+                dao?.getAllReceipts()?.let { ArrayList(it) })
+        }
+    }
+
     fun refreshCategoryList() {
         viewModelScope.launch {
             categoryList.postValue(
-                dao?.getAllCategory()?.let { it2 -> ArrayList(it2.map { it.name }) })
+                dao?.getAllCategories()?.let { it2 -> ArrayList(it2.map { it.name }) })
         }
     }
 

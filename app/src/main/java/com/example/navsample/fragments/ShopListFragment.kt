@@ -18,9 +18,10 @@ import com.canhub.cropper.CropImage
 import com.canhub.cropper.CropImageContract
 import com.canhub.cropper.CropImageContractOptions
 import com.canhub.cropper.CropImageOptions
-import com.example.navsample.CustomAdapter
 import com.example.navsample.ImageAnalyzer
+import com.example.navsample.ItemClickListener
 import com.example.navsample.R
+import com.example.navsample.adapters.ProductListAdapter
 import com.example.navsample.databinding.FragmentShopListBinding
 import com.example.navsample.entities.Product
 import com.example.navsample.entities.ReceiptDatabase
@@ -31,7 +32,7 @@ import kotlinx.coroutines.launch
 
 
 @ExperimentalGetImage
-class ShopListFragment : Fragment(), CustomAdapter.ItemClickListener {
+class ShopListFragment : Fragment(), ItemClickListener {
 
     private var _binding: FragmentShopListBinding? = null
     private val binding get() = _binding!!
@@ -40,9 +41,7 @@ class ShopListFragment : Fragment(), CustomAdapter.ItemClickListener {
     private val receiptDataViewModel: ReceiptDataViewModel by activityViewModels()
 
     private lateinit var recyclerViewEvent: RecyclerView
-    private lateinit var customAdapter: CustomAdapter
-
-//    private var productList: ArrayList<Product> = ArrayList()
+    private lateinit var productListAdapter: ProductListAdapter
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
@@ -62,8 +61,8 @@ class ShopListFragment : Fragment(), CustomAdapter.ItemClickListener {
         }
         receiptDataViewModel.product.observe(viewLifecycleOwner) {
             it?.let {
-                customAdapter.productList = it
-                customAdapter.notifyDataSetChanged()
+                productListAdapter.productList = it
+                productListAdapter.notifyDataSetChanged()
             }
         }
 
@@ -88,17 +87,17 @@ class ShopListFragment : Fragment(), CustomAdapter.ItemClickListener {
         startCameraWithUri()
 
         recyclerViewEvent = binding.recyclerViewEvent
-        customAdapter = CustomAdapter(
+        productListAdapter = ProductListAdapter(
             requireContext(),
             receiptDataViewModel.product.value ?: arrayListOf(), this
         ) { i: Int ->
             receiptDataViewModel.product.value?.removeAt(i)
-            customAdapter.productList = receiptDataViewModel.product.value ?: arrayListOf()
-            customAdapter.notifyDataSetChanged()
+            productListAdapter.productList = receiptDataViewModel.product.value ?: arrayListOf()
+            productListAdapter.notifyDataSetChanged()
         }
 
 
-        recyclerViewEvent.adapter = customAdapter
+        recyclerViewEvent.adapter = productListAdapter
         recyclerViewEvent.layoutManager =
             LinearLayoutManager(requireContext(), LinearLayoutManager.VERTICAL, false)
 

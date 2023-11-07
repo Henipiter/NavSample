@@ -11,5 +11,5 @@ data class StoreWithReceipts (
         parentColumn = "nip",
         entityColumn = "nip"
     )
-    val products: List<Receipt>
+    val receipts: List<Receipt>
 )

@@ -1,4 +1,4 @@
-package com.example.navsample
+package com.example.navsample.adapters
 
 import android.content.Context
 import android.graphics.Color
@@ -10,29 +10,31 @@ import android.widget.Toast
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.recyclerview.widget.RecyclerView
 import com.example.navsample.DTO.ProductDTO
+import com.example.navsample.ItemClickListener
+import com.example.navsample.R
 import kotlin.math.roundToInt
 
-class CustomAdapter(
+class ProductListAdapter(
     var context: Context,
     var productList: ArrayList<ProductDTO>,
     var itemClickListener: ItemClickListener,
     var onDelete: (Int) -> Unit
-) : RecyclerView.Adapter<CustomAdapter.MyViewHolder>() {
+) : RecyclerView.Adapter<ProductListAdapter.MyViewHolder>() {
     var position = 0
 
     class MyViewHolder(
         var itemView: View,
         var ptuType: TextView = itemView.findViewById(R.id.ptu_type),
-        var amount: TextView = itemView.findViewById(R.id.amount),
+        var amount: TextView = itemView.findViewById(R.id.date),
         var finalPrice: TextView = itemView.findViewById(R.id.final_prize),
-        var itemPrice: TextView = itemView.findViewById(R.id.item_prize),
-        var productName: TextView = itemView.findViewById(R.id.product_name),
+        var itemPrice: TextView = itemView.findViewById(R.id.time),
+        var productName: TextView = itemView.findViewById(R.id.store_name),
         var mainLayout: ConstraintLayout = itemView.findViewById(R.id.mainLayout)
     ) : RecyclerView.ViewHolder(itemView)
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MyViewHolder {
         val inflater = LayoutInflater.from(this.context)
-        inflater.inflate(R.layout.receipt_row, parent, false)
+        inflater.inflate(R.layout.product_row, parent, false)
         val view = inflater.inflate(R.layout.receipt_row, parent, false)
         return MyViewHolder(view)
     }
@@ -51,9 +53,7 @@ class CustomAdapter(
         holder.mainLayout.setOnLongClickListener {
             Toast.makeText(context, "EE", Toast.LENGTH_SHORT).show()
             onDelete.invoke(position)
-//            notifyItemRemoved(position)
             true
-//            productList.remove(productList[position])
         }
         val floatAmount = trim(productList[position].amount.toString()).toDoubleOrNull()
         val itemPrice = trim(productList[position].itemPrice.toString()).toDoubleOrNull()
@@ -82,10 +82,6 @@ class CustomAdapter(
             newString += i
         }
         return newString
-    }
-
-    interface ItemClickListener {
-        fun onItemClick(productIndex: Int)
     }
 
     private fun trimDescription(description: String): String {
