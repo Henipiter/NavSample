@@ -1,5 +1,6 @@
 package com.example.navsample.fragments
 
+import android.R
 import android.app.DatePickerDialog
 import android.app.TimePickerDialog
 import android.icu.text.SimpleDateFormat
@@ -8,6 +9,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ArrayAdapter
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.lifecycleScope
@@ -49,13 +51,32 @@ class StageBasicInfoFragment : Fragment() {
                 }
             }
         }
+        receiptDataViewModel.storeList.observe(viewLifecycleOwner) {
+            it?.let {
+                ArrayAdapter(
+                    requireContext(),
+                    R.layout.simple_list_item_1,
+//                    it.map { it2->it2.name }
+                    it
+                ).also { adapter ->
+                    binding.storeNameInput.setAdapter(adapter)
+                }
+            }
+        }
     }
-
+    private fun transformToFloat(value:String):Float {
+        return try {
+            value.replace(",", ".").toFloat()
+        } catch (t: Throwable) {
+            0.0f
+        }
+    }
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         initObserver()
         val dao = ReceiptDatabase.getInstance(requireContext()).receiptDao
 
+        receiptDataViewModel.refreshStoreList()
         if (receiptImageViewModel.bitmap.value != null) {
             binding.receiptImageMarked.setImageBitmap(receiptImageViewModel.bitmap.value)
         }
@@ -87,6 +108,12 @@ class StageBasicInfoFragment : Fragment() {
             }
 
         }
+        binding.storeNameInput.setOnItemClickListener{ adapter, _, i, _ ->
+            val store = adapter.getItemAtPosition(i) as Store
+            binding.storeNameInput.setText(store.name)
+            binding.storeNIPInput.setText(store.nip)
+
+        }
         binding.addProductsButton.setOnClickListener {
             val newStore = Store(
                 binding.storeNIPInput.text.toString(),
@@ -94,8 +121,8 @@ class StageBasicInfoFragment : Fragment() {
             )
             val newReceipt = Receipt(
                 binding.storeNIPInput.text.toString(),
-                binding.receiptPLNInput.text.toString().replace(",", ".").toFloat(),
-                binding.receiptPTUInput.text.toString().replace(",", ".").toFloat(),
+                transformToFloat(binding.receiptPLNInput.text.toString()),
+                transformToFloat(binding.receiptPTUInput.text.toString()),
                 binding.receiptDateInput.text.toString(),
                 binding.receiptTimeInput.text.toString()
             )

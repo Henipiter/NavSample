@@ -38,6 +38,9 @@ interface ReceiptDao {
     @Transaction
     @Query("SELECT * FROM store WHERE nip = :nip")
     suspend fun getStore(nip: String): Store
+    @Transaction
+    @Query("SELECT * FROM store")
+    suspend fun getAllStores(): List<Store>
 
     @Transaction
     @Query("SELECT * FROM store WHERE nip = :nip")

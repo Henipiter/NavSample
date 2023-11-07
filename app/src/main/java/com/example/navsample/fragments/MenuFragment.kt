@@ -5,9 +5,13 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.Navigation
 import com.example.navsample.R
 import com.example.navsample.databinding.FragmentMenuBinding
+import com.example.navsample.entities.Product
+import com.example.navsample.entities.ReceiptDatabase
+import kotlinx.coroutines.launch
 
 
 class MenuFragment : Fragment() {
@@ -26,11 +30,16 @@ class MenuFragment : Fragment() {
             Navigation.findNavController(it)
                 .navigate(R.id.action_menuFragment_to_imageImportFragment)
         }
-        binding.showReceipt.setOnClickListener{
+        binding.showReceipt.setOnClickListener {
             Navigation.findNavController(it)
                 .navigate(R.id.action_menuFragment_to_storeListFragment)
 
         }
+        val dao = ReceiptDatabase.getInstance(requireContext()).receiptDao
+        val products = listOf(
+            Product(2, "1", "Ser", 0f, 1F, 1F, "A")
+        )
+        lifecycleScope.launch { dao.insertProduct(products[0]) }
         return binding.root
     }
 }

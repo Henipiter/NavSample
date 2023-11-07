@@ -34,9 +34,7 @@ class AddProductFragment : Fragment() {
         return binding.root
     }
 
-
     private fun initObserver() {
-
         receiptDataViewModel.categoryList.observe(viewLifecycleOwner) {
             it?.let {
                 ArrayAdapter(
@@ -48,7 +46,6 @@ class AddProductFragment : Fragment() {
                 }
             }
         }
-
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -143,9 +140,7 @@ class AddProductFragment : Fragment() {
                 receiptDataViewModel.product.value!!.add(product)
             }
 
-
-            val action = AddProductFragmentDirections.actionAddProductFragmentToShopListFragment()
-            Navigation.findNavController(requireView()).navigate(action)
+            Navigation.findNavController(requireView()).popBackStack()
         }
     }
 }

@@ -102,8 +102,6 @@ class ShopListFragment : Fragment(), CustomAdapter.ItemClickListener {
         recyclerViewEvent.layoutManager =
             LinearLayoutManager(requireContext(), LinearLayoutManager.VERTICAL, false)
 
-//        storeDataInArrays()
-//        storeDataInArraysFromFragment()
 
         binding.addNewButton.setOnClickListener {
             Navigation.findNavController(it)
@@ -122,29 +120,29 @@ class ShopListFragment : Fragment(), CustomAdapter.ItemClickListener {
         }
     }
 
+    private fun transformToFloat(value: String): Float {
+        return try {
+            value.replace(",", ".").toFloat()
+        } catch (t: Throwable) {
+            0.0f
+        }
+    }
+
     private fun convertProducts() {
         val newProducts = ArrayList<Product>()
         receiptDataViewModel.product.value?.forEach { productDTO ->
-
-
-            var v =
-                newProducts.add(
-                    Product(
-                        receiptDataViewModel.savedReceipt.value?.id
-                            ?: throw IllegalArgumentException("No ID of receipt"),
-                        productDTO.name.toString(),
-                        productDTO.category.toString(),
-
-                        if (productDTO.amount != null) productDTO.amount.toString()
-                            .toFloat() else 0.0f,
-                        if (productDTO.itemPrice != null) productDTO.itemPrice.toString()
-                            .toFloat() else 0.0f,
-                        if (productDTO.finalPrice != null) productDTO.finalPrice.toString()
-                            .toFloat() else 0.0f,
-
-                        productDTO.ptuType.toString(),
-                    )
+            newProducts.add(
+                Product(
+                    receiptDataViewModel.savedReceipt.value?.id
+                        ?: throw IllegalArgumentException("No ID of receipt"),
+                    productDTO.name.toString(),
+                    productDTO.category.toString(),
+                    transformToFloat(productDTO.amount.toString()),
+                    transformToFloat(productDTO.itemPrice.toString()),
+                    transformToFloat(productDTO.finalPrice.toString()),
+                    productDTO.ptuType.toString(),
                 )
+            )
         }
         receiptDataViewModel.savedProduct.value = newProducts
 
@@ -179,15 +177,6 @@ class ShopListFragment : Fragment(), CustomAdapter.ItemClickListener {
             ),
         )
     }
-
-//    private fun storeDataInArrays() {
-//        productList.clear()
-//        productList.addAll(databaseHelper.readAllProductData())
-//        if (productList.size == 0) {
-//            Toast.makeText(requireContext(), "No data", Toast.LENGTH_SHORT).show()
-//        }
-//    }
-
 
     override fun onItemClick(productIndex: Int) {
 
