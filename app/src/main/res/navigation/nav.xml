@@ -19,9 +19,9 @@
     </fragment>
     <fragment
         android:id="@+id/shopListFragment"
-        android:name="com.example.navsample.fragments.ShopListFragment"
+        android:name="com.example.navsample.fragments.AddProductsFragment"
         android:label="fragment_shop_list"
-        tools:layout="@layout/fragment_shop_list" >
+        tools:layout="@layout/fragment_add_products">
         <action
             android:id="@+id/action_shopListFragment_to_addProductFragment"
             app:destination="@id/addProductFragment" />
@@ -37,9 +37,9 @@
     </fragment>
     <fragment
         android:id="@+id/addProductFragment"
-        android:name="com.example.navsample.fragments.AddProductFragment"
+        android:name="com.example.navsample.fragments.AddSingleProductFragment"
         android:label="fragment_add_product"
-        tools:layout="@layout/fragment_add_product" >
+        tools:layout="@layout/fragment_add_single_product">
         <argument
             android:name="productIndex"
             app:argType="integer"

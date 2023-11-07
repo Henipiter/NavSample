@@ -22,7 +22,7 @@ import com.example.navsample.ImageAnalyzer
 import com.example.navsample.ItemClickListener
 import com.example.navsample.R
 import com.example.navsample.adapters.ProductListAdapter
-import com.example.navsample.databinding.FragmentShopListBinding
+import com.example.navsample.databinding.FragmentAddProductsBinding
 import com.example.navsample.entities.Product
 import com.example.navsample.entities.ReceiptDatabase
 import com.example.navsample.viewmodels.ReceiptDataViewModel
@@ -32,9 +32,9 @@ import kotlinx.coroutines.launch
 
 
 @ExperimentalGetImage
-class ShopListFragment : Fragment(), ItemClickListener {
+class AddProductsFragment : Fragment(), ItemClickListener {
 
-    private var _binding: FragmentShopListBinding? = null
+    private var _binding: FragmentAddProductsBinding? = null
     private val binding get() = _binding!!
 
     private val receiptImageViewModel: ReceiptImageViewModel by activityViewModels()
@@ -46,7 +46,7 @@ class ShopListFragment : Fragment(), ItemClickListener {
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
     ): View {
-        _binding = FragmentShopListBinding.inflate(inflater, container, false)
+        _binding = FragmentAddProductsBinding.inflate(inflater, container, false)
         return binding.root
     }
 
@@ -180,7 +180,7 @@ class ShopListFragment : Fragment(), ItemClickListener {
     override fun onItemClick(productIndex: Int) {
 
         val action =
-            ShopListFragmentDirections.actionShopListFragmentToAddProductFragment(productIndex)
+            AddProductsFragmentDirections.actionShopListFragmentToAddProductFragment(productIndex)
         Navigation.findNavController(requireView()).navigate(action)
 
     }

@@ -12,16 +12,16 @@ import androidx.fragment.app.activityViewModels
 import androidx.navigation.Navigation
 import androidx.navigation.fragment.navArgs
 import com.example.navsample.DTO.ProductDTO
-import com.example.navsample.databinding.FragmentAddProductBinding
+import com.example.navsample.databinding.FragmentAddSingleProductBinding
 import com.example.navsample.entities.Category
 import com.example.navsample.viewmodels.ReceiptDataViewModel
 
-class AddProductFragment : Fragment() {
+class AddSingleProductFragment : Fragment() {
 
-    private var _binding: FragmentAddProductBinding? = null
+    private var _binding: FragmentAddSingleProductBinding? = null
     private val binding get() = _binding!!
 
-    private val args: AddProductFragmentArgs by navArgs()
+    private val args: AddSingleProductFragmentArgs by navArgs()
 
     private var ptuTypeList = arrayOf("A", "B", "C", "D", "E", "F", "G")
     private var addNewCategory = false
@@ -30,7 +30,7 @@ class AddProductFragment : Fragment() {
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
     ): View {
-        _binding = FragmentAddProductBinding.inflate(inflater, container, false)
+        _binding = FragmentAddSingleProductBinding.inflate(inflater, container, false)
         return binding.root
     }
 
