@@ -10,11 +10,11 @@ import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.recyclerview.widget.RecyclerView
 import com.example.navsample.ItemClickListener
 import com.example.navsample.R
-import com.example.navsample.entities.Receipt
+import com.example.navsample.entities.relations.ReceiptWithStore
 
 class ReceiptListAdapter(
     var context: Context,
-    var receiptList: ArrayList<Receipt>,
+    var receiptList: ArrayList<ReceiptWithStore>,
     var itemClickListener: ItemClickListener,
     var onDelete: (Int) -> Unit
 ) : RecyclerView.Adapter<ReceiptListAdapter.MyViewHolder>() {
@@ -39,10 +39,10 @@ class ReceiptListAdapter(
 
     override fun onBindViewHolder(holder: MyViewHolder, position: Int) {
         this.position = position
-        holder.storeName.text = receiptList[position].nip
-        holder.date.text = receiptList[position].date
-        holder.time.text = receiptList[position].time
-        holder.pln.text = receiptList[position].pln.toString()
+        holder.storeName.text = receiptList[position].store.name
+        holder.date.text = receiptList[position].receipt.date
+        holder.time.text = receiptList[position].receipt.time
+        holder.pln.text = receiptList[position].receipt.pln.toString()
         holder.mainLayout.setOnClickListener {
             itemClickListener.onItemClick(position)
         }

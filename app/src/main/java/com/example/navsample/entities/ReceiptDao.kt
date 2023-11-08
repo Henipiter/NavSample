@@ -7,7 +7,7 @@ import androidx.room.Query
 import androidx.room.Transaction
 import com.example.navsample.entities.relations.CategoryWithProducts
 import com.example.navsample.entities.relations.ReceiptWithProducts
-import com.example.navsample.entities.relations.StoreWithReceipts
+import com.example.navsample.entities.relations.ReceiptWithStore
 
 @Dao
 interface ReceiptDao {
@@ -45,8 +45,8 @@ interface ReceiptDao {
     suspend fun getAllStores(): List<Store>
 
     @Transaction
-    @Query("SELECT * FROM store WHERE nip = :nip")
-    suspend fun getStoreWithReceipts(nip: String): List<StoreWithReceipts>
+    @Query("SELECT * FROM store WHERE name LIKE '%' || :name || '%'")
+    suspend fun getReceiptWithStore(name: String): List<ReceiptWithStore>
 
     @Transaction
     @Query("SELECT * FROM category")

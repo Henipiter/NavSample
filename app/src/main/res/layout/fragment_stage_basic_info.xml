@@ -48,7 +48,7 @@
             <AutoCompleteTextView
                 android:id="@+id/storeNameInput"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
+                android:layout_height="43dp"
                 android:inputType="textNoSuggestions"
                 android:padding="13dp"
                 tools:ignore="LabelFor" />

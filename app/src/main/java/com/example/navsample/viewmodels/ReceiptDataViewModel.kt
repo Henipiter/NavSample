@@ -11,6 +11,7 @@ import com.example.navsample.entities.Product
 import com.example.navsample.entities.Receipt
 import com.example.navsample.entities.ReceiptDatabase
 import com.example.navsample.entities.Store
+import com.example.navsample.entities.relations.ReceiptWithStore
 import kotlinx.coroutines.launch
 
 class ReceiptDataViewModel : ViewModel() {
@@ -21,15 +22,16 @@ class ReceiptDataViewModel : ViewModel() {
     var savedReceipt = MutableLiveData<Receipt>(null)
     var savedProduct = MutableLiveData<ArrayList<Product>>(null)
 
-    var receiptList = MutableLiveData<ArrayList<Receipt>>(null)
+    var receiptList = MutableLiveData<ArrayList<ReceiptWithStore>>(null)
     var categoryList = MutableLiveData<ArrayList<String>>(null)
     var storeList = MutableLiveData<ArrayList<Store>>(null)
 
     val dao = ApplicationContext.context?.let { ReceiptDatabase.getInstance(it).receiptDao }
-    fun refreshReceiptList() {
+
+    fun refreshReceiptList(name: String) {
         viewModelScope.launch {
             receiptList.postValue(
-                dao?.getAllReceipts()?.let { ArrayList(it) })
+                dao?.getReceiptWithStore(name)?.let { ArrayList(it) })
         }
     }
 
