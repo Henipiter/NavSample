@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     tools:context=".fragments.StageBasicInfoFragment">
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -17,30 +17,23 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent">
+
             <com.github.chrisbanes.photoview.PhotoView
                 android:id="@+id/receipt_image_marked"
-                android:src="@android:drawable/ic_menu_gallery"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"/>
+                android:layout_height="match_parent"
+                android:src="@android:drawable/ic_menu_gallery" />
         </RelativeLayout>
-        <TextView
-            android:id="@+id/storeNameInputInfo"
-            android:visibility="invisible"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="New store will be added"
-            app:layout_constraintBottom_toTopOf="@+id/storeNameLayout"
-            app:layout_constraintEnd_toEndOf="@+id/storeNameLayout"
-            app:layout_constraintStart_toStartOf="@+id/storeNameLayout" />
 
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/storeNameLayout"
             style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="20dp"
             android:layout_marginHorizontal="64dp"
+            android:layout_marginTop="20dp"
             android:hint="Store name"
+            app:helperTextEnabled="true"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/relativeLayout">
@@ -55,23 +48,18 @@
         </com.google.android.material.textfield.TextInputLayout>
 
 
-        <TextView
-            android:id="@+id/storeNIPInputInfo"
-            android:visibility="invisible"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Invalid NIP"
-            app:layout_constraintBottom_toTopOf="@+id/storeNIPLayout"
-            app:layout_constraintEnd_toEndOf="@+id/storeNIPLayout"
-            app:layout_constraintStart_toStartOf="@+id/storeNIPLayout" />
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/storeNIPLayout"
             style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="20dp"
             android:layout_marginHorizontal="64dp"
+            android:layout_marginTop="20dp"
             android:hint="Store NIP"
+            app:endIconMode="clear_text"
+            app:errorEnabled="true"
+            app:counterEnabled="true"
+            app:counterMaxLength="10"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/storeNameLayout">
@@ -80,7 +68,7 @@
                 android:id="@+id/storeNIPInput"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:inputType="textNoSuggestions"
+                android:inputType="numberDecimal"
                 android:padding="13dp"
                 tools:ignore="LabelFor" />
         </com.google.android.material.textfield.TextInputLayout>
@@ -100,10 +88,11 @@
             style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginTop="20dp"
             android:layout_marginStart="64dp"
+            android:layout_marginTop="20dp"
             android:layout_marginEnd="10dp"
             android:hint="PTU"
+            app:endIconMode="clear_text"
             app:layout_constraintEnd_toEndOf="@id/center"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/storeNIPLayout">
@@ -112,28 +101,30 @@
                 android:id="@+id/receiptPTUInput"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:inputType="textNoSuggestions"
+                android:inputType="numberDecimal"
                 android:padding="13dp"
                 tools:ignore="LabelFor" />
         </com.google.android.material.textfield.TextInputLayout>
+
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/receiptPLNLayout"
             style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
+            android:layout_marginStart="10dp"
             android:layout_marginTop="20dp"
             android:layout_marginEnd="64dp"
-            android:layout_marginStart="10dp"
             android:hint="PLN"
-            app:layout_constraintStart_toStartOf="@id/center"
+            app:endIconMode="clear_text"
             app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="@id/center"
             app:layout_constraintTop_toBottomOf="@+id/storeNIPLayout">
 
             <AutoCompleteTextView
                 android:id="@+id/receiptPLNInput"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:inputType="textNoSuggestions"
+                android:inputType="numberDecimal"
                 android:padding="13dp"
                 tools:ignore="LabelFor" />
         </com.google.android.material.textfield.TextInputLayout>
@@ -144,10 +135,12 @@
             style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginTop="20dp"
             android:layout_marginStart="64dp"
+            android:layout_marginTop="20dp"
             android:layout_marginEnd="10dp"
             android:hint="Date"
+            app:endIconDrawable="@drawable/ic_rotate_left_24"
+            app:endIconMode="custom"
             app:layout_constraintEnd_toEndOf="@id/center"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/receiptPTULayout">
@@ -160,17 +153,20 @@
                 android:padding="13dp"
                 tools:ignore="LabelFor" />
         </com.google.android.material.textfield.TextInputLayout>
+
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/receiptTimeLayout"
             style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
+            android:layout_marginStart="10dp"
             android:layout_marginTop="20dp"
             android:layout_marginEnd="64dp"
-            android:layout_marginStart="10dp"
             android:hint="Time"
-            app:layout_constraintStart_toStartOf="@id/center"
+            app:endIconDrawable="@drawable/ic_rotate_left_24"
+            app:endIconMode="custom"
             app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="@id/center"
             app:layout_constraintTop_toBottomOf="@+id/receiptPLNLayout">
 
             <AutoCompleteTextView
@@ -183,11 +179,11 @@
         </com.google.android.material.textfield.TextInputLayout>
 
         <Button
-            android:text="Add products"
             android:id="@+id/add_products_button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginBottom="32dp"
+            android:text="Add products"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent" />

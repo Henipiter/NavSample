@@ -1,13 +1,13 @@
 package com.example.navsample.fragments
 
 import android.R
-import android.app.DatePickerDialog
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ArrayAdapter
 import android.widget.Toast
+import androidx.core.util.Pair
 import androidx.core.widget.doOnTextChanged
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
@@ -17,6 +17,7 @@ import com.example.navsample.ItemClickListener
 import com.example.navsample.adapters.ReceiptListAdapter
 import com.example.navsample.databinding.FragmentStoreListBinding
 import com.example.navsample.viewmodels.ReceiptDataViewModel
+import com.google.android.material.datepicker.MaterialDatePicker
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Locale
@@ -64,38 +65,36 @@ class StoreListFragment : Fragment(), ItemClickListener {
 
             receiptDataViewModel.refreshReceiptList(text.toString())
         }
-
-        binding.addDateFrom.setOnClickListener {
-            showDatePicker(calendarDateFrom)
-        }
-        binding.addDateTo.setOnClickListener {
-            showDatePicker(calendarDateTo)
-        }
-        binding.clearDateFrom.setOnClickListener {
-            binding.dateFromInput.setText("")
-            calendarDateFrom = Calendar.getInstance()
-        }
-        binding.addDateTo.setOnClickListener {
-            binding.dateToInput.setText("")
-            calendarDateFrom = Calendar.getInstance()
+        binding.dateFromLayout.setEndIconOnClickListener {
+            showDatePicker()
         }
 
 
     }
 
-    private fun showDatePicker(calendar: Calendar) {
-        val datePickerDialog = DatePickerDialog(
-            requireContext(),
-            { DatePicker, year: Int, month: Int, day: Int ->
-                calendar.set(year, month, day)
-                val date = SimpleDateFormat("dd-MM-yyyy", Locale.getDefault()).format(calendar.time)
-                binding.dateFromInput.setText(date)
-            },
-            calendar.get(Calendar.YEAR),
-            calendar.get(Calendar.MONDAY),
-            calendar.get(Calendar.DAY_OF_MONTH),
-        )
-        datePickerDialog.show()
+
+    private fun showDatePicker() {
+        val dateRangePicker =
+            MaterialDatePicker.Builder.dateRangePicker()
+                .setTitleText("Select dates")
+                .setSelection(
+                    Pair(
+                        calendarDateFrom.timeInMillis,
+                        calendarDateTo.timeInMillis,
+                    )
+                )
+                .build()
+        dateRangePicker.show(childFragmentManager, "Test")
+
+        dateRangePicker.addOnPositiveButtonClickListener {
+            calendarDateFrom.timeInMillis = it.first
+            calendarDateTo.timeInMillis = it.second
+            val dateFrom = SimpleDateFormat("dd-MM-yyyy", Locale.getDefault())
+                .format(calendarDateFrom.time)
+            val dateTo = SimpleDateFormat("dd-MM-yyyy", Locale.getDefault())
+                .format(calendarDateTo.time)
+            binding.dateBetweenInput.setText("$dateFrom - $dateTo")
+        }
     }
 
     private fun initObserver() {
@@ -122,6 +121,6 @@ class StoreListFragment : Fragment(), ItemClickListener {
 
     override fun onItemClick(productIndex: Int) {
 
-        Toast.makeText(requireContext(), "AAA",Toast.LENGTH_SHORT).show()
+        Toast.makeText(requireContext(), "AAA", Toast.LENGTH_SHORT).show()
     }
 }

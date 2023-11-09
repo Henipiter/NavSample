@@ -36,15 +36,16 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginTop="20dp"
-            android:layout_marginStart="64dp"
-            android:layout_marginEnd="10dp"
+            android:layout_marginHorizontal="64dp"
             android:hint="Date from"
-            app:layout_constraintEnd_toEndOf="@id/center"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/storeLayout">
+            app:endIconDrawable="@drawable/ic_rotate_left_24"
+            app:endIconMode="custom"
+            app:layout_constraintTop_toBottomOf="@id/storeLayout"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent">
 
             <AutoCompleteTextView
-                android:id="@+id/dateFromInput"
+                android:id="@+id/dateBetweenInput"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:inputType="date"
@@ -52,80 +53,9 @@
                 tools:ignore="LabelFor" />
         </com.google.android.material.textfield.TextInputLayout>
 
-        <com.google.android.material.textfield.TextInputLayout
-            android:id="@+id/dateToLayout"
-            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="20dp"
-            android:layout_marginEnd="64dp"
-            android:layout_marginStart="10dp"
-            android:hint="Date to"
-            app:layout_constraintStart_toStartOf="@id/center"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/storeLayout">
 
-            <AutoCompleteTextView
-                android:id="@+id/dateToInput"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:inputType="datetime"
-                android:padding="13dp"
-                tools:ignore="LabelFor" />
-        </com.google.android.material.textfield.TextInputLayout>
 
-        <Space
-            android:id="@+id/center"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
 
-        <ImageView
-            android:id="@+id/addDateFrom"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="10dp"
-            android:layout_marginHorizontal="10dp"
-
-            app:layout_constraintStart_toStartOf="@id/dateFromLayout"
-            app:layout_constraintTop_toBottomOf="@id/dateFromLayout"
-            app:srcCompat="@android:drawable/ic_menu_add" />
-
-        <ImageView
-            android:id="@+id/clearDateFrom"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="10dp"
-            android:layout_marginHorizontal="10dp"
-
-            app:layout_constraintEnd_toEndOf="@id/dateFromLayout"
-            app:layout_constraintTop_toBottomOf="@id/dateFromLayout"
-            app:srcCompat="@android:drawable/ic_menu_close_clear_cancel" />
-
-        <ImageView
-            android:id="@+id/addDateTo"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="10dp"
-            android:layout_marginHorizontal="10dp"
-
-            app:layout_constraintStart_toStartOf="@id/dateToLayout"
-            app:layout_constraintTop_toBottomOf="@id/dateToLayout"
-            app:srcCompat="@android:drawable/ic_menu_add" />
-
-        <ImageView
-            android:id="@+id/clearDateTo"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="10dp"
-            android:layout_marginHorizontal="10dp"
-
-            app:layout_constraintEnd_toEndOf="@id/dateToLayout"
-            app:layout_constraintTop_toBottomOf="@id/dateToLayout"
-            app:srcCompat="@android:drawable/ic_menu_close_clear_cancel" />
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/recyclerViewEventReceipts"

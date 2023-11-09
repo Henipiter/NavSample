@@ -1,15 +1,13 @@
 package com.example.navsample.fragments
 
 import android.R
-import android.app.DatePickerDialog
 import android.app.TimePickerDialog
-import android.icu.text.SimpleDateFormat
-import android.icu.util.Calendar
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ArrayAdapter
+import androidx.core.widget.doOnTextChanged
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.lifecycleScope
@@ -20,7 +18,12 @@ import com.example.navsample.entities.ReceiptDatabase
 import com.example.navsample.entities.Store
 import com.example.navsample.viewmodels.ReceiptDataViewModel
 import com.example.navsample.viewmodels.ReceiptImageViewModel
+import com.google.android.material.datepicker.MaterialDatePicker
+import com.google.android.material.timepicker.MaterialTimePicker
+import com.google.android.material.timepicker.TimeFormat
 import kotlinx.coroutines.launch
+import java.text.SimpleDateFormat
+import java.util.Calendar
 import java.util.Locale
 
 
@@ -32,7 +35,8 @@ class StageBasicInfoFragment : Fragment() {
 
 
     private var picker: TimePickerDialog? = null
-    private var calendar = Calendar.getInstance()
+    private var calendarDate = Calendar.getInstance()
+    private var calendarTime = Calendar.getInstance()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -64,13 +68,15 @@ class StageBasicInfoFragment : Fragment() {
             }
         }
     }
-    private fun transformToFloat(value:String):Float {
+
+    private fun transformToFloat(value: String): Float {
         return try {
             value.replace(",", ".").toFloat()
         } catch (t: Throwable) {
             0.0f
         }
     }
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         initObserver()
@@ -83,8 +89,8 @@ class StageBasicInfoFragment : Fragment() {
 
         if (receiptDataViewModel.receipt.value != null) {
             val receipt = receiptDataViewModel.receipt.value
-            if (!verifyNIP(receipt?.storeNIP)) {
-                binding.storeNIPInputInfo.visibility = View.VISIBLE
+            if (!isCorrectNIP(receipt?.storeNIP)) {
+                binding.storeNIPLayout.error = "Bad NIP"
             } else {
                 lifecycleScope.launch {
 
@@ -103,12 +109,14 @@ class StageBasicInfoFragment : Fragment() {
             binding.receiptDateInput.setText(receipt?.receiptDate)
             binding.receiptTimeInput.setText(receipt?.receiptTime)
 
-            if (!verifyNIP(receipt?.storeNIP)) {
-                binding.storeNIPInputInfo.visibility = View.VISIBLE
-            }
-
         }
-        binding.storeNameInput.setOnItemClickListener{ adapter, _, i, _ ->
+        binding.storeNameInput.doOnTextChanged { actual, _, _, _ ->
+            if (receiptDataViewModel.storeList.value?.map { it.name }?.contains(actual) == false) {
+                binding.storeNameLayout.helperText = "New store will be added"
+            }
+        }
+
+        binding.storeNameInput.setOnItemClickListener { adapter, _, i, _ ->
             val store = adapter.getItemAtPosition(i) as Store
             binding.storeNameInput.setText(store.name)
             binding.storeNIPInput.setText(store.nip)
@@ -138,33 +146,23 @@ class StageBasicInfoFragment : Fragment() {
                 StageBasicInfoFragmentDirections.actionStageBasicInfoFragmentToShopListFragment()
             Navigation.findNavController(it).navigate(action)
         }
-        binding.storeNIPInput.setOnFocusChangeListener { _, hasFocus ->
-            if (!hasFocus) {
-                if (!verifyNIP(receiptDataViewModel.receipt.value?.storeNIP)) {
-                    binding.storeNIPInputInfo.visibility = View.VISIBLE
-                } else {
-                    binding.storeNIPInputInfo.visibility = View.INVISIBLE
-                }
+        binding.storeNIPInput.doOnTextChanged { actual, _, _, _ ->
+
+            if (!isCorrectNIP(actual.toString())) {
+                binding.storeNIPLayout.error = "Bad NIP"
+            } else {
+                binding.storeNIPLayout.error = null
             }
+
         }
 
-        val dateSetListener =
-            DatePickerDialog.OnDateSetListener { _, year, monthOfYear, dayOfMonth ->
-                calendar.set(Calendar.YEAR, year)
-                calendar.set(Calendar.MONTH, monthOfYear)
-                calendar.set(Calendar.DAY_OF_MONTH, dayOfMonth)
-                updateDateInView()
-            }
 
-        binding.receiptDateInput.setOnClickListener {
-            DatePickerDialog(
-                requireContext(),
-                dateSetListener,
-                // set DatePickerDialog to point to today's date when it loads up
-                calendar.get(Calendar.YEAR),
-                calendar.get(Calendar.MONTH),
-                calendar.get(Calendar.DAY_OF_MONTH)
-            ).show()
+
+        binding.receiptDateLayout.setEndIconOnClickListener {
+            showDatePicker()
+        }
+        binding.receiptTimeLayout.setEndIconOnClickListener {
+            showTimePicker()
         }
         binding.receiptTimeInput.setOnClickListener {
             val hour = binding.receiptTimeInput.text.subSequence(0, 2).toString().toInt()
@@ -195,7 +193,7 @@ class StageBasicInfoFragment : Fragment() {
         binding.receiptTimeInput.setText("$hourValue:$minuteValue")
     }
 
-    private fun verifyNIP(valueNIP: String?): Boolean {
+    private fun isCorrectNIP(valueNIP: String?): Boolean {
         if (valueNIP == null || !Regex("""[0-9]{10}""").matches(valueNIP)) {
             return false
         }
@@ -207,9 +205,38 @@ class StageBasicInfoFragment : Fragment() {
         return sum % 11 == valueNIP[9].digitToInt()
     }
 
-    private fun updateDateInView() {
-        val myFormat = "dd-MM-yyyy" // mention the format you need
-        val sdf = SimpleDateFormat(myFormat, Locale.US)
-        binding.receiptDateInput.setText(sdf.format(calendar.time))
+    private fun showTimePicker() {
+
+        val timePicker =
+            MaterialTimePicker.Builder()
+                .setTimeFormat(TimeFormat.CLOCK_24H)
+                .setHour(calendarTime.get(Calendar.HOUR_OF_DAY))
+                .setMinute(calendarTime.get(Calendar.MINUTE))
+                .build()
+
+        timePicker.show(childFragmentManager, "Test")
+        timePicker.addOnPositiveButtonClickListener {
+            calendarTime.set(Calendar.HOUR_OF_DAY, timePicker.hour)
+            calendarTime.set(Calendar.MINUTE, timePicker.minute)
+            val time = String.format("%02d:%02d", timePicker.hour, timePicker.minute)
+            binding.receiptTimeInput.setText(time)
+        }
+    }
+
+    private fun showDatePicker() {
+
+        val datePicker =
+            MaterialDatePicker.Builder.datePicker()
+                .setTitleText("Select date")
+                .setSelection(calendarDate.timeInMillis)
+                .build()
+        datePicker.show(childFragmentManager, "Test")
+
+        datePicker.addOnPositiveButtonClickListener {
+            calendarDate.timeInMillis = it
+            val date = SimpleDateFormat("dd-MM-yyyy", Locale.getDefault())
+                .format(calendarDate.time)
+            binding.receiptDateInput.setText(date)
+        }
     }
 }
