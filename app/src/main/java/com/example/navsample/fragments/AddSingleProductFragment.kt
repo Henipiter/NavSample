@@ -48,45 +48,45 @@ class AddSingleProductFragment : Fragment() {
         }
     }
 
+    private fun tryConvertToDouble(correctString: String): Double {
+        return try {
+            correctString.toDouble()
+        } catch (exc: Exception) {
+            -1.0
+        }
+    }
+
     private fun validatePrices() {
-        val isFinalPriceCorrect = !binding.productFinalPriceInput.text.isNullOrEmpty()
-        val isItemPriceCorrect = !binding.productItemPriceInput.text.isNullOrEmpty()
-        val isAmountCorrect = !binding.productAmountInput.text.isNullOrEmpty()
-        val checks = arrayOf(isItemPriceCorrect, isFinalPriceCorrect, isAmountCorrect).count { it }
+        val finalPrice = tryConvertToDouble(binding.productFinalPriceInput.text.toString())
+        val itemPrice = tryConvertToDouble(binding.productItemPriceInput.text.toString())
+        val amount = tryConvertToDouble(binding.productAmountInput.text.toString())
+
+        val checks = arrayOf(finalPrice, itemPrice, amount).count { it >= 0 }
         if (checks == 3) {
-            val finalPrice = binding.productFinalPriceInput.text.toString().toFloat()
-            val itemPrice = binding.productItemPriceInput.text.toString().toFloat()
-            val amount = binding.productAmountInput.text.toString().toFloat()
             if (itemPrice * amount == finalPrice) {
                 binding.productFinalPriceLayout.helperText = null
                 binding.productItemPriceLayout.helperText = null
                 binding.productAmountLayout.helperText = null
             } else {
                 binding.productFinalPriceLayout.helperText =
-                    "Maybe ${round((itemPrice * amount * 100).toDouble()) / 100}"
+                    "Maybe ${round(itemPrice * amount * 100) / 100}"
                 binding.productItemPriceLayout.helperText =
-                    "Maybe ${round((finalPrice / amount * 100).toDouble()) / 100}"
+                    "Maybe ${round(finalPrice / amount * 100) / 100}"
                 binding.productAmountLayout.helperText =
-                    "Maybe ${round((finalPrice / itemPrice * 100).toDouble()) / 100}"
+                    "Maybe ${round(finalPrice / itemPrice * 100) / 100}"
             }
         } else if (checks == 2) {
-            if (!isFinalPriceCorrect) {
-                val itemPrice = binding.productItemPriceInput.text.toString().toFloat()
-                val amount = binding.productAmountInput.text.toString().toFloat()
+            if (finalPrice < 0) {
                 binding.productFinalPriceLayout.helperText =
-                    "Maybe ${round((itemPrice * amount * 100).toDouble()) / 100}"
+                    "Maybe ${round(itemPrice * amount * 100) / 100}"
             }
-            if (!isItemPriceCorrect) {
-                val finalPrice = binding.productFinalPriceInput.text.toString().toFloat()
-                val amount = binding.productAmountInput.text.toString().toFloat()
+            if (itemPrice < 0) {
                 binding.productItemPriceLayout.helperText =
-                    "Maybe ${round((finalPrice / amount * 100).toDouble()) / 100}"
+                    "Maybe ${round(finalPrice / amount * 100) / 100}"
             }
-            if (!isAmountCorrect) {
-                val finalPrice = binding.productFinalPriceInput.text.toString().toFloat()
-                val itemPrice = binding.productItemPriceInput.text.toString().toFloat()
+            if (amount < 0) {
                 binding.productAmountLayout.helperText =
-                    "Maybe ${round((finalPrice / itemPrice * 100).toDouble()) / 100}"
+                    "Maybe ${round(finalPrice / itemPrice * 100) / 100}"
             }
         } else {
             binding.productFinalPriceLayout.helperText = null
@@ -94,6 +94,27 @@ class AddSingleProductFragment : Fragment() {
             binding.productAmountLayout.helperText = null
 
         }
+    }
+
+    private fun validateObligatoryFields(): Boolean {
+        var succeedValidation = true
+        if (binding.productNameInput.text.isNullOrEmpty()) {
+            binding.productNameLayout.error = "Empty"
+            succeedValidation = false
+        }
+        if (binding.productFinalPriceInput.text.isNullOrEmpty()) {
+            binding.productFinalPriceLayout.error = "Empty"
+            succeedValidation = false
+        }
+        if (binding.productItemPriceInput.text.isNullOrEmpty()) {
+            binding.productItemPriceLayout.error = "Empty"
+            succeedValidation = false
+        }
+        if (binding.productAmountInput.text.isNullOrEmpty()) {
+            binding.productAmountLayout.error = "Empty"
+            succeedValidation = false
+        }
+        return succeedValidation
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -106,6 +127,18 @@ class AddSingleProductFragment : Fragment() {
             requireContext(), android.R.layout.simple_list_item_1, ptuTypeList
         ).also { adapter ->
             binding.ptuTypeInput.setAdapter(adapter)
+        }
+
+        if (args.productIndex != -1) {
+            val product = receiptDataViewModel.product.value?.get(args.productIndex)
+            product?.let {
+                binding.productNameInput.setText(product.name)
+                binding.productFinalPriceInput.setText(product.finalPrice.toString())
+                binding.productItemPriceInput.setText(product.itemPrice.toString())
+                binding.productAmountInput.setText(product.amount.toString())
+                binding.ptuTypeInput.setText(product.ptuType.toString())
+                binding.productCategoryInput.setText(product.category)
+            }
         }
 
         binding.productCategoryInput.setOnLongClickListener {
@@ -126,37 +159,42 @@ class AddSingleProductFragment : Fragment() {
             }
         }
 
-        binding.productFinalPriceInput.doOnTextChanged { _, _, _, _ ->
-            validatePrices()
-        }
-        binding.productItemPriceInput.doOnTextChanged { _, _, _, _ ->
-            validatePrices()
-        }
-        binding.productAmountInput.doOnTextChanged { _, _, _, _ ->
-            validatePrices()
-        }
-
-
-        if (args.productIndex != -1) {
-            val product = receiptDataViewModel.product.value?.get(args.productIndex)
-            product?.let {
-                binding.productNameInput.setText(product.name)
-                binding.productFinalPriceInput.setText(product.finalPrice.toString())
-                binding.productItemPriceInput.setText(product.itemPrice.toString())
-                binding.productAmountInput.setText(product.amount.toString())
-                binding.ptuTypeInput.setText(product.ptuType.toString())
-                binding.productCategoryInput.setText(product.category)
+        binding.productNameInput.doOnTextChanged { actual, _, _, _ ->
+            if (!actual.isNullOrEmpty()) {
+                binding.productNameLayout.error = null
+                validatePrices()
             }
         }
+        binding.productFinalPriceInput.doOnTextChanged { actual, _, _, _ ->
+            if (!actual.isNullOrEmpty()) {
+                binding.productFinalPriceLayout.error = null
+                validatePrices()
+            }
+        }
+        binding.productItemPriceInput.doOnTextChanged { actual, _, _, _ ->
+            if (!actual.isNullOrEmpty()) {
+                binding.productItemPriceLayout.error = null
+                validatePrices()
+            }
+        }
+        binding.productAmountInput.doOnTextChanged { actual, _, _, _ ->
+            if (!actual.isNullOrEmpty()) {
+                binding.productAmountLayout.error = null
+                validatePrices()
+            }
+        }
+
 
         binding.cancelAddProductButton.setOnClickListener {
             Navigation.findNavController(it).popBackStack()
         }
 
         binding.confirmAddProductButton.setOnClickListener {
+            if (!validateObligatoryFields()) {
+                return@setOnClickListener
+            }
+
             val category = Category(binding.productCategoryInput.text.toString())
-
-
             if (receiptDataViewModel.categoryList.value?.contains(category.name) == false) {
                 receiptDataViewModel.insertCategoryList(category)
             }
