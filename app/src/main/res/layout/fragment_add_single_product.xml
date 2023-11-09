@@ -22,8 +22,7 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            app:endIconMode="custom"
-            app:startIconDrawable="@drawable/common_full_open_on_phone"            >
+            app:endIconMode="clear_text">
 
             <AutoCompleteTextView
                 android:id="@+id/productNameInput"
@@ -45,7 +44,10 @@
             android:layout_marginTop="32dp"
             android:layout_marginEnd="32dp"
             android:hint="Final price"
+            app:helperTextEnabled="true"
+            app:endIconMode="clear_text"
             app:layout_constraintEnd_toStartOf="@+id/ptuTypeLayout"
+            app:layout_constraintHorizontal_bias="0.0"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/productNameLayout">
 
@@ -91,6 +93,8 @@
             android:layout_marginEnd="16dp"
             android:layout_marginTop="32dp"
             android:hint="Amount"
+            app:helperTextEnabled="true"
+            app:endIconMode="clear_text"
             app:layout_constraintEnd_toStartOf="@+id/center"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/productFinalPriceLayout">
@@ -114,6 +118,8 @@
             android:layout_marginStart="16dp"
             android:layout_marginTop="32dp"
             android:hint="Price"
+            app:helperTextEnabled="true"
+            app:endIconMode="clear_text"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="@id/center"
             app:layout_constraintTop_toBottomOf="@+id/productFinalPriceLayout">
@@ -127,26 +133,6 @@
                 tools:ignore="LabelFor" />
         </com.google.android.material.textfield.TextInputLayout>
 
-        <TextView
-            android:id="@+id/productPriceInputInfo"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Price is not valid"
-            android:visibility="invisible"
-            app:layout_constraintEnd_toEndOf="@+id/productAmountLayout"
-            app:layout_constraintStart_toStartOf="@+id/productAmountLayout"
-            app:layout_constraintTop_toBottomOf="@+id/productAmountLayout" />
-
-        <TextView
-            android:id="@+id/productCategoryInputInfo"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="New category will be added"
-            android:visibility="invisible"
-            app:layout_constraintEnd_toEndOf="@+id/productCategoryLayout"
-            app:layout_constraintStart_toStartOf="@+id/productCategoryLayout"
-            app:layout_constraintTop_toBottomOf="@+id/productCategoryLayout" />
-
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/productCategoryLayout"
             style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
@@ -155,6 +141,7 @@
             android:layout_marginHorizontal="64dp"
             android:layout_marginTop="32dp"
             android:hint="Category"
+            app:helperTextEnabled="true"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/productAmountLayout">

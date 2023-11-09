@@ -15,6 +15,7 @@ import com.example.navsample.DTO.ProductDTO
 import com.example.navsample.databinding.FragmentAddSingleProductBinding
 import com.example.navsample.entities.Category
 import com.example.navsample.viewmodels.ReceiptDataViewModel
+import kotlin.math.round
 
 class AddSingleProductFragment : Fragment() {
 
@@ -24,7 +25,6 @@ class AddSingleProductFragment : Fragment() {
     private val args: AddSingleProductFragmentArgs by navArgs()
 
     private var ptuTypeList = arrayOf("A", "B", "C", "D", "E", "F", "G")
-    private var addNewCategory = false
 
     private val receiptDataViewModel: ReceiptDataViewModel by activityViewModels()
     override fun onCreateView(
@@ -48,6 +48,54 @@ class AddSingleProductFragment : Fragment() {
         }
     }
 
+    private fun validatePrices() {
+        val isFinalPriceCorrect = !binding.productFinalPriceInput.text.isNullOrEmpty()
+        val isItemPriceCorrect = !binding.productItemPriceInput.text.isNullOrEmpty()
+        val isAmountCorrect = !binding.productAmountInput.text.isNullOrEmpty()
+        val checks = arrayOf(isItemPriceCorrect, isFinalPriceCorrect, isAmountCorrect).count { it }
+        if (checks == 3) {
+            val finalPrice = binding.productFinalPriceInput.text.toString().toFloat()
+            val itemPrice = binding.productItemPriceInput.text.toString().toFloat()
+            val amount = binding.productAmountInput.text.toString().toFloat()
+            if (itemPrice * amount == finalPrice) {
+                binding.productFinalPriceLayout.helperText = null
+                binding.productItemPriceLayout.helperText = null
+                binding.productAmountLayout.helperText = null
+            } else {
+                binding.productFinalPriceLayout.helperText =
+                    "Maybe ${round((itemPrice * amount * 100).toDouble()) / 100}"
+                binding.productItemPriceLayout.helperText =
+                    "Maybe ${round((finalPrice / amount * 100).toDouble()) / 100}"
+                binding.productAmountLayout.helperText =
+                    "Maybe ${round((finalPrice / itemPrice * 100).toDouble()) / 100}"
+            }
+        } else if (checks == 2) {
+            if (!isFinalPriceCorrect) {
+                val itemPrice = binding.productItemPriceInput.text.toString().toFloat()
+                val amount = binding.productAmountInput.text.toString().toFloat()
+                binding.productFinalPriceLayout.helperText =
+                    "Maybe ${round((itemPrice * amount * 100).toDouble()) / 100}"
+            }
+            if (!isItemPriceCorrect) {
+                val finalPrice = binding.productFinalPriceInput.text.toString().toFloat()
+                val amount = binding.productAmountInput.text.toString().toFloat()
+                binding.productItemPriceLayout.helperText =
+                    "Maybe ${round((finalPrice / amount * 100).toDouble()) / 100}"
+            }
+            if (!isAmountCorrect) {
+                val finalPrice = binding.productFinalPriceInput.text.toString().toFloat()
+                val itemPrice = binding.productItemPriceInput.text.toString().toFloat()
+                binding.productAmountLayout.helperText =
+                    "Maybe ${round((finalPrice / itemPrice * 100).toDouble()) / 100}"
+            }
+        } else {
+            binding.productFinalPriceLayout.helperText = null
+            binding.productItemPriceLayout.helperText = null
+            binding.productAmountLayout.helperText = null
+
+        }
+    }
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
@@ -59,6 +107,7 @@ class AddSingleProductFragment : Fragment() {
         ).also { adapter ->
             binding.ptuTypeInput.setAdapter(adapter)
         }
+
         binding.productCategoryInput.setOnLongClickListener {
             Toast.makeText(requireContext(), "CLICK", Toast.LENGTH_SHORT).show()
             true
@@ -71,31 +120,20 @@ class AddSingleProductFragment : Fragment() {
                 binding.productCategoryInput.setSelection(start + count)
             }
             if (receiptDataViewModel.categoryList.value?.contains(binding.productCategoryInput.text.toString()) == false) {
-                addNewCategory = true
-                binding.productCategoryInputInfo.visibility = View.VISIBLE
+                binding.productCategoryLayout.helperText = "New category will be added"
             } else {
-                addNewCategory = false
-                binding.productCategoryInputInfo.visibility = View.INVISIBLE
+                binding.productCategoryLayout.helperText = null
             }
         }
 
-        binding.productFinalPriceInput.setOnFocusChangeListener { _, hasFocus ->
-            if (!hasFocus) {
-                val actual = binding.productFinalPriceInput.text.toString()
-                val split = actual.split(".")
-                if (split.size >= 2 && (split[1].length > 2 || split[1].isEmpty())) {
-                    var fixed = split[0]
-                    if (split[1].length > 2) {
-                        fixed = split[0] + "." + split[1].substring(0, 2)
-                    }
-                    binding.productFinalPriceInput.setText(fixed)
-                    Toast.makeText(
-                        requireContext(),
-                        "Max 2 numbers after delimiter is valid",
-                        Toast.LENGTH_SHORT
-                    ).show()
-                }
-            }
+        binding.productFinalPriceInput.doOnTextChanged { _, _, _, _ ->
+            validatePrices()
+        }
+        binding.productItemPriceInput.doOnTextChanged { _, _, _, _ ->
+            validatePrices()
+        }
+        binding.productAmountInput.doOnTextChanged { _, _, _, _ ->
+            validatePrices()
         }
 
 
