@@ -35,11 +35,16 @@ class MenuFragment : Fragment() {
                 .navigate(R.id.action_menuFragment_to_storeListFragment)
 
         }
+        binding.recycleViewTest.setOnClickListener {
+            Navigation.findNavController(it)
+                .navigate(R.id.action_menuFragment_to_experimentRecycleFragment)
+
+        }
+
         val dao = ReceiptDatabase.getInstance(requireContext()).receiptDao
-        val products = listOf(
-            Product(2, "1", "Ser", 0f, 1F, 1F, "A")
-        )
-        lifecycleScope.launch { dao.insertProduct(products[0]) }
+        val product = Product(2, "1", "Ser", 0f, 1F, 1F, "A")
+        lifecycleScope.launch { dao.insertProduct(product) }
         return binding.root
     }
+
 }

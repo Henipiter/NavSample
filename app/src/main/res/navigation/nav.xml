@@ -9,13 +9,16 @@
         android:id="@+id/menuFragment"
         android:name="com.example.navsample.fragments.MenuFragment"
         android:label="fragment_menu"
-        tools:layout="@layout/fragment_menu" >
+        tools:layout="@layout/fragment_menu">
         <action
             android:id="@+id/action_menuFragment_to_imageImportFragment"
             app:destination="@id/imageImportFragment" />
         <action
             android:id="@+id/action_menuFragment_to_storeListFragment"
             app:destination="@id/storeListFragment" />
+        <action
+            android:id="@+id/action_menuFragment_to_experimentRecycleFragment"
+            app:destination="@id/experimentRecycleFragment" />
     </fragment>
     <fragment
         android:id="@+id/shopListFragment"
@@ -76,7 +79,7 @@
         android:id="@+id/cropFragment"
         android:name="com.example.navsample.fragments.CropFragment"
         android:label="fragment_crop"
-        tools:layout="@layout/fragment_crop" >
+        tools:layout="@layout/fragment_crop">
         <action
             android:id="@+id/action_cropFragment_to_imageImportFragment"
             app:destination="@id/imageImportFragment" />
@@ -86,4 +89,9 @@
         android:name="com.example.navsample.fragments.StoreListFragment"
         android:label="fragment_store_list"
         tools:layout="@layout/fragment_store_list" />
+    <fragment
+        android:id="@+id/experimentRecycleFragment"
+        android:name="com.example.navsample.ExperimentRecycleFragment"
+        android:label="fragment_experiment_recycle"
+        tools:layout="@layout/fragment_experiment_recycle" />
 </navigation>

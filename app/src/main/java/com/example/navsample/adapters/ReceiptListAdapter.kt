@@ -5,7 +5,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
-import android.widget.Toast
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.recyclerview.widget.RecyclerView
 import com.example.navsample.ItemClickListener
@@ -47,7 +46,6 @@ class ReceiptListAdapter(
             itemClickListener.onItemClick(position)
         }
         holder.mainLayout.setOnLongClickListener {
-            Toast.makeText(context, "EE", Toast.LENGTH_SHORT).show()
             onDelete.invoke(position)
             true
         }
