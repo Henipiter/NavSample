@@ -84,7 +84,9 @@ class AddProductsFragment : Fragment(), ItemClickListener {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         initObserver()
-        startCameraWithUri()
+        if (receiptImageViewModel.uriCropped.value == null) {
+            startCameraWithUri()
+        }
 
         recyclerViewEvent = binding.recyclerViewEvent
         productListAdapter = ProductListAdapter(
@@ -95,7 +97,10 @@ class AddProductsFragment : Fragment(), ItemClickListener {
             productListAdapter.productList = receiptDataViewModel.product.value ?: arrayListOf()
             productListAdapter.notifyDataSetChanged()
         }
-
+        binding.receiptImageBig.setOnLongClickListener {
+            startCameraWithUri()
+            true
+        }
 
         recyclerViewEvent.adapter = productListAdapter
         recyclerViewEvent.layoutManager =

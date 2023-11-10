@@ -15,6 +15,7 @@ import com.example.navsample.DTO.ProductDTO
 import com.example.navsample.databinding.FragmentAddSingleProductBinding
 import com.example.navsample.entities.Category
 import com.example.navsample.viewmodels.ReceiptDataViewModel
+import com.example.navsample.viewmodels.ReceiptImageViewModel
 import kotlin.math.round
 
 class AddSingleProductFragment : Fragment() {
@@ -26,7 +27,9 @@ class AddSingleProductFragment : Fragment() {
 
     private var ptuTypeList = arrayOf("A", "B", "C", "D", "E", "F", "G")
 
+    private val receiptImageViewModel: ReceiptImageViewModel by activityViewModels()
     private val receiptDataViewModel: ReceiptDataViewModel by activityViewModels()
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
     ): View {
@@ -35,6 +38,13 @@ class AddSingleProductFragment : Fragment() {
     }
 
     private fun initObserver() {
+        receiptImageViewModel.bitmapCropped.observe(viewLifecycleOwner) {
+            it?.let {
+                if (receiptImageViewModel.bitmapCropped.value != null) {
+                    binding.receiptImageBig.setImageBitmap(receiptImageViewModel.bitmapCropped.value)
+                }
+            }
+        }
         receiptDataViewModel.categoryList.observe(viewLifecycleOwner) {
             it?.let {
                 ArrayAdapter(
