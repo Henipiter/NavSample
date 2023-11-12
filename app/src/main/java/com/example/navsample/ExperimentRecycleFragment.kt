@@ -23,7 +23,7 @@ import com.example.navsample.DTO.ExperimentalAdapterArgument
 import com.example.navsample.DTO.Mode
 import com.example.navsample.adapters.ExperimentalListAdapter
 import com.example.navsample.databinding.FragmentExperimentRecycleBinding
-import com.example.navsample.fragments.FilterReceiptDialog
+import com.example.navsample.fragments.EditTextDialog
 import com.example.navsample.viewmodels.ReceiptDataViewModel
 import com.example.navsample.viewmodels.ReceiptImageViewModel
 import java.lang.Integer.max
@@ -86,7 +86,7 @@ open class ExperimentRecycleFragment : Fragment() {
                 experimentalListAdapter.notifyItemChanged(position)
             } else if (mode == Mode.EDIT) {
                 receiptDataViewModel.experimental.value = recycleList
-                FilterReceiptDialog(
+                EditTextDialog(
                     recycleList.get(position).value
                 ) { text ->
                     recycleList.get(position).value = text
