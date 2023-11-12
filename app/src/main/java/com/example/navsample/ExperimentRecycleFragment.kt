@@ -200,7 +200,7 @@ open class ExperimentRecycleFragment : Fragment() {
             val namePricePairs = arrayListOf<String>()
             for (i in 0..recycleList.lastIndex step 2) {
                 var value = recycleList[i].value
-                if (i + 1 > recycleList.lastIndex) {
+                if (i + 1 <= recycleList.lastIndex) {
                     value += recycleList[i + 1].value
                 }
                 if (value != "") {
@@ -252,11 +252,11 @@ open class ExperimentRecycleFragment : Fragment() {
                     experimentalListAdapter.notifyItemRemoved(it)
                     experimentalListAdapter.recycleList.forEach { Log.d("E", it.value) }
                 }
+                checkedElements.clear()
             }
 
             SWAP -> {
                 for (i in 1..checkedElements.lastIndex step 2) {
-
                     Collections.swap(recycleList, checkedElements[i - 1], checkedElements[i])
                     experimentalListAdapter.notifyItemChanged(checkedElements[i - 1])
                     experimentalListAdapter.notifyItemChanged(checkedElements[i])
@@ -286,11 +286,8 @@ open class ExperimentRecycleFragment : Fragment() {
                 checkedElements.add(firstIndex)
             }
 
-            EDIT -> {
-
-            }
-
-            NONE -> TODO()
+            EDIT -> {}
+            NONE -> {}
         }
         this.action = NONE
 
