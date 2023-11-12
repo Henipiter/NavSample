@@ -12,15 +12,24 @@ import androidx.navigation.Navigation
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.RecyclerView
+import com.example.navsample.DTO.Action
+import com.example.navsample.DTO.Action.CLEAR
+import com.example.navsample.DTO.Action.DELETE
+import com.example.navsample.DTO.Action.EDIT
+import com.example.navsample.DTO.Action.MERGE
+import com.example.navsample.DTO.Action.NONE
+import com.example.navsample.DTO.Action.SWAP
 import com.example.navsample.DTO.ExperimentalAdapterArgument
+import com.example.navsample.DTO.Mode
 import com.example.navsample.adapters.ExperimentalListAdapter
 import com.example.navsample.databinding.FragmentExperimentRecycleBinding
+import com.example.navsample.fragments.FilterReceiptDialog
 import com.example.navsample.viewmodels.ReceiptDataViewModel
 import com.example.navsample.viewmodels.ReceiptImageViewModel
 import java.lang.Integer.max
 import java.util.Collections
 
-class ExperimentRecycleFragment : Fragment() {
+open class ExperimentRecycleFragment : Fragment() {
     private var _binding: FragmentExperimentRecycleBinding? = null
 
     private val binding get() = _binding!!
@@ -33,8 +42,8 @@ class ExperimentRecycleFragment : Fragment() {
     private var recycleList = arrayListOf<ExperimentalAdapterArgument>()
     private var checkedElements = arrayListOf<Int>()
 
-//    private var  mainLayout:ConstraintLayout
-
+    private var mode = Mode.SELECT
+    private var action = Action.NONE
     var sourceItemIndex = -1
     var targetItemIndex = -1
     override fun onCreateView(
@@ -54,6 +63,7 @@ class ExperimentRecycleFragment : Fragment() {
         }
     }
 
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         initObserver()
@@ -64,15 +74,28 @@ class ExperimentRecycleFragment : Fragment() {
             requireContext(),
             recycleList
         ) { position ->
-            val listPosition = checkedElements.contains(position)
-            if (listPosition) {
-                checkedElements.remove(position)
-                recycleList.get(position).color = Color.GRAY
-            } else {
-                checkedElements.add(position)
-                recycleList.get(position).color = Color.YELLOW
+            if (mode == Mode.SELECT) {
+                val listPosition = checkedElements.contains(position)
+                if (listPosition) {
+                    checkedElements.remove(position)
+                    recycleList[position].color = Color.GRAY
+                } else {
+                    checkedElements.add(position)
+                    recycleList[position].color = Color.YELLOW
+                }
+                experimentalListAdapter.notifyItemChanged(position)
+            } else if (mode == Mode.EDIT) {
+                receiptDataViewModel.experimental.value = recycleList
+                FilterReceiptDialog(
+                    recycleList.get(position).value
+                ) { text ->
+                    recycleList.get(position).value = text
+                    experimentalListAdapter.notifyItemChanged(position)
+                }.show(
+                    childFragmentManager, "TAG"
+                )
             }
-            experimentalListAdapter.notifyItemChanged(position)
+
         }
 
         recyclerViewEvent.adapter = experimentalListAdapter
@@ -108,7 +131,7 @@ class ExperimentRecycleFragment : Fragment() {
             experimentalListAdapter.recycleList = ArrayList(recycleList)
             experimentalListAdapter.notifyDataSetChanged()
         }
-        binding.deleteEmptyButton.setOnClickListener {
+        binding.deleteEmptyRowButton.setOnClickListener {
 
             val lastOddIndex = max(recycleList.size - recycleList.size % 2 - 1, 0)
             for (i in lastOddIndex downTo 1 step 2) {
@@ -151,42 +174,26 @@ class ExperimentRecycleFragment : Fragment() {
         }
 
         binding.deleteButton.setOnClickListener {
-            val indicesDescending = checkedElements.sortedDescending()
-            indicesDescending.forEach {
-                experimentalListAdapter.recycleList.forEach { Log.d("E", it.value) }
-                recycleList.removeAt(it)
-                experimentalListAdapter.notifyItemRemoved(it)
-                experimentalListAdapter.recycleList.forEach { Log.d("E", it.value) }
-            }
-            checkedElements.clear()
+            mode = Mode.SELECT
+            runActionView(DELETE)
         }
 
+        binding.clearButton.setOnClickListener {
+            mode = Mode.SELECT
+            runActionView(CLEAR)
+        }
         binding.mergeButton.setOnClickListener {
-            if (checkedElements.isEmpty()) {
-                return@setOnClickListener
-            }
-            var text = ""
-            for (i in checkedElements.lastIndex downTo 0) {
-                text = recycleList[checkedElements[i]].value + " " + text
-            }
-            recycleList[checkedElements[0]].value = text
-            checkedElements.remove(checkedElements[0])
-            experimentalListAdapter.notifyItemChanged(checkedElements[0])
-            val indicesDescending = checkedElements.sortedDescending()
-            indicesDescending.forEach {
-                recycleList.removeAt(it)
-                experimentalListAdapter.notifyItemRemoved(it)
-            }
-            checkedElements.clear()
+            mode = Mode.SELECT
+            runActionView(MERGE)
         }
-
         binding.swapSelectedButton.setOnClickListener {
-            val positionsToSwap = checkedElements.map { it - it % 2 }.distinct()
+            mode = Mode.SELECT
+            runActionView(SWAP)
+        }
+        binding.editButton.setOnClickListener {
+            mode = Mode.EDIT
             uncheckAll()
-            positionsToSwap.forEach {
-                Collections.swap(recycleList, it, it + 1)
-                experimentalListAdapter.notifyItemRangeChanged(it, 2)
-            }
+            runActionView(EDIT)
         }
 
         binding.confirmButton.setOnClickListener {
@@ -207,7 +214,98 @@ class ExperimentRecycleFragment : Fragment() {
 
         }
 
-        val touchHelper = ItemTouchHelper(
+        binding.applyButton.setOnClickListener {
+            execute()
+            runButtonsView()
+            uncheckAll()
+        }
+        binding.cancelButton.setOnClickListener {
+            runButtonsView()
+            uncheckAll()
+        }
+
+        val touchHelper = getTouchHelper()
+        touchHelper.attachToRecyclerView(recyclerViewEvent)
+    }
+
+
+    private fun runButtonsView() {
+        mode = Mode.SELECT
+        binding.actionLayout.visibility = View.INVISIBLE
+        binding.buttonsLayout.visibility = View.VISIBLE
+    }
+
+    private fun runActionView(action: Action) {
+        this.action = action
+        binding.buttonsLayout.visibility = View.INVISIBLE
+        binding.actionLayout.visibility = View.VISIBLE
+        binding.actionNameText.text = action.toString()
+    }
+
+    private fun execute() {
+        when (action) {
+            DELETE -> {
+                val indicesDescending = checkedElements.sortedDescending()
+                indicesDescending.forEach {
+                    experimentalListAdapter.recycleList.forEach { Log.d("E", it.value) }
+                    recycleList.removeAt(it)
+                    experimentalListAdapter.notifyItemRemoved(it)
+                    experimentalListAdapter.recycleList.forEach { Log.d("E", it.value) }
+                }
+            }
+
+            SWAP -> {
+                for (i in 1..checkedElements.lastIndex step 2) {
+
+                    Collections.swap(recycleList, checkedElements[i - 1], checkedElements[i])
+                    experimentalListAdapter.notifyItemChanged(checkedElements[i - 1])
+                    experimentalListAdapter.notifyItemChanged(checkedElements[i])
+                }
+            }
+
+            CLEAR -> {
+                for (i in checkedElements.lastIndex downTo 0) {
+                    recycleList[checkedElements[i]].value = " "
+                }
+            }
+
+            MERGE -> {
+                val firstIndex = checkedElements[0]
+                var text = ""
+                for (i in checkedElements.lastIndex downTo 0) {
+                    text = recycleList[checkedElements[i]].value + " " + text
+                }
+                recycleList[firstIndex].value = text
+                experimentalListAdapter.notifyItemChanged(firstIndex)
+                checkedElements.remove(firstIndex)
+                val indicesDescending = checkedElements.sortedDescending()
+                indicesDescending.forEach {
+                    recycleList.removeAt(it)
+                    experimentalListAdapter.notifyItemRemoved(it)
+                }
+                checkedElements.add(firstIndex)
+            }
+
+            EDIT -> {
+
+            }
+
+            NONE -> TODO()
+        }
+        this.action = NONE
+
+    }
+
+    private fun uncheckAll() {
+        checkedElements.forEach { position ->
+            recycleList.get(position).color = Color.GRAY
+            experimentalListAdapter.notifyItemChanged(position)
+        }
+        checkedElements.clear()
+    }
+
+    private fun getTouchHelper(): ItemTouchHelper {
+        return ItemTouchHelper(
             object : ItemTouchHelper.Callback() {
                 override fun getMovementFlags(
                     recyclerView: RecyclerView,
@@ -253,8 +351,6 @@ class ExperimentRecycleFragment : Fragment() {
                     when (actionState) {
                         ItemTouchHelper.ACTION_STATE_DRAG -> {
                             sourceItemIndex = viewHolder?.adapterPosition ?: -1
-
-
                         }
 
                         ItemTouchHelper.ACTION_STATE_IDLE -> {
@@ -281,14 +377,6 @@ class ExperimentRecycleFragment : Fragment() {
             }
 
         )
-        touchHelper.attachToRecyclerView(recyclerViewEvent)
-    }
 
-    private fun uncheckAll() {
-        checkedElements.forEach { position ->
-            recycleList.get(position).color = Color.GRAY
-            experimentalListAdapter.notifyItemChanged(position)
-        }
-        checkedElements.clear()
     }
 }

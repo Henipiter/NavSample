@@ -16,7 +16,7 @@ class ExperimentalListAdapter(
 
     var onClick: (Int) -> Unit
 ) : RecyclerView.Adapter<ExperimentalListAdapter.MyViewHolder>() {
-    var position = 0
+//    var position = 0
 
     class MyViewHolder(
         var itemView: View,
@@ -34,7 +34,7 @@ class ExperimentalListAdapter(
 
 
     override fun onBindViewHolder(holder: MyViewHolder, position: Int) {
-        this.position = position
+//        this.position = position
         holder.textView.text = recycleList[position].value
         holder.mainLayout.setBackgroundColor(recycleList[position].color)
 
