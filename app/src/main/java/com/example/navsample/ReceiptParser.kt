@@ -13,25 +13,25 @@ class ReceiptParser {
 
 
     fun parseToProducts(
-        sortedProductListOnRecipe: MutableList<ImageAnalyzer.Line>
+        sortedProductListOnRecipe: MutableList<String>
     ): ArrayList<ProductDTO> {
         //SORTOWANIE LISTY PRODUKTOW PO Y
 
         val productList = ArrayList<ProductDTO>()
-        for (product in sortedProductListOnRecipe) {
+        for (data in sortedProductListOnRecipe) {
 
-            val parsedProduct = parseStringToProduct(product.data)
+            val parsedProduct = parseStringToProduct(data)
             if (parsedProduct.name != "---" || parsedProduct.finalPrice != "---") {
                 productList.add(parsedProduct)
             }
-            Log.i("ImageProcess", "${product.data}\n${parsedProduct}")
+            Log.i("ImageProcess", "${data}\n${parsedProduct}")
 
         }
         return productList
     }
 
 
-    private fun parseStringToProduct(productInformation: String): ProductDTO {
+    fun parseStringToProduct(productInformation: String): ProductDTO {
         val ptuType = findPtuType(productInformation)
         val finalPrice = findFinalPrice(productInformation)
         val itemPrice = findItemPrice(productInformation, finalPrice.startIndex)
@@ -47,14 +47,15 @@ class ReceiptParser {
             "-",
             fixPrize(itemAmount.data),
             fixPrize(itemPrice.data),
-            fixPtuType(ptuType.data)
+            fixPtuType(ptuType.data),
+            productInformation
         )
     }
 
-    private fun fixPrize(price:String):String{
+    private fun fixPrize(price: String): String {
         var newPrice = price.replace("\\s*".toRegex(), " ").trim()
-        newPrice = newPrice.replace(",",".")
-        if(!newPrice.contains(".")){
+        newPrice = newPrice.replace(",", ".")
+        if (!newPrice.contains(".")) {
             newPrice = newPrice.replaceFirst(" ", ".")
         }
         return newPrice.replace("\\s*".toRegex(), "").trim()
@@ -62,7 +63,7 @@ class ReceiptParser {
 
     }
 
-    private  fun fixPtuType(ptuType:String):String{
+    private fun fixPtuType(ptuType: String): String {
         return when (ptuType.uppercase()) {
             "4" -> "A"
             "8" -> "B"
@@ -71,6 +72,7 @@ class ReceiptParser {
             else -> ptuType
         }
     }
+
     fun findName(productInfo: String, itemAmountStartIndex: Int): ReceiptElement {
         if (itemAmountStartIndex > -1) {
             val trimProductInfo = productInfo.substring(0, itemAmountStartIndex)
@@ -119,12 +121,17 @@ class ReceiptParser {
     }
 
     fun findPtuType(productInfo: String): ReceiptElement {
-        for (i in productInfo.length - 1 downTo  productInfo.length - 3) {
-            if (productInfo[i].isLetterOrDigit() && (productInfo[i-3] ==',' || productInfo[i-3]=='.')) {
-                return ReceiptElement(productInfo[i].toString(), i, i)
+        try {
+            for (i in productInfo.length - 1 downTo productInfo.length - 3) {
+                if (productInfo[i].isLetterOrDigit() && (productInfo[i - 3] == ',' || productInfo[i - 3] == '.')) {
+                    return ReceiptElement(productInfo[i].toString(), i, i)
+                }
             }
+            return ReceiptElement("", -1, -1)
+        } catch (ex: StringIndexOutOfBoundsException) {
+            return ReceiptElement("", -1, -1)
         }
-        return ReceiptElement("", -1, -1)
+
     }
 
     fun findFinalPrice(productInfo: String): ReceiptElement {

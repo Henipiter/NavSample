@@ -1,12 +1,10 @@
 package com.example.navsample
 
-import org.junit.jupiter.api.Assertions.*
-import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.Assertions.assertAll
+import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.CsvFileSource
 import org.junit.jupiter.params.provider.CsvSource
-import java.text.Normalizer
-import java.util.regex.Pattern
 
 class ReceiptParserTest {
 
@@ -14,19 +12,19 @@ class ReceiptParserTest {
 
     @ParameterizedTest
     @CsvFileSource(resources = ["x.csv"], numLinesToSkip = 1, delimiterString = "|||")
-    fun test(line:String, expect:String) {
+    fun test(line: String, expect: String) {
 
-        val receiptParser =  ReceiptParser()
+        val receiptParser = ReceiptParser()
         val convertedLines = convertStringToLine(line)
         val result = receiptParser.parseToProducts(convertedLines)[0]
         assertEquals(expect, result.toString())
     }
 
-    private fun convertStringToLine(linesString: String): ArrayList<ImageAnalyzer.Line> {
-        val lines = ArrayList<ImageAnalyzer.Line>()
+    private fun convertStringToLine(linesString: String): ArrayList<String> {
+        val lines = ArrayList<String>()
         for (line in linesString.split("\n")) {
             if (line.isNotEmpty()) {
-                lines.add(ImageAnalyzer.Line(line))
+                lines.add(line)
             }
         }
         return lines

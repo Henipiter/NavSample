@@ -28,6 +28,9 @@
         <action
             android:id="@+id/action_shopListFragment_to_addProductFragment"
             app:destination="@id/addProductFragment" />
+        <action
+            android:id="@+id/action_shopListFragment_to_experimentRecycleFragment"
+            app:destination="@id/experimentRecycleFragment" />
     </fragment>
     <fragment
         android:id="@+id/cameraFragment"

@@ -9,15 +9,22 @@ import java.io.File
 import java.io.FileOutputStream
 
 class ReceiptImageViewModel : ViewModel() {
-    var uri = MutableLiveData<Uri?>(null)
-    var bitmap = MutableLiveData<Bitmap?>(null)
-    var uriCropped = MutableLiveData<Uri?>(null)
-    var bitmapCropped = MutableLiveData<Bitmap?>(null)
+    lateinit var uri: MutableLiveData<Uri?>
+    lateinit var bitmap: MutableLiveData<Bitmap?>
+    lateinit var uriCropped: MutableLiveData<Uri?>
+    lateinit var bitmapCropped: MutableLiveData<Bitmap?>
 
+    fun clearData() {
+        uri = MutableLiveData<Uri?>(null)
+        bitmap = MutableLiveData<Bitmap?>(null)
+        uriCropped = MutableLiveData<Uri?>(null)
+        bitmapCropped = MutableLiveData<Bitmap?>(null)
+    }
 
     fun setImageUriOriginal() {
         uri.value = bitmap.value?.let { setImageUri(it) }
     }
+
     fun setImageUriCropped() {
         uriCropped.value = bitmapCropped.value?.let { setImageUri(it) }
     }
@@ -36,4 +43,7 @@ class ReceiptImageViewModel : ViewModel() {
 
     }
 
+    init {
+        clearData()
+    }
 }

@@ -18,6 +18,7 @@ import com.canhub.cropper.CropImage
 import com.canhub.cropper.CropImageContract
 import com.canhub.cropper.CropImageContractOptions
 import com.canhub.cropper.CropImageOptions
+import com.example.navsample.DTO.ExperimentalAdapterArgument
 import com.example.navsample.ImageAnalyzer
 import com.example.navsample.ItemClickListener
 import com.example.navsample.R
@@ -76,6 +77,11 @@ class AddProductsFragment : Fragment(), ItemClickListener {
                 InputImage.fromBitmap(it, 0)
             ) {
                 receiptDataViewModel.product.value = imageAnalyzer.productList
+                val analyzed =
+                    imageAnalyzer.receiptLines.map { ExperimentalAdapterArgument(it) } as ArrayList<ExperimentalAdapterArgument>
+                receiptDataViewModel.experimental.value = analyzed
+                receiptDataViewModel.experimentalOriginal.value =
+                    analyzed.toMutableList() as ArrayList<ExperimentalAdapterArgument>
             }
         }
     }
@@ -107,6 +113,12 @@ class AddProductsFragment : Fragment(), ItemClickListener {
             LinearLayoutManager(requireContext(), LinearLayoutManager.VERTICAL, false)
 
 
+        binding.addNewButton.setOnLongClickListener {
+
+            Navigation.findNavController(it)
+                .navigate(R.id.action_shopListFragment_to_experimentRecycleFragment)
+            true
+        }
         binding.addNewButton.setOnClickListener {
             Navigation.findNavController(it)
                 .navigate(R.id.action_shopListFragment_to_addProductFragment)
@@ -119,6 +131,9 @@ class AddProductsFragment : Fragment(), ItemClickListener {
                     dao.insertProduct(product)
                 }
             }
+
+            receiptImageViewModel.clearData()
+            receiptDataViewModel.clearData()
 
             Navigation.findNavController(binding.root).popBackStack(R.id.menuFragment, false)
         }

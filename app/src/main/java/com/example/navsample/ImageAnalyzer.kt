@@ -20,7 +20,8 @@ class ImageAnalyzer {
 
 
     val recognizer = TextRecognition.getClient(TextRecognizerOptions.DEFAULT_OPTIONS)
-//    lateinit var bitmap: Bitmap
+
+    //    lateinit var bitmap: Bitmap
     var imageWidth = 0
 
     private var rawValueNIP: String? = null
@@ -32,13 +33,14 @@ class ImageAnalyzer {
     private var valueDate: String? = null
     private var valueTime: String? = null
     private var companyName: String? = null
-    private var validNIP = false
+
 
     var pixelNIP: Pixel? = null
     var pixelDate: Pixel? = null
     var pixelTime: Pixel? = null
 
     var receipt: ReceiptDTO? = null
+    var receiptLines: ArrayList<String> = ArrayList()
     var productList: ArrayList<ProductDTO> = ArrayList()
 
     data class Line(
@@ -222,11 +224,11 @@ class ImageAnalyzer {
         }
         valueDate = Regex(regexDate).find(lineList)?.value?.replace("\\s".toRegex(), "")
         valueTime = Regex(regexTime).find(lineList)?.value?.replace("\\s".toRegex(), "")
-        validNIP = verifyNIP(valueNIP)
+
         companyName = lineList.split("\n")[0]
 
         receipt = ReceiptDTO(null, companyName, valueNIP, valuePLN, valuePTU, valueDate, valueTime)
-        Log.i("ImageProcess", "valueNIP valueNIP valid: $validNIP.toString()")
+        Log.i("ImageProcess", "valueNIP $valueNIP")
         Log.i("ImageProcess", "companyName $companyName")
         Log.i("ImageProcess", "valuePTU $valuePTU")
         Log.i("ImageProcess", "valuePLN $valuePLN")
@@ -235,17 +237,6 @@ class ImageAnalyzer {
 
     }
 
-    private fun verifyNIP(valueNIP: String?): Boolean {
-        if (valueNIP == null || !Regex("""\d{10}""").matches(valueNIP)) {
-            return false
-        }
-        val weight = arrayOf(6, 5, 7, 2, 3, 4, 5, 6, 7)
-        var sum = 0
-        for (i in 0..8) {
-            sum += valueNIP[i].digitToInt() * weight[i]
-        }
-        return sum % 11 == valueNIP[9].digitToInt()
-    }
 
     private fun findCellWithKeywords(sortedCellList: List<Cell>) {
         Log.i("ImageProcess", "rawValueNIP$rawValueNIP")
@@ -370,35 +361,25 @@ class ImageAnalyzer {
                 }
             }
         }
+//        receiptLines = rotatedLines.map { it.data } as ArrayList<String>
+
+        receiptLines = rotatedLines.sortedWith(compareBy { it.p0.y }).toMutableList()
+            .map { it.data } as ArrayList<String>
+        Log.d("ImageProcess", "EEEEEEEEEEOOOOO")
+        Log.d("ImageProcess", "EEEEEEEEEEOOOOO")
+        Log.d("ImageProcess", "EEEEEEEEEEOOOOO")
+        Log.d("ImageProcess", "EEEEEEEEEEOOOOO")
+        receiptLines.forEach { e -> Log.d("ImageProcess", e) }
         val lengthX = (maxX - minX) / 2
 
-        var beginReceiptCell: Line? = null
+        //val data = normalizeText(line.data)
 
-        val startKeywords =
-            arrayOf("PARAGON FISKALNY", "PARAGONFISKALNY")
-
-        for (line in rotatedLines) {
-
-//            Log.d("ImageProcess", line.toString())
-            for (keyword in startKeywords) {
-                val data = line.data
-                if (normalizeText(data).contains(keyword)) {
-                    beginReceiptCell = line
-                    break
-                }
-            }
-        }
-        if (beginReceiptCell == null) {
-            return ArrayList()
-        }
 
         val productListOnRecipe = ArrayList<Line>()
         for (line in rotatedLines) {
-            if (line.p0.y > beginReceiptCell.p3.y) {
-                if (line.p0.x <= minX + lengthX / 2) {
-                    //NOWY PRODUKT NA PARAGONIE
-                    productListOnRecipe.add(line)
-                }
+            if (line.p0.x <= minX + lengthX / 2) {
+                //NOWY PRODUKT NA PARAGONIE
+                productListOnRecipe.add(line)
             }
         }
         val sortedProductListOnRecipe =
@@ -409,8 +390,7 @@ class ImageAnalyzer {
         }
         //DODAJ CENY DO PROODUKTOW
         for (line in rotatedLines) {
-            if (line.p0.y > beginReceiptCell.p3.y && line.p0.x > minX + lengthX / 2) {
-
+            if (line.p0.x > minX + lengthX / 2) {
 
                 Log.i("ImageProcess", "LINE ( ${line.p3.x}, ${line.p3.y} ), ${line.data} ")
                 for (productIndex in 1..<sortedProductListOnRecipe.size) {
@@ -423,7 +403,7 @@ class ImageAnalyzer {
                         "ImageProcess",
                         "L${(productNow.p0.y + productNow.p3.y) / 2}>${line.p3.y}"
                     )
-                    if ((productNow.p0.y + productNow.p3.y) / 2 > line.p3.y || productIndex==sortedProductListOnRecipe.size-1) {
+                    if ((productNow.p0.y + productNow.p3.y) / 2 > line.p3.y || productIndex == sortedProductListOnRecipe.size - 1) {
                         Log.i(
                             "ImageProcess",
                             "YYYY\nLINE ( ${line.p3.y} ), ${line.data} \nPRODUCT ${sortedProductListOnRecipe[productIndex - 1].p3.y} ), ${sortedProductListOnRecipe[productIndex - 1].data}"
@@ -439,7 +419,8 @@ class ImageAnalyzer {
             }
         }
         val receiptParser = ReceiptParser()
-        return receiptParser.parseToProducts(sortedProductListOnRecipe)
+        return receiptParser.parseToProducts(sortedProductListOnRecipe.map { it.data }
+            .toMutableList())
     }
 
 

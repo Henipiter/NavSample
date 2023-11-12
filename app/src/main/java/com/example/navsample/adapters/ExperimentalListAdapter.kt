@@ -7,11 +7,14 @@ import android.view.ViewGroup
 import android.widget.TextView
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.recyclerview.widget.RecyclerView
+import com.example.navsample.DTO.ExperimentalAdapterArgument
 import com.example.navsample.R
 
 class ExperimentalListAdapter(
     var context: Context,
-    var receiptList: ArrayList<String>
+    var recycleList: ArrayList<ExperimentalAdapterArgument>,
+
+    var onClick: (Int) -> Unit
 ) : RecyclerView.Adapter<ExperimentalListAdapter.MyViewHolder>() {
     var position = 0
 
@@ -32,12 +35,17 @@ class ExperimentalListAdapter(
 
     override fun onBindViewHolder(holder: MyViewHolder, position: Int) {
         this.position = position
-        holder.textView.text = receiptList[position]
+        holder.textView.text = recycleList[position].value
+        holder.mainLayout.setBackgroundColor(recycleList[position].color)
 
+        holder.mainLayout.setOnClickListener {
+            onClick.invoke(position)
+
+        }
 
     }
 
     override fun getItemCount(): Int {
-        return receiptList.size
+        return recycleList.size
     }
 }

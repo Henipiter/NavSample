@@ -12,7 +12,8 @@ data class ProductDTO(
     var category: String?,
     var amount: String?,
     var itemPrice: String?,
-    var ptuType: String?
+    var ptuType: String?,
+    var original: String?
 ) : Parcelable {
-    constructor() : this("---", "---", "---", "---", "---", "---", "---", "---")
+    constructor() : this("---", "---", "---", "---", "---", "---", "---", "---", "---")
 }

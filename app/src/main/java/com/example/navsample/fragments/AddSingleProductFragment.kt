@@ -12,6 +12,7 @@ import androidx.fragment.app.activityViewModels
 import androidx.navigation.Navigation
 import androidx.navigation.fragment.navArgs
 import com.example.navsample.DTO.ProductDTO
+import com.example.navsample.ReceiptParser
 import com.example.navsample.databinding.FragmentAddSingleProductBinding
 import com.example.navsample.entities.Category
 import com.example.navsample.viewmodels.ReceiptDataViewModel
@@ -29,6 +30,8 @@ class AddSingleProductFragment : Fragment() {
 
     private val receiptImageViewModel: ReceiptImageViewModel by activityViewModels()
     private val receiptDataViewModel: ReceiptDataViewModel by activityViewModels()
+
+    private var productOriginal = ""
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
@@ -148,7 +151,13 @@ class AddSingleProductFragment : Fragment() {
                 binding.productAmountInput.setText(product.amount.toString())
                 binding.ptuTypeInput.setText(product.ptuType.toString())
                 binding.productCategoryInput.setText(product.category)
+                binding.productOriginalInput.setText(product.original)
+                productOriginal = product.original.toString()
+
             }
+        }
+        if (productOriginal == "") {
+            binding.productOriginalLayout.visibility = View.INVISIBLE
         }
 
         binding.productCategoryInput.setOnLongClickListener {
@@ -169,8 +178,11 @@ class AddSingleProductFragment : Fragment() {
             }
         }
 
+        binding.productOriginalLayout.setEndIconOnClickListener {
+            binding.productOriginalInput.setText(productOriginal)
+        }
         binding.productNameInput.doOnTextChanged { actual, _, _, _ ->
-            if (!actual.isNullOrEmpty()) {
+            if (productOriginal != "" && !actual.isNullOrEmpty()) {
                 binding.productNameLayout.error = null
                 validatePrices()
             }
@@ -193,7 +205,18 @@ class AddSingleProductFragment : Fragment() {
                 validatePrices()
             }
         }
+        binding.productOriginalInput.doOnTextChanged { actual, _, _, _ ->
+            val receiptParser = ReceiptParser()
+            val product = receiptParser.parseStringToProduct(actual.toString())
 
+            binding.productNameInput.setText(product.name)
+            binding.productFinalPriceInput.setText(product.finalPrice.toString())
+            binding.productItemPriceInput.setText(product.itemPrice.toString())
+            binding.productAmountInput.setText(product.amount.toString())
+            binding.ptuTypeInput.setText(product.ptuType.toString())
+            binding.productCategoryInput.setText(product.category)
+
+        }
 
         binding.cancelAddProductButton.setOnClickListener {
             Navigation.findNavController(it).popBackStack()
@@ -217,7 +240,8 @@ class AddSingleProductFragment : Fragment() {
                 category.name,
                 binding.productAmountInput.text.toString(),
                 binding.productItemPriceInput.text.toString(),
-                binding.ptuTypeInput.text.toString()
+                binding.ptuTypeInput.text.toString(),
+                binding.productOriginalInput.text.toString()
             )
 
             if (args.productIndex != -1) {
