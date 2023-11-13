@@ -5,7 +5,6 @@ import kotlinx.parcelize.Parcelize
 
 @Parcelize
 data class ReceiptDTO(
-    var id: String?,
     var storeName: String?,
     var storeNIP: String?,
     var receiptPLN: String?,
@@ -13,5 +12,5 @@ data class ReceiptDTO(
     var receiptDate: String?,
     var receiptTime: String?
 ) : Parcelable {
-    constructor() : this("---",  "---", "---","---", "---", "---", "---")
+    constructor() : this("---", "---", "---", "---", "---", "---")
 }

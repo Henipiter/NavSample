@@ -13,5 +13,4 @@ data class Receipt(
 ){
     @PrimaryKey(autoGenerate = true)
     var id: Int = 0
-
 }

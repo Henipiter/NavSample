@@ -38,10 +38,10 @@ class ReceiptListAdapter(
 
     override fun onBindViewHolder(holder: MyViewHolder, position: Int) {
         this.position = position
-        holder.storeName.text = receiptList[position].store.name
-        holder.date.text = receiptList[position].receipt.date
-        holder.time.text = receiptList[position].receipt.time
-        holder.pln.text = receiptList[position].receipt.pln.toString()
+        holder.storeName.text = receiptList[position].name
+        holder.date.text = receiptList[position].date
+        holder.time.text = receiptList[position].time
+        holder.pln.text = receiptList[position].pln.toString()
         holder.mainLayout.setOnClickListener {
             itemClickListener.onItemClick(position)
         }

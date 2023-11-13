@@ -91,7 +91,11 @@
         android:id="@+id/storeListFragment"
         android:name="com.example.navsample.fragments.StoreListFragment"
         android:label="fragment_store_list"
-        tools:layout="@layout/fragment_store_list" />
+        tools:layout="@layout/fragment_store_list">
+        <action
+            android:id="@+id/action_storeListFragment_to_stageBasicInfoFragment"
+            app:destination="@id/stageBasicInfoFragment" />
+    </fragment>
     <fragment
         android:id="@+id/experimentRecycleFragment"
         android:name="com.example.navsample.ExperimentRecycleFragment"

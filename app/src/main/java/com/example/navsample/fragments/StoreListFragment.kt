@@ -1,19 +1,21 @@
 package com.example.navsample.fragments
 
-import android.R
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ArrayAdapter
-import android.widget.Toast
 import androidx.core.util.Pair
 import androidx.core.widget.doOnTextChanged
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
+import androidx.navigation.Navigation
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.example.navsample.DTO.ProductDTO
+import com.example.navsample.DTO.ReceiptDTO
 import com.example.navsample.ItemClickListener
+import com.example.navsample.R
 import com.example.navsample.adapters.ReceiptListAdapter
 import com.example.navsample.databinding.FragmentStoreListBinding
 import com.example.navsample.viewmodels.ReceiptDataViewModel
@@ -62,16 +64,12 @@ class StoreListFragment : Fragment(), ItemClickListener {
             LinearLayoutManager(requireContext(), LinearLayoutManager.VERTICAL, false)
 
         binding.storeInput.doOnTextChanged { text, _, _, _ ->
-
             receiptDataViewModel.refreshReceiptList(text.toString())
         }
         binding.dateFromLayout.setEndIconOnClickListener {
             showDatePicker()
         }
-
-
     }
-
 
     private fun showDatePicker() {
         val dateRangePicker =
@@ -109,7 +107,7 @@ class StoreListFragment : Fragment(), ItemClickListener {
             it?.let {
                 ArrayAdapter(
                     requireContext(),
-                    R.layout.simple_list_item_1,
+                    android.R.layout.simple_list_item_1,
                     it.map { it2 -> it2.name }
                 ).also { adapter ->
                     binding.storeInput.setAdapter(adapter)
@@ -121,6 +119,38 @@ class StoreListFragment : Fragment(), ItemClickListener {
 
     override fun onItemClick(productIndex: Int) {
 
-        Toast.makeText(requireContext(), "AAA", Toast.LENGTH_SHORT).show()
+        val receipt = receiptDataViewModel.receiptList.value?.get(productIndex)
+        receiptDataViewModel.receipt.value = ReceiptDTO(
+            receipt?.name,
+            receipt?.nip,
+            receipt?.pln.toString(),
+            receipt?.ptu.toString(),
+            receipt?.date,
+            receipt?.time
+        )
+        if (receipt != null) {
+            receiptDataViewModel.refreshProductList(receipt.id)
+        }
+        val products = receiptDataViewModel.savedProduct.value
+        val listProductDTO = arrayListOf<ProductDTO>()
+        products?.forEach {
+            listProductDTO.add(
+                ProductDTO(
+                    it.id,
+                    it.receiptId,
+                    it.name,
+                    it.finalPrice.toString(),
+                    it.categoryId,
+                    it.amount.toString(),
+                    it.itemPrice.toString(),
+                    it.ptuType,
+                    ""
+                )
+            )
+        }
+        receiptDataViewModel.product
+
+        Navigation.findNavController(binding.root)
+            .navigate(R.id.action_storeListFragment_to_stageBasicInfoFragment)
     }
 }

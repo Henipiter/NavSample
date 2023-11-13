@@ -1,15 +1,12 @@
 package com.example.navsample.entities.relations
 
-import androidx.room.Embedded
-import androidx.room.Relation
-import com.example.navsample.entities.Receipt
-import com.example.navsample.entities.Store
 
 data class ReceiptWithStore(
-    @Embedded val store: Store,
-    @Relation(
-        parentColumn = "nip",
-        entityColumn = "nip"
-    )
-    val receipt: Receipt
+    var id: Int,
+    var nip: String,
+    var name: String,
+    var pln: Float,
+    var ptu: Float,
+    var date: String,
+    var time: String
 )

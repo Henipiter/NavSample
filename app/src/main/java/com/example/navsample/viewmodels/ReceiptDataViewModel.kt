@@ -80,6 +80,12 @@ class ReceiptDataViewModel : ViewModel() {
         }
     }
 
+    fun refreshProductList(receiptId: Int) {
+        viewModelScope.launch {
+            savedProduct.postValue(dao?.getAllProducts(receiptId)?.let { ArrayList(it) })
+        }
+    }
+
     fun insertCategoryList(category: Category) {
         viewModelScope.launch {
             dao?.insertCategory(category)

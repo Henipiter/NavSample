@@ -233,8 +233,8 @@ class AddSingleProductFragment : Fragment() {
             }
 
             val product = ProductDTO(
-                null,
-                null,
+                -1,
+                -1,
                 binding.productNameInput.text.toString(),
                 binding.productFinalPriceInput.text.toString(),
                 category.name,

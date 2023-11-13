@@ -40,8 +40,8 @@ class ReceiptParser {
 
 
         return ProductDTO(
-            null,
-            null,
+            -1,
+            -1,
             name.data.trim(),
             fixPrize(finalPrice.data),
             "-",
