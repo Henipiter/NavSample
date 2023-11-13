@@ -66,8 +66,15 @@ class StoreListFragment : Fragment(), ItemClickListener {
         binding.storeInput.doOnTextChanged { text, _, _, _ ->
             receiptDataViewModel.refreshReceiptList(text.toString())
         }
-        binding.dateFromLayout.setEndIconOnClickListener {
+        binding.dateBetweenLayout.setEndIconOnClickListener {
             showDatePicker()
+        }
+        binding.storeLayout.setStartIconOnClickListener {
+            binding.storeInput.setText("")
+            receiptDataViewModel.refreshReceiptList("")
+        }
+        binding.dateBetweenLayout.setStartIconOnClickListener {
+            binding.dateBetweenInput.setText("")
         }
     }
 

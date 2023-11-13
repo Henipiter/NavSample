@@ -91,7 +91,10 @@ class StageBasicInfoFragment : Fragment() {
             val receipt = receiptDataViewModel.receipt.value
             if (!isCorrectNIP(receipt?.storeNIP)) {
                 binding.storeNIPLayout.error = "Bad NIP"
+                binding.storeNIPLayout.helperText = null
             } else {
+                binding.storeNIPLayout.error = null
+                binding.storeNIPLayout.helperText = "Correct NIP"
                 lifecycleScope.launch {
 
                     val storeDb = receipt?.storeNIP?.let { dao.getStore(it) }
@@ -111,9 +114,17 @@ class StageBasicInfoFragment : Fragment() {
 
         }
         binding.storeNameInput.doOnTextChanged { actual, _, _, _ ->
-            if (receiptDataViewModel.storeList.value?.map { it.name }?.contains(actual) == false) {
+            val storeLists = receiptDataViewModel.storeList.value?.map { it.name }
+            if (storeLists?.contains(actual.toString()) == false) {
                 binding.storeNameLayout.helperText = "New store will be added"
+            } else {
+                binding.storeNameLayout.helperText = null
+
             }
+        }
+        binding.storeNameLayout.setStartIconOnClickListener {
+            binding.storeNameInput.setText("")
+            binding.storeNameLayout.helperText = null
         }
 
         binding.storeNameInput.setOnItemClickListener { adapter, _, i, _ ->
@@ -150,8 +161,10 @@ class StageBasicInfoFragment : Fragment() {
 
             if (!isCorrectNIP(actual.toString())) {
                 binding.storeNIPLayout.error = "Bad NIP"
+                binding.storeNIPLayout.helperText = null
             } else {
                 binding.storeNIPLayout.error = null
+                binding.storeNIPLayout.helperText = "Correct NIP"
             }
 
         }
@@ -234,7 +247,7 @@ class StageBasicInfoFragment : Fragment() {
 
         datePicker.addOnPositiveButtonClickListener {
             calendarDate.timeInMillis = it
-            val date = SimpleDateFormat("dd-MM-yyyy", Locale.getDefault())
+            val date = SimpleDateFormat("dd.MM.yyyy", Locale.getDefault())
                 .format(calendarDate.time)
             binding.receiptDateInput.setText(date)
         }

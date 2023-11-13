@@ -177,6 +177,11 @@ class AddSingleProductFragment : Fragment() {
                 binding.productCategoryLayout.helperText = null
             }
         }
+        binding.productCategoryLayout.setStartIconOnClickListener {
+            binding.productCategoryInput.setText("")
+            binding.productCategoryLayout.helperText = null
+
+        }
 
         binding.productOriginalLayout.setEndIconOnClickListener {
             binding.productOriginalInput.setText(productOriginal)

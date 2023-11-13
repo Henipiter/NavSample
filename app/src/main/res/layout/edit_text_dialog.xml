@@ -19,6 +19,7 @@
             android:layout_marginHorizontal="64dp"
             android:layout_marginTop="20dp"
             android:hint="Text"
+            app:startIconDrawable="@drawable/renew"
             app:endIconMode="clear_text"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
@@ -32,16 +33,6 @@
                 android:padding="13dp"
                 tools:ignore="LabelFor" />
         </com.google.android.material.textfield.TextInputLayout>
-
-        <ImageView
-            android:id="@+id/addDateFrom"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginEnd="16dp"
-            app:layout_constraintBottom_toBottomOf="@+id/textLayout"
-            app:layout_constraintEnd_toStartOf="@+id/textLayout"
-            app:layout_constraintTop_toTopOf="@+id/textLayout"
-            app:srcCompat="@android:drawable/ic_menu_add" />
 
         <Space
             android:id="@+id/center"

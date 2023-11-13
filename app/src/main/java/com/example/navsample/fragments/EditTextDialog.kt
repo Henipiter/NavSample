@@ -26,10 +26,12 @@ class EditTextDialog(
 
         binding.textInput.setText(text)
 
-        binding.textLayout.setEndIconOnClickListener {
-            binding.textInput.setText(text)
-        }
 
+
+        binding.textLayout.setStartIconOnClickListener {
+            binding.textInput.setText(text)
+
+        }
         binding.confirmButton.setOnClickListener {
             returnChange.invoke(binding.textInput.text.toString())
             dismiss()
