@@ -1,30 +1,30 @@
 <?xml version="1.0" encoding="utf-8"?>
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".fragments.StoreListFragment">
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    tools:context=".fragments.ReceiptListFragment">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
         <com.google.android.material.textfield.TextInputLayout
-            android:id="@+id/store_name_layout"
+            android:id="@+id/storeLayout"
             style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginHorizontal="32dp"
             android:layout_marginTop="32dp"
-            android:hint="Store name filter"
-            app:endIconMode="clear_text"
+            android:hint="Store"
+            app:startIconDrawable="@drawable/clear"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent">
 
             <AutoCompleteTextView
-                android:id="@+id/store_name_input"
+                android:id="@+id/storeInput"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:inputType="textCapCharacters"
@@ -32,26 +32,31 @@
         </com.google.android.material.textfield.TextInputLayout>
 
         <com.google.android.material.textfield.TextInputLayout
-            android:id="@+id/nip_layout"
+            android:id="@+id/date_between_layout"
             style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginHorizontal="32dp"
             android:layout_marginTop="20dp"
-            android:hint="NIP filter"
-            app:endIconMode="clear_text"
+            android:layout_marginHorizontal="32dp"
+            android:hint="Date from"
+            app:startIconDrawable="@drawable/clear"
+            app:endIconDrawable="@drawable/date"
+            app:endIconMode="custom"
+            app:layout_constraintTop_toBottomOf="@id/storeLayout"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/store_name_layout">
+            app:layout_constraintStart_toStartOf="parent">
 
             <AutoCompleteTextView
-                android:id="@+id/nip_input"
+                android:id="@+id/dateBetweenInput"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:inputType="date"
                 android:padding="13dp"
                 tools:ignore="LabelFor" />
         </com.google.android.material.textfield.TextInputLayout>
+
+
+
 
 
         <androidx.recyclerview.widget.RecyclerView
@@ -61,11 +66,10 @@
             android:layout_marginTop="32dp"
             android:paddingHorizontal="16dp"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/nip_layout"
+            app:layout_constraintTop_toBottomOf="@+id/date_between_layout"
             app:layout_constraintVertical_bias="0.0"
             tools:layout_editor_absoluteX="0dp" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
-
 
 </FrameLayout>

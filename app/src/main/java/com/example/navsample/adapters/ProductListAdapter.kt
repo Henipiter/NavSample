@@ -25,7 +25,7 @@ class ProductListAdapter(
     class MyViewHolder(
         var itemView: View,
         var ptuType: TextView = itemView.findViewById(R.id.ptu_type),
-        var amount: TextView = itemView.findViewById(R.id.date),
+        var amount: TextView = itemView.findViewById(R.id.nip),
         var finalPrice: TextView = itemView.findViewById(R.id.final_prize),
         var itemPrice: TextView = itemView.findViewById(R.id.time),
         var productName: TextView = itemView.findViewById(R.id.store_name),

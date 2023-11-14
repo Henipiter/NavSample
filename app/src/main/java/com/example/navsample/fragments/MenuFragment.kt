@@ -32,13 +32,15 @@ class MenuFragment : Fragment() {
         }
         binding.showReceipt.setOnClickListener {
             Navigation.findNavController(it)
+                .navigate(R.id.action_menuFragment_to_receiptListFragment)
+        }
+        binding.showStores.setOnClickListener {
+            Navigation.findNavController(it)
                 .navigate(R.id.action_menuFragment_to_storeListFragment)
-
         }
         binding.recycleViewTest.setOnClickListener {
             Navigation.findNavController(it)
                 .navigate(R.id.action_menuFragment_to_experimentRecycleFragment)
-
         }
 
         val dao = ReceiptDatabase.getInstance(requireContext()).receiptDao

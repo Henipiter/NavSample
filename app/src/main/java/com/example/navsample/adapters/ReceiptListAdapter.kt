@@ -22,7 +22,7 @@ class ReceiptListAdapter(
     class MyViewHolder(
         var itemView: View,
         var storeName: TextView = itemView.findViewById(R.id.store_name),
-        var date: TextView = itemView.findViewById(R.id.date),
+        var date: TextView = itemView.findViewById(R.id.nip),
         var pln: TextView = itemView.findViewById(R.id.final_prize),
         var time: TextView = itemView.findViewById(R.id.time),
         var mainLayout: ConstraintLayout = itemView.findViewById(R.id.mainLayout)

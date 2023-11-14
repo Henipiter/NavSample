@@ -14,11 +14,14 @@
             android:id="@+id/action_menuFragment_to_imageImportFragment"
             app:destination="@id/imageImportFragment" />
         <action
-            android:id="@+id/action_menuFragment_to_storeListFragment"
-            app:destination="@id/storeListFragment" />
-        <action
             android:id="@+id/action_menuFragment_to_experimentRecycleFragment"
             app:destination="@id/experimentRecycleFragment" />
+        <action
+            android:id="@+id/action_menuFragment_to_receiptListFragment"
+            app:destination="@id/receiptListFragment" />
+        <action
+            android:id="@+id/action_menuFragment_to_storeListFragment"
+            app:destination="@id/storeListFragment" />
     </fragment>
     <fragment
         android:id="@+id/shopListFragment"
@@ -50,9 +53,6 @@
             android:name="productIndex"
             app:argType="integer"
             android:defaultValue="-1" />
-        <action
-            android:id="@+id/action_addProductFragment_to_shopListFragment"
-            app:destination="@id/shopListFragment" />
     </fragment>
     <fragment
         android:id="@+id/stageBasicInfoFragment"
@@ -62,6 +62,9 @@
         <action
             android:id="@+id/action_stageBasicInfoFragment_to_shopListFragment"
             app:destination="@id/shopListFragment" />
+        <action
+            android:id="@+id/action_stageBasicInfoFragment_to_editStore"
+            app:destination="@id/storeListFragment" />
     </fragment>
     <fragment
         android:id="@+id/imageImportFragment"
@@ -88,10 +91,10 @@
             app:destination="@id/imageImportFragment" />
     </fragment>
     <fragment
-        android:id="@+id/storeListFragment"
-        android:name="com.example.navsample.fragments.StoreListFragment"
-        android:label="fragment_store_list"
-        tools:layout="@layout/fragment_store_list">
+        android:id="@+id/receiptListFragment"
+        android:name="com.example.navsample.fragments.ReceiptListFragment"
+        android:label="fragment_receipt_list"
+        tools:layout="@layout/fragment_receipt_list">
         <action
             android:id="@+id/action_storeListFragment_to_stageBasicInfoFragment"
             app:destination="@id/stageBasicInfoFragment" />
@@ -101,4 +104,23 @@
         android:name="com.example.navsample.ExperimentRecycleFragment"
         android:label="fragment_experiment_recycle"
         tools:layout="@layout/fragment_experiment_recycle" />
+    <fragment
+        android:id="@+id/storeListFragment"
+        android:name="com.example.navsample.fragments.StoreListFragment"
+        android:label="fragment_store_list"
+        tools:layout="@layout/fragment_store_list">
+        <action
+            android:id="@+id/action_storeListFragment_to_editStoreFragment"
+            app:destination="@id/editStoreFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/editStoreFragment"
+        android:name="com.example.navsample.EditStoreFragment"
+        android:label="fragment_edit_store"
+        tools:layout="@layout/fragment_edit_store" >
+        <argument
+            android:name="storeIndex"
+            android:defaultValue="-1"
+            app:argType="integer" />
+    </fragment>
 </navigation>
