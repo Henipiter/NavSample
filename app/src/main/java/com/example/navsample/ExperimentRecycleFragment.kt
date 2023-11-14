@@ -20,7 +20,7 @@ import com.example.navsample.DTO.Action.MERGE
 import com.example.navsample.DTO.Action.NONE
 import com.example.navsample.DTO.Action.SWAP
 import com.example.navsample.DTO.ExperimentalAdapterArgument
-import com.example.navsample.DTO.Mode
+import com.example.navsample.DTO.ProductListMode
 import com.example.navsample.adapters.ExperimentalListAdapter
 import com.example.navsample.databinding.FragmentExperimentRecycleBinding
 import com.example.navsample.fragments.EditTextDialog
@@ -42,7 +42,7 @@ open class ExperimentRecycleFragment : Fragment() {
     private var recycleList = arrayListOf<ExperimentalAdapterArgument>()
     private var checkedElements = arrayListOf<Int>()
 
-    private var mode = Mode.SELECT
+    private var productListMode = ProductListMode.SELECT
     private var action = Action.NONE
     var sourceItemIndex = -1
     var targetItemIndex = -1
@@ -74,7 +74,7 @@ open class ExperimentRecycleFragment : Fragment() {
             requireContext(),
             recycleList
         ) { position ->
-            if (mode == Mode.SELECT) {
+            if (productListMode == ProductListMode.SELECT) {
                 val listPosition = checkedElements.contains(position)
                 if (listPosition) {
                     checkedElements.remove(position)
@@ -84,7 +84,7 @@ open class ExperimentRecycleFragment : Fragment() {
                     recycleList[position].color = Color.YELLOW
                 }
                 experimentalListAdapter.notifyItemChanged(position)
-            } else if (mode == Mode.EDIT) {
+            } else if (productListMode == ProductListMode.EDIT) {
                 receiptDataViewModel.experimental.value = recycleList
                 EditTextDialog(
                     recycleList.get(position).value
@@ -174,24 +174,24 @@ open class ExperimentRecycleFragment : Fragment() {
         }
 
         binding.deleteButton.setOnClickListener {
-            mode = Mode.SELECT
+            productListMode = ProductListMode.SELECT
             runActionView(DELETE)
         }
 
         binding.clearButton.setOnClickListener {
-            mode = Mode.SELECT
+            productListMode = ProductListMode.SELECT
             runActionView(CLEAR)
         }
         binding.mergeButton.setOnClickListener {
-            mode = Mode.SELECT
+            productListMode = ProductListMode.SELECT
             runActionView(MERGE)
         }
         binding.swapSelectedButton.setOnClickListener {
-            mode = Mode.SELECT
+            productListMode = ProductListMode.SELECT
             runActionView(SWAP)
         }
         binding.editButton.setOnClickListener {
-            mode = Mode.EDIT
+            productListMode = ProductListMode.EDIT
             uncheckAll()
             runActionView(EDIT)
         }
@@ -230,7 +230,7 @@ open class ExperimentRecycleFragment : Fragment() {
 
 
     private fun runButtonsView() {
-        mode = Mode.SELECT
+        productListMode = ProductListMode.SELECT
         binding.actionLayout.visibility = View.INVISIBLE
         binding.buttonsLayout.visibility = View.VISIBLE
     }

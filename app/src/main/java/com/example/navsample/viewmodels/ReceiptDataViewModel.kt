@@ -60,6 +60,23 @@ class ReceiptDataViewModel : ViewModel() {
 
     val dao = ApplicationContext.context?.let { ReceiptDatabase.getInstance(it).receiptDao }
 
+    fun insertReceipt(newReceipt: Receipt) {
+        viewModelScope.launch {
+            dao?.let {
+                val rowId = dao.insertReceipt(newReceipt)
+                newReceipt.id = dao.getReceiptId(rowId)
+            }
+            savedReceipt.value = newReceipt
+        }
+    }
+
+    fun insertStore(newStore: Store) {
+        viewModelScope.launch {
+            dao?.insertStore(newStore)
+        }
+        savedStore.value = newStore
+    }
+
     fun refreshReceiptList(name: String) {
         viewModelScope.launch {
             receiptList.postValue(

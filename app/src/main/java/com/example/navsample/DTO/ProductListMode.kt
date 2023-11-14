@@ -1,5 +1,5 @@
 package com.example.navsample.DTO
 
-enum class Mode {
+enum class ProductListMode {
     SELECT, EDIT
 }

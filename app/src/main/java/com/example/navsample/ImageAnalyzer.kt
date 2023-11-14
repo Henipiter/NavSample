@@ -227,7 +227,7 @@ class ImageAnalyzer {
 
         companyName = lineList.split("\n")[0]
 
-        receipt = ReceiptDTO(companyName, valueNIP, valuePLN, valuePTU, valueDate, valueTime)
+        receipt = ReceiptDTO(-1,companyName, valueNIP, valuePLN, valuePTU, valueDate, valueTime)
         Log.i("ImageProcess", "valueNIP $valueNIP")
         Log.i("ImageProcess", "companyName $companyName")
         Log.i("ImageProcess", "valuePTU $valuePTU")

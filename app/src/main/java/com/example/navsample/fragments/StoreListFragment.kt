@@ -128,6 +128,7 @@ class StoreListFragment : Fragment(), ItemClickListener {
 
         val receipt = receiptDataViewModel.receiptList.value?.get(productIndex)
         receiptDataViewModel.receipt.value = ReceiptDTO(
+            receipt?.id ?:-1,
             receipt?.name,
             receipt?.nip,
             receipt?.pln.toString(),
