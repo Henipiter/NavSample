@@ -115,7 +115,7 @@
     </fragment>
     <fragment
         android:id="@+id/editStoreFragment"
-        android:name="com.example.navsample.EditStoreFragment"
+        android:name="com.example.navsample.fragments.EditStoreFragment"
         android:label="fragment_edit_store"
         tools:layout="@layout/fragment_edit_store" >
         <argument

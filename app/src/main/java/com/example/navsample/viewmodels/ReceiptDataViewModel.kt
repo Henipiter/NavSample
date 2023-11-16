@@ -1,5 +1,6 @@
 package com.example.navsample.viewmodels
 
+import android.widget.Toast
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -14,8 +15,11 @@ import com.example.navsample.entities.ReceiptDatabase
 import com.example.navsample.entities.Store
 import com.example.navsample.entities.relations.ReceiptWithStore
 import kotlinx.coroutines.launch
+import java.lang.Exception
 
 class ReceiptDataViewModel : ViewModel() {
+    lateinit var insertErrorMessage: MutableLiveData<String>
+
     lateinit var receipt: MutableLiveData<ReceiptDTO?>
     lateinit var product: MutableLiveData<ArrayList<ProductDTO>>
 
@@ -30,6 +34,8 @@ class ReceiptDataViewModel : ViewModel() {
     lateinit var experimental: MutableLiveData<ArrayList<ExperimentalAdapterArgument>>
     lateinit var experimentalOriginal: MutableLiveData<ArrayList<ExperimentalAdapterArgument>>
     fun clearData() {
+        insertErrorMessage = MutableLiveData<String>("")
+
         receipt = MutableLiveData<ReceiptDTO?>(null)
         product = MutableLiveData<ArrayList<ProductDTO>>(ArrayList())
 
@@ -70,11 +76,38 @@ class ReceiptDataViewModel : ViewModel() {
         }
     }
 
-    fun insertStore(newStore: Store) {
+    fun updateReceipt(newReceipt: Receipt) {
         viewModelScope.launch {
-            dao?.insertStore(newStore)
+            dao?.let {
+                dao.updateReceipt(newReceipt)
+            }
+            savedReceipt.value = newReceipt
         }
-        savedStore.value = newStore
+    }
+
+    fun insertStore(store: Store) {
+        viewModelScope.launch {
+            try {
+                dao?.let {
+                    val rowId = dao.insertStore(store)
+                    store.id = dao.getStoreId(rowId)
+                }
+            } catch (e: Exception) {
+                insertErrorMessage.value = e.message.toString()
+            }
+        }
+        savedStore.value = store
+    }
+
+    fun updateStore(store: Store) {
+        viewModelScope.launch {
+            dao?.let {
+
+                dao.updateStore(store)
+
+            }
+        }
+        savedStore.value = store
     }
 
     fun refreshReceiptList(name: String) {

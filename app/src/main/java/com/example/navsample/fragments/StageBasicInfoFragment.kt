@@ -7,6 +7,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ArrayAdapter
+import android.widget.Toast
 import androidx.core.widget.doOnTextChanged
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
@@ -68,6 +69,13 @@ class StageBasicInfoFragment : Fragment() {
                 }
             }
         }
+        receiptDataViewModel.insertErrorMessage.observe(viewLifecycleOwner) {
+            Toast.makeText(
+                requireContext(),
+                receiptDataViewModel.insertErrorMessage.value,
+                Toast.LENGTH_SHORT
+            ).show()
+        }
     }
 
     private fun transformToFloat(value: String): Float {
@@ -116,21 +124,26 @@ class StageBasicInfoFragment : Fragment() {
     }
 
     private fun saveChangesToDatabase() {
-        val newStore = Store(
-            binding.storeNIPInput.text.toString(),
-            binding.storeNameInput.text.toString()
-        )
-        val newReceipt = Receipt(
-            binding.storeNIPInput.text.toString(),
-            transformToFloat(binding.receiptPLNInput.text.toString()),
-            transformToFloat(binding.receiptPTUInput.text.toString()),
-            binding.receiptDateInput.text.toString(),
-            binding.receiptTimeInput.text.toString()
-        )
+        if (mode == DataMode.NEW) {
+            val store = Store("", "")
+            store.nip = binding.storeNIPInput.text.toString()
+            store.name = binding.storeNameInput.text.toString()
+            receiptDataViewModel.insertStore(store)
+        }
+        if (mode == DataMode.EDIT) {
+            val store = receiptDataViewModel.savedStore.value!!
+            store.nip = binding.storeNIPInput.text.toString()
+            store.name = binding.storeNameInput.text.toString()
+            receiptDataViewModel.updateStore(store)
+        }
 
-        receiptDataViewModel.insertStore(newStore)
-
-        receiptDataViewModel.insertReceipt(newReceipt)
+        val receipt = receiptDataViewModel.savedReceipt.value ?: Receipt("", -1F, -1F, "", "")
+        receipt.nip = binding.storeNIPInput.text.toString()
+        receipt.pln = transformToFloat(binding.receiptPLNInput.text.toString())
+        receipt.ptu = transformToFloat(binding.receiptPTUInput.text.toString())
+        receipt.date = binding.receiptDateInput.text.toString()
+        receipt.time = binding.receiptTimeInput.text.toString()
+        receiptDataViewModel.insertReceipt(receipt)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -144,18 +157,21 @@ class StageBasicInfoFragment : Fragment() {
             changeViewToEditMode()
         }
         binding.saveChangesButton.setOnClickListener {
+            saveChangesToDatabase()
+
             binding.storeNIPLayout.visibility = View.GONE
             binding.editStores.visibility = View.VISIBLE
             changeViewToDisplayMode()
             receiptDataViewModel.receipt.value?.storeNIP = binding.storeNIPInput.text.toString()
-            receiptDataViewModel.receipt.value?.receiptPTU = binding.receiptPTUInput.text.toString()
-            receiptDataViewModel.receipt.value?.receiptPLN = binding.receiptPLNInput.text.toString()
+            receiptDataViewModel.receipt.value?.receiptPTU =
+                binding.receiptPTUInput.text.toString()
+            receiptDataViewModel.receipt.value?.receiptPLN =
+                binding.receiptPLNInput.text.toString()
             receiptDataViewModel.receipt.value?.receiptDate =
                 binding.receiptDateInput.text.toString()
             receiptDataViewModel.receipt.value?.receiptTime =
                 binding.receiptTimeInput.text.toString()
 
-            saveChangesToDatabase()
         }
         binding.cancelChangesButton.setOnClickListener {
             changeViewToDisplayMode()
@@ -225,6 +241,7 @@ class StageBasicInfoFragment : Fragment() {
 
         binding.storeNameInput.setOnItemClickListener { adapter, _, i, _ ->
             val store = adapter.getItemAtPosition(i) as Store
+            receiptDataViewModel.savedStore.value = store
             binding.storeNameInput.setText(store.name)
             binding.storeNIPInput.setText(store.nip)
 

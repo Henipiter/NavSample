@@ -37,6 +37,7 @@ class StoreListFragment : Fragment(), ItemClickListener {
         super.onViewCreated(view, savedInstanceState)
         initObserver()
 
+
         receiptDataViewModel.refreshStoreList()
 
         recyclerViewEvent = binding.recyclerViewEventReceipts
@@ -51,9 +52,16 @@ class StoreListFragment : Fragment(), ItemClickListener {
         recyclerViewEvent.adapter = storeListAdapter
         recyclerViewEvent.layoutManager =
             LinearLayoutManager(requireContext(), LinearLayoutManager.VERTICAL, false)
+
+        binding.newButton.setOnClickListener{
+            val action =
+                StoreListFragmentDirections.actionStoreListFragmentToEditStoreFragment()
+            Navigation.findNavController(requireView()).navigate(action)
+        }
     }
 
     override fun onItemClick(storeIndex: Int) {
+        receiptDataViewModel.savedStore.value = receiptDataViewModel.storeList.value!![storeIndex]
         val action =
             StoreListFragmentDirections.actionStoreListFragmentToEditStoreFragment(storeIndex)
         Navigation.findNavController(requireView()).navigate(action)

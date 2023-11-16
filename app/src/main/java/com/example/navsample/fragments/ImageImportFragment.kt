@@ -64,7 +64,7 @@ class ImageImportFragment : Fragment() {
                 imageAnalyzer.analyzeReceipt(
                     it1
                 ) {
-                    drawRectangles()
+//                    drawRectangles()
                     receiptDataViewModel.receipt.value = imageAnalyzer.receipt
                 }
             }

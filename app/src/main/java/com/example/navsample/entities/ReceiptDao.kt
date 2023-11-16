@@ -5,6 +5,7 @@ import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Transaction
+import androidx.room.Update
 import com.example.navsample.entities.relations.CategoryWithProducts
 import com.example.navsample.entities.relations.ReceiptWithProducts
 import com.example.navsample.entities.relations.ReceiptWithStore
@@ -12,17 +13,21 @@ import com.example.navsample.entities.relations.ReceiptWithStore
 @Dao
 interface ReceiptDao {
 
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    @Insert(onConflict = OnConflictStrategy.IGNORE)
     suspend fun insertProduct(product: Product): Long
 
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    @Insert(onConflict = OnConflictStrategy.IGNORE)
     suspend fun insertReceipt(receipt: Receipt): Long
+    @Update
+    suspend fun updateReceipt(receipt: Receipt)
 
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    @Insert(onConflict = OnConflictStrategy.IGNORE)
     suspend fun insertCategory(category: Category)
 
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insertStore(store: Store)
+    @Insert(onConflict = OnConflictStrategy.ABORT)
+    suspend fun insertStore(store: Store): Long
+    @Update
+    suspend fun updateStore(store: Store)
 
     @Transaction
     @Query("SELECT * FROM receipt WHERE id = :id")
@@ -31,6 +36,9 @@ interface ReceiptDao {
     @Transaction
     @Query("SELECT id FROM receipt WHERE rowId = :rowId")
     suspend fun getReceiptId(rowId: Long): Int
+    @Transaction
+    @Query("SELECT id FROM store WHERE rowId = :rowId")
+    suspend fun getStoreId(rowId: Long): Int
 
     @Transaction
     @Query("SELECT * FROM receipt WHERE id = :id")
@@ -63,5 +71,6 @@ interface ReceiptDao {
     @Transaction
     @Query("SELECT * FROM category WHERE name = :name")
     suspend fun getCategoryWithProducts(name: String): List<CategoryWithProducts>
+
 
 }
