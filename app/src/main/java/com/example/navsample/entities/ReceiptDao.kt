@@ -6,7 +6,7 @@ import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Transaction
 import androidx.room.Update
-import com.example.navsample.entities.relations.CategoryWithProducts
+import com.example.navsample.entities.relations.ProductWithCategory
 import com.example.navsample.entities.relations.ReceiptWithProducts
 import com.example.navsample.entities.relations.ReceiptWithStore
 
@@ -53,7 +53,7 @@ interface ReceiptDao {
     suspend fun getAllStores(): List<Store>
 
     @Transaction
-    @Query("SELECT * FROM receipt r, store s WHERE s.nip = r.nip AND s.name LIKE '%' || :name || '%'")
+    @Query("SELECT * FROM receipt r, store s WHERE s.id = r.nip AND s.name LIKE '%' || :name || '%'")
     suspend fun getReceiptWithStore(name: String): List<ReceiptWithStore>
 
     @Transaction
@@ -69,8 +69,8 @@ interface ReceiptDao {
     suspend fun getAllProducts(receiptId: Int): List<Product>
 
     @Transaction
-    @Query("SELECT * FROM category WHERE name = :name")
-    suspend fun getCategoryWithProducts(name: String): List<CategoryWithProducts>
+    @Query("SELECT * FROM product WHERE id = :id")
+    suspend fun getCategoryWithProduct(id: Int): List<ProductWithCategory>
 
 
 }

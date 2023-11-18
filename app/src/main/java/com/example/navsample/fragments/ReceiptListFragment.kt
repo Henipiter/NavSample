@@ -150,7 +150,7 @@ class ReceiptListFragment : Fragment(), ItemClickListener {
                     it.receiptId,
                     it.name,
                     it.finalPrice.toString(),
-                    it.categoryId,
+                    it.categoryId.toString(),
                     it.amount.toString(),
                     it.itemPrice.toString(),
                     it.ptuType,

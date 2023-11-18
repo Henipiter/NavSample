@@ -10,7 +10,6 @@ import android.view.ViewGroup
 import androidx.camera.core.ExperimentalGetImage
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
-import androidx.lifecycle.lifecycleScope
 import androidx.navigation.Navigation
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -25,11 +24,9 @@ import com.example.navsample.R
 import com.example.navsample.adapters.ProductListAdapter
 import com.example.navsample.databinding.FragmentAddProductsBinding
 import com.example.navsample.entities.Product
-import com.example.navsample.entities.ReceiptDatabase
 import com.example.navsample.viewmodels.ReceiptDataViewModel
 import com.example.navsample.viewmodels.ReceiptImageViewModel
 import com.google.mlkit.vision.common.InputImage
-import kotlinx.coroutines.launch
 
 
 @ExperimentalGetImage
@@ -125,16 +122,7 @@ class AddProductsFragment : Fragment(), ItemClickListener {
         }
         binding.confirmButton.setOnClickListener {
             convertProducts()
-            lifecycleScope.launch {
-                val dao = ReceiptDatabase.getInstance(requireContext()).receiptDao
-                receiptDataViewModel.savedProduct.value?.forEach { product ->
-                    dao.insertProduct(product)
-                }
-            }
-
-            receiptImageViewModel.clearData()
-            receiptDataViewModel.clearData()
-
+            receiptDataViewModel.insertProducts()
             Navigation.findNavController(binding.root).popBackStack(R.id.menuFragment, false)
         }
     }
@@ -147,15 +135,26 @@ class AddProductsFragment : Fragment(), ItemClickListener {
         }
     }
 
+    private fun getCategoryId(name: String): Int {
+        val categoryNames = receiptDataViewModel.categoryList.value?.map { it.name } ?: listOf()
+        var categoryIndex = categoryNames.indexOf(name)
+        if (categoryIndex == -1) {
+            categoryIndex = categoryNames.indexOf("INNE")
+        }
+        return receiptDataViewModel.categoryList.value?.get(categoryIndex)?.id ?: 0
+
+    }
+
     private fun convertProducts() {
         val newProducts = ArrayList<Product>()
+
         receiptDataViewModel.product.value?.forEach { productDTO ->
             newProducts.add(
                 Product(
                     receiptDataViewModel.savedReceipt.value?.id
                         ?: throw IllegalArgumentException("No ID of receipt"),
                     productDTO.name.toString(),
-                    productDTO.category.toString(),
+                    getCategoryId(productDTO.category.toString()),
                     transformToFloat(productDTO.amount.toString()),
                     transformToFloat(productDTO.itemPrice.toString()),
                     transformToFloat(productDTO.finalPrice.toString()),

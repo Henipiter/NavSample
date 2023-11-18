@@ -25,7 +25,7 @@ class ReceiptDataViewModel : ViewModel() {
     lateinit var savedProduct: MutableLiveData<ArrayList<Product>>
 
     lateinit var receiptList: MutableLiveData<ArrayList<ReceiptWithStore>>
-    lateinit var categoryList: MutableLiveData<ArrayList<String>>
+    lateinit var categoryList: MutableLiveData<ArrayList<Category>>
     lateinit var storeList: MutableLiveData<ArrayList<Store>>
 
     lateinit var experimental: MutableLiveData<ArrayList<ExperimentalAdapterArgument>>
@@ -39,7 +39,7 @@ class ReceiptDataViewModel : ViewModel() {
         savedProduct = MutableLiveData<ArrayList<Product>>(null)
 
         receiptList = MutableLiveData<ArrayList<ReceiptWithStore>>(null)
-        categoryList = MutableLiveData<ArrayList<String>>(null)
+        categoryList = MutableLiveData<ArrayList<Category>>(null)
         storeList = MutableLiveData<ArrayList<Store>>(null)
 
         experimental = MutableLiveData(
@@ -61,6 +61,16 @@ class ReceiptDataViewModel : ViewModel() {
     }
 
     val dao = ApplicationContext.context?.let { ReceiptDatabase.getInstance(it).receiptDao }
+
+    fun insertProducts() {
+        viewModelScope.launch {
+            dao?.let {
+                savedProduct.value?.forEach { product ->
+                    dao.insertProduct(product)
+                }
+            }
+        }
+    }
 
     fun insertReceipt(newReceipt: Receipt) {
         viewModelScope.launch {
@@ -116,7 +126,8 @@ class ReceiptDataViewModel : ViewModel() {
     fun refreshCategoryList() {
         viewModelScope.launch {
             categoryList.postValue(
-                dao?.getAllCategories()?.let { it2 -> ArrayList(it2.map { it.name }) })
+                dao?.getAllCategories() as ArrayList<Category>
+            )
         }
     }
 

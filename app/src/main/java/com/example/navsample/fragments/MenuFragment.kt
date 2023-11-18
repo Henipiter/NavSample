@@ -6,13 +6,12 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
-import androidx.lifecycle.lifecycleScope
 import androidx.navigation.Navigation
 import com.example.navsample.R
 import com.example.navsample.databinding.FragmentMenuBinding
+import com.example.navsample.entities.Category
 import com.example.navsample.entities.Store
 import com.example.navsample.viewmodels.ReceiptDataViewModel
-import kotlinx.coroutines.launch
 
 
 class MenuFragment : Fragment() {
@@ -52,11 +51,18 @@ class MenuFragment : Fragment() {
         }
 
 
-        lifecycleScope.launch { receiptDataViewModel.insertStore(Store("LIDL", "00")) }
-        lifecycleScope.launch { receiptDataViewModel.insertStore(Store("Biedronka", "01")) }
-        lifecycleScope.launch { receiptDataViewModel.insertStore(Store("Carrefour", "12")) }
-        lifecycleScope.launch { receiptDataViewModel.insertStore(Store("Netto", "31")) }
-        lifecycleScope.launch { receiptDataViewModel.insertStore(Store("Tesco", "23")) }
+        receiptDataViewModel.insertStore(Store("LIDL", "00"))
+        receiptDataViewModel.insertStore(Store("Biedronka", "01"))
+
+        receiptDataViewModel.insertCategoryList(Category("INNE"))
+        receiptDataViewModel.insertCategoryList(Category("JEDZENIE"))
+        receiptDataViewModel.insertCategoryList(Category("ZDROWIE"))
+        receiptDataViewModel.insertCategoryList(Category("KULTURA"))
+        receiptDataViewModel.insertCategoryList(Category("OPŁATY"))
+        receiptDataViewModel.insertCategoryList(Category("KOSTMETYKI"))
+        receiptDataViewModel.insertCategoryList(Category("SPORT"))
+        receiptDataViewModel.insertCategoryList(Category("MOTORYZACJA"))
+        receiptDataViewModel.insertCategoryList(Category("SPORT"))
 
 
     }

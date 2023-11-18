@@ -171,7 +171,10 @@ class AddSingleProductFragment : Fragment() {
                 binding.productCategoryInput.setText(fixed)
                 binding.productCategoryInput.setSelection(start + count)
             }
-            if (receiptDataViewModel.categoryList.value?.contains(binding.productCategoryInput.text.toString()) == false) {
+            if (receiptDataViewModel.categoryList.value?.map { it.name }?.contains(
+                    binding.productCategoryInput.text.toString()
+                ) == false
+            ) {
                 binding.productCategoryLayout.helperText = "New category will be added"
             } else {
                 binding.productCategoryLayout.helperText = null
@@ -233,7 +236,8 @@ class AddSingleProductFragment : Fragment() {
             }
 
             val category = Category(binding.productCategoryInput.text.toString())
-            if (receiptDataViewModel.categoryList.value?.contains(category.name) == false) {
+            if (receiptDataViewModel.categoryList.value?.map { it.name }
+                    ?.contains(category.name) == false) {
                 receiptDataViewModel.insertCategoryList(category)
             }
 

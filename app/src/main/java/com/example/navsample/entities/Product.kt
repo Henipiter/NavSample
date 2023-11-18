@@ -7,7 +7,7 @@ import androidx.room.PrimaryKey
 data class Product(
     var receiptId: Int,
     var name: String,
-    var categoryId: String,
+    var categoryId: Int,
     var amount: Float,
     var itemPrice: Float,
     var finalPrice: Float,

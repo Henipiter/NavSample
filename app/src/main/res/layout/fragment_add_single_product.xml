@@ -51,7 +51,7 @@
                     app:layout_constraintTop_toTopOf="parent">
 
                     <AutoCompleteTextView
-                        android:id="@+id/product_nname_input"
+                        android:id="@+id/product_name_input"
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
                         android:inputType="textNoSuggestions"

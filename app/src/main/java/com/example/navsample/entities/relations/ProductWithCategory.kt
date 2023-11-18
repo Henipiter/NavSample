@@ -5,11 +5,11 @@ import androidx.room.Relation
 import com.example.navsample.entities.Category
 import com.example.navsample.entities.Product
 
-data class CategoryWithProducts (
+data class ProductWithCategory(
     @Embedded val category: Category,
     @Relation(
-        parentColumn = "name",
+        parentColumn = "id",
         entityColumn = "categoryId"
     )
-    val products: List<Product>
+    val products: Product
 )
