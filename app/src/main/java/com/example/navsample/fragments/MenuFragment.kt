@@ -51,8 +51,9 @@ class MenuFragment : Fragment() {
         }
 
 
-        receiptDataViewModel.insertStore(Store("LIDL", "00"))
-        receiptDataViewModel.insertStore(Store("Biedronka", "01"))
+        receiptDataViewModel.insertStore(Store("Carrefour", "9370008168"))
+        receiptDataViewModel.insertStore(Store("Biedronka", "7791011327"))
+        receiptDataViewModel.insertStore(Store("LIDL", "7811897358"))
 
         receiptDataViewModel.insertCategoryList(Category("INNE"))
         receiptDataViewModel.insertCategoryList(Category("JEDZENIE"))

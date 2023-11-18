@@ -70,6 +70,7 @@ interface ReceiptDao {
 
     @Transaction
     @Query("SELECT * FROM product WHERE id = :id")
+//    @Query("SELECT * FROM product p, category c WHERE p.id = :id AND p.categoryId = c.id")
     suspend fun getCategoryWithProduct(id: Int): List<ProductWithCategory>
 
 

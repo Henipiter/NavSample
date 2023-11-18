@@ -1,18 +1,17 @@
 package com.example.navsample.fragments
 
-import android.R
 import android.app.TimePickerDialog
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.ArrayAdapter
 import androidx.core.widget.doOnTextChanged
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.Navigation
 import com.example.navsample.DTO.DataMode
+import com.example.navsample.adapters.StoreDropdownAdapter
 import com.example.navsample.databinding.FragmentStageBasicInfoBinding
 import com.example.navsample.entities.Receipt
 import com.example.navsample.entities.Store
@@ -60,9 +59,9 @@ class StageBasicInfoFragment : Fragment() {
         }
         receiptDataViewModel.storeList.observe(viewLifecycleOwner) {
             it?.let {
-                ArrayAdapter(
+                StoreDropdownAdapter(
                     requireContext(),
-                    R.layout.simple_list_item_1,
+                    com.example.navsample.R.layout.array_adapter_row,
                     it
                 ).also { adapter ->
                     binding.storeNameInput.setAdapter(adapter)
