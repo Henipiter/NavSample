@@ -6,8 +6,8 @@ import androidx.room.PrimaryKey
 
 @Entity(indices = [Index(value = ["nip"], unique = true)])
 data class Store(
-    var nip: String,
-    var name: String
+    var name: String,
+    var nip: String
 ){
     @PrimaryKey
     var id: Int? = null

@@ -52,11 +52,11 @@ class MenuFragment : Fragment() {
         }
 
 
-        lifecycleScope.launch { receiptDataViewModel.insertStore(Store("00", "LIDL")) }
-        lifecycleScope.launch { receiptDataViewModel.insertStore(Store("01", "Biedronka")) }
-        lifecycleScope.launch { receiptDataViewModel.insertStore(Store("12", "Carrefour")) }
-        lifecycleScope.launch { receiptDataViewModel.insertStore(Store("31", "Netto")) }
-        lifecycleScope.launch { receiptDataViewModel.insertStore(Store("23", "Tesco")) }
+        lifecycleScope.launch { receiptDataViewModel.insertStore(Store("LIDL", "00")) }
+        lifecycleScope.launch { receiptDataViewModel.insertStore(Store("Biedronka", "01")) }
+        lifecycleScope.launch { receiptDataViewModel.insertStore(Store("Carrefour", "12")) }
+        lifecycleScope.launch { receiptDataViewModel.insertStore(Store("Netto", "31")) }
+        lifecycleScope.launch { receiptDataViewModel.insertStore(Store("Tesco", "23")) }
 
 
     }

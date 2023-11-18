@@ -25,30 +25,17 @@
                 android:src="@android:drawable/ic_menu_gallery" />
         </RelativeLayout>
 
-        <ImageView
-            android:id="@+id/edit_stores"
-            android:layout_width="32dp"
-            android:layout_height="0dp"
-            android:layout_marginEnd="32dp"
-            android:paddingHorizontal="10dp"
-            app:layout_constraintBottom_toBottomOf="@+id/storeNameLayout"
-
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="@+id/storeNameLayout"
-            app:srcCompat="@drawable/clear" />
-
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/storeNameLayout"
             style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginEnd="32dp"
-            android:layout_marginStart="32dp"
+            android:layout_marginHorizontal="32dp"
             android:layout_marginTop="16dp"
             android:hint="Store name"
             app:startIconDrawable="@drawable/clear"
             app:helperTextEnabled="true"
-            app:layout_constraintEnd_toEndOf="@id/edit_stores"
+            app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/relativeLayout">
 
@@ -161,11 +148,14 @@
             app:layout_constraintTop_toBottomOf="@+id/receiptPTULayout">
 
             <AutoCompleteTextView
+                app:errorEnabled="true"
                 android:id="@+id/receiptDateInput"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:inputType="textNoSuggestions"
+                android:inputType="date"
                 android:padding="13dp"
+                android:focusable="false"
+                android:focusableInTouchMode="false"
                 tools:ignore="LabelFor" />
         </com.google.android.material.textfield.TextInputLayout>
 
@@ -188,8 +178,10 @@
                 android:id="@+id/receiptTimeInput"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:inputType="textNoSuggestions"
+                android:inputType="time"
                 android:padding="13dp"
+                android:focusable="false"
+                android:focusableInTouchMode="false"
                 tools:ignore="LabelFor" />
         </com.google.android.material.textfield.TextInputLayout>
 

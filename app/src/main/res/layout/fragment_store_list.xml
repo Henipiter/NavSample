@@ -32,7 +32,7 @@
         </com.google.android.material.textfield.TextInputLayout>
 
         <com.google.android.material.textfield.TextInputLayout
-            android:id="@+id/nip_layout"
+            android:id="@+id/store_nip_layout"
             style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
@@ -45,7 +45,7 @@
             app:layout_constraintTop_toBottomOf="@id/store_name_layout">
 
             <AutoCompleteTextView
-                android:id="@+id/nip_input"
+                android:id="@+id/store_nip_input"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:inputType="date"
@@ -61,7 +61,7 @@
             android:layout_marginTop="32dp"
             android:paddingHorizontal="16dp"
             app:layout_constraintBottom_toTopOf="@id/new_button"
-            app:layout_constraintTop_toBottomOf="@+id/nip_layout"
+            app:layout_constraintTop_toBottomOf="@+id/store_nip_layout"
             app:layout_constraintVertical_bias="0.0"
             tools:layout_editor_absoluteX="0dp" />
 

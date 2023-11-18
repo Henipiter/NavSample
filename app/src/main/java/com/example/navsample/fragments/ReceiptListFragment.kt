@@ -69,6 +69,9 @@ class ReceiptListFragment : Fragment(), ItemClickListener {
         binding.dateBetweenLayout.setEndIconOnClickListener {
             showDatePicker()
         }
+        binding.dateBetweenInput.setOnClickListener {
+            showDatePicker()
+        }
         binding.storeLayout.setStartIconOnClickListener {
             binding.storeInput.setText("")
             receiptDataViewModel.refreshReceiptList("")
