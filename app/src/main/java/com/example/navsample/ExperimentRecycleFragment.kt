@@ -43,7 +43,7 @@ open class ExperimentRecycleFragment : Fragment() {
     private var checkedElements = arrayListOf<Int>()
 
     private var productListMode = ProductListMode.SELECT
-    private var action = Action.NONE
+    private var action = NONE
     var sourceItemIndex = -1
     var targetItemIndex = -1
     override fun onCreateView(
@@ -87,9 +87,9 @@ open class ExperimentRecycleFragment : Fragment() {
             } else if (productListMode == ProductListMode.EDIT) {
                 receiptDataViewModel.experimental.value = recycleList
                 EditTextDialog(
-                    recycleList.get(position).value
+                    recycleList[position].value
                 ) { text ->
-                    recycleList.get(position).value = text
+                    recycleList[position].value = text
                     experimentalListAdapter.notifyItemChanged(position)
                 }.show(
                     childFragmentManager, "TAG"
@@ -295,7 +295,7 @@ open class ExperimentRecycleFragment : Fragment() {
 
     private fun uncheckAll() {
         checkedElements.forEach { position ->
-            recycleList.get(position).color = Color.GRAY
+            recycleList[position].color = Color.GRAY
             experimentalListAdapter.notifyItemChanged(position)
         }
         checkedElements.clear()
@@ -335,7 +335,7 @@ open class ExperimentRecycleFragment : Fragment() {
                         }
 
                         ItemTouchHelper.RIGHT -> {
-                            recycleList.set(position, ExperimentalAdapterArgument())
+                            recycleList[position] = ExperimentalAdapterArgument()
                             experimentalListAdapter.notifyItemChanged(position)
                         }
                     }
@@ -365,8 +365,8 @@ open class ExperimentRecycleFragment : Fragment() {
 
                 private fun moveItem(oldPos: Int, newPos: Int) {
                     val temp = recycleList.get(oldPos)
-                    recycleList.set(oldPos, recycleList.get(newPos))
-                    recycleList.set(newPos, temp)
+                    recycleList[oldPos] = recycleList.get(newPos)
+                    recycleList[newPos] = temp
                     experimentalListAdapter.notifyItemChanged(oldPos)
                     experimentalListAdapter.notifyItemChanged(newPos)
                 }
