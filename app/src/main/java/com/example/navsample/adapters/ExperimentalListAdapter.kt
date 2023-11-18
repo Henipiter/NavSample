@@ -2,13 +2,10 @@ package com.example.navsample.adapters
 
 import android.content.Context
 import android.view.LayoutInflater
-import android.view.View
 import android.view.ViewGroup
-import android.widget.TextView
-import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.recyclerview.widget.RecyclerView
 import com.example.navsample.DTO.ExperimentalAdapterArgument
-import com.example.navsample.R
+import com.example.navsample.databinding.RowExperimentBinding
 
 class ExperimentalListAdapter(
     var context: Context,
@@ -16,31 +13,20 @@ class ExperimentalListAdapter(
 
     var onClick: (Int) -> Unit
 ) : RecyclerView.Adapter<ExperimentalListAdapter.MyViewHolder>() {
-//    var position = 0
 
-    class MyViewHolder(
-        var itemView: View,
-        var textView: TextView = itemView.findViewById(R.id.text_view),
-
-        var mainLayout: ConstraintLayout = itemView.findViewById(R.id.mainLayout)
-    ) : RecyclerView.ViewHolder(itemView)
+    class MyViewHolder(val binding: RowExperimentBinding) : RecyclerView.ViewHolder(binding.root)
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MyViewHolder {
-        val inflater = LayoutInflater.from(this.context)
-        inflater.inflate(R.layout.row_experiment, parent, false)
-        val view = inflater.inflate(R.layout.row_experiment, parent, false)
-        return MyViewHolder(view)
+        val binding =
+            RowExperimentBinding.inflate(LayoutInflater.from(parent.context), parent, false)
+        return MyViewHolder(binding)
     }
 
-
     override fun onBindViewHolder(holder: MyViewHolder, position: Int) {
-//        this.position = position
-        holder.textView.text = recycleList[position].value
-        holder.mainLayout.setBackgroundColor(recycleList[position].color)
-
-        holder.mainLayout.setOnClickListener {
+        holder.binding.textView.text = recycleList[position].value
+        holder.binding.mainLayout.setBackgroundColor(recycleList[position].color)
+        holder.binding.mainLayout.setOnClickListener {
             onClick.invoke(position)
-
         }
 
     }

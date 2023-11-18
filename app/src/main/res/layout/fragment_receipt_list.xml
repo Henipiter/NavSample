@@ -11,7 +11,7 @@
         android:layout_height="match_parent">
 
         <com.google.android.material.textfield.TextInputLayout
-            android:id="@+id/storeLayout"
+            android:id="@+id/store_layout"
             style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -24,7 +24,7 @@
             app:layout_constraintTop_toTopOf="parent">
 
             <AutoCompleteTextView
-                android:id="@+id/storeInput"
+                android:id="@+id/store_input"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:inputType="textCapCharacters"
@@ -42,12 +42,12 @@
             app:startIconDrawable="@drawable/clear"
             app:endIconDrawable="@drawable/date"
             app:endIconMode="custom"
-            app:layout_constraintTop_toBottomOf="@id/storeLayout"
+            app:layout_constraintTop_toBottomOf="@id/store_layout"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent">
 
             <AutoCompleteTextView
-                android:id="@+id/dateBetweenInput"
+                android:id="@+id/date_between_input"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:focusable="false"
@@ -62,7 +62,7 @@
 
 
         <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/recyclerViewEventReceipts"
+            android:id="@+id/recycler_view_event_receipts"
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:layout_marginTop="32dp"

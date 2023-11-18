@@ -3,15 +3,12 @@ package com.example.navsample.adapters
 import android.content.Context
 import android.graphics.Color
 import android.view.LayoutInflater
-import android.view.View
 import android.view.ViewGroup
-import android.widget.TextView
 import android.widget.Toast
-import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.recyclerview.widget.RecyclerView
 import com.example.navsample.DTO.ProductDTO
 import com.example.navsample.ItemClickListener
-import com.example.navsample.R
+import com.example.navsample.databinding.ProductRowBinding
 import kotlin.math.roundToInt
 
 class ProductListAdapter(
@@ -22,35 +19,25 @@ class ProductListAdapter(
 ) : RecyclerView.Adapter<ProductListAdapter.MyViewHolder>() {
     var position = 0
 
-    class MyViewHolder(
-        var itemView: View,
-        var ptuType: TextView = itemView.findViewById(R.id.ptu_type),
-        var amount: TextView = itemView.findViewById(R.id.nip),
-        var finalPrice: TextView = itemView.findViewById(R.id.final_prize),
-        var itemPrice: TextView = itemView.findViewById(R.id.time),
-        var productName: TextView = itemView.findViewById(R.id.store_name),
-        var mainLayout: ConstraintLayout = itemView.findViewById(R.id.mainLayout)
-    ) : RecyclerView.ViewHolder(itemView)
+    class MyViewHolder(val binding: ProductRowBinding) : RecyclerView.ViewHolder(binding.root)
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MyViewHolder {
-        val inflater = LayoutInflater.from(this.context)
-        inflater.inflate(R.layout.product_row, parent, false)
-        val view = inflater.inflate(R.layout.product_row, parent, false)
-        return MyViewHolder(view)
+        val binding = ProductRowBinding.inflate(LayoutInflater.from(parent.context), parent, false)
+        return MyViewHolder(binding)
     }
 
 
     override fun onBindViewHolder(holder: MyViewHolder, position: Int) {
         this.position = position
-        holder.ptuType.text = productList[position].ptuType.toString()
-        holder.amount.text = productList[position].amount.toString()
-        holder.itemPrice.text = productList[position].itemPrice.toString()
-        holder.finalPrice.text = productList[position].finalPrice.toString()
-        holder.productName.text = productList[position].name?.let { trimDescription(it) }
-        holder.mainLayout.setOnClickListener {
+        holder.binding.ptuType.text = productList[position].ptuType.toString()
+        holder.binding.amount.text = productList[position].amount.toString()
+        holder.binding.itemPrice.text = productList[position].itemPrice.toString()
+        holder.binding.finalPrice.text = productList[position].finalPrice.toString()
+        holder.binding.productName.text = productList[position].name?.let { trimDescription(it) }
+        holder.binding.mainLayout.setOnClickListener {
             itemClickListener.onItemClick(position)
         }
-        holder.mainLayout.setOnLongClickListener {
+        holder.binding.mainLayout.setOnLongClickListener {
             Toast.makeText(context, "EE", Toast.LENGTH_SHORT).show()
             onDelete.invoke(position)
             true
@@ -60,7 +47,7 @@ class ProductListAdapter(
         val finalPrice = trim(productList[position].finalPrice.toString()).toDoubleOrNull()
 
         if (floatAmount == null || itemPrice == null || finalPrice == null || (floatAmount * itemPrice * 100.0).roundToInt() / 100.0 != finalPrice) {
-            holder.finalPrice.setTextColor(Color.RED)
+            holder.binding.finalPrice.setTextColor(Color.RED)
         }
     }
 

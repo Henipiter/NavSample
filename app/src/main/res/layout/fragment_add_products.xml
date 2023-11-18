@@ -27,7 +27,7 @@
             android:text="Add new"
             app:layout_constraintEnd_toStartOf="@+id/center"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/relativeLayout" />
+            app:layout_constraintTop_toBottomOf="@+id/relative_layout" />
 
         <Button
             android:id="@+id/confirm_button"
@@ -37,10 +37,10 @@
             android:text="Confirm"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toEndOf="@+id/center"
-            app:layout_constraintTop_toBottomOf="@+id/relativeLayout" />
+            app:layout_constraintTop_toBottomOf="@+id/relative_layout" />
 
         <RelativeLayout
-            android:id="@+id/relativeLayout"
+            android:id="@+id/relative_layout"
             android:layout_width="match_parent"
             android:layout_height="300dp"
             app:layout_constraintEnd_toEndOf="parent"
@@ -56,13 +56,15 @@
 
 
         <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/recyclerViewEvent"
+            android:id="@+id/recycler_view_event"
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:layout_marginTop="64dp"
             android:paddingHorizontal="16dp"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/relativeLayout" />
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/relative_layout" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
