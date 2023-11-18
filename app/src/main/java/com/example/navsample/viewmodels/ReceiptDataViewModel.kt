@@ -1,6 +1,6 @@
 package com.example.navsample.viewmodels
 
-import android.widget.Toast
+import android.util.Log
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -15,11 +15,8 @@ import com.example.navsample.entities.ReceiptDatabase
 import com.example.navsample.entities.Store
 import com.example.navsample.entities.relations.ReceiptWithStore
 import kotlinx.coroutines.launch
-import java.lang.Exception
 
 class ReceiptDataViewModel : ViewModel() {
-    lateinit var insertErrorMessage: MutableLiveData<String>
-
     lateinit var receipt: MutableLiveData<ReceiptDTO?>
     lateinit var product: MutableLiveData<ArrayList<ProductDTO>>
 
@@ -34,8 +31,6 @@ class ReceiptDataViewModel : ViewModel() {
     lateinit var experimental: MutableLiveData<ArrayList<ExperimentalAdapterArgument>>
     lateinit var experimentalOriginal: MutableLiveData<ArrayList<ExperimentalAdapterArgument>>
     fun clearData() {
-        insertErrorMessage = MutableLiveData<String>("")
-
         receipt = MutableLiveData<ReceiptDTO?>(null)
         product = MutableLiveData<ArrayList<ProductDTO>>(ArrayList())
 
@@ -46,6 +41,7 @@ class ReceiptDataViewModel : ViewModel() {
         receiptList = MutableLiveData<ArrayList<ReceiptWithStore>>(null)
         categoryList = MutableLiveData<ArrayList<String>>(null)
         storeList = MutableLiveData<ArrayList<Store>>(null)
+
         experimental = MutableLiveData(
             arrayListOf(
                 ExperimentalAdapterArgument("01"),
@@ -93,7 +89,7 @@ class ReceiptDataViewModel : ViewModel() {
                     store.id = dao.getStoreId(rowId)
                 }
             } catch (e: Exception) {
-                insertErrorMessage.value = e.message.toString()
+                Log.e("Insert store to DB", e.message.toString())
             }
         }
         savedStore.value = store
