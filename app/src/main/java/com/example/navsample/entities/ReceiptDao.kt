@@ -36,6 +36,7 @@ interface ReceiptDao {
     @Transaction
     @Query("SELECT id FROM receipt WHERE rowId = :rowId")
     suspend fun getReceiptId(rowId: Long): Int
+
     @Transaction
     @Query("SELECT id FROM store WHERE rowId = :rowId")
     suspend fun getStoreId(rowId: Long): Int
@@ -46,14 +47,18 @@ interface ReceiptDao {
 
     @Transaction
     @Query("SELECT * FROM store WHERE nip = :nip")
-    suspend fun getStore(nip: String): Store
+    suspend fun getStoreByNip(nip: String): Store
+
+    @Transaction
+    @Query("SELECT * FROM store WHERE id = :id")
+    suspend fun getStoreById(id: Int): Store
 
     @Transaction
     @Query("SELECT * FROM store")
     suspend fun getAllStores(): List<Store>
 
     @Transaction
-    @Query("SELECT * FROM receipt r, store s WHERE s.id = r.nip AND s.name LIKE '%' || :name || '%'")
+    @Query("SELECT * FROM receipt r, store s WHERE s.id = r.storeId AND s.name LIKE '%' || :name || '%'")
     suspend fun getReceiptWithStore(name: String): List<ReceiptWithStore>
 
     @Transaction

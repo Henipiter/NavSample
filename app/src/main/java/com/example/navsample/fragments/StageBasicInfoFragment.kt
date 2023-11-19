@@ -1,6 +1,5 @@
 package com.example.navsample.fragments
 
-import android.app.TimePickerDialog
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -8,7 +7,6 @@ import android.view.ViewGroup
 import androidx.core.widget.doOnTextChanged
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
-import androidx.lifecycle.lifecycleScope
 import androidx.navigation.Navigation
 import com.example.navsample.DTO.DataMode
 import com.example.navsample.adapters.StoreDropdownAdapter
@@ -20,7 +18,6 @@ import com.example.navsample.viewmodels.ReceiptImageViewModel
 import com.google.android.material.datepicker.MaterialDatePicker
 import com.google.android.material.timepicker.MaterialTimePicker
 import com.google.android.material.timepicker.TimeFormat
-import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Locale
@@ -33,13 +30,12 @@ class StageBasicInfoFragment : Fragment() {
     private val receiptDataViewModel: ReceiptDataViewModel by activityViewModels()
 
 
-    private var picker: TimePickerDialog? = null
     private var calendarDate = Calendar.getInstance()
     private var calendarTime = Calendar.getInstance()
 
     private var mode = DataMode.NEW
+    var pickedStore: Store? = null
 
-    var actualNIP = ""
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -116,23 +112,26 @@ class StageBasicInfoFragment : Fragment() {
     }
 
     private fun saveChangesToDatabase() {
-        if (mode == DataMode.NEW) {
-            val store = Store("", "")
-            store.nip = binding.storeNIPInput.text.toString()
-            store.name = binding.storeNameInput.text.toString()
-            receiptDataViewModel.insertStore(store)
-            receiptDataViewModel.refreshStoreList()
+        if (pickedStore == null) {
+            if (mode == DataMode.NEW) {
+                val store = Store("", "")
+                store.nip = binding.storeNIPInput.text.toString()
+                store.name = binding.storeNameInput.text.toString()
+                receiptDataViewModel.insertStore(store)
+                receiptDataViewModel.refreshStoreList()
+            } else if (mode == DataMode.EDIT) {
+                val store = receiptDataViewModel.savedStore.value!!
+                store.nip = binding.storeNIPInput.text.toString()
+                store.name = binding.storeNameInput.text.toString()
+                receiptDataViewModel.updateStore(store)
+                receiptDataViewModel.refreshStoreList()
+            }
+            pickedStore = receiptDataViewModel.savedStore.value
+        } else {
+            receiptDataViewModel.savedStore.value = pickedStore
         }
-        if (mode == DataMode.EDIT) {
-            val store = receiptDataViewModel.savedStore.value!!
-            store.nip = binding.storeNIPInput.text.toString()
-            store.name = binding.storeNameInput.text.toString()
-            receiptDataViewModel.updateStore(store)
-            receiptDataViewModel.refreshStoreList()
-        }
-
-        val receipt = receiptDataViewModel.savedReceipt.value ?: Receipt("", -1F, -1F, "", "")
-        receipt.nip = binding.storeNIPInput.text.toString()
+        val receipt = receiptDataViewModel.savedReceipt.value ?: Receipt(-1, -1F, -1F, "", "")
+        receipt.storeId = pickedStore?.id ?: -1
         receipt.pln = transformToFloat(binding.receiptPLNInput.text.toString())
         receipt.ptu = transformToFloat(binding.receiptPTUInput.text.toString())
         receipt.date = binding.receiptDateInput.text.toString()
@@ -143,17 +142,20 @@ class StageBasicInfoFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         initObserver()
+        binding.storeNIPLayout.isStartIconVisible = false
         binding.editButton.setOnClickListener {
             binding.storeNIPLayout.visibility = View.VISIBLE
 
             changeViewToEditMode()
         }
         binding.saveChangesButton.setOnClickListener {
+            if (binding.storeNIPLayout.error?.contains("exist") == false) {
+                return@setOnClickListener
+            }
             saveChangesToDatabase()
 
             binding.storeNIPLayout.visibility = View.GONE
             changeViewToDisplayMode()
-            actualNIP = binding.storeNIPInput.text.toString()
             receiptDataViewModel.receipt.value?.storeNIP = binding.storeNIPInput.text.toString()
             receiptDataViewModel.receipt.value?.receiptPTU =
                 binding.receiptPTUInput.text.toString()
@@ -176,47 +178,38 @@ class StageBasicInfoFragment : Fragment() {
         }
 
         receiptDataViewModel.refreshStoreList()
-        if (receiptImageViewModel.bitmap.value != null) {
-            binding.receiptImageMarked.setImageBitmap(receiptImageViewModel.bitmap.value)
+        receiptImageViewModel.bitmap.value?.let {
+            binding.receiptImageMarked.setImageBitmap(it)
         }
 
-        if (receiptDataViewModel.receipt.value != null) {
-            val receipt = receiptDataViewModel.receipt.value
-            if ((receipt?.id ?: -1) >= 0) {
-                changeViewToDisplayMode()
-            } else {
-                changeViewToNewMode()
-            }
 
-            if (!isCorrectNIP(receipt?.storeNIP)) {
+        if (receiptDataViewModel.receipt.value == null) {
+            changeViewToNewMode()
+        }
+        receiptDataViewModel.savedStore.value?.let {
+            binding.storeNIPInput.setText(it.nip)
+            binding.storeNameInput.setText(it.name)
+
+            if (!isCorrectNIP(it.nip)) {
                 binding.storeNIPLayout.error = "Bad NIP"
                 binding.storeNIPLayout.helperText = null
             } else {
                 binding.storeNIPLayout.error = null
                 binding.storeNIPLayout.helperText = "Correct NIP"
-                lifecycleScope.launch {
-                    val indexOfNIP = receiptDataViewModel.storeList.value?.map { it.nip }
-                        ?.indexOf(receipt?.storeNIP) ?: -1
-                    if (indexOfNIP >= 0) {
-                        binding.storeNameInput.setText(
-                            receiptDataViewModel.storeList.value?.get(indexOfNIP)?.name
-                        )
-                    } else {
-                        binding.storeNameInput.setText(receipt?.storeName)
-                    }
-                }
+            }
+        }
+        receiptDataViewModel.receipt.value?.let { receipt ->
+            if (receipt.id >= 0) {
+                changeViewToDisplayMode()
+                binding.receiptPTUInput.setText(receipt.receiptPTU)
+                binding.receiptPLNInput.setText(receipt.receiptPLN)
+                binding.receiptDateInput.setText(receipt.receiptDate)
+                binding.receiptTimeInput.setText(receipt.receiptTime)
+            } else {
+                changeViewToNewMode()
             }
 
-            binding.storeNIPInput.setText(receipt?.storeNIP)
-            binding.receiptPTUInput.setText(receipt?.receiptPTU)
-            binding.receiptPLNInput.setText(receipt?.receiptPLN)
-            binding.receiptDateInput.setText(receipt?.receiptDate)
-            binding.receiptTimeInput.setText(receipt?.receiptTime)
-
-        } else {
-            changeViewToNewMode()
         }
-
         binding.storeNameInput.doOnTextChanged { actual, _, _, _ ->
             val storeLists = receiptDataViewModel.storeList.value?.map { it.name }
             if (storeLists?.contains(actual.toString()) == false) {
@@ -230,15 +223,18 @@ class StageBasicInfoFragment : Fragment() {
             binding.storeNameInput.setText("")
             binding.storeNameLayout.helperText = null
             binding.storeNIPLayout.isEnabled = true
+            binding.storeNameInput.isEnabled = true
             binding.storeNIPInput.setText("")
+            pickedStore = null
         }
 
         binding.storeNameInput.setOnItemClickListener { adapter, _, i, _ ->
             val store = adapter.getItemAtPosition(i) as Store
-            receiptDataViewModel.savedStore.value = store
+            pickedStore = store
             binding.storeNameInput.setText(store.name)
             binding.storeNIPInput.setText(store.nip)
             binding.storeNIPLayout.isEnabled = false
+            binding.storeNameInput.isEnabled = false
             binding.storeNIPLayout.error = null
 
         }
@@ -253,10 +249,16 @@ class StageBasicInfoFragment : Fragment() {
             val index =
                 receiptDataViewModel.storeList.value?.map { it.nip }?.indexOf(text.toString()) ?: -1
 
-            if (text.toString() != actualNIP && index >= 0) {
+            binding.storeNIPLayout.isStartIconVisible = false
+            binding.saveChangesButton.isEnabled = true
+            if (text.toString() != (pickedStore?.nip
+                    ?: "") && binding.storeNIPLayout.isEnabled && index >= 0
+            ) {
                 binding.storeNIPLayout.error =
                     "NIP exist in store " + (receiptDataViewModel.storeList.value?.get(index)?.name
                         ?: "")
+                binding.saveChangesButton.isEnabled = false
+                binding.storeNIPLayout.isStartIconVisible = true
                 return@doOnTextChanged
             }
             if (!isCorrectNIP(text.toString())) {
@@ -268,7 +270,22 @@ class StageBasicInfoFragment : Fragment() {
             }
 
         }
+        binding.storeNIPLayout.setStartIconOnClickListener {
+            binding.storeNIPInput.text
+            val index = receiptDataViewModel.storeList.value?.map { it.nip }
+                ?.indexOf(binding.storeNIPInput.text.toString()) ?: -1
+            if (index >= 0) {
+                pickedStore = receiptDataViewModel.storeList.value?.get(index)
+                binding.storeNIPInput.setText(pickedStore?.nip ?: "")
+                binding.storeNameInput.setText(pickedStore?.name ?: "")
+                binding.storeNIPLayout.isEnabled = false
+                binding.storeNameInput.isEnabled = false
+                binding.storeNIPLayout.error = null
+                binding.storeNIPLayout.isStartIconVisible = false
+                binding.saveChangesButton.isEnabled = true
+            }
 
+        }
 
         binding.receiptDateLayout.setEndIconOnClickListener {
             showDatePicker()

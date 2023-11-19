@@ -20,24 +20,41 @@
             app:layout_constraintTop_toTopOf="parent" />
 
         <Button
-            android:id="@+id/add_new_button"
+            android:id="@+id/reorder_button"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginHorizontal="36dp"
-            android:text="Add new"
-            app:layout_constraintEnd_toStartOf="@+id/center"
+            android:layout_marginHorizontal="16dp"
+            android:text="Reorder"
             app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/relative_layout" />
+
+        <Button
+            android:id="@+id/add_new_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Add new"
+            app:layout_constraintEnd_toStartOf="@+id/confirm_button"
+            app:layout_constraintStart_toEndOf="@+id/reorder_button"
             app:layout_constraintTop_toBottomOf="@+id/relative_layout" />
 
         <Button
             android:id="@+id/confirm_button"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginHorizontal="36dp"
+            android:layout_marginHorizontal="16dp"
             android:text="Confirm"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toEndOf="@+id/center"
             app:layout_constraintTop_toBottomOf="@+id/relative_layout" />
+
+        <TextView
+            android:id="@+id/storeDetails"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Biedronka 0123456789"
+            android:textAlignment="center"
+            android:textSize="20dp"
+            android:textStyle="bold"
+            app:layout_constraintTop_toTopOf="parent" />
 
         <RelativeLayout
             android:id="@+id/relative_layout"
@@ -45,7 +62,7 @@
             android:layout_height="300dp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent">
+            app:layout_constraintTop_toBottomOf="@+id/storeDetails">
 
             <com.github.chrisbanes.photoview.PhotoView
                 android:id="@+id/receipt_image_big"

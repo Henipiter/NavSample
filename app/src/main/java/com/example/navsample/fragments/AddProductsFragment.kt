@@ -104,18 +104,17 @@ class AddProductsFragment : Fragment(), ItemClickListener {
             startCameraWithUri()
             true
         }
-
+        binding.storeDetails.text = receiptDataViewModel.savedStore.value?.name
         recyclerViewEvent.adapter = productListAdapter
         recyclerViewEvent.layoutManager =
             LinearLayoutManager(requireContext(), LinearLayoutManager.VERTICAL, false)
 
 
-        binding.addNewButton.setOnLongClickListener {
-
+        binding.reorderButton.setOnClickListener {
             Navigation.findNavController(it)
                 .navigate(R.id.action_shopListFragment_to_experimentRecycleFragment)
-            true
         }
+
         binding.addNewButton.setOnClickListener {
             Navigation.findNavController(it)
                 .navigate(R.id.action_shopListFragment_to_addProductFragment)

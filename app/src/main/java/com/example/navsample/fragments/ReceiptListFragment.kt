@@ -127,20 +127,21 @@ class ReceiptListFragment : Fragment(), ItemClickListener {
 
 
     override fun onItemClick(productIndex: Int) {
-
         val receipt = receiptDataViewModel.receiptList.value?.get(productIndex)
-        receiptDataViewModel.receipt.value = ReceiptDTO(
-            receipt?.id ?: -1,
-            receipt?.name,
-            receipt?.nip,
-            receipt?.pln.toString(),
-            receipt?.ptu.toString(),
-            receipt?.date,
-            receipt?.time
-        )
-        if (receipt != null) {
+        receipt?.let {
+            receiptDataViewModel.getStoreById(it.storeId)
+            receiptDataViewModel.receipt.value = ReceiptDTO(
+                receipt.id,
+                receipt.name,
+                receipt.storeId.toString(),
+                receipt.pln.toString(),
+                receipt.ptu.toString(),
+                receipt.date,
+                receipt.time
+            )
             receiptDataViewModel.refreshProductList(receipt.id)
         }
+
         val products = receiptDataViewModel.savedProduct.value
         val listProductDTO = arrayListOf<ProductDTO>()
         products?.forEach {

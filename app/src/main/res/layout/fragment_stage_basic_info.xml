@@ -70,6 +70,7 @@
                     app:counterEnabled="true"
                     app:counterMaxLength="10"
                     app:endIconMode="clear_text"
+                    app:startIconDrawable="@drawable/renew"
                     app:errorEnabled="true"
                     app:helperTextEnabled="true"
                     app:layout_constraintEnd_toEndOf="parent"

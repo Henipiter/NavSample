@@ -135,6 +135,7 @@ class AddSingleProductFragment : Fragment() {
 
         receiptDataViewModel.refreshCategoryList()
         initObserver()
+        validatePrices()
 
         ArrayAdapter(
             requireContext(), android.R.layout.simple_list_item_1, ptuTypeList

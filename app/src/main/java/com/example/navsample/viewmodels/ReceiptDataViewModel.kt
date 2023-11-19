@@ -91,6 +91,18 @@ class ReceiptDataViewModel : ViewModel() {
         }
     }
 
+    fun getStoreById(id: Int) {
+        viewModelScope.launch {
+            try {
+                dao?.let {
+                    savedStore.value = dao.getStoreById(id)
+                }
+            } catch (e: Exception) {
+                Log.e("Insert store to DB", e.message.toString())
+            }
+        }
+    }
+
     fun insertStore(store: Store) {
         viewModelScope.launch {
             try {
@@ -108,9 +120,7 @@ class ReceiptDataViewModel : ViewModel() {
     fun updateStore(store: Store) {
         viewModelScope.launch {
             dao?.let {
-
                 dao.updateStore(store)
-
             }
         }
         savedStore.value = store

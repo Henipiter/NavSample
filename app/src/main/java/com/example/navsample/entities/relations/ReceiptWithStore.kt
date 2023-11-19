@@ -3,7 +3,7 @@ package com.example.navsample.entities.relations
 
 data class ReceiptWithStore(
     var id: Int,
-    var nip: String,
+    var storeId: Int,
     var name: String,
     var pln: Float,
     var ptu: Float,

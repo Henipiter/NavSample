@@ -5,7 +5,7 @@ import androidx.room.PrimaryKey
 
 @Entity
 data class Receipt(
-    var nip: String,
+    var storeId: Int,
     var pln: Float,
     var ptu: Float,
     var date: String,
