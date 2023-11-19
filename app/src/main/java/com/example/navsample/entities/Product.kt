@@ -11,7 +11,8 @@ data class Product(
     var amount: Float,
     var itemPrice: Float,
     var finalPrice: Float,
-    var ptuType: String
+    var ptuType: String,
+    var raw: String
 ){
     @PrimaryKey(autoGenerate = true)
     var id: Int = 0

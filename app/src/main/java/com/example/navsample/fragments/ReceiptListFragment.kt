@@ -12,7 +12,6 @@ import androidx.fragment.app.activityViewModels
 import androidx.navigation.Navigation
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.example.navsample.DTO.ProductDTO
 import com.example.navsample.DTO.ReceiptDTO
 import com.example.navsample.ItemClickListener
 import com.example.navsample.R
@@ -133,33 +132,15 @@ class ReceiptListFragment : Fragment(), ItemClickListener {
             receiptDataViewModel.receipt.value = ReceiptDTO(
                 receipt.id,
                 receipt.name,
-                receipt.storeId.toString(),
+                receipt.nip,
                 receipt.pln.toString(),
                 receipt.ptu.toString(),
                 receipt.date,
                 receipt.time
             )
             receiptDataViewModel.refreshProductList(receipt.id)
+            receiptDataViewModel.convertProductsToDTO()
         }
-
-        val products = receiptDataViewModel.savedProduct.value
-        val listProductDTO = arrayListOf<ProductDTO>()
-        products?.forEach {
-            listProductDTO.add(
-                ProductDTO(
-                    it.id,
-                    it.receiptId,
-                    it.name,
-                    it.finalPrice.toString(),
-                    it.categoryId.toString(),
-                    it.amount.toString(),
-                    it.itemPrice.toString(),
-                    it.ptuType,
-                    ""
-                )
-            )
-        }
-        receiptDataViewModel.product
 
         Navigation.findNavController(binding.root)
             .navigate(R.id.action_storeListFragment_to_stageBasicInfoFragment)

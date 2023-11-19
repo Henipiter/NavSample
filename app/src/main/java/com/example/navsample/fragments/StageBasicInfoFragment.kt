@@ -130,6 +130,7 @@ class StageBasicInfoFragment : Fragment() {
         } else {
             receiptDataViewModel.savedStore.value = pickedStore
         }
+
         val receipt = receiptDataViewModel.savedReceipt.value ?: Receipt(-1, -1F, -1F, "", "")
         receipt.storeId = pickedStore?.id ?: -1
         receipt.pln = transformToFloat(binding.receiptPLNInput.text.toString())
@@ -239,7 +240,10 @@ class StageBasicInfoFragment : Fragment() {
 
         }
         binding.addProductsButton.setOnClickListener {
-
+            receiptDataViewModel.receipt.value?.id?.let {
+                receiptDataViewModel.refreshProductList(it)
+                receiptDataViewModel.convertProductsToDTO()
+            }
 
             val action =
                 StageBasicInfoFragmentDirections.actionStageBasicInfoFragmentToShopListFragment()

@@ -30,6 +30,11 @@ class ReceiptDataViewModel : ViewModel() {
 
     lateinit var experimental: MutableLiveData<ArrayList<ExperimentalAdapterArgument>>
     lateinit var experimentalOriginal: MutableLiveData<ArrayList<ExperimentalAdapterArgument>>
+
+    init {
+        clearData()
+    }
+
     fun clearData() {
         receipt = MutableLiveData<ReceiptDTO?>(null)
         product = MutableLiveData<ArrayList<ProductDTO>>(ArrayList())
@@ -159,8 +164,71 @@ class ReceiptDataViewModel : ViewModel() {
         }
     }
 
-    init {
-        clearData()
+    fun convertProductsToDTO() {
+        val newProductDTOs = ArrayList<ProductDTO>()
+        savedProduct.value?.forEach { product ->
+            newProductDTOs.add(
+                ProductDTO(
+                    product.id,
+                    product.receiptId,
+                    product.name,
+                    product.finalPrice.toString(),
+                    getCategoryName(product.categoryId),
+                    product.amount.toString(),
+                    product.itemPrice.toString(),
+                    product.ptuType,
+                    product.raw
+                )
+            )
+        }
+        product.value = newProductDTOs
+    }
+
+    fun convertDTOToProduct() {
+        val newProducts = ArrayList<Product>()
+        product.value?.forEach { productDTO ->
+            newProducts.add(
+                Product(
+                    receipt.value?.id
+                        ?: throw IllegalArgumentException("No ID of receipt"),
+                    productDTO.name.toString(),
+                    getCategoryId(productDTO.category.toString()),
+                    transformToFloat(productDTO.amount.toString()),
+                    transformToFloat(productDTO.itemPrice.toString()),
+                    transformToFloat(productDTO.finalPrice.toString()),
+                    productDTO.ptuType.toString(),
+                    productDTO.original.toString()
+                )
+            )
+        }
+        savedProduct.value = newProducts
+    }
+
+
+    private fun getCategoryId(name: String): Int {
+        val categoryNames = categoryList.value?.map { it.name } ?: listOf()
+        var categoryIndex = categoryNames.indexOf(name)
+        if (categoryIndex == -1) {
+            categoryIndex = categoryNames.indexOf("INNE")
+        }
+        return categoryList.value?.get(categoryIndex)?.id ?: 0
+    }
+
+    private fun getCategoryName(id: Int): String {
+        val categoryNames = categoryList.value?.map { it.id } ?: listOf()
+        val categoryIndex = categoryNames.indexOf(id)
+        if (categoryIndex == -1) {
+            return "INNE"
+        }
+        return categoryList.value?.get(categoryIndex)?.name ?: "INNE"
+    }
+
+    private fun transformToFloat(value: String): Float {
+        return try {
+            value.replace(",", ".").toFloat()
+        } catch (t: Throwable) {
+            0.0f
+        }
     }
 
 }

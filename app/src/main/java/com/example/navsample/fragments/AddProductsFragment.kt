@@ -23,7 +23,6 @@ import com.example.navsample.ItemClickListener
 import com.example.navsample.R
 import com.example.navsample.adapters.ProductListAdapter
 import com.example.navsample.databinding.FragmentAddProductsBinding
-import com.example.navsample.entities.Product
 import com.example.navsample.viewmodels.ReceiptDataViewModel
 import com.example.navsample.viewmodels.ReceiptImageViewModel
 import com.google.mlkit.vision.common.InputImage
@@ -120,51 +119,12 @@ class AddProductsFragment : Fragment(), ItemClickListener {
                 .navigate(R.id.action_shopListFragment_to_addProductFragment)
         }
         binding.confirmButton.setOnClickListener {
-            convertProducts()
+            receiptDataViewModel.convertDTOToProduct()
             receiptDataViewModel.insertProducts()
             Navigation.findNavController(binding.root).popBackStack(R.id.menuFragment, false)
         }
     }
 
-    private fun transformToFloat(value: String): Float {
-        return try {
-            value.replace(",", ".").toFloat()
-        } catch (t: Throwable) {
-            0.0f
-        }
-    }
-
-    private fun getCategoryId(name: String): Int {
-        val categoryNames = receiptDataViewModel.categoryList.value?.map { it.name } ?: listOf()
-        var categoryIndex = categoryNames.indexOf(name)
-        if (categoryIndex == -1) {
-            categoryIndex = categoryNames.indexOf("INNE")
-        }
-        return receiptDataViewModel.categoryList.value?.get(categoryIndex)?.id ?: 0
-
-    }
-
-    private fun convertProducts() {
-        val newProducts = ArrayList<Product>()
-
-        receiptDataViewModel.product.value?.forEach { productDTO ->
-            newProducts.add(
-                Product(
-                    receiptDataViewModel.savedReceipt.value?.id
-                        ?: throw IllegalArgumentException("No ID of receipt"),
-                    productDTO.name.toString(),
-                    getCategoryId(productDTO.category.toString()),
-                    transformToFloat(productDTO.amount.toString()),
-                    transformToFloat(productDTO.itemPrice.toString()),
-                    transformToFloat(productDTO.finalPrice.toString()),
-                    productDTO.ptuType.toString(),
-                )
-            )
-        }
-        receiptDataViewModel.savedProduct.value = newProducts
-
-
-    }
 
     private val customCropImage = registerForActivityResult(CropImageContract()) {
         if (it !is CropImage.CancelledResult) {
