@@ -32,7 +32,6 @@ class MenuFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        receiptDataViewModel.clearData()
         binding.addReceipt.setOnClickListener {
             Navigation.findNavController(it)
                 .navigate(R.id.action_menuFragment_to_imageImportFragment)
@@ -65,6 +64,7 @@ class MenuFragment : Fragment() {
         receiptDataViewModel.insertCategoryList(Category("MOTORYZACJA"))
         receiptDataViewModel.insertCategoryList(Category("SPORT"))
 
+        receiptDataViewModel.clearData()
 
     }
 
