@@ -6,11 +6,11 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ArrayAdapter
 import com.example.navsample.databinding.ArrayAdapterRowBinding
-import com.example.navsample.entities.Store
+import com.example.navsample.entities.Category
 
-class StoreDropdownAdapter(
-    ctx: Context, res: Int, private var storeList: ArrayList<Store>
-) : ArrayAdapter<Store>(ctx, res, storeList) {
+class CategoryDropdownAdapter(
+    ctx: Context, res: Int, private var categoryList: ArrayList<Category>
+) : ArrayAdapter<Category>(ctx, res, categoryList) {
 
     override fun getView(position: Int, convertView: View?, parent: ViewGroup): View {
 
@@ -20,7 +20,7 @@ class StoreDropdownAdapter(
             false
         )
         binding.root.tag = binding
-        binding.text1.text = storeList[position].name
+        binding.text1.text = categoryList[position].name
         return binding.root
     }
 }

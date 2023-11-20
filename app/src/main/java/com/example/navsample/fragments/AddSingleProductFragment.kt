@@ -12,7 +12,9 @@ import androidx.fragment.app.activityViewModels
 import androidx.navigation.Navigation
 import androidx.navigation.fragment.navArgs
 import com.example.navsample.DTO.ProductDTO
+import com.example.navsample.R
 import com.example.navsample.ReceiptParser
+import com.example.navsample.adapters.CategoryDropdownAdapter
 import com.example.navsample.databinding.FragmentAddSingleProductBinding
 import com.example.navsample.entities.Category
 import com.example.navsample.viewmodels.ReceiptDataViewModel
@@ -50,9 +52,9 @@ class AddSingleProductFragment : Fragment() {
         }
         receiptDataViewModel.categoryList.observe(viewLifecycleOwner) {
             it?.let {
-                ArrayAdapter(
+                CategoryDropdownAdapter(
                     requireContext(),
-                    android.R.layout.simple_list_item_1,
+                    R.layout.array_adapter_row,
                     it
                 ).also { adapter ->
                     binding.productCategoryInput.setAdapter(adapter)
@@ -160,7 +162,10 @@ class AddSingleProductFragment : Fragment() {
         if (productOriginal == "") {
             binding.productOriginalLayout.visibility = View.INVISIBLE
         }
-
+        binding.productCategoryInput.setOnItemClickListener { adapter, _, i, _ ->
+            val category = adapter.getItemAtPosition(i) as Category
+            binding.productCategoryInput.setText(category.name)
+        }
         binding.productCategoryInput.setOnLongClickListener {
             Toast.makeText(requireContext(), "CLICK", Toast.LENGTH_SHORT).show()
             true

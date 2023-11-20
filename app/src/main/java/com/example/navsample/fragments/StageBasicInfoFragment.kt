@@ -10,6 +10,7 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.navigation.Navigation
 import com.example.navsample.DTO.DataMode
+import com.example.navsample.R
 import com.example.navsample.adapters.StoreDropdownAdapter
 import com.example.navsample.databinding.FragmentStageBasicInfoBinding
 import com.example.navsample.entities.Receipt
@@ -98,7 +99,7 @@ class StageBasicInfoFragment : Fragment() {
         receiptDataViewModel.storeList.observe(viewLifecycleOwner) {
             it?.let {
                 StoreDropdownAdapter(
-                    requireContext(), com.example.navsample.R.layout.array_adapter_row, it
+                    requireContext(), R.layout.array_adapter_row, it
                 ).also { adapter ->
                     binding.storeNameInput.setAdapter(adapter)
                 }
