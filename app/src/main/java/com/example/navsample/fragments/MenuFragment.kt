@@ -9,8 +9,6 @@ import androidx.fragment.app.activityViewModels
 import androidx.navigation.Navigation
 import com.example.navsample.R
 import com.example.navsample.databinding.FragmentMenuBinding
-import com.example.navsample.entities.Category
-import com.example.navsample.entities.Store
 import com.example.navsample.viewmodels.ReceiptDataViewModel
 
 
@@ -48,24 +46,6 @@ class MenuFragment : Fragment() {
             Navigation.findNavController(it)
                 .navigate(R.id.action_menuFragment_to_experimentRecycleFragment)
         }
-
-
-        receiptDataViewModel.insertStore(Store("Carrefour", "9370008168"))
-        receiptDataViewModel.insertStore(Store("Biedronka", "7791011327"))
-        receiptDataViewModel.insertStore(Store("LIDL", "7811897358"))
-
-        receiptDataViewModel.insertCategoryList(Category("INNE"))
-        receiptDataViewModel.insertCategoryList(Category("JEDZENIE"))
-        receiptDataViewModel.insertCategoryList(Category("ZDROWIE"))
-        receiptDataViewModel.insertCategoryList(Category("KULTURA"))
-        receiptDataViewModel.insertCategoryList(Category("OPŁATY"))
-        receiptDataViewModel.insertCategoryList(Category("KOSTMETYKI"))
-        receiptDataViewModel.insertCategoryList(Category("SPORT"))
-        receiptDataViewModel.insertCategoryList(Category("MOTORYZACJA"))
-        receiptDataViewModel.insertCategoryList(Category("SPORT"))
-
         receiptDataViewModel.clearData()
-
     }
-
 }
