@@ -30,9 +30,11 @@ class EditTextDialog(
 
         binding.addRowAtTopButton.setOnClickListener {
             onStartClick.invoke()
+            dismiss()
         }
         binding.addRowAtBottomButton.setOnClickListener {
             onEndClick.invoke()
+            dismiss()
         }
 
         binding.textLayout.setStartIconOnClickListener {

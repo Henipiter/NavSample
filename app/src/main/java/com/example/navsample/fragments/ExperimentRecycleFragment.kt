@@ -175,6 +175,9 @@ open class ExperimentRecycleFragment : Fragment() {
         binding.unselectAllButton.setOnClickListener {
             uncheckAll()
         }
+        binding.unselectAllButton2.setOnClickListener {
+            uncheckAll()
+        }
 
         binding.deleteButton.setOnClickListener {
             productListMode = ProductListMode.SELECT
@@ -235,7 +238,7 @@ open class ExperimentRecycleFragment : Fragment() {
         this.action = action
         binding.buttonsLayout.visibility = View.INVISIBLE
         binding.actionLayout.visibility = View.VISIBLE
-        binding.actionNameText.text = action.toString()
+        binding.applyButton.text = action.toString()
     }
 
     private fun execute() {

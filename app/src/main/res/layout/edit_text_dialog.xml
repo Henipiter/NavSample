@@ -11,25 +11,74 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
 
-        <ImageView
+        <com.google.android.material.card.MaterialCardView
             android:id="@+id/add_row_at_top_button"
-            android:layout_width="35dp"
-            android:layout_height="35dp"
-            android:layout_marginEnd="10dp"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_rowWeight="1"
+            app:cardCornerRadius="8dp"
+            android:layout_columnWeight="12"
+            android:layout_margin="4dp"
             app:layout_constraintBottom_toBottomOf="@id/text_layout"
             app:layout_constraintEnd_toStartOf="@id/text_layout"
-            app:layout_constraintTop_toTopOf="@id/text_layout"
-            app:srcCompat="@drawable/date" />
+            app:layout_constraintTop_toTopOf="@id/text_layout">
 
-        <ImageView
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:gravity="center"
+                android:orientation="vertical">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:gravity="center"
+                    android:text="+" />
+
+                <ImageView
+                    android:layout_width="40dp"
+                    android:layout_height="32dp"
+                    android:padding="2dp"
+                    android:scaleType="fitCenter"
+                    android:src="@drawable/date" />
+
+
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+
+        <com.google.android.material.card.MaterialCardView
             android:id="@+id/add_row_at_bottom_button"
-            android:layout_width="35dp"
-            android:layout_height="35dp"
-            android:layout_marginStart="10dp"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_rowWeight="1"
+            android:layout_columnWeight="12"
+            android:layout_margin="4dp"
             app:layout_constraintBottom_toBottomOf="@id/text_layout"
             app:layout_constraintStart_toEndOf="@id/text_layout"
-            app:layout_constraintTop_toTopOf="@id/text_layout"
-            app:srcCompat="@drawable/date" />
+            app:layout_constraintTop_toTopOf="@id/text_layout">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:gravity="center"
+                android:orientation="vertical">
+
+                <ImageView
+                    android:layout_width="40dp"
+                    android:layout_height="32dp"
+                    android:padding="2dp"
+                    android:scaleType="fitCenter"
+                    android:src="@drawable/date" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:gravity="center"
+                    android:text="+" />
+
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+
 
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/text_layout"
