@@ -45,8 +45,8 @@
                 <ImageView
                     android:layout_width="64dp"
                     android:layout_height="64dp"
-                    android:scaleType="fitCenter"
                     android:padding="6dp"
+                    android:scaleType="fitCenter"
                     android:src="@drawable/date" />
 
                 <TextView
@@ -75,9 +75,9 @@
                 <ImageView
                     android:layout_width="64dp"
                     android:layout_height="64dp"
+                    android:padding="6dp"
                     android:scaleType="fitCenter"
-                    android:src="@drawable/date"
-                    android:padding="6dp" />
+                    android:src="@drawable/date" />
 
                 <TextView
                     android:layout_width="wrap_content"
@@ -105,9 +105,9 @@
                 <ImageView
                     android:layout_width="64dp"
                     android:layout_height="64dp"
+                    android:padding="6dp"
                     android:scaleType="fitCenter"
-                    android:src="@drawable/date"
-                    android:padding="6dp" />
+                    android:src="@drawable/date" />
 
                 <TextView
                     android:layout_width="wrap_content"
@@ -135,9 +135,9 @@
                 <ImageView
                     android:layout_width="64dp"
                     android:layout_height="64dp"
+                    android:padding="6dp"
                     android:scaleType="fitCenter"
-                    android:src="@drawable/date"
-                    android:padding="6dp" />
+                    android:src="@drawable/date" />
 
                 <TextView
                     android:layout_width="wrap_content"
@@ -165,9 +165,9 @@
                 <ImageView
                     android:layout_width="64dp"
                     android:layout_height="64dp"
+                    android:padding="6dp"
                     android:scaleType="fitCenter"
-                    android:src="@drawable/date"
-                    android:padding="6dp" />
+                    android:src="@drawable/date" />
 
                 <TextView
                     android:layout_width="wrap_content"
@@ -196,9 +196,9 @@
                 <ImageView
                     android:layout_width="64dp"
                     android:layout_height="64dp"
+                    android:padding="6dp"
                     android:scaleType="fitCenter"
-                    android:src="@drawable/date"
-                    android:padding="6dp" />
+                    android:src="@drawable/date" />
 
                 <TextView
                     android:layout_width="wrap_content"
@@ -244,37 +244,7 @@
             app:layout_constraintBottom_toTopOf="@id/reset_button">
 
             <androidx.cardview.widget.CardView
-                android:id="@+id/edit_button"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_rowWeight="1"
-                android:layout_columnWeight="1"
-                android:layout_margin="8dp">
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:gravity="center"
-                    android:orientation="vertical">
-
-                    <ImageView
-                        android:layout_width="64dp"
-                        android:layout_height="64dp"
-                        android:scaleType="fitCenter"
-                        android:src="@drawable/date" />
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:gravity="center"
-                        android:text="Edit" />
-
-                </LinearLayout>
-            </androidx.cardview.widget.CardView>
-
-            <androidx.cardview.widget.CardView
                 android:id="@+id/swap_selected_button"
-
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_rowWeight="1"
@@ -391,6 +361,7 @@
 
 
         </GridLayout>
+
         <Button
             android:id="@+id/confirm_button"
             android:layout_width="120dp"
@@ -417,10 +388,10 @@
         android:id="@+id/action_layout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:visibility="invisible"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        android:visibility="invisible">
+        app:layout_constraintStart_toStartOf="parent">
 
 
         <Button

@@ -9,6 +9,8 @@ import com.example.navsample.databinding.EditTextDialogBinding
 
 class EditTextDialog(
     var text: String,
+    var onStartClick: () -> Unit,
+    var onEndClick: () -> Unit,
     var returnChange: (String) -> Unit
 ) : DialogFragment() {
     private var _binding: EditTextDialogBinding? = null
@@ -26,7 +28,12 @@ class EditTextDialog(
 
         binding.textInput.setText(text)
 
-
+        binding.addRowAtTopButton.setOnClickListener {
+            onStartClick.invoke()
+        }
+        binding.addRowAtBottomButton.setOnClickListener {
+            onEndClick.invoke()
+        }
 
         binding.textLayout.setStartIconOnClickListener {
             binding.textInput.setText(text)

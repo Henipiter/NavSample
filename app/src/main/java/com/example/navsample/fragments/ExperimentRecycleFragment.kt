@@ -10,7 +10,6 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.navigation.Navigation
 import androidx.recyclerview.widget.GridLayoutManager
-import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.RecyclerView
 import com.example.navsample.DTO.Action
 import com.example.navsample.DTO.Action.CLEAR
@@ -44,8 +43,7 @@ open class ExperimentRecycleFragment : Fragment() {
 
     private var productListMode = ProductListMode.SELECT
     private var action = NONE
-    var sourceItemIndex = -1
-    var targetItemIndex = -1
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
     ): View {
@@ -72,9 +70,8 @@ open class ExperimentRecycleFragment : Fragment() {
 
         experimentalListAdapter = ExperimentalListAdapter(
             requireContext(),
-            recycleList
-        ) { position ->
-            if (productListMode == ProductListMode.SELECT) {
+            recycleList,
+            { position ->
                 val listPosition = checkedElements.contains(position)
                 if (listPosition) {
                     checkedElements.remove(position)
@@ -84,89 +81,95 @@ open class ExperimentRecycleFragment : Fragment() {
                     recycleList[position].color = Color.YELLOW
                 }
                 experimentalListAdapter.notifyItemChanged(position)
-            } else if (productListMode == ProductListMode.EDIT) {
+            }, { position ->
                 receiptDataViewModel.experimental.value = recycleList
+                val newList = recycleList.toMutableList()
                 EditTextDialog(
-                    recycleList[position].value
-                ) { text ->
-                    recycleList[position].value = text
-                    experimentalListAdapter.notifyItemChanged(position)
-                }.show(
+                    recycleList[position].value,
+                    {
+                        val pos = position - position % 2
+                        newList.add(pos, ExperimentalAdapterArgument())
+                        newList.add(pos, ExperimentalAdapterArgument())
+                        experimentalListAdapter.setNewData(newList)
+                    },
+                    {
+                        val pos = position + (position + 1) % 2 + 1
+                        newList.add(pos, ExperimentalAdapterArgument())
+                        newList.add(pos, ExperimentalAdapterArgument())
+
+                        experimentalListAdapter.setNewData(newList)
+                    },
+                    { text ->
+                        recycleList[position].value = text
+                        experimentalListAdapter.notifyItemChanged(position)
+                    }).show(
                     childFragmentManager, "TAG"
                 )
-            }
-
-        }
+            })
 
         recyclerViewEvent.adapter = experimentalListAdapter
-        recyclerViewEvent.layoutManager =
-            GridLayoutManager(requireContext(), 2)
+        recyclerViewEvent.layoutManager = GridLayoutManager(requireContext(), 2)
+
 
         binding.addTopButton.setOnClickListener {
-            recycleList.add(0, ExperimentalAdapterArgument())
-            recycleList.add(0, ExperimentalAdapterArgument())
-            experimentalListAdapter.notifyItemInserted(0)
-            experimentalListAdapter.notifyItemInserted(1)
+            val newList = recycleList.toMutableList()
+            newList.add(0, ExperimentalAdapterArgument())
+            newList.add(0, ExperimentalAdapterArgument())
+            experimentalListAdapter.setNewData(newList)
         }
         binding.swapColumnsButton.setOnClickListener {
-            for (i in 1..recycleList.lastIndex step 2) {
-                Collections.swap(recycleList, i - 1, i)
+            val newList = recycleList.toMutableList()
+            for (i in 1..newList.lastIndex step 2) {
+                Collections.swap(newList, i - 1, i)
             }
-            experimentalListAdapter.notifyItemRangeChanged(
-                0,
-                recycleList.size - recycleList.size % 2
-            )
-
+            experimentalListAdapter.setNewData(newList)
         }
         binding.addBottomButton.setOnClickListener {
-            recycleList.add(ExperimentalAdapterArgument())
-            recycleList.add(ExperimentalAdapterArgument())
-            experimentalListAdapter.notifyItemInserted(recycleList.size - 1)
-            experimentalListAdapter.notifyItemInserted(recycleList.size - 2)
+            val newList = recycleList.toMutableList()
+            newList.add(ExperimentalAdapterArgument())
+            newList.add(ExperimentalAdapterArgument())
+            experimentalListAdapter.setNewData(newList)
         }
         binding.resetButton.setOnClickListener {
-            recycleList = receiptDataViewModel.experimentalOriginal.value?.let { it1 ->
+
+            val newList = receiptDataViewModel.experimentalOriginal.value?.let { it1 ->
                 ArrayList(it1)
             } ?: arrayListOf()
-            experimentalListAdapter.recycleList = ArrayList(recycleList)
-            experimentalListAdapter.notifyDataSetChanged()
+            experimentalListAdapter.setNewData(newList)
         }
         binding.deleteEmptyRowButton.setOnClickListener {
 
-            val lastOddIndex = max(recycleList.size - recycleList.size % 2 - 1, 0)
+            val newList = recycleList.toMutableList()
+            val lastOddIndex = max(newList.size - newList.size % 2 - 1, 0)
             for (i in lastOddIndex downTo 1 step 2) {
-                if (recycleList[i - 1].value == "" && recycleList[i].value == "") {
-                    recycleList.removeAt(i)
-                    experimentalListAdapter.notifyItemRemoved(i)
-                    recycleList.removeAt(i - 1)
-                    experimentalListAdapter.notifyItemRemoved(i - 1)
+                if (newList[i - 1].value == "" && newList[i].value == "") {
+                    newList.removeAt(i)
+                    newList.removeAt(i - 1)
                 }
             }
-            if (recycleList.size % 2 == 1) {
-                recycleList.add(ExperimentalAdapterArgument())
-                experimentalListAdapter.notifyItemInserted(recycleList.size - 1)
+            if (newList.size % 2 == 1) {
+                newList.add(ExperimentalAdapterArgument())
             }
+            experimentalListAdapter.setNewData(newList)
         }
         binding.moveBottomPricesButton.setOnClickListener {
-            recycleList.add(0, ExperimentalAdapterArgument())
-            recycleList.add(ExperimentalAdapterArgument())
-            for (i in 1..<recycleList.size step 2) {
-                Collections.swap(recycleList, i - 1, i)
+            val newList = recycleList.toMutableList()
+            newList.add(0, ExperimentalAdapterArgument())
+            newList.add(ExperimentalAdapterArgument())
+            for (i in 1..<newList.size step 2) {
+                Collections.swap(newList, i - 1, i)
             }
-            for (i in 1..<recycleList.size step 2) {
-                experimentalListAdapter.notifyItemChanged(i)
-            }
+            experimentalListAdapter.setNewData(newList)
         }
         binding.moveBottomNamesButton.setOnClickListener {
-            recycleList.add(0, ExperimentalAdapterArgument())
-            for (i in 2..<recycleList.size step 2) {
-                Collections.swap(recycleList, i - 1, i)
+
+            val newList = recycleList.toMutableList()
+            newList.add(0, ExperimentalAdapterArgument())
+            for (i in 2..<newList.size step 2) {
+                Collections.swap(newList, i - 1, i)
             }
-            for (i in 0..<recycleList.size step 2) {
-                experimentalListAdapter.notifyItemChanged(i)
-            }
-            recycleList.add(ExperimentalAdapterArgument())
-            experimentalListAdapter.notifyItemInserted(recycleList.size - 1)
+            newList.add(ExperimentalAdapterArgument())
+            experimentalListAdapter.setNewData(newList)
         }
 
         binding.unselectAllButton.setOnClickListener {
@@ -189,11 +192,6 @@ open class ExperimentRecycleFragment : Fragment() {
         binding.swapSelectedButton.setOnClickListener {
             productListMode = ProductListMode.SELECT
             runActionView(SWAP)
-        }
-        binding.editButton.setOnClickListener {
-            productListMode = ProductListMode.EDIT
-            uncheckAll()
-            runActionView(EDIT)
         }
 
         binding.confirmButton.setOnClickListener {
@@ -224,8 +222,6 @@ open class ExperimentRecycleFragment : Fragment() {
             uncheckAll()
         }
 
-        val touchHelper = getTouchHelper()
-        touchHelper.attachToRecyclerView(recyclerViewEvent)
     }
 
 
@@ -245,43 +241,68 @@ open class ExperimentRecycleFragment : Fragment() {
     private fun execute() {
         when (action) {
             DELETE -> {
+                val leftSide =
+                    recycleList.filterIndexed { index, _ -> index % 2 == 0 }.toMutableList()
+                val rightSide =
+                    recycleList.filterIndexed { index, _ -> index % 2 == 1 }.toMutableList()
+
                 val indicesDescending = checkedElements.sortedDescending()
+                val newList = mutableListOf<ExperimentalAdapterArgument>()
+
                 indicesDescending.forEach {
-                    recycleList.removeAt(it)
-                    experimentalListAdapter.notifyItemRemoved(it)
+                    if (it % 2 == 0) {
+                        leftSide.removeAt(it / 2)
+                    } else {
+                        rightSide.removeAt(it / 2)
+                    }
                 }
+                for (i in 0..max(leftSide.lastIndex, rightSide.lastIndex)) {
+                    if (i <= leftSide.lastIndex) {
+                        newList.add(leftSide[i])
+                    } else {
+                        newList.add(ExperimentalAdapterArgument())
+                    }
+                    if (i <= rightSide.lastIndex) {
+                        newList.add(rightSide[i])
+                    } else {
+                        newList.add(ExperimentalAdapterArgument())
+                    }
+                }
+                experimentalListAdapter.setNewData(newList)
                 checkedElements.clear()
             }
 
             SWAP -> {
+                val newList = recycleList.toMutableList()
                 for (i in 1..checkedElements.lastIndex step 2) {
-                    Collections.swap(recycleList, checkedElements[i - 1], checkedElements[i])
-                    experimentalListAdapter.notifyItemChanged(checkedElements[i - 1])
-                    experimentalListAdapter.notifyItemChanged(checkedElements[i])
+                    Collections.swap(newList, checkedElements[i - 1], checkedElements[i])
                 }
+                experimentalListAdapter.setNewData(newList)
             }
 
             CLEAR -> {
+                val newList = recycleList.toMutableList()
                 for (i in checkedElements.lastIndex downTo 0) {
-                    recycleList[checkedElements[i]].value = " "
+                    newList[checkedElements[i]].value = " "
                 }
+                experimentalListAdapter.setNewData(newList)
             }
 
             MERGE -> {
+                val newList = recycleList.toMutableList()
                 val firstIndex = checkedElements[0]
                 var text = ""
                 for (i in checkedElements.lastIndex downTo 0) {
-                    text = recycleList[checkedElements[i]].value + " " + text
+                    text = newList[checkedElements[i]].value + " " + text
                 }
-                recycleList[firstIndex].value = text
-                recycleList[firstIndex].color = Color.GRAY
-                experimentalListAdapter.notifyItemChanged(firstIndex)
+                newList[firstIndex].value = text
+                newList[firstIndex].color = Color.GRAY
                 checkedElements.remove(firstIndex)
                 val indicesDescending = checkedElements.sortedDescending()
                 indicesDescending.forEach {
-                    recycleList.removeAt(it)
-                    experimentalListAdapter.notifyItemRemoved(it)
+                    newList.removeAt(it)
                 }
+                experimentalListAdapter.setNewData(newList)
                 checkedElements.clear()
             }
 
@@ -293,86 +314,11 @@ open class ExperimentRecycleFragment : Fragment() {
     }
 
     private fun uncheckAll() {
+        val newList = recycleList.toMutableList()
         checkedElements.forEach { position ->
-            recycleList[position].color = Color.GRAY
-            experimentalListAdapter.notifyItemChanged(position)
+            newList[position].color = Color.GRAY
         }
+        experimentalListAdapter.setNewData(newList)
         checkedElements.clear()
-    }
-
-    private fun getTouchHelper(): ItemTouchHelper {
-        return ItemTouchHelper(
-            object : ItemTouchHelper.Callback() {
-                override fun getMovementFlags(
-                    recyclerView: RecyclerView,
-                    viewHolder: RecyclerView.ViewHolder
-                ): Int {
-                    return makeMovementFlags(
-                        ItemTouchHelper.UP or ItemTouchHelper.DOWN or ItemTouchHelper.LEFT or ItemTouchHelper.RIGHT,
-                        ItemTouchHelper.LEFT or ItemTouchHelper.RIGHT
-                    )
-                }
-
-                override fun onMove(
-                    recyclerView: RecyclerView,
-                    viewHolder: RecyclerView.ViewHolder,
-                    target: RecyclerView.ViewHolder
-                ): Boolean {
-                    targetItemIndex = target.adapterPosition
-                    return false
-                }
-
-                override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
-                    var position = viewHolder.adapterPosition
-                    when (direction) {
-                        ItemTouchHelper.LEFT -> {
-                            position -= position % 2
-                            experimentalListAdapter.notifyItemRemoved(position)
-                            experimentalListAdapter.notifyItemRemoved(position)
-                            recycleList.removeAt(position)
-                            recycleList.removeAt(position)
-                        }
-
-                        ItemTouchHelper.RIGHT -> {
-                            recycleList[position] = ExperimentalAdapterArgument()
-                            experimentalListAdapter.notifyItemChanged(position)
-                        }
-                    }
-                }
-
-                override fun onSelectedChanged(
-                    viewHolder: RecyclerView.ViewHolder?,
-                    actionState: Int
-                ) {
-                    when (actionState) {
-                        ItemTouchHelper.ACTION_STATE_DRAG -> {
-                            sourceItemIndex = viewHolder?.adapterPosition ?: -1
-                        }
-
-                        ItemTouchHelper.ACTION_STATE_IDLE -> {
-                            if (sourceItemIndex != -1 && targetItemIndex != -1
-                                && sourceItemIndex != targetItemIndex
-                            ) {
-                                moveItem(sourceItemIndex, targetItemIndex);
-                                sourceItemIndex = -1;
-                                targetItemIndex = -1;
-                            }
-
-                        }
-                    }
-                }
-
-                private fun moveItem(oldPos: Int, newPos: Int) {
-                    val temp = recycleList.get(oldPos)
-                    recycleList[oldPos] = recycleList.get(newPos)
-                    recycleList[newPos] = temp
-                    experimentalListAdapter.notifyItemChanged(oldPos)
-                    experimentalListAdapter.notifyItemChanged(newPos)
-                }
-
-            }
-
-        )
-
     }
 }

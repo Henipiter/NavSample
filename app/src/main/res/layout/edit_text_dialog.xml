@@ -11,6 +11,26 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
 
+        <ImageView
+            android:id="@+id/add_row_at_top_button"
+            android:layout_width="35dp"
+            android:layout_height="35dp"
+            android:layout_marginEnd="10dp"
+            app:layout_constraintBottom_toBottomOf="@id/text_layout"
+            app:layout_constraintEnd_toStartOf="@id/text_layout"
+            app:layout_constraintTop_toTopOf="@id/text_layout"
+            app:srcCompat="@drawable/date" />
+
+        <ImageView
+            android:id="@+id/add_row_at_bottom_button"
+            android:layout_width="35dp"
+            android:layout_height="35dp"
+            android:layout_marginStart="10dp"
+            app:layout_constraintBottom_toBottomOf="@id/text_layout"
+            app:layout_constraintStart_toEndOf="@id/text_layout"
+            app:layout_constraintTop_toTopOf="@id/text_layout"
+            app:srcCompat="@drawable/date" />
+
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/text_layout"
             style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
@@ -19,11 +39,11 @@
             android:layout_marginHorizontal="64dp"
             android:layout_marginTop="20dp"
             android:hint="Text"
-            app:startIconDrawable="@drawable/renew"
             app:endIconMode="clear_text"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent">
+            app:layout_constraintTop_toTopOf="parent"
+            app:startIconDrawable="@drawable/renew">
 
             <AutoCompleteTextView
                 android:id="@+id/text_input"
