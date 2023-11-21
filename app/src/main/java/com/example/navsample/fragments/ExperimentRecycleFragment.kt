@@ -1,4 +1,4 @@
-package com.example.navsample
+package com.example.navsample.fragments
 
 import android.graphics.Color
 import android.os.Bundle
@@ -21,9 +21,9 @@ import com.example.navsample.DTO.Action.NONE
 import com.example.navsample.DTO.Action.SWAP
 import com.example.navsample.DTO.ExperimentalAdapterArgument
 import com.example.navsample.DTO.ProductListMode
+import com.example.navsample.ReceiptParser
 import com.example.navsample.adapters.ExperimentalListAdapter
 import com.example.navsample.databinding.FragmentExperimentRecycleBinding
-import com.example.navsample.fragments.EditTextDialog
 import com.example.navsample.viewmodels.ReceiptDataViewModel
 import com.example.navsample.viewmodels.ReceiptImageViewModel
 import java.lang.Integer.max
@@ -247,10 +247,8 @@ open class ExperimentRecycleFragment : Fragment() {
             DELETE -> {
                 val indicesDescending = checkedElements.sortedDescending()
                 indicesDescending.forEach {
-                    experimentalListAdapter.recycleList.forEach { Log.d("E", it.value) }
                     recycleList.removeAt(it)
                     experimentalListAdapter.notifyItemRemoved(it)
-                    experimentalListAdapter.recycleList.forEach { Log.d("E", it.value) }
                 }
                 checkedElements.clear()
             }
@@ -276,6 +274,7 @@ open class ExperimentRecycleFragment : Fragment() {
                     text = recycleList[checkedElements[i]].value + " " + text
                 }
                 recycleList[firstIndex].value = text
+                recycleList[firstIndex].color = Color.GRAY
                 experimentalListAdapter.notifyItemChanged(firstIndex)
                 checkedElements.remove(firstIndex)
                 val indicesDescending = checkedElements.sortedDescending()
@@ -283,7 +282,7 @@ open class ExperimentRecycleFragment : Fragment() {
                     recycleList.removeAt(it)
                     experimentalListAdapter.notifyItemRemoved(it)
                 }
-                checkedElements.add(firstIndex)
+                checkedElements.clear()
             }
 
             EDIT -> {}

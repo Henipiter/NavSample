@@ -101,7 +101,7 @@
     </fragment>
     <fragment
         android:id="@+id/experimentRecycleFragment"
-        android:name="com.example.navsample.ExperimentRecycleFragment"
+        android:name="com.example.navsample.fragments.ExperimentRecycleFragment"
         android:label="fragment_experiment_recycle"
         tools:layout="@layout/fragment_experiment_recycle" />
     <fragment

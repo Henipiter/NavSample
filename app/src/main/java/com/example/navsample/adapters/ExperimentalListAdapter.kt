@@ -23,10 +23,10 @@ class ExperimentalListAdapter(
     }
 
     override fun onBindViewHolder(holder: MyViewHolder, position: Int) {
-        holder.binding.textView.text = recycleList[position].value
-        holder.binding.mainLayout.setBackgroundColor(recycleList[position].color)
+        holder.binding.textView.text = recycleList[holder.adapterPosition].value
+        holder.binding.mainLayout.setBackgroundColor(recycleList[holder.adapterPosition].color)
         holder.binding.mainLayout.setOnClickListener {
-            onClick.invoke(position)
+            onClick.invoke(holder.adapterPosition)
         }
 
     }
