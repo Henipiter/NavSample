@@ -138,8 +138,6 @@ class ReceiptListFragment : Fragment(), ItemClickListener {
                 receipt.date,
                 receipt.time
             )
-            receiptDataViewModel.refreshProductList(receipt.id)
-            receiptDataViewModel.convertProductsToDTO()
         }
 
         Navigation.findNavController(binding.root)

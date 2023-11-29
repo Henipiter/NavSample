@@ -10,6 +10,7 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.navigation.Navigation
 import com.example.navsample.DTO.DataMode
+import com.example.navsample.DTO.ReceiptDTO
 import com.example.navsample.R
 import com.example.navsample.adapters.StoreDropdownAdapter
 import com.example.navsample.databinding.FragmentStageBasicInfoBinding
@@ -73,7 +74,7 @@ class StageBasicInfoFragment : Fragment() {
             }
         }
         receiptDataViewModel.receipt.value?.let { receipt ->
-            if (receipt.id >= 0) {
+            if ((receipt.id ?: -1) >= 0) {
                 changeViewToDisplayMode()
                 binding.receiptPTUInput.setText(receipt.receiptPTU)
                 binding.receiptPLNInput.setText(receipt.receiptPLN)
@@ -155,9 +156,10 @@ class StageBasicInfoFragment : Fragment() {
     private fun saveChangesToDatabase() {
         if (pickedStore == null) {
             if (mode == DataMode.NEW) {
-                val store = Store("", "")
-                store.nip = binding.storeNIPInput.text.toString()
-                store.name = binding.storeNameInput.text.toString()
+                val store = Store("", "").apply {
+                    nip = binding.storeNIPInput.text.toString()
+                    name = binding.storeNameInput.text.toString()
+                }
                 receiptDataViewModel.insertStore(store)
                 receiptDataViewModel.refreshStoreList()
             } else if (mode == DataMode.EDIT) {
@@ -172,12 +174,14 @@ class StageBasicInfoFragment : Fragment() {
             receiptDataViewModel.savedStore.value = pickedStore
         }
 
-        val receipt = receiptDataViewModel.savedReceipt.value ?: Receipt(-1, -1F, -1F, "", "")
-        receipt.storeId = pickedStore?.id ?: -1
-        receipt.pln = transformToFloat(binding.receiptPLNInput.text.toString())
-        receipt.ptu = transformToFloat(binding.receiptPTUInput.text.toString())
-        receipt.date = binding.receiptDateInput.text.toString()
-        receipt.time = binding.receiptTimeInput.text.toString()
+        val receipt =
+            receiptDataViewModel.savedReceipt.value ?: Receipt(-1, -1F, -1F, "", "").apply {
+                storeId = pickedStore?.id ?: -1
+                pln = transformToFloat(binding.receiptPLNInput.text.toString())
+                ptu = transformToFloat(binding.receiptPTUInput.text.toString())
+                date = binding.receiptDateInput.text.toString()
+                time = binding.receiptTimeInput.text.toString()
+            }
         receiptDataViewModel.insertReceipt(receipt)
     }
 
@@ -231,15 +235,20 @@ class StageBasicInfoFragment : Fragment() {
             }
             saveChangesToDatabase()
 
+            receiptDataViewModel.savedReceipt.value?.let { receipt ->
+                val savedStore = receiptDataViewModel.savedStore.value ?: Store("", "")
+                receiptDataViewModel.receipt.value = ReceiptDTO(
+                    receipt.id,
+                    savedStore.name,
+                    savedStore.nip,
+                    receipt.pln.toString(),
+                    receipt.ptu.toString(),
+                    receipt.date,
+                    receipt.time
+                )
+            }
             binding.storeNIPLayout.visibility = View.GONE
             changeViewToDisplayMode()
-            receiptDataViewModel.receipt.value?.storeNIP = binding.storeNIPInput.text.toString()
-            receiptDataViewModel.receipt.value?.receiptPTU = binding.receiptPTUInput.text.toString()
-            receiptDataViewModel.receipt.value?.receiptPLN = binding.receiptPLNInput.text.toString()
-            receiptDataViewModel.receipt.value?.receiptDate =
-                binding.receiptDateInput.text.toString()
-            receiptDataViewModel.receipt.value?.receiptTime =
-                binding.receiptTimeInput.text.toString()
 
         }
         binding.cancelChangesButton.setOnClickListener {

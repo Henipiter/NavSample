@@ -59,8 +59,8 @@ dependencies {
     implementation("androidx.core:core-ktx:1.12.0")
     implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.6.2")
 
-    implementation("androidx.navigation:navigation-fragment-ktx:2.7.3")
-    implementation("androidx.navigation:navigation-ui-ktx:2.7.3")
+    implementation("androidx.navigation:navigation-fragment-ktx:2.7.5")
+    implementation("androidx.navigation:navigation-ui-ktx:2.7.5")
 
     implementation("androidx.camera:camera-core:1.2.3")
     implementation("androidx.camera:camera-camera2:1.2.3")

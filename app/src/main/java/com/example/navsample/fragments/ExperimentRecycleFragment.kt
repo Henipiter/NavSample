@@ -102,9 +102,7 @@ open class ExperimentRecycleFragment : Fragment() {
                     { text ->
                         recycleList[position].value = text
                         experimentalListAdapter.notifyItemChanged(position)
-                    }).show(
-                    childFragmentManager, "TAG"
-                )
+                    }).show(childFragmentManager, "TAG")
             })
 
         recyclerViewEvent.adapter = experimentalListAdapter
@@ -286,7 +284,7 @@ open class ExperimentRecycleFragment : Fragment() {
             CLEAR -> {
                 val newList = recycleList.toMutableList()
                 for (i in checkedElements.lastIndex downTo 0) {
-                    newList[checkedElements[i]].value = " "
+                    newList[checkedElements[i]] = ExperimentalAdapterArgument(" ", Color.GRAY)
                 }
                 experimentalListAdapter.setNewData(newList)
             }
@@ -298,8 +296,7 @@ open class ExperimentRecycleFragment : Fragment() {
                 for (i in checkedElements.lastIndex downTo 0) {
                     text = newList[checkedElements[i]].value + " " + text
                 }
-                newList[firstIndex].value = text
-                newList[firstIndex].color = Color.GRAY
+                newList[firstIndex] = ExperimentalAdapterArgument(text, Color.GRAY)
                 checkedElements.remove(firstIndex)
                 val indicesDescending = checkedElements.sortedDescending()
                 indicesDescending.forEach {

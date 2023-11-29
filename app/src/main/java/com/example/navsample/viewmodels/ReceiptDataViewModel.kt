@@ -14,6 +14,7 @@ import com.example.navsample.entities.Receipt
 import com.example.navsample.entities.ReceiptDatabase
 import com.example.navsample.entities.Store
 import com.example.navsample.entities.relations.ReceiptWithStore
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 class ReceiptDataViewModel : ViewModel() {
@@ -84,27 +85,7 @@ class ReceiptDataViewModel : ViewModel() {
                 newReceipt.id = dao.getReceiptId(rowId)
             }
             savedReceipt.value = newReceipt
-        }
-    }
-
-    fun updateReceipt(newReceipt: Receipt) {
-        viewModelScope.launch {
-            dao?.let {
-                dao.updateReceipt(newReceipt)
-            }
-            savedReceipt.value = newReceipt
-        }
-    }
-
-    fun getStoreById(id: Int) {
-        viewModelScope.launch {
-            try {
-                dao?.let {
-                    savedStore.value = dao.getStoreById(id)
-                }
-            } catch (e: Exception) {
-                Log.e("Insert store to DB", e.message.toString())
-            }
+            Log.e("DAO RECEIPT", newReceipt.id.toString())
         }
     }
 
@@ -118,12 +99,35 @@ class ReceiptDataViewModel : ViewModel() {
             } catch (e: Exception) {
                 Log.e("Insert store to DB", e.message.toString())
             }
+            savedStore.postValue(store)
+            refreshStoreList()
+            Log.e("DAO STORE", store.id.toString())
         }
-        savedStore.value = store
+    }
+
+    fun updateReceipt(newReceipt: Receipt) {
+        viewModelScope.launch {
+            dao?.let {
+                dao.updateReceipt(newReceipt)
+            }
+            savedReceipt.postValue(newReceipt)
+        }
+    }
+
+    fun getStoreById(id: Int) {
+        viewModelScope.launch {
+            try {
+                dao?.let {
+                    savedStore.postValue(dao.getStoreById(id))
+                }
+            } catch (e: Exception) {
+                Log.e("Insert store to DB", e.message.toString())
+            }
+        }
     }
 
     fun updateStore(store: Store) {
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.IO) {
             dao?.let {
                 dao.updateStore(store)
             }
@@ -170,7 +174,7 @@ class ReceiptDataViewModel : ViewModel() {
             newProductDTOs.add(
                 ProductDTO(
                     product.id,
-                    product.receiptId,
+                    receipt.value?.id ?: product.receiptId,
                     product.name,
                     product.finalPrice.toString(),
                     getCategoryName(product.categoryId),
@@ -186,11 +190,11 @@ class ReceiptDataViewModel : ViewModel() {
 
     fun convertDTOToProduct() {
         val newProducts = ArrayList<Product>()
+        val receiptId = savedReceipt.value?.id ?: receipt.value?.id ?: -1
         product.value?.forEach { productDTO ->
             newProducts.add(
                 Product(
-                    receipt.value?.id
-                        ?: throw IllegalArgumentException("No ID of receipt"),
+                    receiptId,
                     productDTO.name.toString(),
                     getCategoryId(productDTO.category.toString()),
                     transformToFloat(productDTO.amount.toString()),
