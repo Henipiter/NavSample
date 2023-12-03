@@ -46,6 +46,10 @@ class MenuFragment : Fragment() {
             Navigation.findNavController(it)
                 .navigate(R.id.action_menuFragment_to_experimentRecycleFragment)
         }
+        binding.diagramView.setOnClickListener {
+            Navigation.findNavController(it)
+                .navigate(R.id.action_menuFragment_to_diagramFragment)
+        }
         receiptDataViewModel.clearData()
     }
 }

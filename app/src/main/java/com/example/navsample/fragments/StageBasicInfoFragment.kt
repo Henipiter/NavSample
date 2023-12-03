@@ -39,8 +39,10 @@ class StageBasicInfoFragment : Fragment() {
     private var mode = DataMode.NEW
     private var pickedStore: Store? = null
 
+    private var isCreatedFromViewAnalyzer = false
+
     override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
+        inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?,
     ): View {
         _binding = FragmentStageBasicInfoBinding.inflate(inflater, container, false)
         return binding.root
@@ -48,9 +50,13 @@ class StageBasicInfoFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        initObserver()
-        binding.storeNIPLayout.isStartIconVisible = false
 
+        if (receiptDataViewModel.store.value != null) {
+            isCreatedFromViewAnalyzer = true
+        }
+        initObserver()
+
+        binding.storeNIPInput.isEnabled = false
 
         receiptDataViewModel.refreshStoreList()
         receiptImageViewModel.bitmap.value?.let {
@@ -62,24 +68,12 @@ class StageBasicInfoFragment : Fragment() {
             changeViewToNewMode()
         }
         receiptDataViewModel.savedStore.value?.let {
-            binding.storeNIPInput.setText(it.nip)
-            binding.storeNameInput.setText(it.name)
-
-            if (!isCorrectNIP(it.nip)) {
-                binding.storeNIPLayout.error = "Bad NIP"
-                binding.storeNIPLayout.helperText = null
-            } else {
-                binding.storeNIPLayout.error = null
-                binding.storeNIPLayout.helperText = "Correct NIP"
-            }
+            setStoreDataToInputs(it)
         }
         receiptDataViewModel.receipt.value?.let { receipt ->
             if ((receipt.id ?: -1) >= 0) {
                 changeViewToDisplayMode()
-                binding.receiptPTUInput.setText(receipt.receiptPTU)
-                binding.receiptPLNInput.setText(receipt.receiptPLN)
-                binding.receiptDateInput.setText(receipt.receiptDate)
-                binding.receiptTimeInput.setText(receipt.receiptTime)
+                setReceiptDataToInputs(receipt)
             } else {
                 changeViewToNewMode()
             }
@@ -87,6 +81,26 @@ class StageBasicInfoFragment : Fragment() {
         }
         defineClickListeners()
 
+    }
+
+    private fun setStoreDataToInputs(store: Store) {
+        binding.storeNIPInput.setText(store.nip)
+        binding.storeNameInput.setText(store.name)
+
+        if (!isCorrectNIP(receiptDataViewModel.savedStore.value?.nip)) {
+            binding.storeNIPLayout.error = "Bad NIP"
+            binding.storeNIPLayout.helperText = null
+        } else {
+            binding.storeNIPLayout.error = null
+            binding.storeNIPLayout.helperText = "Correct NIP"
+        }
+    }
+
+    private fun setReceiptDataToInputs(receipt: ReceiptDTO) {
+        binding.receiptPTUInput.setText(receipt.receiptPTU)
+        binding.receiptPLNInput.setText(receipt.receiptPLN)
+        binding.receiptDateInput.setText(receipt.receiptDate)
+        binding.receiptTimeInput.setText(receipt.receiptTime)
     }
 
     private fun initObserver() {
@@ -105,6 +119,25 @@ class StageBasicInfoFragment : Fragment() {
                     binding.storeNameInput.setAdapter(adapter)
                 }
             }
+            if (isCreatedFromViewAnalyzer) {
+                val readNIP = receiptDataViewModel.store.value?.nip ?: ""
+                if (!it.map { it.nip }.contains(readNIP)) {
+                    Navigation.findNavController(requireView())
+                        .navigate(R.id.action_stageBasicInfoFragment_to_editStoreFragment)
+                }
+
+            }
+
+        }
+        receiptDataViewModel.savedStore.observe(viewLifecycleOwner) {
+            it?.let {
+                setStoreDataToInputs(it)
+            }
+        }
+        receiptDataViewModel.receipt.observe(viewLifecycleOwner) {
+            it?.let {
+                setReceiptDataToInputs(it)
+            }
         }
     }
 
@@ -120,14 +153,12 @@ class StageBasicInfoFragment : Fragment() {
         binding.saveChangesButton.visibility = View.VISIBLE
         binding.cancelChangesButton.visibility = View.GONE
         binding.editButton.visibility = View.GONE
-
         binding.addProductsButton.isEnabled = false
     }
 
     private fun changeViewToDisplayMode() {
         mode = DataMode.DISPLAY
         binding.storeNameLayout.isEnabled = false
-        binding.storeNIPLayout.isEnabled = false
         binding.receiptPLNLayout.isEnabled = false
         binding.receiptPTULayout.isEnabled = false
         binding.receiptTimeLayout.isEnabled = false
@@ -141,7 +172,6 @@ class StageBasicInfoFragment : Fragment() {
     private fun changeViewToEditMode() {
         mode = DataMode.EDIT
         binding.storeNameLayout.isEnabled = true
-        binding.storeNIPLayout.isEnabled = true
         binding.receiptPLNLayout.isEnabled = true
         binding.receiptPTULayout.isEnabled = true
         binding.receiptTimeLayout.isEnabled = true
@@ -154,35 +184,36 @@ class StageBasicInfoFragment : Fragment() {
     }
 
     private fun saveChangesToDatabase() {
-        if (pickedStore == null) {
-            if (mode == DataMode.NEW) {
-                val store = Store("", "").apply {
-                    nip = binding.storeNIPInput.text.toString()
-                    name = binding.storeNameInput.text.toString()
-                }
-                receiptDataViewModel.insertStore(store)
-                receiptDataViewModel.refreshStoreList()
-            } else if (mode == DataMode.EDIT) {
-                val store = receiptDataViewModel.savedStore.value!!
-                store.nip = binding.storeNIPInput.text.toString()
-                store.name = binding.storeNameInput.text.toString()
-                receiptDataViewModel.updateStore(store)
-                receiptDataViewModel.refreshStoreList()
+        if (mode == DataMode.NEW) {
+            if (pickedStore == null) {
+                Toast.makeText(requireContext(), "Pick store!", Toast.LENGTH_SHORT).show()
+                return
             }
-            pickedStore = receiptDataViewModel.savedStore.value
-        } else {
-            receiptDataViewModel.savedStore.value = pickedStore
-        }
-
-        val receipt =
-            receiptDataViewModel.savedReceipt.value ?: Receipt(-1, -1F, -1F, "", "").apply {
-                storeId = pickedStore?.id ?: -1
+            val receipt = Receipt(-1, -1F, -1F, "", "").apply {
+                storeId = pickedStore!!.id!!
                 pln = transformToFloat(binding.receiptPLNInput.text.toString())
                 ptu = transformToFloat(binding.receiptPTUInput.text.toString())
                 date = binding.receiptDateInput.text.toString()
                 time = binding.receiptTimeInput.text.toString()
             }
-        receiptDataViewModel.insertReceipt(receipt)
+            receiptDataViewModel.insertReceipt(receipt)
+        } else if (mode == DataMode.EDIT) {
+            pickedStore = receiptDataViewModel.savedStore.value
+            receiptDataViewModel.receipt.value?.let {
+                val receipt = Receipt(-1, -1F, -1F, "", "")
+                receipt.id = it.id
+                receipt.storeId = pickedStore!!.id!!
+                receipt.pln = transformToFloat(binding.receiptPLNInput.text.toString())
+                receipt.ptu = transformToFloat(binding.receiptPTUInput.text.toString())
+                receipt.date = binding.receiptDateInput.text.toString()
+                receipt.time = binding.receiptTimeInput.text.toString()
+                receiptDataViewModel.updateReceipt(receipt)
+
+            }
+        }
+        pickedStore = receiptDataViewModel.savedStore.value
+
+
     }
 
 
@@ -197,42 +228,17 @@ class StageBasicInfoFragment : Fragment() {
 
             }
         }
-
-        binding.storeNIPInput.doOnTextChanged { text, _, _, _ ->
-            val index =
-                receiptDataViewModel.storeList.value?.map { it.nip }?.indexOf(text.toString()) ?: -1
-
-            binding.storeNIPLayout.isStartIconVisible = false
-            binding.saveChangesButton.isEnabled = true
-            if (text.toString() != (pickedStore?.nip
-                    ?: "") && binding.storeNIPLayout.isEnabled && index >= 0
-            ) {
-                binding.storeNIPLayout.error =
-                    "NIP exist in store " + (receiptDataViewModel.storeList.value?.get(index)?.name
-                        ?: "")
-                binding.saveChangesButton.isEnabled = false
-                binding.storeNIPLayout.isStartIconVisible = true
-                return@doOnTextChanged
-            }
-            if (!isCorrectNIP(text.toString())) {
-                binding.storeNIPLayout.error = "Bad NIP"
-                binding.storeNIPLayout.helperText = null
-            } else {
-                binding.storeNIPLayout.error = null
-                binding.storeNIPLayout.helperText = "Correct NIP"
-            }
-
+        binding.storeNIPLayout.setEndIconOnClickListener {
+            Navigation.findNavController(it)
+                .navigate(R.id.action_stageBasicInfoFragment_to_editStoreFragment)
         }
+
         binding.editButton.setOnClickListener {
             binding.storeNIPLayout.visibility = View.VISIBLE
 
             changeViewToEditMode()
         }
         binding.saveChangesButton.setOnClickListener {
-            if (binding.storeNIPLayout.error?.contains("exist") == true) {
-                Toast.makeText(requireContext(), "Fix NIP", Toast.LENGTH_SHORT).show()
-                return@setOnClickListener
-            }
             saveChangesToDatabase()
 
             receiptDataViewModel.savedReceipt.value?.let { receipt ->
@@ -264,7 +270,6 @@ class StageBasicInfoFragment : Fragment() {
         binding.storeNameLayout.setStartIconOnClickListener {
             binding.storeNameInput.setText("")
             binding.storeNameLayout.helperText = null
-            binding.storeNIPLayout.isEnabled = true
             binding.storeNameInput.isEnabled = true
             binding.storeNIPInput.setText("")
             pickedStore = null
@@ -275,15 +280,13 @@ class StageBasicInfoFragment : Fragment() {
             pickedStore = store
             binding.storeNameInput.setText(store.name)
             binding.storeNIPInput.setText(store.nip)
-            binding.storeNIPLayout.isEnabled = false
             binding.storeNameInput.isEnabled = false
             binding.storeNIPLayout.error = null
 
         }
         binding.addProductsButton.setOnClickListener {
             receiptDataViewModel.receipt.value?.id?.let {
-                receiptDataViewModel.refreshProductList(it)
-                receiptDataViewModel.convertProductsToDTO()
+                receiptDataViewModel.refreshProductListWithConversion(it)
             }
 
             val action =
@@ -298,10 +301,8 @@ class StageBasicInfoFragment : Fragment() {
                 pickedStore = receiptDataViewModel.storeList.value?.get(index)
                 binding.storeNIPInput.setText(pickedStore?.nip ?: "")
                 binding.storeNameInput.setText(pickedStore?.name ?: "")
-                binding.storeNIPLayout.isEnabled = false
                 binding.storeNameInput.isEnabled = false
                 binding.storeNIPLayout.error = null
-                binding.storeNIPLayout.isStartIconVisible = false
                 binding.saveChangesButton.isEnabled = true
             }
 

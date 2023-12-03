@@ -18,6 +18,7 @@ interface ReceiptDao {
 
     @Insert(onConflict = OnConflictStrategy.IGNORE)
     suspend fun insertReceipt(receipt: Receipt): Long
+
     @Update
     suspend fun updateReceipt(receipt: Receipt)
 
@@ -26,6 +27,7 @@ interface ReceiptDao {
 
     @Insert(onConflict = OnConflictStrategy.ABORT)
     suspend fun insertStore(store: Store): Long
+
     @Update
     suspend fun updateStore(store: Store)
 
@@ -58,7 +60,7 @@ interface ReceiptDao {
     suspend fun getAllStores(): List<Store>
 
     @Transaction
-    @Query("SELECT * FROM receipt r, store s WHERE s.id = r.storeId AND s.name LIKE '%' || :name || '%'")
+    @Query("SELECT r.id as id, storeId, nip, name, pln, ptu, date, time  FROM receipt r, store s WHERE s.id = r.storeId AND s.name LIKE '%' || :name || '%'")
     suspend fun getReceiptWithStore(name: String): List<ReceiptWithStore>
 
     @Transaction

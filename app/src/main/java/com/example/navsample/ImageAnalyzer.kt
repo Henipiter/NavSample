@@ -5,6 +5,7 @@ import android.util.Log
 import androidx.camera.core.ExperimentalGetImage
 import com.example.navsample.DTO.ProductDTO
 import com.example.navsample.DTO.ReceiptDTO
+import com.example.navsample.DTO.StoreDTO
 import com.google.mlkit.vision.common.InputImage
 import com.google.mlkit.vision.text.Text
 import com.google.mlkit.vision.text.TextRecognition
@@ -39,6 +40,7 @@ class ImageAnalyzer {
     var pixelDate: Pixel? = null
     var pixelTime: Pixel? = null
 
+    var store: StoreDTO? = null
     var receipt: ReceiptDTO? = null
     var receiptLines: ArrayList<String> = ArrayList()
     var productList: ArrayList<ProductDTO> = ArrayList()
@@ -67,7 +69,7 @@ class ImageAnalyzer {
     @ExperimentalGetImage
     fun analyzeProductList(
         inputImage: InputImage,
-        onFinish: () -> Unit
+        onFinish: () -> Unit,
     ) {
 
         imageWidth = inputImage.width
@@ -87,7 +89,7 @@ class ImageAnalyzer {
     @ExperimentalGetImage
     fun analyzeReceipt(
         inputImage: InputImage,
-        onFinish: () -> Unit
+        onFinish: () -> Unit,
     ) {
         imageWidth = inputImage.width
 
@@ -227,7 +229,8 @@ class ImageAnalyzer {
 
         companyName = lineList.split("\n")[0]
 
-        receipt = ReceiptDTO(-1,companyName, valueNIP, valuePLN, valuePTU, valueDate, valueTime)
+        store = StoreDTO(companyName, valueNIP)
+        receipt = ReceiptDTO(-1, companyName, valueNIP, valuePLN, valuePTU, valueDate, valueTime)
         Log.i("ImageProcess", "valueNIP $valueNIP")
         Log.i("ImageProcess", "companyName $companyName")
         Log.i("ImageProcess", "valuePTU $valuePTU")

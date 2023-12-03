@@ -8,6 +8,7 @@ import com.example.navsample.ApplicationContext
 import com.example.navsample.DTO.ExperimentalAdapterArgument
 import com.example.navsample.DTO.ProductDTO
 import com.example.navsample.DTO.ReceiptDTO
+import com.example.navsample.DTO.StoreDTO
 import com.example.navsample.entities.Category
 import com.example.navsample.entities.Product
 import com.example.navsample.entities.Receipt
@@ -18,6 +19,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 class ReceiptDataViewModel : ViewModel() {
+    lateinit var store: MutableLiveData<StoreDTO?>
     lateinit var receipt: MutableLiveData<ReceiptDTO?>
     lateinit var product: MutableLiveData<ArrayList<ProductDTO>>
 
@@ -37,6 +39,7 @@ class ReceiptDataViewModel : ViewModel() {
     }
 
     fun clearData() {
+        store = MutableLiveData<StoreDTO?>(null)
         receipt = MutableLiveData<ReceiptDTO?>(null)
         product = MutableLiveData<ArrayList<ProductDTO>>(ArrayList())
 
@@ -68,14 +71,18 @@ class ReceiptDataViewModel : ViewModel() {
 
     val dao = ApplicationContext.context?.let { ReceiptDatabase.getInstance(it).receiptDao }
 
-    fun insertProducts() {
+    fun insertProducts(products: List<Product>) {
         viewModelScope.launch {
             dao?.let {
-                savedProduct.value?.forEach { product ->
+                products.forEach { product ->
                     dao.insertProduct(product)
                 }
             }
         }
+    }
+
+    fun insertProducts() {
+        savedProduct.value?.let { insertProducts(it) }
     }
 
     fun insertReceipt(newReceipt: Receipt) {
@@ -162,6 +169,13 @@ class ReceiptDataViewModel : ViewModel() {
         }
     }
 
+    fun refreshProductListWithConversion(receiptId: Int) {
+        viewModelScope.launch {
+            savedProduct.postValue(dao?.getAllProducts(receiptId)?.let { ArrayList(it) })
+            convertProductsToDTO()
+        }
+    }
+
     fun insertCategoryList(category: Category) {
         viewModelScope.launch {
             dao?.insertCategory(category)
@@ -185,7 +199,7 @@ class ReceiptDataViewModel : ViewModel() {
                 )
             )
         }
-        product.value = newProductDTOs
+        product.postValue(newProductDTOs)
     }
 
     fun convertDTOToProduct() {

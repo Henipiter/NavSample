@@ -85,7 +85,6 @@ class AddProductsFragment : Fragment(), ItemClickListener {
     @ExperimentalGetImage
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        initObserver()
         if (receiptImageViewModel.uriCropped.value == null) {
             startCameraWithUri()
         }
@@ -99,6 +98,8 @@ class AddProductsFragment : Fragment(), ItemClickListener {
             productListAdapter.productList = receiptDataViewModel.product.value ?: arrayListOf()
             productListAdapter.notifyDataSetChanged()
         }
+
+        initObserver()
         binding.receiptImageBig.setOnLongClickListener {
             startCameraWithUri()
             true

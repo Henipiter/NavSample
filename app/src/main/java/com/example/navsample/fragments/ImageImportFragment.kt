@@ -4,11 +4,11 @@ import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.graphics.Paint
 import android.os.Bundle
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.camera.core.ExperimentalGetImage
+import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.navigation.Navigation
 import com.example.navsample.ImageAnalyzer
@@ -65,6 +65,7 @@ class ImageImportFragment : Fragment() {
                     it1
                 ) {
 //                    drawRectangles()
+                    receiptDataViewModel.store.value = imageAnalyzer.store
                     receiptDataViewModel.receipt.value = imageAnalyzer.receipt
                 }
             }

@@ -9,6 +9,7 @@ import androidx.fragment.app.activityViewModels
 import androidx.navigation.Navigation
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.example.navsample.DTO.StoreDTO
 import com.example.navsample.ItemClickListener
 import com.example.navsample.adapters.StoreListAdapter
 import com.example.navsample.databinding.FragmentStoreListBinding
@@ -26,7 +27,7 @@ class StoreListFragment : Fragment(), ItemClickListener {
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
-        savedInstanceState: Bundle?
+        savedInstanceState: Bundle?,
     ): View {
         _binding = FragmentStoreListBinding.inflate(inflater, container, false)
         return binding.root
@@ -52,7 +53,7 @@ class StoreListFragment : Fragment(), ItemClickListener {
         recyclerViewEvent.layoutManager =
             LinearLayoutManager(requireContext(), LinearLayoutManager.VERTICAL, false)
 
-        binding.newButton.setOnClickListener{
+        binding.newButton.setOnClickListener {
             val action =
                 StoreListFragmentDirections.actionStoreListFragmentToEditStoreFragment()
             Navigation.findNavController(requireView()).navigate(action)
@@ -60,17 +61,21 @@ class StoreListFragment : Fragment(), ItemClickListener {
     }
 
     override fun onItemClick(storeIndex: Int) {
-        receiptDataViewModel.savedStore.value = receiptDataViewModel.storeList.value!![storeIndex]
+        val store = receiptDataViewModel.storeList.value!![storeIndex]
+        receiptDataViewModel.savedStore.value = store
+        receiptDataViewModel.store.value = StoreDTO(store.name, store.nip)
         val action =
-            StoreListFragmentDirections.actionStoreListFragmentToEditStoreFragment(storeIndex)
+            StoreListFragmentDirections.actionStoreListFragmentToEditStoreFragment()
         Navigation.findNavController(requireView()).navigate(action)
 
     }
+
     private fun initObserver() {
         receiptDataViewModel.storeList.observe(viewLifecycleOwner) {
             it?.let {
                 storeListAdapter.storeList = it
                 storeListAdapter.notifyDataSetChanged()
             }
-        }}
+        }
+    }
 }

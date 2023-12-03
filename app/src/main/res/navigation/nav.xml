@@ -22,6 +22,9 @@
         <action
             android:id="@+id/action_menuFragment_to_storeListFragment"
             app:destination="@id/storeListFragment" />
+        <action
+            android:id="@+id/action_menuFragment_to_diagramFragment"
+            app:destination="@id/diagramFragment" />
     </fragment>
     <fragment
         android:id="@+id/shopListFragment"
@@ -58,13 +61,16 @@
         android:id="@+id/stageBasicInfoFragment"
         android:name="com.example.navsample.fragments.StageBasicInfoFragment"
         android:label="fragment_stage_basic_info"
-        tools:layout="@layout/fragment_stage_basic_info" >
+        tools:layout="@layout/fragment_stage_basic_info">
         <action
             android:id="@+id/action_stageBasicInfoFragment_to_shopListFragment"
             app:destination="@id/shopListFragment" />
         <action
             android:id="@+id/action_stageBasicInfoFragment_to_editStore"
             app:destination="@id/storeListFragment" />
+        <action
+            android:id="@+id/action_stageBasicInfoFragment_to_editStoreFragment"
+            app:destination="@id/editStoreFragment" />
     </fragment>
     <fragment
         android:id="@+id/imageImportFragment"
@@ -117,10 +123,15 @@
         android:id="@+id/editStoreFragment"
         android:name="com.example.navsample.fragments.EditStoreFragment"
         android:label="fragment_edit_store"
-        tools:layout="@layout/fragment_edit_store" >
+        tools:layout="@layout/fragment_edit_store">
         <argument
             android:name="storeIndex"
             android:defaultValue="-1"
             app:argType="integer" />
     </fragment>
+    <fragment
+        android:id="@+id/diagramFragment"
+        android:name="com.example.navsample.fragments.DiagramFragment"
+        android:label="fragment_diagram"
+        tools:layout="@layout/fragment_diagram" />
 </navigation>

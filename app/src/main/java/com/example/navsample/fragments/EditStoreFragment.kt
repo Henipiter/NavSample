@@ -8,7 +8,7 @@ import android.widget.Toast
 import androidx.core.widget.doOnTextChanged
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
-import androidx.navigation.fragment.navArgs
+import androidx.navigation.Navigation
 import com.example.navsample.DTO.DataMode
 import com.example.navsample.databinding.FragmentEditStoreBinding
 import com.example.navsample.entities.Store
@@ -20,11 +20,11 @@ class EditStoreFragment : Fragment() {
     private val receiptDataViewModel: ReceiptDataViewModel by activityViewModels()
 
     private var mode = DataMode.DISPLAY
-    private val args: EditStoreFragmentArgs by navArgs()
+
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
-        savedInstanceState: Bundle?
+        savedInstanceState: Bundle?,
     ): View {
         _binding = FragmentEditStoreBinding.inflate(inflater, container, false)
         return binding.root
@@ -36,11 +36,15 @@ class EditStoreFragment : Fragment() {
         receiptDataViewModel.refreshStoreList()
         var actualNIP = ""
 
-        if (args.storeIndex != -1) {
-            val store = receiptDataViewModel.storeList.value?.get(args.storeIndex)
-            binding.storeNameInput.setText(store?.name)
-            binding.storeNIPInput.setText(store?.nip)
-            actualNIP = store?.nip.toString()
+        receiptDataViewModel.store.value?.let {
+            binding.storeNameInput.setText(it.name)
+            binding.storeNIPInput.setText(it.nip)
+            actualNIP = it.nip ?: ""
+            changeViewToDisplayMode()
+        }
+
+
+        if (receiptDataViewModel.savedStore.value != null) {
             changeViewToDisplayMode()
         } else {
             mode = DataMode.NEW
@@ -81,8 +85,7 @@ class EditStoreFragment : Fragment() {
             receiptDataViewModel.savedStore.value?.nip = binding.storeNIPInput.text.toString()
             receiptDataViewModel.savedStore.value?.name = binding.storeNameInput.text.toString()
             receiptDataViewModel.refreshStoreList()
-
-
+            Navigation.findNavController(it).popBackStack()
         }
         binding.cancelChangesButton.setOnClickListener {
             changeViewToDisplayMode()
