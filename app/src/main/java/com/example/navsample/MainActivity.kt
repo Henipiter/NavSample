@@ -34,6 +34,7 @@ class MainActivity : AppCompatActivity() {
         receiptDataViewModel.insertStore(Store("Biedronka", "7791011327"))
         receiptDataViewModel.insertStore(Store("LIDL", "7811897358"))
         receiptDataViewModel.insertStore(Store("SUPER-PHARM", "5252175977"))
+        receiptDataViewModel.insertStore(Store("MARTES-SPORT", "0001112223"))
 
         receiptDataViewModel.insertCategoryList(Category("INNE"))
         receiptDataViewModel.insertCategoryList(Category("JEDZENIE"))
@@ -86,6 +87,20 @@ class MainActivity : AppCompatActivity() {
         receiptDataViewModel.insertProducts(
             listOf(
                 Product(4, "IBUPROM 200MG 10 TABL POWL 8%", 2, 1F, 8.24F, 3.59F, "D", ""),
+            )
+        )
+        receiptDataViewModel.insertReceipt(Receipt(5, 8.24F, 0.61F, "2023-08-18", "19:54"))
+        receiptDataViewModel.insertProducts(
+            listOf(
+                Product(5, "KAPIELOWKI", 7, 1F, 89.99F, 89.99F, "D", ""),
+                Product(5, "BUTY BIEGANIE", 7, 1F, 299.99F, 299.99F, "D", ""),
+            )
+        )
+        receiptDataViewModel.insertReceipt(Receipt(5, 8.24F, 0.61F, "2023-07-18", "19:54"))
+        receiptDataViewModel.insertProducts(
+            listOf(
+                Product(6, "KAPIELOWKI", 7, 1F, 89.99F, 89.99F, "D", ""),
+                Product(6, "BUTY BIEGANIE", 7, 1F, 299.99F, 299.99F, "D", ""),
             )
         )
     }

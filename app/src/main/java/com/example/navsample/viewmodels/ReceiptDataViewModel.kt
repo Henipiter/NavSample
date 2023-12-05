@@ -14,6 +14,7 @@ import com.example.navsample.entities.Product
 import com.example.navsample.entities.Receipt
 import com.example.navsample.entities.ReceiptDatabase
 import com.example.navsample.entities.Store
+import com.example.navsample.entities.relations.PriceByCategory
 import com.example.navsample.entities.relations.ReceiptWithStore
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -34,6 +35,7 @@ class ReceiptDataViewModel : ViewModel() {
     lateinit var experimental: MutableLiveData<ArrayList<ExperimentalAdapterArgument>>
     lateinit var experimentalOriginal: MutableLiveData<ArrayList<ExperimentalAdapterArgument>>
 
+    lateinit var chartData: MutableLiveData<ArrayList<PriceByCategory>>
     init {
         clearData()
     }
@@ -50,6 +52,8 @@ class ReceiptDataViewModel : ViewModel() {
         receiptList = MutableLiveData<ArrayList<ReceiptWithStore>>(null)
         categoryList = MutableLiveData<ArrayList<Category>>(null)
         storeList = MutableLiveData<ArrayList<Store>>(null)
+
+        chartData = MutableLiveData<ArrayList<PriceByCategory>>(null)
 
         experimental = MutableLiveData(
             arrayListOf(
@@ -246,6 +250,21 @@ class ReceiptDataViewModel : ViewModel() {
             value.replace(",", ".").toFloat()
         } catch (t: Throwable) {
             0.0f
+        }
+    }
+
+    fun getChartDataTimeline(dateFrom: String = "0", dateTo: String = "9") {
+        viewModelScope.launch {
+            chartData.postValue(
+                dao?.getPricesForCategoryComparisonWithDate(dateFrom, dateTo)
+                    ?.let { ArrayList(it) })
+        }
+    }
+
+    fun getChartDataCategory(dateFrom: String = "0", dateTo: String = "9") {
+        viewModelScope.launch {
+            chartData.postValue(
+                dao?.getPricesForCategoryComparison(dateFrom, dateTo)?.let { ArrayList(it) })
         }
     }
 

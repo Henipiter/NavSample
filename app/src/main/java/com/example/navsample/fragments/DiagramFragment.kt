@@ -1,19 +1,41 @@
 package com.example.navsample.fragments
 
+
+import android.graphics.Color
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
-import com.anychart.AnyChart
-import com.anychart.chart.common.dataentry.DataEntry
-import com.anychart.chart.common.dataentry.ValueDataEntry
+import androidx.fragment.app.activityViewModels
+import com.example.navsample.ChartHelper
+import com.example.navsample.DTO.ChartData
+import com.example.navsample.DTO.ChartMode
 import com.example.navsample.databinding.FragmentDiagramBinding
+import com.example.navsample.entities.relations.PriceByCategory
+import com.example.navsample.viewmodels.ReceiptDataViewModel
+import com.github.mikephil.charting.components.Legend
+import com.github.mikephil.charting.data.LineData
+import com.github.mikephil.charting.interfaces.datasets.ILineDataSet
+import com.google.android.material.tabs.TabLayout
+import java.text.SimpleDateFormat
+import java.util.Calendar
+import java.util.Date
+
 
 class DiagramFragment : Fragment() {
     private var _binding: FragmentDiagramBinding? = null
     private val binding get() = _binding!!
 
+    private val receiptDataViewModel: ReceiptDataViewModel by activityViewModels()
+
+    private var mode = ChartMode.CATEGORY
+    private var categoryData: MutableList<ChartData> = mutableListOf()
+    private var timelineData: MutableList<Pair<String, ChartData>> = mutableListOf()
+
+    lateinit var today: String
+    lateinit var ago: String
+    private val chartHelper = ChartHelper()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?,
@@ -24,54 +46,136 @@ class DiagramFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-//
-        val pie = AnyChart.pie()
+        initObserver()
 
-        val data: MutableList<DataEntry> = ArrayList()
-        data.add(ValueDataEntry("John", 10000))
-        data.add(ValueDataEntry("Jake", 12000))
-        data.add(ValueDataEntry("Peter", 18000))
-        pie.data(data)
-        binding.anyChartView.setChart(pie)
+        updateData(binding.monthRangeSlider.value.toInt())
 
-//        val cartesian: Cartesian = AnyChart.column()
-//
-//        val data: MutableList<DataEntry> = ArrayList()
-//        data.add(ValueDataEntry("Rouge", 80540))
-//        data.add(ValueDataEntry("Foundation", 94190))
-//        data.add(ValueDataEntry("Mascara", 102610))
-//        data.add(ValueDataEntry("Lip gloss", 110430))
-//        data.add(ValueDataEntry("Lipstick", 128000))
-//        data.add(ValueDataEntry("Nail polish", 143760))
-//        data.add(ValueDataEntry("Eyebrow pencil", 170670))
-//        data.add(ValueDataEntry("Eyeliner", 213210))
-//        data.add(ValueDataEntry("Eyeshadows", 249980))
-//
-//        val column: Column = cartesian.column(data)
-//
-//        column.tooltip()
-//            .titleFormat("{%X}")
-//            .position(Position.CENTER_BOTTOM)
-//            .anchor(Anchor.CENTER_BOTTOM)
-//            .offsetX(0.0)
-//            .offsetY(5.0)
-//            .format("\${%Value}{groupsSeparator: }")
-//
-//        cartesian.animation(true)
-//        cartesian.title("Top 10 Cosmetic Products by Revenue")
-//
-//        cartesian.yScale().minimum(0.0)
-//
-//        cartesian.yAxis(0).labels().format("\${%Value}{groupsSeparator: }")
-//
-//        cartesian.tooltip().positionMode(TooltipPositionMode.POINT)
-//        cartesian.interactivity().hoverMode(HoverMode.BY_X)
-//
-//        cartesian.xAxis(0).title("Product")
-//        cartesian.yAxis(0).title("Revenue")
-//
-//        binding.anyChartView.setChart(cartesian)
+
+
+        binding.monthRangeSlider.addOnChangeListener { slider, value, fromUser ->
+            updateData(value.toInt())
+            // Responds to when slider's value is changed
+        }
+
+
+        binding.tabLayout.addOnTabSelectedListener(object : TabLayout.OnTabSelectedListener {
+
+            override fun onTabSelected(tab: TabLayout.Tab?) {
+                tab?.let {
+                    when (it.position) {
+                        0 -> {
+                            mode = ChartMode.CATEGORY
+                            binding.lineChart.visibility = View.INVISIBLE
+                            binding.pieChart.visibility = View.VISIBLE
+                        }
+
+                        1 -> {
+                            mode = ChartMode.TIMELINE
+                            binding.lineChart.visibility = View.VISIBLE
+                            binding.pieChart.visibility = View.INVISIBLE
+                        }
+                    }
+                    updateData(binding.monthRangeSlider.value.toInt())
+                }
+            }
+
+            override fun onTabReselected(tab: TabLayout.Tab?) {
+                // Handle tab reselect
+            }
+
+            override fun onTabUnselected(tab: TabLayout.Tab?) {
+                // Handle tab unselect
+            }
+        })
+
+
+
+        binding.pieChart.setUsePercentValues(false)
+        binding.pieChart.description.isEnabled = false
+        binding.pieChart.setExtraOffsets(5F, 10F, 5F, 5F)
+
+
+        binding.pieChart.transparentCircleRadius = 21f
+        binding.pieChart.holeRadius = 16f
+        val l: Legend = binding.pieChart.legend
+        l.verticalAlignment = Legend.LegendVerticalAlignment.TOP
+        l.horizontalAlignment = Legend.LegendHorizontalAlignment.RIGHT
+        l.orientation = Legend.LegendOrientation.HORIZONTAL
+        l.setDrawInside(false)
+        l.isWordWrapEnabled = true
+        l.xEntrySpace = 7f
+        l.yEntrySpace = 0f
+        l.yOffset = 0f
+        l.form = Legend.LegendForm.CIRCLE
+
+        binding.pieChart.setEntryLabelColor(Color.WHITE)
+        binding.pieChart.setEntryLabelTextSize(12f)
+
+
+        binding.lineChart.resetTracking();
+        val l1 = binding.lineChart.legend
+        l1.verticalAlignment = Legend.LegendVerticalAlignment.TOP
+        l1.horizontalAlignment = Legend.LegendHorizontalAlignment.RIGHT
+        l1.orientation = Legend.LegendOrientation.VERTICAL
+        l1.setDrawInside(false)
 
     }
 
+    private fun updateData(monthsAgo: Int) {
+        val dateFormat = SimpleDateFormat("yyyy-MM-dd")
+        val threeMonthsAgo =
+            Calendar.getInstance().apply { add(Calendar.MONTH, -monthsAgo) }.time
+
+        today = dateFormat.format(Date())
+        ago = dateFormat.format(threeMonthsAgo)
+
+
+        when (mode) {
+            ChartMode.CATEGORY -> receiptDataViewModel.getChartDataCategory(ago, today)
+            ChartMode.TIMELINE -> receiptDataViewModel.getChartDataTimeline(ago, today)
+
+        }
+    }
+
+    private fun calculateTimelineData(list: ArrayList<PriceByCategory>): ArrayList<ILineDataSet> {
+
+        val categories = list.map { it.category }.toSortedSet()
+        val array: ArrayList<ArrayList<Float>> = chartHelper.createTimelineData(ago, today, list)
+        return chartHelper.convertToLineChart(categories, array)
+
+    }
+
+
+    private fun initObserver() {
+        receiptDataViewModel.chartData.observe(viewLifecycleOwner) { it ->
+            it?.let {
+
+                when (mode) {
+                    ChartMode.CATEGORY -> {
+                        categoryData.clear()
+                        it.forEach {
+                            categoryData.add(ChartData(it.category, it.price))
+                        }
+
+                        val data = chartHelper.drawPieChart("title", categoryData)
+                        binding.pieChart.data = data
+
+                        binding.pieChart.highlightValues(null)
+                        binding.pieChart.invalidate()
+                    }
+
+                    ChartMode.TIMELINE -> {
+                        timelineData.clear()
+                        val dataSets = calculateTimelineData(it)
+
+
+                        val data = LineData(dataSets)
+                        binding.lineChart.data = data
+                        binding.lineChart.invalidate()
+
+                    }
+                }
+            }
+        }
+    }
 }

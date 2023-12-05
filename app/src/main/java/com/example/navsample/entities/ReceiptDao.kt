@@ -6,6 +6,7 @@ import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Transaction
 import androidx.room.Update
+import com.example.navsample.entities.relations.PriceByCategory
 import com.example.navsample.entities.relations.ProductWithCategory
 import com.example.navsample.entities.relations.ReceiptWithProducts
 import com.example.navsample.entities.relations.ReceiptWithStore
@@ -79,6 +80,35 @@ interface ReceiptDao {
     @Query("SELECT * FROM product WHERE id = :id")
 //    @Query("SELECT * FROM product p, category c WHERE p.id = :id AND p.categoryId = c.id")
     suspend fun getCategoryWithProduct(id: Int): List<ProductWithCategory>
+
+    //charts
+    @Transaction
+    @Query(
+        "SELECT sum(p.finalPrice) AS price, c.name AS category, substr(r.date,0,8) AS date " +
+                "FROM product p, receipt r, category c " +
+                "WHERE p.receiptId = r.id AND p.categoryId = c.id " +
+                "AND  date>=:dateFrom AND date<=:dateTo " +
+                "GROUP BY categoryId, substr(r.date,0,8) " +
+                "ORDER BY date, pln DESC"
+    )
+    suspend fun getPricesForCategoryComparisonWithDate(
+        dateFrom: String = "0",
+        dateTo: String = "9",
+    ): List<PriceByCategory>
+
+    @Transaction
+    @Query(
+        "SELECT sum(p.finalPrice) AS price, c.name AS category, '' AS date " +
+                "FROM product p, receipt r, category c " +
+                "WHERE p.receiptId = r.id AND p.categoryId = c.id " +
+                "AND  date>=:dateFrom AND date<=:dateTo " +
+                "GROUP BY categoryId " +
+                "ORDER BY pln DESC"
+    )
+    suspend fun getPricesForCategoryComparison(
+        dateFrom: String = "0",
+        dateTo: String = "9",
+    ): List<PriceByCategory>
 
 
 }
