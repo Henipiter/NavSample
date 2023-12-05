@@ -51,6 +51,24 @@ class ChartHelper {
         return array
     }
 
+    fun getDateLegend(fromDate: String, toDate: String): List<String> {
+
+        val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd")
+        val startDate = LocalDate.parse(fromDate, formatter)
+        val endDate = LocalDate.parse(toDate, formatter)
+
+        val dataList = mutableListOf<String>()
+
+        var currentDate = startDate
+        while (!currentDate.isAfter(endDate)) {
+            dataList.add(currentDate.format(formatter).substring(0, 7))
+            currentDate = currentDate.plusMonths(1)
+        }
+
+        return dataList
+
+    }
+
     fun convertToLineChart(
         categories: SortedSet<String>,
         array: ArrayList<ArrayList<Float>>,
@@ -68,6 +86,7 @@ class ChartHelper {
             val d = LineDataSet(values, categories.toList().get(id))
             d.lineWidth = 2.5f
             d.circleRadius = 4f
+            d.setValueTextColor(Color.WHITE)
 
             val color = ChartColors.COLORS[id % ChartColors.COLORS.size]
             d.color = color

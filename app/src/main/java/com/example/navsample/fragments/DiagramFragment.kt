@@ -11,6 +11,7 @@ import androidx.fragment.app.activityViewModels
 import com.example.navsample.ChartHelper
 import com.example.navsample.DTO.ChartData
 import com.example.navsample.DTO.ChartMode
+import com.example.navsample.MyXAxisFormatter
 import com.example.navsample.databinding.FragmentDiagramBinding
 import com.example.navsample.entities.relations.PriceByCategory
 import com.example.navsample.viewmodels.ReceiptDataViewModel
@@ -97,8 +98,9 @@ class DiagramFragment : Fragment() {
 
         binding.pieChart.transparentCircleRadius = 21f
         binding.pieChart.holeRadius = 16f
+
         val l: Legend = binding.pieChart.legend
-        l.verticalAlignment = Legend.LegendVerticalAlignment.TOP
+        l.verticalAlignment = Legend.LegendVerticalAlignment.BOTTOM
         l.horizontalAlignment = Legend.LegendHorizontalAlignment.RIGHT
         l.orientation = Legend.LegendOrientation.HORIZONTAL
         l.setDrawInside(false)
@@ -106,6 +108,7 @@ class DiagramFragment : Fragment() {
         l.xEntrySpace = 7f
         l.yEntrySpace = 0f
         l.yOffset = 0f
+        l.textColor = Color.WHITE
         l.form = Legend.LegendForm.CIRCLE
 
         binding.pieChart.setEntryLabelColor(Color.WHITE)
@@ -114,9 +117,10 @@ class DiagramFragment : Fragment() {
 
         binding.lineChart.resetTracking();
         val l1 = binding.lineChart.legend
-        l1.verticalAlignment = Legend.LegendVerticalAlignment.TOP
+        l1.verticalAlignment = Legend.LegendVerticalAlignment.BOTTOM
         l1.horizontalAlignment = Legend.LegendHorizontalAlignment.RIGHT
-        l1.orientation = Legend.LegendOrientation.VERTICAL
+        l1.orientation = Legend.LegendOrientation.HORIZONTAL
+        l1.textColor = Color.WHITE
         l1.setDrawInside(false)
 
     }
@@ -172,7 +176,18 @@ class DiagramFragment : Fragment() {
                         val data = LineData(dataSets)
                         binding.lineChart.data = data
                         binding.lineChart.invalidate()
+                        binding.lineChart.description.isEnabled = false
+                        binding.lineChart.setNoDataTextColor(Color.WHITE)
+                        binding.lineChart.xAxis.valueFormatter =
+                            MyXAxisFormatter(chartHelper.getDateLegend(ago, today))
 
+                        binding.lineChart.xAxis.textColor = Color.WHITE
+                        binding.lineChart.axisLeft.textColor = Color.WHITE
+                        binding.lineChart.axisRight.textColor = Color.WHITE
+                        binding.lineChart.getDescription().setTextColor(Color.WHITE);
+                        binding.lineChart.xAxis.enableGridDashedLine(10f, 20f, 10f)
+                        binding.lineChart.axisLeft.enableGridDashedLine(10f, 20f, 10f)
+                        binding.lineChart.axisRight.enableGridDashedLine(10f, 20f, 10f)
                     }
                 }
             }
