@@ -4,12 +4,15 @@ import android.graphics.Color
 import com.example.navsample.DTO.ChartColors
 import com.example.navsample.DTO.ChartData
 import com.example.navsample.entities.relations.PriceByCategory
+import com.github.mikephil.charting.data.BarDataSet
+import com.github.mikephil.charting.data.BarEntry
 import com.github.mikephil.charting.data.Entry
 import com.github.mikephil.charting.data.LineDataSet
-import com.github.mikephil.charting.data.PieData
 import com.github.mikephil.charting.data.PieDataSet
 import com.github.mikephil.charting.data.PieEntry
-import com.github.mikephil.charting.formatter.PercentFormatter
+import com.github.mikephil.charting.data.RadarDataSet
+import com.github.mikephil.charting.data.RadarEntry
+import com.github.mikephil.charting.interfaces.datasets.IBarDataSet
 import com.github.mikephil.charting.interfaces.datasets.ILineDataSet
 import com.github.mikephil.charting.utils.ColorTemplate
 import java.time.LocalDate
@@ -26,8 +29,6 @@ class ChartHelper {
     ): ArrayList<ArrayList<Float>> {
 
         val categories = list.map { it.category }.toSortedSet()
-        val dates = list.map { it.date }.toSortedSet()
-
 
         val monthsBetween = calculateMonthsBetween(ago, today)
         val array: ArrayList<ArrayList<Float>> = ArrayList(categories.size)
@@ -37,9 +38,6 @@ class ChartHelper {
                 array[i - 1].add(0F)
             }
         }
-
-
-
         list.forEach {
             val indexOfDate = calculateMonthIndex(ago, it.date)
             if (indexOfDate in 0..monthsBetween) {
@@ -48,23 +46,22 @@ class ChartHelper {
                 array[categoryIndex][indexOfDate] = value
             }
         }
+        if (array.size == 0) {
+            return arrayListOf(arrayListOf(0F))
+        }
         return array
     }
 
     fun getDateLegend(fromDate: String, toDate: String): List<String> {
-
         val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd")
         val startDate = LocalDate.parse(fromDate, formatter)
         val endDate = LocalDate.parse(toDate, formatter)
-
         val dataList = mutableListOf<String>()
-
         var currentDate = startDate
         while (!currentDate.isAfter(endDate)) {
             dataList.add(currentDate.format(formatter).substring(0, 7))
             currentDate = currentDate.plusMonths(1)
         }
-
         return dataList
 
     }
@@ -83,20 +80,45 @@ class ChartHelper {
             }
 
 
-            val d = LineDataSet(values, categories.toList().get(id))
+            val d = LineDataSet(values, categories.toList()[id])
             d.lineWidth = 2.5f
             d.circleRadius = 4f
-            d.setValueTextColor(Color.WHITE)
+            d.valueTextColor = Color.WHITE
 
             val color = ChartColors.COLORS[id % ChartColors.COLORS.size]
             d.color = color
             d.setCircleColor(color)
-            dataSets.add(d);
+            dataSets.add(d)
         }
         return dataSets
     }
 
-    fun drawPieChart(title: String, chartData: List<ChartData>): PieData {
+    fun convertToBarChart(
+        categories: SortedSet<String>,
+        array: ArrayList<ArrayList<Float>>,
+    ): ArrayList<IBarDataSet> {
+        val dataSets = ArrayList<IBarDataSet>()
+        array.forEachIndexed { id, categoryList ->
+
+
+            val values = ArrayList<BarEntry>()
+            categoryList.forEachIndexed { index, value ->
+                values.add(BarEntry(index.toFloat(), value))
+            }
+
+
+            val d = BarDataSet(values, categories.toList()[id])
+
+            d.valueTextColor = Color.WHITE
+
+            val color = ChartColors.COLORS[id % ChartColors.COLORS.size]
+            d.color = color
+            dataSets.add(d)
+        }
+        return dataSets
+    }
+
+    fun getPieData(title: String, chartData: List<ChartData>): PieDataSet {
 
         val entries = ArrayList<PieEntry>()
         chartData.forEach {
@@ -106,15 +128,22 @@ class ChartHelper {
         val dataSet = PieDataSet(entries, title)
         dataSet.setDrawIcons(false)
 
+        dataSet.colors = getColors()
+        return dataSet
+    }
 
+    fun getRadarData(title: String, chartData: List<ChartData>): RadarDataSet {
 
+        val entries = ArrayList<RadarEntry>()
+        chartData.forEach {
+            entries.add(RadarEntry(it.value, it.label))
+        }
+
+        val dataSet = RadarDataSet(entries, title)
+        dataSet.setDrawIcons(false)
 
         dataSet.colors = getColors()
-        val data = PieData(dataSet)
-        data.setValueFormatter(PercentFormatter())
-        data.setValueTextSize(11f)
-        data.setValueTextColor(Color.WHITE)
-        return data
+        return dataSet
     }
 
     private fun calculateDaysBetween(date1Str: String, date2Str: String): Long {

@@ -17,12 +17,22 @@
         <com.google.android.material.tabs.TabItem
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Categorial" />
+            android:text="Pie" />
 
         <com.google.android.material.tabs.TabItem
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Timeline" />
+            android:text="Radar" />
+
+        <com.google.android.material.tabs.TabItem
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Line" />
+
+        <com.google.android.material.tabs.TabItem
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Bar" />
 
     </com.google.android.material.tabs.TabLayout>
 
@@ -46,9 +56,30 @@
         app:layout_constraintTop_toBottomOf="@+id/tabLayout"
         app:layout_constraintWidth_default="spread" />
 
+    <com.github.mikephil.charting.charts.BarChart
+        android:id="@+id/bar_chart"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        app:layout_constraintDimensionRatio="1:1"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/tabLayout"
+        app:layout_constraintWidth_default="spread" />
+
+    <com.github.mikephil.charting.charts.RadarChart
+        android:id="@+id/radar_chart"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        app:layout_constraintDimensionRatio="1:1"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/tabLayout"
+        app:layout_constraintWidth_default="spread" />
+
     <com.google.android.material.slider.Slider
         android:id="@+id/month_range_slider"
         android:layout_width="0dp"
+        android:layoutDirection="rtl"
         android:layout_height="wrap_content"
         android:stepSize="1"
         android:value="3"

@@ -13,11 +13,13 @@ import com.example.navsample.DTO.ChartData
 import com.example.navsample.DTO.ChartMode
 import com.example.navsample.MyXAxisFormatter
 import com.example.navsample.databinding.FragmentDiagramBinding
-import com.example.navsample.entities.relations.PriceByCategory
 import com.example.navsample.viewmodels.ReceiptDataViewModel
 import com.github.mikephil.charting.components.Legend
+import com.github.mikephil.charting.data.BarData
 import com.github.mikephil.charting.data.LineData
-import com.github.mikephil.charting.interfaces.datasets.ILineDataSet
+import com.github.mikephil.charting.data.PieData
+import com.github.mikephil.charting.data.RadarData
+import com.github.mikephil.charting.formatter.PercentFormatter
 import com.google.android.material.tabs.TabLayout
 import java.text.SimpleDateFormat
 import java.util.Calendar
@@ -30,12 +32,12 @@ class DiagramFragment : Fragment() {
 
     private val receiptDataViewModel: ReceiptDataViewModel by activityViewModels()
 
-    private var mode = ChartMode.CATEGORY
+    private var mode = ChartMode.PIE
     private var categoryData: MutableList<ChartData> = mutableListOf()
     private var timelineData: MutableList<Pair<String, ChartData>> = mutableListOf()
 
-    lateinit var today: String
-    lateinit var ago: String
+    private lateinit var today: String
+    private lateinit var ago: String
     private val chartHelper = ChartHelper()
 
     override fun onCreateView(
@@ -65,14 +67,34 @@ class DiagramFragment : Fragment() {
                 tab?.let {
                     when (it.position) {
                         0 -> {
-                            mode = ChartMode.CATEGORY
+                            mode = ChartMode.PIE
                             binding.lineChart.visibility = View.INVISIBLE
+                            binding.radarChart.visibility = View.INVISIBLE
+                            binding.barChart.visibility = View.INVISIBLE
                             binding.pieChart.visibility = View.VISIBLE
                         }
 
                         1 -> {
-                            mode = ChartMode.TIMELINE
+                            mode = ChartMode.RADAR
+                            binding.lineChart.visibility = View.INVISIBLE
+                            binding.radarChart.visibility = View.VISIBLE
+                            binding.barChart.visibility = View.INVISIBLE
+                            binding.pieChart.visibility = View.INVISIBLE
+                        }
+
+                        2 -> {
+                            mode = ChartMode.BAR
+                            binding.lineChart.visibility = View.INVISIBLE
+                            binding.radarChart.visibility = View.INVISIBLE
+                            binding.barChart.visibility = View.VISIBLE
+                            binding.pieChart.visibility = View.INVISIBLE
+                        }
+
+                        3 -> {
+                            mode = ChartMode.LINE
                             binding.lineChart.visibility = View.VISIBLE
+                            binding.radarChart.visibility = View.INVISIBLE
+                            binding.barChart.visibility = View.INVISIBLE
                             binding.pieChart.visibility = View.INVISIBLE
                         }
                     }
@@ -135,19 +157,14 @@ class DiagramFragment : Fragment() {
 
 
         when (mode) {
-            ChartMode.CATEGORY -> receiptDataViewModel.getChartDataCategory(ago, today)
-            ChartMode.TIMELINE -> receiptDataViewModel.getChartDataTimeline(ago, today)
+            ChartMode.PIE -> receiptDataViewModel.getChartDataCategory(ago, today)
+            ChartMode.RADAR -> receiptDataViewModel.getChartDataCategory(ago, today)
+            ChartMode.BAR -> receiptDataViewModel.getChartDataTimeline(ago, today)
+            ChartMode.LINE -> receiptDataViewModel.getChartDataTimeline(ago, today)
 
         }
     }
 
-    private fun calculateTimelineData(list: ArrayList<PriceByCategory>): ArrayList<ILineDataSet> {
-
-        val categories = list.map { it.category }.toSortedSet()
-        val array: ArrayList<ArrayList<Float>> = chartHelper.createTimelineData(ago, today, list)
-        return chartHelper.convertToLineChart(categories, array)
-
-    }
 
 
     private fun initObserver() {
@@ -155,26 +172,80 @@ class DiagramFragment : Fragment() {
             it?.let {
 
                 when (mode) {
-                    ChartMode.CATEGORY -> {
+                    ChartMode.PIE -> {
                         categoryData.clear()
                         it.forEach {
                             categoryData.add(ChartData(it.category, it.price))
                         }
 
-                        val data = chartHelper.drawPieChart("title", categoryData)
-                        binding.pieChart.data = data
+                        val dataSet = chartHelper.getPieData("title", categoryData)
 
+                        val data = PieData(dataSet)
+                        data.setValueFormatter(PercentFormatter())
+                        data.setValueTextSize(11f)
+                        data.setValueTextColor(Color.WHITE)
+
+                        binding.pieChart.data = data
                         binding.pieChart.highlightValues(null)
                         binding.pieChart.invalidate()
                     }
 
-                    ChartMode.TIMELINE -> {
+                    ChartMode.RADAR -> {
+                        categoryData.clear()
+                        it.forEach {
+                            categoryData.add(ChartData(it.category, it.price))
+                        }
+
+                        val dataSet = chartHelper.getRadarData("title", categoryData)
+
+                        val data = RadarData(dataSet)
+                        data.setValueFormatter(PercentFormatter())
+                        data.setValueTextSize(11f)
+                        data.setValueTextColor(Color.WHITE)
+
+                        binding.radarChart.data = data
+
+                        binding.radarChart.highlightValues(null)
+                        binding.radarChart.invalidate()
+                    }
+
+                    ChartMode.BAR -> {
+
+                        val categories = it.map { it.category }.toSortedSet()
+                        val dataSet = chartHelper.createTimelineData(ago, today, it)
+                        val dataSets = chartHelper.convertToBarChart(categories, dataSet)
+                        val groupSpace = 0.1f
+                        val barSpace = 0.01f // x2 dataset
+
+                        val barWidth = 0.23f
+
+                        val legendDates = chartHelper.getDateLegend(ago, today)
+
+                        val data = BarData(dataSets)
+
+                        data.setValueTextColor(Color.WHITE)
+                        binding.barChart.setDrawValueAboveBar(true);
+                        binding.barChart.data = data
+
+
+                        binding.barChart.barData.barWidth = barWidth;
+                        binding.barChart.xAxis.valueFormatter = MyXAxisFormatter(legendDates)
+                        binding.barChart.xAxis.setCenterAxisLabels(true);
+                        binding.barChart.setVisibleXRangeMaximum(4F);
+                        binding.barChart.moveViewToX(1F);
+
+                        binding.barChart.groupBars(1F, groupSpace, barSpace);
+                        binding.barChart.invalidate();
+                    }
+
+                    ChartMode.LINE -> {
                         timelineData.clear()
-                        val dataSets = calculateTimelineData(it)
 
+                        val categories = it.map { it.category }.toSortedSet()
+                        val dataSet = chartHelper.createTimelineData(ago, today, it)
+                        val dataSets = chartHelper.convertToLineChart(categories, dataSet)
 
-                        val data = LineData(dataSets)
-                        binding.lineChart.data = data
+                        binding.lineChart.data = LineData(dataSets)
                         binding.lineChart.invalidate()
                         binding.lineChart.description.isEnabled = false
                         binding.lineChart.setNoDataTextColor(Color.WHITE)
@@ -189,6 +260,7 @@ class DiagramFragment : Fragment() {
                         binding.lineChart.axisLeft.enableGridDashedLine(10f, 20f, 10f)
                         binding.lineChart.axisRight.enableGridDashedLine(10f, 20f, 10f)
                     }
+
                 }
             }
         }
