@@ -35,8 +35,13 @@ class ReceiptListFragment : Fragment(), ItemClickListener {
     private var calendarDateFrom = Calendar.getInstance()
     private var calendarDateTo = Calendar.getInstance()
 
+    var dateFrom = ""
+    var dateTo = ""
+    var text = ""
+
+
     override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
+        inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?,
     ): View {
         _binding = FragmentReceiptListBinding.inflate(inflater, container, false)
         return binding.root
@@ -63,20 +68,37 @@ class ReceiptListFragment : Fragment(), ItemClickListener {
             LinearLayoutManager(requireContext(), LinearLayoutManager.VERTICAL, false)
 
         binding.storeInput.doOnTextChanged { text, _, _, _ ->
-            receiptDataViewModel.refreshReceiptList(text.toString())
+            this.text = text.toString()
+            refreshList()
+
         }
         binding.dateBetweenLayout.setEndIconOnClickListener {
             showDatePicker()
+            refreshList()
         }
         binding.dateBetweenInput.setOnClickListener {
             showDatePicker()
+            refreshList()
         }
         binding.storeLayout.setStartIconOnClickListener {
             binding.storeInput.setText("")
+            text = ""
+            refreshList()
             receiptDataViewModel.refreshReceiptList("")
         }
         binding.dateBetweenLayout.setStartIconOnClickListener {
             binding.dateBetweenInput.setText("")
+            dateTo = ""
+            dateFrom = ""
+            refreshList()
+        }
+    }
+
+    private fun refreshList() {
+        if (dateTo == "" && dateFrom == "") {
+            receiptDataViewModel.refreshReceiptList(text)
+        } else {
+            receiptDataViewModel.refreshReceiptList(text, dateFrom, dateTo)
         }
     }
 
@@ -96,9 +118,9 @@ class ReceiptListFragment : Fragment(), ItemClickListener {
         dateRangePicker.addOnPositiveButtonClickListener {
             calendarDateFrom.timeInMillis = it.first
             calendarDateTo.timeInMillis = it.second
-            val dateFrom = SimpleDateFormat("dd-MM-yyyy", Locale.getDefault())
+            dateFrom = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
                 .format(calendarDateFrom.time)
-            val dateTo = SimpleDateFormat("dd-MM-yyyy", Locale.getDefault())
+            dateTo = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
                 .format(calendarDateTo.time)
             binding.dateBetweenInput.setText("$dateFrom - $dateTo")
         }

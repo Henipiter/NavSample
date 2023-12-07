@@ -61,8 +61,16 @@ interface ReceiptDao {
     suspend fun getAllStores(): List<Store>
 
     @Transaction
-    @Query("SELECT r.id as id, storeId, nip, name, pln, ptu, date, time  FROM receipt r, store s WHERE s.id = r.storeId AND s.name LIKE '%' || :name || '%'")
+    @Query("SELECT r.id as id, storeId, nip, name, pln, ptu, date, time  FROM receipt r, store s WHERE s.id = r.storeId AND s.name LIKE '%' || :name || '%' ORDER BY date DESC")
     suspend fun getReceiptWithStore(name: String): List<ReceiptWithStore>
+
+    @Transaction
+    @Query("SELECT r.id as id, storeId, nip, name, pln, ptu, date, time  FROM receipt r, store s WHERE s.id = r.storeId AND s.name LIKE '%' || :name || '%' and r.date >= :dateFrom and r.date <= :dateTo ORDER BY date DESC")
+    suspend fun getReceiptWithStore(
+        name: String,
+        dateFrom: String,
+        dateTo: String,
+    ): List<ReceiptWithStore>
 
     @Transaction
     @Query("SELECT * FROM category")

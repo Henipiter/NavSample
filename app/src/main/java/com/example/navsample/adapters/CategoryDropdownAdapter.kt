@@ -20,7 +20,7 @@ class CategoryDropdownAdapter(
             false
         )
         binding.root.tag = binding
-        binding.text1.text = categoryList[position].name
+        binding.name.text = categoryList[position].name
         return binding.root
     }
 }

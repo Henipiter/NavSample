@@ -224,7 +224,15 @@ class ImageAnalyzer {
             valuePLN =
                 rawValuePLN?.let { Regex(regexPrice).find(it)?.value }?.replace("\\s".toRegex(), "")
         }
-        valueDate = Regex(regexDate).find(lineList)?.value?.replace("\\s".toRegex(), "")
+        valueDate =
+            Regex(regexDate).find(lineList)?.value?.replace("\\s".toRegex(), "")?.replace(".", "-")
+        if (valueDate != null) {
+            val splitDate = valueDate!!.split("-")
+            if (splitDate[2].length == 4) {
+                valueDate = splitDate[2] + "-" + splitDate[1] + "-" + splitDate[0]
+            }
+        }
+
         valueTime = Regex(regexTime).find(lineList)?.value?.replace("\\s".toRegex(), "")
 
         companyName = lineList.split("\n")[0]

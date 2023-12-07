@@ -40,8 +40,8 @@ class EditStoreFragment : Fragment() {
             binding.storeNameInput.setText(it.name)
             binding.storeNIPInput.setText(it.nip)
             actualNIP = it.nip ?: ""
-            changeViewToDisplayMode()
         }
+        receiptDataViewModel.store.value = null
 
 
         if (receiptDataViewModel.savedStore.value != null) {

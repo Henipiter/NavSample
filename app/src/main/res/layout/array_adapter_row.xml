@@ -12,13 +12,20 @@
         app:layout_constraintTop_toTopOf="parent">
 
         <TextView
-            android:id="@android:id/text1"
+            android:id="@+id/nip"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textAlignment="center"
+            android:textSize="11sp" />
+
+        <TextView
+            android:id="@+id/name"
             style="?android:attr/spinnerItemStyle"
-            android:padding="15dp"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:ellipsize="marquee"
-            android:singleLine="true"
+            android:padding="15dp"
+            android:singleLine="false"
             android:textAlignment="inherit" />
     </androidx.cardview.widget.CardView>
 

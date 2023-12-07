@@ -20,7 +20,8 @@ class StoreDropdownAdapter(
             false
         )
         binding.root.tag = binding
-        binding.text1.text = storeList[position].name
+        binding.name.text = storeList[position].name
+        binding.nip.text = storeList[position].nip
         return binding.root
     }
 }

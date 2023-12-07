@@ -92,12 +92,22 @@ class ReceiptDataViewModel : ViewModel() {
     fun insertReceipt(newReceipt: Receipt) {
         viewModelScope.launch {
             dao?.let {
+                newReceipt.date = convertDateFormat(newReceipt.date)
                 val rowId = dao.insertReceipt(newReceipt)
                 newReceipt.id = dao.getReceiptId(rowId)
             }
             savedReceipt.value = newReceipt
             Log.e("DAO RECEIPT", newReceipt.id.toString())
         }
+    }
+
+    private fun convertDateFormat(date: String): String {
+        val date = date.replace(".", "-")
+        val splitDate = date.split("-")
+        if (splitDate[2].length == 4) {
+            return splitDate[2] + "-" + splitDate[1] + "-" + splitDate[0]
+        }
+        return date
     }
 
     fun insertStore(store: Store) {
@@ -137,6 +147,18 @@ class ReceiptDataViewModel : ViewModel() {
         }
     }
 
+    fun getStoreByNip(nip: String) {
+        viewModelScope.launch {
+            try {
+                dao?.let {
+                    savedStore.postValue(dao.getStoreByNip(nip))
+                }
+            } catch (e: Exception) {
+                Log.e("Insert store to DB", e.message.toString())
+            }
+        }
+    }
+
     fun updateStore(store: Store) {
         viewModelScope.launch(Dispatchers.IO) {
             dao?.let {
@@ -150,6 +172,13 @@ class ReceiptDataViewModel : ViewModel() {
         viewModelScope.launch {
             receiptList.postValue(
                 dao?.getReceiptWithStore(name)?.let { ArrayList(it) })
+        }
+    }
+
+    fun refreshReceiptList(name: String, dateFrom: String, dateTo: String) {
+        viewModelScope.launch {
+            receiptList.postValue(
+                dao?.getReceiptWithStore(name, dateFrom, dateTo)?.let { ArrayList(it) })
         }
     }
 

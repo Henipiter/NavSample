@@ -4,6 +4,8 @@ import com.example.navsample.entities.relations.PriceByCategory
 import org.junit.jupiter.api.Assertions.assertAll
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.params.ParameterizedTest
+import org.junit.jupiter.params.provider.CsvSource
 
 class ChartHelperTest {
 
@@ -45,4 +47,18 @@ class ChartHelperTest {
 
     }
 
+
+    @ParameterizedTest
+    @CsvSource("2022-02-01", "2022.02.01", "01-02-2022", "01.02.2022")
+    fun ee(date: String) {
+        val date = date.replace(".", "-")
+        val splitDate = date.split("-")
+        var result = date
+        if (splitDate[0].length == 4) {
+            result = splitDate[2] + "-" + splitDate[1] + "-" + splitDate[0]
+        }
+        assertEquals("01-02-2022", result)
+
+
+    }
 }

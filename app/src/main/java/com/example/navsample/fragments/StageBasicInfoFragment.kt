@@ -38,9 +38,6 @@ class StageBasicInfoFragment : Fragment() {
 
     private var mode = DataMode.NEW
     private var pickedStore: Store? = null
-
-    private var isCreatedFromViewAnalyzer = false
-
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?,
     ): View {
@@ -51,9 +48,6 @@ class StageBasicInfoFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        if (receiptDataViewModel.store.value != null) {
-            isCreatedFromViewAnalyzer = true
-        }
         initObserver()
 
         binding.storeNIPInput.isEnabled = false
@@ -86,14 +80,6 @@ class StageBasicInfoFragment : Fragment() {
     private fun setStoreDataToInputs(store: Store) {
         binding.storeNIPInput.setText(store.nip)
         binding.storeNameInput.setText(store.name)
-
-        if (!isCorrectNIP(receiptDataViewModel.savedStore.value?.nip)) {
-            binding.storeNIPLayout.error = "Bad NIP"
-            binding.storeNIPLayout.helperText = null
-        } else {
-            binding.storeNIPLayout.error = null
-            binding.storeNIPLayout.helperText = "Correct NIP"
-        }
     }
 
     private fun setReceiptDataToInputs(receipt: ReceiptDTO) {
@@ -111,22 +97,34 @@ class StageBasicInfoFragment : Fragment() {
                 }
             }
         }
-        receiptDataViewModel.storeList.observe(viewLifecycleOwner) {
-            it?.let {
+        receiptDataViewModel.storeList.observe(viewLifecycleOwner) { storeList ->
+            storeList?.let {
                 StoreDropdownAdapter(
-                    requireContext(), R.layout.array_adapter_row, it
+                    requireContext(), R.layout.array_adapter_row, storeList
                 ).also { adapter ->
                     binding.storeNameInput.setAdapter(adapter)
                 }
             }
-            if (isCreatedFromViewAnalyzer) {
-                val readNIP = receiptDataViewModel.store.value?.nip ?: ""
-                if (!it.map { it.nip }.contains(readNIP)) {
-                    Navigation.findNavController(requireView())
-                        .navigate(R.id.action_stageBasicInfoFragment_to_editStoreFragment)
-                }
+            if (storeList != null) {
+                receiptDataViewModel.store.value?.let {
+                    binding.storeNIPInput.setText(it.nip)
+                    binding.storeNameInput.setText(it.name)
 
+                    val readNIP = it.nip ?: ""
+                    val indexOfStore = storeList.map { it.nip }.indexOf(readNIP)
+                    if (indexOfStore < 0) {
+                        Navigation.findNavController(requireView())
+                            .navigate(R.id.action_stageBasicInfoFragment_to_editStoreFragment)
+                    } else {
+                        pickedStore = storeList[indexOfStore]
+                        binding.storeNameInput.setText(storeList[indexOfStore].name)
+                        binding.storeNIPInput.setText(storeList[indexOfStore].nip)
+                        binding.storeNameInput.isEnabled = false
+
+                    }
+                }
             }
+
 
         }
         receiptDataViewModel.savedStore.observe(viewLifecycleOwner) {
@@ -281,7 +279,6 @@ class StageBasicInfoFragment : Fragment() {
             binding.storeNameInput.setText(store.name)
             binding.storeNIPInput.setText(store.nip)
             binding.storeNameInput.isEnabled = false
-            binding.storeNIPLayout.error = null
 
         }
         binding.addProductsButton.setOnClickListener {
@@ -302,7 +299,6 @@ class StageBasicInfoFragment : Fragment() {
                 binding.storeNIPInput.setText(pickedStore?.nip ?: "")
                 binding.storeNameInput.setText(pickedStore?.name ?: "")
                 binding.storeNameInput.isEnabled = false
-                binding.storeNIPLayout.error = null
                 binding.saveChangesButton.isEnabled = true
             }
 
@@ -319,18 +315,6 @@ class StageBasicInfoFragment : Fragment() {
         binding.receiptTimeInput.setOnClickListener {
             showTimePicker()
         }
-    }
-
-    private fun isCorrectNIP(valueNIP: String?): Boolean {
-        if (valueNIP == null || !Regex("""[0-9]{10}""").matches(valueNIP)) {
-            return false
-        }
-        val weight = arrayOf(6, 5, 7, 2, 3, 4, 5, 6, 7)
-        var sum = 0
-        for (i in 0..8) {
-            sum += valueNIP[i].digitToInt() * weight[i]
-        }
-        return sum % 11 == valueNIP[9].digitToInt()
     }
 
     private fun showTimePicker() {
@@ -356,7 +340,7 @@ class StageBasicInfoFragment : Fragment() {
 
         datePicker.addOnPositiveButtonClickListener {
             calendarDate.timeInMillis = it
-            val date = SimpleDateFormat("dd.MM.yyyy", Locale.getDefault()).format(calendarDate.time)
+            val date = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(calendarDate.time)
             binding.receiptDateInput.setText(date)
         }
     }
