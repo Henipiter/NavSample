@@ -137,7 +137,7 @@ class DiagramFragment : Fragment() {
         binding.pieChart.setEntryLabelTextSize(12f)
 
 
-        binding.lineChart.resetTracking();
+        binding.lineChart.resetTracking()
         val l1 = binding.lineChart.legend
         l1.verticalAlignment = Legend.LegendVerticalAlignment.BOTTOM
         l1.horizontalAlignment = Legend.LegendHorizontalAlignment.RIGHT
@@ -215,27 +215,23 @@ class DiagramFragment : Fragment() {
                         val dataSet = chartHelper.createTimelineData(ago, today, it)
                         val dataSets = chartHelper.convertToBarChart(categories, dataSet)
                         val groupSpace = 0.1f
-                        val barSpace = 0.01f // x2 dataset
-
+                        val barSpace = 0.01f
                         val barWidth = 0.23f
-
                         val legendDates = chartHelper.getDateLegend(ago, today)
 
                         val data = BarData(dataSets)
-
                         data.setValueTextColor(Color.WHITE)
-                        binding.barChart.setDrawValueAboveBar(true);
+                        binding.barChart.setDrawValueAboveBar(true)
                         binding.barChart.data = data
 
-
-                        binding.barChart.barData.barWidth = barWidth;
+                        binding.barChart.barData.barWidth = barWidth
                         binding.barChart.xAxis.valueFormatter = MyXAxisFormatter(legendDates)
-                        binding.barChart.xAxis.setCenterAxisLabels(true);
-                        binding.barChart.setVisibleXRangeMaximum(4F);
-                        binding.barChart.moveViewToX(1F);
+                        binding.barChart.xAxis.setCenterAxisLabels(true)
+                        binding.barChart.setVisibleXRangeMaximum(4F)
+                        binding.barChart.moveViewToX(1F)
 
-                        binding.barChart.groupBars(1F, groupSpace, barSpace);
-                        binding.barChart.invalidate();
+                        binding.barChart.groupBars(1F, groupSpace, barSpace)
+                        binding.barChart.invalidate()
                     }
 
                     ChartMode.LINE -> {
@@ -255,7 +251,7 @@ class DiagramFragment : Fragment() {
                         binding.lineChart.xAxis.textColor = Color.WHITE
                         binding.lineChart.axisLeft.textColor = Color.WHITE
                         binding.lineChart.axisRight.textColor = Color.WHITE
-                        binding.lineChart.getDescription().setTextColor(Color.WHITE);
+                        binding.lineChart.description.textColor = Color.WHITE
                         binding.lineChart.xAxis.enableGridDashedLine(10f, 20f, 10f)
                         binding.lineChart.axisLeft.enableGridDashedLine(10f, 20f, 10f)
                         binding.lineChart.axisRight.enableGridDashedLine(10f, 20f, 10f)

@@ -1,6 +1,5 @@
 package com.example.navsample
 
-import android.util.Log
 import com.example.navsample.DTO.ProductDTO
 
 class ReceiptParser {
@@ -24,7 +23,7 @@ class ReceiptParser {
             if (parsedProduct.name != "---" || parsedProduct.finalPrice != "---") {
                 productList.add(parsedProduct)
             }
-            Log.i("ImageProcess", "${data}\n${parsedProduct}")
+//            Log.i("ImageProcess", "${data}\n${parsedProduct}")
 
         }
         return productList
@@ -120,10 +119,11 @@ class ReceiptParser {
         return ReceiptElement("", -1, -1)
     }
 
-    fun findPtuType(productInfo: String): ReceiptElement {
+    fun findPtuType(productInformation: String): ReceiptElement {
+        val productInfo = productInformation.replace("\\s*".toRegex(), "")
         try {
             for (i in productInfo.length - 1 downTo productInfo.length - 3) {
-                if (productInfo[i].isLetterOrDigit() && (productInfo[i - 3] == ',' || productInfo[i - 3] == '.')) {
+                if (productInfo[i].isLetterOrDigit()) {
                     return ReceiptElement(productInfo[i].toString(), i, i)
                 }
             }
