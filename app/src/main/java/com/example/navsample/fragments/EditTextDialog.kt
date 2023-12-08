@@ -5,7 +5,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.DialogFragment
-import com.example.navsample.databinding.EditTextDialogBinding
+import com.example.navsample.databinding.DialogEditTextBinding
 
 class EditTextDialog(
     var text: String,
@@ -13,13 +13,13 @@ class EditTextDialog(
     var onEndClick: () -> Unit,
     var returnChange: (String) -> Unit
 ) : DialogFragment() {
-    private var _binding: EditTextDialogBinding? = null
+    private var _binding: DialogEditTextBinding? = null
 
     private val binding get() = _binding!!
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
     ): View {
-        _binding = EditTextDialogBinding.inflate(inflater, container, false)
+        _binding = DialogEditTextBinding.inflate(inflater, container, false)
         return binding.root
     }
 

@@ -1,6 +1,7 @@
 package com.example.navsample.entities
 
 import androidx.room.Dao
+import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
@@ -25,6 +26,28 @@ interface ReceiptDao {
 
     @Insert(onConflict = OnConflictStrategy.IGNORE)
     suspend fun insertCategory(category: Category)
+
+    @Delete
+    suspend fun deleteStore(store: Store)
+
+    @Delete
+    suspend fun deleteReceipt(receipt: Receipt)
+
+    @Transaction
+    @Query("delete from receipt where id = :id")
+    suspend fun deleteReceiptById(id: Int)
+
+    @Transaction
+    @Query("delete from product where id in (select p.id from product p, receipt r  where p.receiptId = r.id   and r.id = :id)")
+    suspend fun deleteProductsOfReceipt(id: Int)
+
+    @Transaction
+    @Query("delete from receipt where id in  (select r.id from receipt r, store s where s.id = r.storeId and s.id = :id)")
+    suspend fun deleteReceiptsOfStore(id: Int)
+
+    @Transaction
+    @Query("delete from product where id in (select p.id from product p, receipt r, store s where p.receiptId = r.id and s.id = r.storeId and s.id = :id)")
+    suspend fun deleteProductsOfStore(id: Int)
 
     @Insert(onConflict = OnConflictStrategy.ABORT)
     suspend fun insertStore(store: Store): Long

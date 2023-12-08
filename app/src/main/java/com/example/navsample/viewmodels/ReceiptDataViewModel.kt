@@ -36,6 +36,7 @@ class ReceiptDataViewModel : ViewModel() {
     lateinit var experimentalOriginal: MutableLiveData<ArrayList<ExperimentalAdapterArgument>>
 
     lateinit var chartData: MutableLiveData<ArrayList<PriceByCategory>>
+
     init {
         clearData()
     }
@@ -195,6 +196,22 @@ class ReceiptDataViewModel : ViewModel() {
             storeList.postValue(dao?.getAllStores()?.let { ArrayList(it) })
         }
     }
+
+    fun deleteStore(store: Store) {
+        viewModelScope.launch {
+            dao?.deleteProductsOfStore(store.id!!)
+            dao?.deleteReceiptsOfStore(store.id!!)
+            dao?.deleteStore(store)
+        }
+    }
+
+    fun deleteReceipt(receiptId: Int) {
+        viewModelScope.launch {
+            dao?.deleteProductsOfReceipt(receiptId)
+            dao?.deleteReceiptById(receiptId)
+        }
+    }
+
 
     fun refreshProductList(receiptId: Int) {
         viewModelScope.launch {

@@ -45,9 +45,23 @@ class StoreListFragment : Fragment(), ItemClickListener {
             requireContext(),
             receiptDataViewModel.storeList.value ?: arrayListOf(), this
         ) { i: Int ->
-            receiptDataViewModel.receiptList.value?.removeAt(i)
-            storeListAdapter.storeList = receiptDataViewModel.storeList.value ?: arrayListOf()
-            storeListAdapter.notifyItemRemoved(i)
+
+            receiptDataViewModel.storeList.value?.get(i)?.let {
+
+                DeleteConfirmationDialog(
+                    "Are you sure you want to delete the store with dependent receipts and" +
+                            " products??\n\n" + "Name: " + it.name + "\nNIP: " + it.nip
+                ) {
+                    receiptDataViewModel.deleteStore(it)
+                    receiptDataViewModel.storeList.value?.removeAt(i)
+                    storeListAdapter.storeList =
+                        receiptDataViewModel.storeList.value ?: arrayListOf()
+                    storeListAdapter.notifyItemRemoved(i)
+                }.show(childFragmentManager, "TAG")
+
+
+            }
+
         }
         recyclerViewEvent.adapter = storeListAdapter
         recyclerViewEvent.layoutManager =
