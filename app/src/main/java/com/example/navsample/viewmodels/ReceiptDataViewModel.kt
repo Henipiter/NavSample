@@ -80,7 +80,11 @@ class ReceiptDataViewModel : ViewModel() {
         viewModelScope.launch {
             dao?.let {
                 products.forEach { product ->
-                    dao.insertProduct(product)
+                    if (product.id < 1) {
+                        dao.insertProduct(product)
+                    } else {
+                        dao.updateProduct(product)
+                    }
                 }
             }
         }
@@ -212,6 +216,12 @@ class ReceiptDataViewModel : ViewModel() {
         }
     }
 
+    fun deleteProduct(productId: Int) {
+        viewModelScope.launch {
+            dao?.deleteProductById(productId)
+        }
+    }
+
 
     fun refreshProductList(receiptId: Int) {
         viewModelScope.launch {
@@ -256,18 +266,18 @@ class ReceiptDataViewModel : ViewModel() {
         val newProducts = ArrayList<Product>()
         val receiptId = savedReceipt.value?.id ?: receipt.value?.id ?: -1
         product.value?.forEach { productDTO ->
-            newProducts.add(
-                Product(
-                    receiptId,
-                    productDTO.name.toString(),
-                    getCategoryId(productDTO.category.toString()),
-                    transformToFloat(productDTO.amount.toString()),
-                    transformToFloat(productDTO.itemPrice.toString()),
-                    transformToFloat(productDTO.finalPrice.toString()),
-                    productDTO.ptuType.toString(),
-                    productDTO.original.toString()
-                )
+            val newProduct = Product(
+                receiptId,
+                productDTO.name.toString(),
+                getCategoryId(productDTO.category.toString()),
+                transformToFloat(productDTO.amount.toString()),
+                transformToFloat(productDTO.itemPrice.toString()),
+                transformToFloat(productDTO.finalPrice.toString()),
+                productDTO.ptuType.toString(),
+                productDTO.original.toString()
             )
+            newProduct.id = productDTO.id
+            newProducts.add(newProduct)
         }
         savedProduct.value = newProducts
     }

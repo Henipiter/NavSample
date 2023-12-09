@@ -83,20 +83,20 @@ class MainActivity : AppCompatActivity() {
                 Product(3, "CebulaZolta Luz", 1, 0.08F, 4.99F, 0.4F, "D", "")
             )
         )
-        receiptDataViewModel.insertReceipt(Receipt(4, 8.24F, 0.61F, "2023-09-18", "19:54"))
+        receiptDataViewModel.insertReceipt(Receipt(4, 12.24F, 0.01F, "2023-09-18", "19:54"))
         receiptDataViewModel.insertProducts(
             listOf(
                 Product(4, "IBUPROM 200MG 10 TABL POWL 8%", 2, 1F, 8.24F, 3.59F, "D", ""),
             )
         )
-        receiptDataViewModel.insertReceipt(Receipt(5, 8.24F, 0.61F, "2023-08-18", "19:54"))
+        receiptDataViewModel.insertReceipt(Receipt(5, 8.24F, 0.59F, "2023-08-18", "19:54"))
         receiptDataViewModel.insertProducts(
             listOf(
                 Product(5, "KAPIELOWKI", 7, 1F, 89.99F, 89.99F, "D", ""),
                 Product(5, "BUTY BIEGANIE", 7, 1F, 299.99F, 299.99F, "D", ""),
             )
         )
-        receiptDataViewModel.insertReceipt(Receipt(5, 8.24F, 0.61F, "2023-07-18", "19:54"))
+        receiptDataViewModel.insertReceipt(Receipt(5, 98.24F, 0.61F, "2023-07-18", "19:54"))
         receiptDataViewModel.insertProducts(
             listOf(
                 Product(6, "KAPIELOWKI", 7, 1F, 89.99F, 89.99F, "D", ""),

@@ -24,6 +24,9 @@ interface ReceiptDao {
     @Update
     suspend fun updateReceipt(receipt: Receipt)
 
+    @Update
+    suspend fun updateProduct(product: Product)
+
     @Insert(onConflict = OnConflictStrategy.IGNORE)
     suspend fun insertCategory(category: Category)
 
@@ -32,6 +35,13 @@ interface ReceiptDao {
 
     @Delete
     suspend fun deleteReceipt(receipt: Receipt)
+
+    @Delete
+    suspend fun deleteProduct(product: Product)
+
+    @Transaction
+    @Query("delete from product where id = :id")
+    suspend fun deleteProductById(id: Int)
 
     @Transaction
     @Query("delete from receipt where id = :id")

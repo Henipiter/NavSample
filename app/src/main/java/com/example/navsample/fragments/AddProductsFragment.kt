@@ -94,9 +94,20 @@ class AddProductsFragment : Fragment(), ItemClickListener {
             requireContext(),
             receiptDataViewModel.product.value ?: arrayListOf(), this
         ) { i: Int ->
-            receiptDataViewModel.product.value?.removeAt(i)
-            productListAdapter.productList = receiptDataViewModel.product.value ?: arrayListOf()
-            productListAdapter.notifyDataSetChanged()
+            receiptDataViewModel.product.value?.get(i)?.let {
+                DeleteConfirmationDialog(
+                    "Are you sure you want to delete the product??\n\n"
+                            + "Name: " + it.name + "\nPLN: " + it.finalPrice
+                ) {
+                    if (it.id >= 0) {
+                        receiptDataViewModel.deleteProduct(it.id)
+                    }
+                    receiptDataViewModel.product.value?.removeAt(i)
+                    productListAdapter.productList =
+                        receiptDataViewModel.product.value ?: arrayListOf()
+                    productListAdapter.notifyDataSetChanged()
+                }.show(childFragmentManager, "TAG")
+            }
         }
 
         initObserver()
