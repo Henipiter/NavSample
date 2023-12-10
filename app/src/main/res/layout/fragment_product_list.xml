@@ -32,6 +32,32 @@
         </com.google.android.material.textfield.TextInputLayout>
 
         <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/price_between_layout"
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:layout_marginHorizontal="32dp"
+            android:hint="Price range"
+            app:startIconDrawable="@drawable/clear"
+            app:endIconDrawable="@drawable/price"
+            app:endIconMode="custom"
+            app:layout_constraintTop_toBottomOf="@id/store_layout"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent">
+
+            <AutoCompleteTextView
+                android:id="@+id/price_between_input"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:focusable="false"
+                android:focusableInTouchMode="false"
+                android:inputType="date"
+                android:padding="13dp"
+                tools:ignore="LabelFor" />
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/date_between_layout"
             style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
             android:layout_width="0dp"
@@ -42,7 +68,7 @@
             app:startIconDrawable="@drawable/clear"
             app:endIconDrawable="@drawable/date"
             app:endIconMode="custom"
-            app:layout_constraintTop_toBottomOf="@id/store_layout"
+            app:layout_constraintTop_toBottomOf="@id/price_between_layout"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent">
 
@@ -58,11 +84,8 @@
         </com.google.android.material.textfield.TextInputLayout>
 
 
-
-
-
         <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/recycler_view_event_receipts"
+            android:id="@+id/recycler_view_event_products"
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:layout_marginTop="32dp"

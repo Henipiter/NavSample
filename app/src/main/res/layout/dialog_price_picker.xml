@@ -4,74 +4,87 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    tools:context=".fragments.listing.ReceiptListFragment">
+    tools:context=".fragments.dialogs.PricePickerDialog">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
         <com.google.android.material.textfield.TextInputLayout
-            android:id="@+id/store_layout"
-            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
-            android:layout_width="match_parent"
+            android:id="@+id/lower_price_layout"
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginHorizontal="32dp"
             android:layout_marginTop="32dp"
-            android:hint="Store"
             app:startIconDrawable="@drawable/clear"
+            android:hint="Lower price"
+            app:errorEnabled="true"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent">
 
             <AutoCompleteTextView
-                android:id="@+id/store_input"
+                android:id="@+id/lower_price_input"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:inputType="textCapCharacters"
+                android:inputType="numberDecimal"
                 tools:ignore="LabelFor" />
         </com.google.android.material.textfield.TextInputLayout>
 
         <com.google.android.material.textfield.TextInputLayout
-            android:id="@+id/date_between_layout"
+            android:id="@+id/higher_price_layout"
             style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginTop="20dp"
             android:layout_marginHorizontal="32dp"
-            android:hint="Date range"
+            android:hint="Higher price"
+            app:errorEnabled="true"
             app:startIconDrawable="@drawable/clear"
-            app:endIconDrawable="@drawable/date"
-            app:endIconMode="custom"
-            app:layout_constraintTop_toBottomOf="@id/store_layout"
+            app:layout_constraintTop_toBottomOf="@id/lower_price_layout"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent">
 
             <AutoCompleteTextView
-                android:id="@+id/date_between_input"
+                android:id="@+id/higher_price_input"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:focusable="false"
-                android:focusableInTouchMode="false"
-                android:inputType="date"
+                android:inputType="numberDecimal"
                 android:padding="13dp"
                 tools:ignore="LabelFor" />
         </com.google.android.material.textfield.TextInputLayout>
 
-
-
-
-
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/recycler_view_event_receipts"
-            android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_marginTop="32dp"
-            android:paddingHorizontal="16dp"
+        <Space
+            android:id="@+id/center"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/date_between_layout"
-            app:layout_constraintVertical_bias="0.0"
-            tools:layout_editor_absoluteX="0dp" />
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <Button
+            android:id="@+id/confirm_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Confirm"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="@id/center"
+            app:layout_constraintTop_toTopOf="@+id/cancel_button" />
+
+        <Button
+            android:id="@+id/cancel_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="32dp"
+            android:text="Cancel"
+            app:layout_constraintEnd_toEndOf="@id/center"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/higher_price_layout" />
+
 
     </androidx.constraintlayout.widget.ConstraintLayout>
+
 
 </FrameLayout>

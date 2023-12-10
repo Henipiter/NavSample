@@ -36,11 +36,11 @@ class MenuFragment : Fragment() {
         }
         binding.showReceipt.setOnClickListener {
             Navigation.findNavController(it)
-                .navigate(R.id.action_menuFragment_to_receiptListFragment)
+                .navigate(R.id.action_menuFragment_to_listingFragment)
         }
         binding.showStores.setOnClickListener {
-            Navigation.findNavController(it)
-                .navigate(R.id.action_menuFragment_to_storeListFragment)
+
+
         }
         binding.recycleViewTest.setOnClickListener {
             Navigation.findNavController(it)

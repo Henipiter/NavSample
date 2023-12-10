@@ -118,6 +118,37 @@ interface ReceiptDao {
     suspend fun getAllProducts(receiptId: Int): List<Product>
 
     @Transaction
+    @Query(
+        "select p.* from product p, receipt r, store s " +
+                "where p.receiptId = r.id and s.id =r.storeId " +
+                "and s.name like '%'||:storeName||'%' " +
+                "and r.date >= :dateFrom and r.date <= :dateTo " +
+                "and p.finalPrice >= :lowerPrice and p.finalPrice <=:higherPrice"
+    )
+    suspend fun getAllProducts(
+        storeName: String,
+        dateFrom: String,
+        dateTo: String,
+        lowerPrice: Float,
+        higherPrice: Float,
+    ): List<Product>
+
+    @Transaction
+    @Query(
+        "select p.* from product p, receipt r, store s " +
+                "where p.receiptId = r.id and s.id =r.storeId " +
+                "and s.name like '%'||:storeName||'%' " +
+                "and r.date >= :dateFrom and r.date <= :dateTo " +
+                "and p.finalPrice >= :lowerPrice"
+    )
+    suspend fun getAllProducts(
+        storeName: String,
+        dateFrom: String,
+        dateTo: String,
+        lowerPrice: Float,
+    ): List<Product>
+
+    @Transaction
     @Query("SELECT * FROM product WHERE id = :id")
 //    @Query("SELECT * FROM product p, category c WHERE p.id = :id AND p.categoryId = c.id")
     suspend fun getCategoryWithProduct(id: Int): List<ProductWithCategory>

@@ -1,4 +1,4 @@
-package com.example.navsample.fragments
+package com.example.navsample.fragments.dialogs
 
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -8,8 +8,8 @@ import androidx.fragment.app.DialogFragment
 import com.example.navsample.databinding.DialogConfirmBinding
 
 class DeleteConfirmationDialog(
-    var details: String,
-    var onConfirmClick: () -> Unit,
+    private var details: String,
+    private var onConfirmClick: () -> Unit,
 ) : DialogFragment() {
     private var _binding: DialogConfirmBinding? = null
 

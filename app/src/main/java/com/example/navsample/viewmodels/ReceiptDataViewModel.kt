@@ -26,8 +26,8 @@ class ReceiptDataViewModel : ViewModel() {
 
     lateinit var savedStore: MutableLiveData<Store>
     lateinit var savedReceipt: MutableLiveData<Receipt>
-    lateinit var savedProduct: MutableLiveData<ArrayList<Product>>
 
+    lateinit var productList: MutableLiveData<ArrayList<Product>>
     lateinit var receiptList: MutableLiveData<ArrayList<ReceiptWithStore>>
     lateinit var categoryList: MutableLiveData<ArrayList<Category>>
     lateinit var storeList: MutableLiveData<ArrayList<Store>>
@@ -48,8 +48,8 @@ class ReceiptDataViewModel : ViewModel() {
 
         savedStore = MutableLiveData<Store>(null)
         savedReceipt = MutableLiveData<Receipt>(null)
-        savedProduct = MutableLiveData<ArrayList<Product>>(null)
 
+        productList = MutableLiveData<ArrayList<Product>>(null)
         receiptList = MutableLiveData<ArrayList<ReceiptWithStore>>(null)
         categoryList = MutableLiveData<ArrayList<Category>>(null)
         storeList = MutableLiveData<ArrayList<Store>>(null)
@@ -91,7 +91,7 @@ class ReceiptDataViewModel : ViewModel() {
     }
 
     fun insertProducts() {
-        savedProduct.value?.let { insertProducts(it) }
+        productList.value?.let { insertProducts(it) }
     }
 
     fun insertReceipt(newReceipt: Receipt) {
@@ -223,15 +223,43 @@ class ReceiptDataViewModel : ViewModel() {
     }
 
 
-    fun refreshProductList(receiptId: Int) {
+    fun refreshProductList(
+        storeName: String,
+        dateFrom: String,
+        dateTo: String,
+        lowerPrice: Float,
+        higherPrice: Float,
+    ) {
         viewModelScope.launch {
-            savedProduct.postValue(dao?.getAllProducts(receiptId)?.let { ArrayList(it) })
+            productList.postValue(
+                dao?.getAllProducts(
+                    storeName,
+                    dateFrom,
+                    dateTo,
+                    lowerPrice,
+                    higherPrice
+                )?.let { ArrayList(it) })
+            convertProductsToDTO()
+        }
+    }
+
+
+    fun refreshProductList(
+        storeName: String,
+        dateFrom: String,
+        dateTo: String,
+        lowerPrice: Float,
+    ) {
+        viewModelScope.launch {
+            productList.postValue(
+                dao?.getAllProducts(storeName, dateFrom, dateTo, lowerPrice)?.let { ArrayList(it) })
+            convertProductsToDTO()
         }
     }
 
     fun refreshProductListWithConversion(receiptId: Int) {
         viewModelScope.launch {
-            savedProduct.postValue(dao?.getAllProducts(receiptId)?.let { ArrayList(it) })
+            productList.postValue(dao?.getAllProducts(receiptId)?.let { ArrayList(it) })
             convertProductsToDTO()
         }
     }
@@ -244,7 +272,7 @@ class ReceiptDataViewModel : ViewModel() {
 
     fun convertProductsToDTO() {
         val newProductDTOs = ArrayList<ProductDTO>()
-        savedProduct.value?.forEach { product ->
+        productList.value?.forEach { product ->
             newProductDTOs.add(
                 ProductDTO(
                     product.id,
@@ -279,7 +307,7 @@ class ReceiptDataViewModel : ViewModel() {
             newProduct.id = productDTO.id
             newProducts.add(newProduct)
         }
-        savedProduct.value = newProducts
+        productList.value = newProducts
     }
 
 

@@ -25,6 +25,9 @@
         <action
             android:id="@+id/action_menuFragment_to_diagramFragment"
             app:destination="@id/diagramFragment" />
+        <action
+            android:id="@+id/action_menuFragment_to_listingFragment"
+            app:destination="@id/listingFragment" />
     </fragment>
     <fragment
         android:id="@+id/shopListFragment"
@@ -98,7 +101,7 @@
     </fragment>
     <fragment
         android:id="@+id/receiptListFragment"
-        android:name="com.example.navsample.fragments.ReceiptListFragment"
+        android:name="com.example.navsample.fragments.listing.ReceiptListFragment"
         android:label="fragment_receipt_list"
         tools:layout="@layout/fragment_receipt_list">
         <action
@@ -112,7 +115,7 @@
         tools:layout="@layout/fragment_experiment_recycle" />
     <fragment
         android:id="@+id/storeListFragment"
-        android:name="com.example.navsample.fragments.StoreListFragment"
+        android:name="com.example.navsample.fragments.listing.StoreListFragment"
         android:label="fragment_store_list"
         tools:layout="@layout/fragment_store_list">
         <action
@@ -134,4 +137,9 @@
         android:name="com.example.navsample.fragments.DiagramFragment"
         android:label="fragment_diagram"
         tools:layout="@layout/fragment_diagram" />
+    <fragment
+        android:id="@+id/listingFragment"
+        android:name="com.example.navsample.fragments.listing.ListingFragment"
+        android:label="fragment_listing"
+        tools:layout="@layout/fragment_listing" />
 </navigation>

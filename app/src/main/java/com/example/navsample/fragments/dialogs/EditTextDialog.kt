@@ -1,4 +1,4 @@
-package com.example.navsample.fragments
+package com.example.navsample.fragments.dialogs
 
 import android.os.Bundle
 import android.view.LayoutInflater
