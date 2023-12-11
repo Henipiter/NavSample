@@ -1,4 +1,4 @@
-package com.example.navsample.fragments
+package com.example.navsample.fragments.saving
 
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -10,12 +10,12 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.navigation.Navigation
 import com.example.navsample.DTO.DataMode
-import com.example.navsample.databinding.FragmentEditStoreBinding
+import com.example.navsample.databinding.FragmentAddStoreBinding
 import com.example.navsample.entities.Store
 import com.example.navsample.viewmodels.ReceiptDataViewModel
 
-class EditStoreFragment : Fragment() {
-    private var _binding: FragmentEditStoreBinding? = null
+class AddStoreFragment : Fragment() {
+    private var _binding: FragmentAddStoreBinding? = null
     private val binding get() = _binding!!
     private val receiptDataViewModel: ReceiptDataViewModel by activityViewModels()
 
@@ -26,7 +26,7 @@ class EditStoreFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?,
     ): View {
-        _binding = FragmentEditStoreBinding.inflate(inflater, container, false)
+        _binding = FragmentAddStoreBinding.inflate(inflater, container, false)
         return binding.root
     }
 
@@ -92,8 +92,6 @@ class EditStoreFragment : Fragment() {
             binding.storeNIPInput.setText(receiptDataViewModel.savedStore.value?.nip)
             binding.storeNameInput.setText(receiptDataViewModel.savedStore.value?.name)
         }
-
-        receiptDataViewModel.refreshStoreList()
 
     }
 

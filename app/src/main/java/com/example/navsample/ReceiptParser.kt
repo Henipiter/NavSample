@@ -12,7 +12,7 @@ class ReceiptParser {
 
 
     fun parseToProducts(
-        sortedProductListOnRecipe: MutableList<String>
+        sortedProductListOnRecipe: MutableList<String>,
     ): ArrayList<ProductDTO> {
         //SORTOWANIE LISTY PRODUKTOW PO Y
 

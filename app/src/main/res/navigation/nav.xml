@@ -17,12 +17,6 @@
             android:id="@+id/action_menuFragment_to_experimentRecycleFragment"
             app:destination="@id/experimentRecycleFragment" />
         <action
-            android:id="@+id/action_menuFragment_to_receiptListFragment"
-            app:destination="@id/receiptListFragment" />
-        <action
-            android:id="@+id/action_menuFragment_to_storeListFragment"
-            app:destination="@id/storeListFragment" />
-        <action
             android:id="@+id/action_menuFragment_to_diagramFragment"
             app:destination="@id/diagramFragment" />
         <action
@@ -30,15 +24,15 @@
             app:destination="@id/listingFragment" />
     </fragment>
     <fragment
-        android:id="@+id/shopListFragment"
-        android:name="com.example.navsample.fragments.AddProductsFragment"
+        android:id="@+id/addProductListFragment"
+        android:name="com.example.navsample.fragments.saving.AddProductListFragment"
         android:label="fragment_shop_list"
-        tools:layout="@layout/fragment_add_products">
+        tools:layout="@layout/fragment_add_product_list">
         <action
-            android:id="@+id/action_shopListFragment_to_addProductFragment"
+            android:id="@+id/action_addProductListFragment_to_addProductFragment"
             app:destination="@id/addProductFragment" />
         <action
-            android:id="@+id/action_shopListFragment_to_experimentRecycleFragment"
+            android:id="@+id/action_addProductListFragment_to_experimentRecycleFragment"
             app:destination="@id/experimentRecycleFragment" />
     </fragment>
     <fragment
@@ -52,28 +46,25 @@
     </fragment>
     <fragment
         android:id="@+id/addProductFragment"
-        android:name="com.example.navsample.fragments.AddSingleProductFragment"
+        android:name="com.example.navsample.fragments.saving.AddProductFragment"
         android:label="fragment_add_product"
-        tools:layout="@layout/fragment_add_single_product">
+        tools:layout="@layout/fragment_add_product">
         <argument
             android:name="productIndex"
             app:argType="integer"
             android:defaultValue="-1" />
     </fragment>
     <fragment
-        android:id="@+id/stageBasicInfoFragment"
-        android:name="com.example.navsample.fragments.StageBasicInfoFragment"
+        android:id="@+id/addReceiptFragment"
+        android:name="com.example.navsample.fragments.saving.AddReceiptFragment"
         android:label="fragment_stage_basic_info"
-        tools:layout="@layout/fragment_stage_basic_info">
+        tools:layout="@layout/fragment_add_receipt">
         <action
-            android:id="@+id/action_stageBasicInfoFragment_to_shopListFragment"
-            app:destination="@id/shopListFragment" />
+            android:id="@+id/action_addReceiptFragment_to_addProductListFragment"
+            app:destination="@id/addProductListFragment" />
         <action
-            android:id="@+id/action_stageBasicInfoFragment_to_editStore"
-            app:destination="@id/storeListFragment" />
-        <action
-            android:id="@+id/action_stageBasicInfoFragment_to_editStoreFragment"
-            app:destination="@id/editStoreFragment" />
+            android:id="@+id/action_addReceiptFragment_to_editStoreFragment"
+            app:destination="@id/addStoreFragment" />
     </fragment>
     <fragment
         android:id="@+id/imageImportFragment"
@@ -84,8 +75,8 @@
             android:id="@+id/action_imageImportFragment_to_cameraFragment"
             app:destination="@id/cameraFragment" />
         <action
-            android:id="@+id/action_imageImportFragment_to_stageBasicInfoFragment"
-            app:destination="@id/stageBasicInfoFragment" />
+            android:id="@+id/action_imageImportFragment_to_addReceiptFragment"
+            app:destination="@id/addReceiptFragment" />
         <action
             android:id="@+id/action_imageImportFragment_to_cropFragment"
             app:destination="@id/cropFragment" />
@@ -100,33 +91,15 @@
             app:destination="@id/imageImportFragment" />
     </fragment>
     <fragment
-        android:id="@+id/receiptListFragment"
-        android:name="com.example.navsample.fragments.listing.ReceiptListFragment"
-        android:label="fragment_receipt_list"
-        tools:layout="@layout/fragment_receipt_list">
-        <action
-            android:id="@+id/action_storeListFragment_to_stageBasicInfoFragment"
-            app:destination="@id/stageBasicInfoFragment" />
-    </fragment>
-    <fragment
         android:id="@+id/experimentRecycleFragment"
         android:name="com.example.navsample.fragments.ExperimentRecycleFragment"
         android:label="fragment_experiment_recycle"
         tools:layout="@layout/fragment_experiment_recycle" />
     <fragment
-        android:id="@+id/storeListFragment"
-        android:name="com.example.navsample.fragments.listing.StoreListFragment"
-        android:label="fragment_store_list"
-        tools:layout="@layout/fragment_store_list">
-        <action
-            android:id="@+id/action_storeListFragment_to_editStoreFragment"
-            app:destination="@id/editStoreFragment" />
-    </fragment>
-    <fragment
-        android:id="@+id/editStoreFragment"
-        android:name="com.example.navsample.fragments.EditStoreFragment"
+        android:id="@+id/addStoreFragment"
+        android:name="com.example.navsample.fragments.saving.AddStoreFragment"
         android:label="fragment_edit_store"
-        tools:layout="@layout/fragment_edit_store">
+        tools:layout="@layout/fragment_add_store">
         <argument
             android:name="storeIndex"
             android:defaultValue="-1"
@@ -141,5 +114,22 @@
         android:id="@+id/listingFragment"
         android:name="com.example.navsample.fragments.listing.ListingFragment"
         android:label="fragment_listing"
-        tools:layout="@layout/fragment_listing" />
+        tools:layout="@layout/fragment_listing">
+        <action
+            android:id="@+id/action_listingFragment_to_addReceiptFragment"
+            app:destination="@id/addReceiptFragment" />
+        <action
+            android:id="@+id/action_listingFragment_to_addStoreFragment"
+            app:destination="@id/addStoreFragment" />
+        <action
+            android:id="@+id/action_listingFragment_to_addCategoryFragment"
+            app:destination="@id/addCategoryFragment" />
+        <action
+            android:id="@+id/action_listingFragment_to_addProductFragment"
+            app:destination="@id/addProductFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/addCategoryFragment"
+        android:name="com.example.navsample.fragments.saving.AddCategoryFragment"
+        android:label="AddCategoryFragment" />
 </navigation>

@@ -1,4 +1,4 @@
-package com.example.navsample.fragments
+package com.example.navsample.fragments.saving
 
 
 import android.graphics.BitmapFactory
@@ -21,8 +21,8 @@ import com.example.navsample.DTO.ExperimentalAdapterArgument
 import com.example.navsample.ImageAnalyzer
 import com.example.navsample.ItemClickListener
 import com.example.navsample.R
-import com.example.navsample.adapters.ProductListAdapter
-import com.example.navsample.databinding.FragmentAddProductsBinding
+import com.example.navsample.adapters.ProductDTOListAdapter
+import com.example.navsample.databinding.FragmentAddProductListBinding
 import com.example.navsample.fragments.dialogs.DeleteConfirmationDialog
 import com.example.navsample.viewmodels.ReceiptDataViewModel
 import com.example.navsample.viewmodels.ReceiptImageViewModel
@@ -30,21 +30,21 @@ import com.google.mlkit.vision.common.InputImage
 
 
 @ExperimentalGetImage
-class AddProductsFragment : Fragment(), ItemClickListener {
+class AddProductListFragment : Fragment(), ItemClickListener {
 
-    private var _binding: FragmentAddProductsBinding? = null
+    private var _binding: FragmentAddProductListBinding? = null
     private val binding get() = _binding!!
 
     private val receiptImageViewModel: ReceiptImageViewModel by activityViewModels()
     private val receiptDataViewModel: ReceiptDataViewModel by activityViewModels()
 
     private lateinit var recyclerViewEvent: RecyclerView
-    private lateinit var productListAdapter: ProductListAdapter
+    private lateinit var productListAdapter: ProductDTOListAdapter
 
     override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
+        inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?,
     ): View {
-        _binding = FragmentAddProductsBinding.inflate(inflater, container, false)
+        _binding = FragmentAddProductListBinding.inflate(inflater, container, false)
         return binding.root
     }
 
@@ -91,7 +91,7 @@ class AddProductsFragment : Fragment(), ItemClickListener {
         }
 
         recyclerViewEvent = binding.recyclerViewEvent
-        productListAdapter = ProductListAdapter(
+        productListAdapter = ProductDTOListAdapter(
             requireContext(),
             receiptDataViewModel.product.value ?: arrayListOf(), this
         ) { i: Int ->
@@ -124,12 +124,12 @@ class AddProductsFragment : Fragment(), ItemClickListener {
 
         binding.reorderButton.setOnClickListener {
             Navigation.findNavController(it)
-                .navigate(R.id.action_shopListFragment_to_experimentRecycleFragment)
+                .navigate(R.id.action_addProductListFragment_to_experimentRecycleFragment)
         }
 
         binding.addNewButton.setOnClickListener {
             Navigation.findNavController(it)
-                .navigate(R.id.action_shopListFragment_to_addProductFragment)
+                .navigate(R.id.action_addProductListFragment_to_addProductFragment)
         }
         binding.confirmButton.setOnClickListener {
             receiptDataViewModel.convertDTOToProduct()
@@ -168,10 +168,11 @@ class AddProductsFragment : Fragment(), ItemClickListener {
         )
     }
 
-    override fun onItemClick(productIndex: Int) {
-
+    override fun onItemClick(index: Int) {
         val action =
-            AddProductsFragmentDirections.actionShopListFragmentToAddProductFragment(productIndex)
+            AddProductListFragmentDirections.actionAddProductListFragmentToAddProductFragment(
+                index
+            )
         Navigation.findNavController(requireView()).navigate(action)
 
     }

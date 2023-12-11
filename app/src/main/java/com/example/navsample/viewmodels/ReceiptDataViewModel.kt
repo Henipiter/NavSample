@@ -23,9 +23,11 @@ class ReceiptDataViewModel : ViewModel() {
     lateinit var store: MutableLiveData<StoreDTO?>
     lateinit var receipt: MutableLiveData<ReceiptDTO?>
     lateinit var product: MutableLiveData<ArrayList<ProductDTO>>
+    lateinit var category: MutableLiveData<Category?>
 
     lateinit var savedStore: MutableLiveData<Store>
     lateinit var savedReceipt: MutableLiveData<Receipt>
+    lateinit var savedCategory: MutableLiveData<Category>
 
     lateinit var productList: MutableLiveData<ArrayList<Product>>
     lateinit var receiptList: MutableLiveData<ArrayList<ReceiptWithStore>>
@@ -45,9 +47,11 @@ class ReceiptDataViewModel : ViewModel() {
         store = MutableLiveData<StoreDTO?>(null)
         receipt = MutableLiveData<ReceiptDTO?>(null)
         product = MutableLiveData<ArrayList<ProductDTO>>(ArrayList())
+        category = MutableLiveData<Category?>(null)
 
         savedStore = MutableLiveData<Store>(null)
         savedReceipt = MutableLiveData<Receipt>(null)
+        savedCategory = MutableLiveData<Category>(null)
 
         productList = MutableLiveData<ArrayList<Product>>(null)
         receiptList = MutableLiveData<ArrayList<ReceiptWithStore>>(null)
@@ -106,6 +110,17 @@ class ReceiptDataViewModel : ViewModel() {
         }
     }
 
+    fun insertCategory(newCategory: Category) {
+        viewModelScope.launch {
+            dao?.let {
+                val rowId = dao.insertCategory(newCategory)
+                newCategory.id = dao.getCategoryId(rowId)
+            }
+            savedCategory.value = newCategory
+            Log.e("DAO RECEIPT", newCategory.id.toString())
+        }
+    }
+
     private fun convertDateFormat(date: String): String {
         val date = date.replace(".", "-")
         val splitDate = date.split("-")
@@ -137,6 +152,15 @@ class ReceiptDataViewModel : ViewModel() {
                 dao.updateReceipt(newReceipt)
             }
             savedReceipt.postValue(newReceipt)
+        }
+    }
+
+    fun updateCategory(newCategory: Category) {
+        viewModelScope.launch {
+            dao?.let {
+                dao.updateCategory(newCategory)
+            }
+            savedCategory.postValue(newCategory)
         }
     }
 
@@ -209,6 +233,12 @@ class ReceiptDataViewModel : ViewModel() {
         }
     }
 
+    fun deleteCategory(category: Category) {
+        viewModelScope.launch {
+            dao?.deleteCategory(category)
+        }
+    }
+
     fun deleteReceipt(receiptId: Int) {
         viewModelScope.launch {
             dao?.deleteProductsOfReceipt(receiptId)
@@ -225,6 +255,7 @@ class ReceiptDataViewModel : ViewModel() {
 
     fun refreshProductList(
         storeName: String,
+        categoryName: String,
         dateFrom: String,
         dateTo: String,
         lowerPrice: Float,
@@ -234,6 +265,7 @@ class ReceiptDataViewModel : ViewModel() {
             productList.postValue(
                 dao?.getAllProducts(
                     storeName,
+                    categoryName,
                     dateFrom,
                     dateTo,
                     lowerPrice,
@@ -243,16 +275,25 @@ class ReceiptDataViewModel : ViewModel() {
         }
     }
 
+    fun refreshProductList() {
+        viewModelScope.launch {
+            productList.postValue(
+                dao?.getAllProducts("", "", "0", "9", 0F)?.let { ArrayList(it) })
+            convertProductsToDTO()
+        }
+    }
 
     fun refreshProductList(
         storeName: String,
+        categoryName: String,
         dateFrom: String,
         dateTo: String,
         lowerPrice: Float,
     ) {
         viewModelScope.launch {
             productList.postValue(
-                dao?.getAllProducts(storeName, dateFrom, dateTo, lowerPrice)?.let { ArrayList(it) })
+                dao?.getAllProducts(storeName, categoryName, dateFrom, dateTo, lowerPrice)
+                    ?.let { ArrayList(it) })
             convertProductsToDTO()
         }
     }

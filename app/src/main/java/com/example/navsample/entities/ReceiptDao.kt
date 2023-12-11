@@ -8,7 +8,6 @@ import androidx.room.Query
 import androidx.room.Transaction
 import androidx.room.Update
 import com.example.navsample.entities.relations.PriceByCategory
-import com.example.navsample.entities.relations.ProductWithCategory
 import com.example.navsample.entities.relations.ReceiptWithProducts
 import com.example.navsample.entities.relations.ReceiptWithStore
 
@@ -28,7 +27,10 @@ interface ReceiptDao {
     suspend fun updateProduct(product: Product)
 
     @Insert(onConflict = OnConflictStrategy.IGNORE)
-    suspend fun insertCategory(category: Category)
+    suspend fun insertCategory(category: Category): Long
+
+    @Update
+    suspend fun updateCategory(category: Category)
 
     @Delete
     suspend fun deleteStore(store: Store)
@@ -38,6 +40,9 @@ interface ReceiptDao {
 
     @Delete
     suspend fun deleteProduct(product: Product)
+
+    @Delete
+    suspend fun deleteCategory(category: Category)
 
     @Transaction
     @Query("delete from product where id = :id")
@@ -76,6 +81,10 @@ interface ReceiptDao {
     @Transaction
     @Query("SELECT id FROM store WHERE rowId = :rowId")
     suspend fun getStoreId(rowId: Long): Int
+
+    @Transaction
+    @Query("SELECT id FROM category WHERE rowId = :rowId")
+    suspend fun getCategoryId(rowId: Long): Int
 
     @Transaction
     @Query("SELECT * FROM receipt WHERE id = :id")
@@ -119,14 +128,16 @@ interface ReceiptDao {
 
     @Transaction
     @Query(
-        "select p.* from product p, receipt r, store s " +
+        "select p.* from product p, receipt r, store s, category c " +
                 "where p.receiptId = r.id and s.id =r.storeId " +
                 "and s.name like '%'||:storeName||'%' " +
+                "and c.name like '%'||:categoryName||'%' " +
                 "and r.date >= :dateFrom and r.date <= :dateTo " +
                 "and p.finalPrice >= :lowerPrice and p.finalPrice <=:higherPrice"
     )
     suspend fun getAllProducts(
         storeName: String,
+        categoryName: String,
         dateFrom: String,
         dateTo: String,
         lowerPrice: Float,
@@ -135,23 +146,25 @@ interface ReceiptDao {
 
     @Transaction
     @Query(
-        "select p.* from product p, receipt r, store s " +
-                "where p.receiptId = r.id and s.id =r.storeId " +
+        "select p.* from product p, receipt r, store s, category c " +
+                "where p.receiptId = r.id and s.id =r.storeId and p.categoryId = c.id " +
                 "and s.name like '%'||:storeName||'%' " +
+                "and c.name like '%'||:categoryName||'%' " +
                 "and r.date >= :dateFrom and r.date <= :dateTo " +
                 "and p.finalPrice >= :lowerPrice"
     )
     suspend fun getAllProducts(
         storeName: String,
+        categoryName: String,
         dateFrom: String,
         dateTo: String,
         lowerPrice: Float,
     ): List<Product>
 
-    @Transaction
-    @Query("SELECT * FROM product WHERE id = :id")
-//    @Query("SELECT * FROM product p, category c WHERE p.id = :id AND p.categoryId = c.id")
-    suspend fun getCategoryWithProduct(id: Int): List<ProductWithCategory>
+//    @Transaction
+//    @Query("SELECT * FROM product WHERE id = :id")
+////    @Query("SELECT * FROM product p, category c WHERE p.id = :id AND p.categoryId = c.id")
+//    suspend fun getCategoryWithProduct(id: Int): List<ProductWithCategory>
 
     //charts
     @Transaction

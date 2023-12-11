@@ -4,19 +4,18 @@ import android.content.Context
 import android.graphics.Color
 import android.view.LayoutInflater
 import android.view.ViewGroup
-import android.widget.Toast
 import androidx.recyclerview.widget.RecyclerView
 import com.example.navsample.DTO.ProductDTO
 import com.example.navsample.ItemClickListener
 import com.example.navsample.databinding.ProductRowBinding
 import kotlin.math.roundToInt
 
-class ProductListAdapter(
+class ProductDTOListAdapter(
     var context: Context,
     var productList: ArrayList<ProductDTO>,
     var itemClickListener: ItemClickListener,
-    var onDelete: (Int) -> Unit
-) : RecyclerView.Adapter<ProductListAdapter.MyViewHolder>() {
+    var onDelete: (Int) -> Unit,
+) : RecyclerView.Adapter<ProductDTOListAdapter.MyViewHolder>() {
     var position = 0
 
     class MyViewHolder(val binding: ProductRowBinding) : RecyclerView.ViewHolder(binding.root)
@@ -38,7 +37,6 @@ class ProductListAdapter(
             itemClickListener.onItemClick(position)
         }
         holder.binding.mainLayout.setOnLongClickListener {
-            Toast.makeText(context, "EE", Toast.LENGTH_SHORT).show()
             onDelete.invoke(position)
             true
         }

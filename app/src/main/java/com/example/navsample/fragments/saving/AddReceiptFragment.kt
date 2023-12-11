@@ -1,4 +1,4 @@
-package com.example.navsample.fragments
+package com.example.navsample.fragments.saving
 
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -13,7 +13,7 @@ import com.example.navsample.DTO.DataMode
 import com.example.navsample.DTO.ReceiptDTO
 import com.example.navsample.R
 import com.example.navsample.adapters.StoreDropdownAdapter
-import com.example.navsample.databinding.FragmentStageBasicInfoBinding
+import com.example.navsample.databinding.FragmentAddReceiptBinding
 import com.example.navsample.entities.Receipt
 import com.example.navsample.entities.Store
 import com.example.navsample.viewmodels.ReceiptDataViewModel
@@ -26,8 +26,8 @@ import java.util.Calendar
 import java.util.Locale
 
 
-class StageBasicInfoFragment : Fragment() {
-    private var _binding: FragmentStageBasicInfoBinding? = null
+class AddReceiptFragment : Fragment() {
+    private var _binding: FragmentAddReceiptBinding? = null
     private val binding get() = _binding!!
     private val receiptImageViewModel: ReceiptImageViewModel by activityViewModels()
     private val receiptDataViewModel: ReceiptDataViewModel by activityViewModels()
@@ -41,7 +41,7 @@ class StageBasicInfoFragment : Fragment() {
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?,
     ): View {
-        _binding = FragmentStageBasicInfoBinding.inflate(inflater, container, false)
+        _binding = FragmentAddReceiptBinding.inflate(inflater, container, false)
         return binding.root
     }
 
@@ -114,7 +114,7 @@ class StageBasicInfoFragment : Fragment() {
                     val indexOfStore = storeList.map { it.nip }.indexOf(readNIP)
                     if (indexOfStore < 0) {
                         Navigation.findNavController(requireView())
-                            .navigate(R.id.action_stageBasicInfoFragment_to_editStoreFragment)
+                            .navigate(R.id.action_addReceiptFragment_to_editStoreFragment)
                     } else {
                         pickedStore = storeList[indexOfStore]
                         binding.storeNameInput.setText(storeList[indexOfStore].name)
@@ -228,7 +228,7 @@ class StageBasicInfoFragment : Fragment() {
         }
         binding.storeNIPLayout.setEndIconOnClickListener {
             Navigation.findNavController(it)
-                .navigate(R.id.action_stageBasicInfoFragment_to_editStoreFragment)
+                .navigate(R.id.action_addReceiptFragment_to_editStoreFragment)
         }
 
         binding.editButton.setOnClickListener {
@@ -287,7 +287,7 @@ class StageBasicInfoFragment : Fragment() {
             }
 
             val action =
-                StageBasicInfoFragmentDirections.actionStageBasicInfoFragmentToShopListFragment()
+                AddReceiptFragmentDirections.actionAddReceiptFragmentToAddProductListFragment()
             Navigation.findNavController(it).navigate(action)
         }
         binding.storeNIPLayout.setStartIconOnClickListener {

@@ -6,7 +6,8 @@ import androidx.room.PrimaryKey
 
 @Entity(indices = [Index(value = ["name"], unique = true)])
 data class Category(
-    var name: String
+    var name: String,
+    var color: String,
 ) {
     @PrimaryKey(autoGenerate = false)
     var id: Int? = null

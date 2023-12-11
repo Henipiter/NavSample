@@ -46,9 +46,7 @@ class StoreListFragment : Fragment(), ItemClickListener {
             requireContext(),
             receiptDataViewModel.storeList.value ?: arrayListOf(), this
         ) { i: Int ->
-
             receiptDataViewModel.storeList.value?.get(i)?.let {
-
                 DeleteConfirmationDialog(
                     "Are you sure you want to delete the store with dependent receipts and" +
                             " products??\n\n" + "Name: " + it.name + "\nNIP: " + it.nip
@@ -59,10 +57,7 @@ class StoreListFragment : Fragment(), ItemClickListener {
                         receiptDataViewModel.storeList.value ?: arrayListOf()
                     storeListAdapter.notifyItemRemoved(i)
                 }.show(childFragmentManager, "TAG")
-
-
             }
-
         }
         recyclerViewEvent.adapter = storeListAdapter
         recyclerViewEvent.layoutManager =
@@ -70,17 +65,17 @@ class StoreListFragment : Fragment(), ItemClickListener {
 
         binding.newButton.setOnClickListener {
             val action =
-                StoreListFragmentDirections.actionStoreListFragmentToEditStoreFragment()
+                ListingFragmentDirections.actionListingFragmentToAddStoreFragment()
             Navigation.findNavController(requireView()).navigate(action)
         }
     }
 
-    override fun onItemClick(storeIndex: Int) {
-        val store = receiptDataViewModel.storeList.value!![storeIndex]
+    override fun onItemClick(index: Int) {
+        val store = receiptDataViewModel.storeList.value!![index]
         receiptDataViewModel.savedStore.value = store
         receiptDataViewModel.store.value = StoreDTO(store.name, store.nip)
         val action =
-            StoreListFragmentDirections.actionStoreListFragmentToEditStoreFragment()
+            ListingFragmentDirections.actionListingFragmentToAddStoreFragment()
         Navigation.findNavController(requireView()).navigate(action)
 
     }

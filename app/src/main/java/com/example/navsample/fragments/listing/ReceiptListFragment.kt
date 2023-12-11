@@ -180,6 +180,6 @@ class ReceiptListFragment : Fragment(), ItemClickListener {
         }
 
         Navigation.findNavController(binding.root)
-            .navigate(R.id.action_storeListFragment_to_stageBasicInfoFragment)
+            .navigate(R.id.action_listingFragment_to_addReceiptFragment)
     }
 }

@@ -14,11 +14,11 @@ import androidx.navigation.Navigation
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.navsample.ItemClickListener
-import com.example.navsample.adapters.ProductListAdapter
+import com.example.navsample.adapters.ProductDTOListAdapter
 import com.example.navsample.databinding.FragmentProductListBinding
-import com.example.navsample.fragments.AddProductsFragmentDirections
 import com.example.navsample.fragments.dialogs.DeleteConfirmationDialog
 import com.example.navsample.fragments.dialogs.PricePickerDialog
+import com.example.navsample.fragments.saving.AddProductListFragmentDirections
 import com.example.navsample.viewmodels.ReceiptDataViewModel
 import com.google.android.material.datepicker.MaterialDatePicker
 import java.text.SimpleDateFormat
@@ -31,7 +31,7 @@ class ProductListFragment : Fragment(), ItemClickListener {
     private val receiptDataViewModel: ReceiptDataViewModel by activityViewModels()
 
     private lateinit var recyclerViewEvent: RecyclerView
-    private lateinit var productListAdapter: ProductListAdapter
+    private lateinit var productListAdapter: ProductDTOListAdapter
 
     private var lowerPrice = ""
     private var higherPrice = ""
@@ -56,7 +56,7 @@ class ProductListFragment : Fragment(), ItemClickListener {
         binding.priceBetweenInput.setText("-")
 
         recyclerViewEvent = binding.recyclerViewEventProducts
-        productListAdapter = ProductListAdapter(
+        productListAdapter = ProductDTOListAdapter(
             requireContext(),
             receiptDataViewModel.product.value ?: arrayListOf(), this
 
@@ -83,11 +83,11 @@ class ProductListFragment : Fragment(), ItemClickListener {
 
         refreshList()
         receiptDataViewModel.refreshStoreList()
+        receiptDataViewModel.refreshCategoryList()
 
         binding.storeInput.doOnTextChanged { text, _, _, _ ->
             this.text = text.toString()
             refreshList()
-
         }
         binding.priceBetweenLayout.setEndIconOnClickListener {
             showPricePicker()
@@ -107,6 +107,12 @@ class ProductListFragment : Fragment(), ItemClickListener {
         }
         binding.storeLayout.setStartIconOnClickListener {
             binding.storeInput.setText("")
+            text = ""
+            refreshList()
+            receiptDataViewModel.refreshReceiptList("")
+        }
+        binding.categoryNameLayout.setStartIconOnClickListener {
+            binding.categoryNameInput.setText("")
             text = ""
             refreshList()
             receiptDataViewModel.refreshReceiptList("")
@@ -162,7 +168,9 @@ class ProductListFragment : Fragment(), ItemClickListener {
 
     private fun refreshList() {
 
-        val queryStoreName = text
+        val queryStoreName = binding.storeInput.text.toString()
+        val queryCategoryName = binding.categoryNameInput.text.toString()
+
         val queryFromDate = if (dateFrom == "") "0" else dateFrom
         val queryToDate = if (dateTo == "") "9" else dateTo
         val queryLowerPrice = if (lowerPrice == "") 0F else lowerPrice.toFloat()
@@ -170,6 +178,7 @@ class ProductListFragment : Fragment(), ItemClickListener {
         if (higherPrice != "") {
             receiptDataViewModel.refreshProductList(
                 queryStoreName,
+                queryCategoryName,
                 queryFromDate,
                 queryToDate,
                 queryLowerPrice,
@@ -178,6 +187,7 @@ class ProductListFragment : Fragment(), ItemClickListener {
         } else {
             receiptDataViewModel.refreshProductList(
                 queryStoreName,
+                queryCategoryName,
                 queryFromDate,
                 queryToDate,
                 queryLowerPrice
@@ -203,15 +213,24 @@ class ProductListFragment : Fragment(), ItemClickListener {
                 }
             }
         }
+        receiptDataViewModel.categoryList.observe(viewLifecycleOwner) {
+            it?.let {
+                ArrayAdapter(
+                    requireContext(),
+                    android.R.layout.simple_list_item_1,
+                    it.map { it2 -> it2.name }
+                ).also { adapter ->
+                    binding.categoryNameInput.setAdapter(adapter)
+                }
+            }
+        }
     }
 
 
-    override fun onItemClick(productIndex: Int) {
-
+    override fun onItemClick(index: Int) {
         val action =
-            AddProductsFragmentDirections.actionShopListFragmentToAddProductFragment(productIndex)
+            AddProductListFragmentDirections.actionAddProductListFragmentToAddProductFragment(index)
         Navigation.findNavController(requireView()).navigate(action)
-
     }
 
 }

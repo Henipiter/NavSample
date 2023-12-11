@@ -85,7 +85,7 @@ class ChartHelper {
             d.circleRadius = 4f
             d.valueTextColor = Color.WHITE
 
-            val color = ChartColors.COLORS[id % ChartColors.COLORS.size]
+            val color = Color.parseColor(ChartColors.COLORS[id % ChartColors.COLORS.size])
             d.color = color
             d.setCircleColor(color)
             dataSets.add(d)
@@ -112,7 +112,7 @@ class ChartHelper {
             d.valueTextColor = Color.WHITE
 
             val color = ChartColors.COLORS[id % ChartColors.COLORS.size]
-            d.color = color
+            d.color = Color.parseColor(color)
             dataSets.add(d)
         }
         return dataSets
@@ -164,7 +164,7 @@ class ChartHelper {
 
     private fun getColors(): ArrayList<Int> {
         val colors = ArrayList<Int>()
-        for (c in ChartColors.COLORS) colors.add(c)
+        for (c in ChartColors.COLORS) colors.add(Color.parseColor(c))
         colors.add(ColorTemplate.getHoloBlue())
         return colors
     }

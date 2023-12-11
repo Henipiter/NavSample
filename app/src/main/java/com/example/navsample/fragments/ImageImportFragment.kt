@@ -53,7 +53,7 @@ class ImageImportFragment : Fragment() {
 
         binding.manualButton.setOnClickListener {
             val action =
-                ImageImportFragmentDirections.actionImageImportFragmentToStageBasicInfoFragment()
+                ImageImportFragmentDirections.actionImageImportFragmentToAddReceiptFragment()
             Navigation.findNavController(it).navigate(action)
         }
 
@@ -89,7 +89,7 @@ class ImageImportFragment : Fragment() {
                 if(goNext == true){
                     goNext = false
                     val action =
-                        ImageImportFragmentDirections.actionImageImportFragmentToStageBasicInfoFragment()
+                        ImageImportFragmentDirections.actionImageImportFragmentToAddReceiptFragment()
                     Navigation.findNavController(requireView()).navigate(action)
                 }
             }

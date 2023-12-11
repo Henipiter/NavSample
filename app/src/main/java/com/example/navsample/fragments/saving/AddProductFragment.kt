@@ -1,4 +1,4 @@
-package com.example.navsample.fragments
+package com.example.navsample.fragments.saving
 
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -11,22 +11,23 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.navigation.Navigation
 import androidx.navigation.fragment.navArgs
+import com.example.navsample.DTO.ChartColors
 import com.example.navsample.DTO.ProductDTO
 import com.example.navsample.R
 import com.example.navsample.ReceiptParser
 import com.example.navsample.adapters.CategoryDropdownAdapter
-import com.example.navsample.databinding.FragmentAddSingleProductBinding
+import com.example.navsample.databinding.FragmentAddProductBinding
 import com.example.navsample.entities.Category
 import com.example.navsample.viewmodels.ReceiptDataViewModel
 import com.example.navsample.viewmodels.ReceiptImageViewModel
 import kotlin.math.round
 
-class AddSingleProductFragment : Fragment() {
+class AddProductFragment : Fragment() {
 
-    private var _binding: FragmentAddSingleProductBinding? = null
+    private var _binding: FragmentAddProductBinding? = null
     private val binding get() = _binding!!
 
-    private val args: AddSingleProductFragmentArgs by navArgs()
+    private val args: AddProductFragmentArgs by navArgs()
 
     private var ptuTypeList = arrayOf("A", "B", "C", "D", "E", "F", "G")
 
@@ -36,9 +37,9 @@ class AddSingleProductFragment : Fragment() {
     private var productOriginal = ""
 
     override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
+        inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?,
     ): View {
-        _binding = FragmentAddSingleProductBinding.inflate(inflater, container, false)
+        _binding = FragmentAddProductBinding.inflate(inflater, container, false)
         return binding.root
     }
 
@@ -241,7 +242,8 @@ class AddSingleProductFragment : Fragment() {
                 return@setOnClickListener
             }
 
-            val category = Category(binding.productCategoryInput.text.toString())
+            val category =
+                Category(binding.productCategoryInput.text.toString(), ChartColors.COLORS[0])
             if (receiptDataViewModel.categoryList.value?.map { it.name }
                     ?.contains(category.name) == false) {
                 receiptDataViewModel.insertCategoryList(category)

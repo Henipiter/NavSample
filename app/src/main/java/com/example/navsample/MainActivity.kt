@@ -4,6 +4,7 @@ import android.content.SharedPreferences
 import android.os.Bundle
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
+import com.example.navsample.DTO.ChartColors.Companion.COLORS
 import com.example.navsample.entities.Category
 import com.example.navsample.entities.Product
 import com.example.navsample.entities.Receipt
@@ -36,16 +37,16 @@ class MainActivity : AppCompatActivity() {
         receiptDataViewModel.insertStore(Store("SUPER-PHARM", "5252175977"))
         receiptDataViewModel.insertStore(Store("MARTES-SPORT", "0001112223"))
 
-        receiptDataViewModel.insertCategoryList(Category("INNE"))
-        receiptDataViewModel.insertCategoryList(Category("JEDZENIE"))
-        receiptDataViewModel.insertCategoryList(Category("ZDROWIE"))
-        receiptDataViewModel.insertCategoryList(Category("KULTURA"))
-        receiptDataViewModel.insertCategoryList(Category("OPŁATY"))
-        receiptDataViewModel.insertCategoryList(Category("KOSTMETYKI"))
-        receiptDataViewModel.insertCategoryList(Category("SPORT"))
-        receiptDataViewModel.insertCategoryList(Category("MOTORYZACJA"))
-        receiptDataViewModel.insertCategoryList(Category("SPORT"))
-        receiptDataViewModel.insertCategoryList(Category("UBRANIA"))
+        receiptDataViewModel.insertCategoryList(Category("INNE", COLORS[0]))
+        receiptDataViewModel.insertCategoryList(Category("JEDZENIE", COLORS[1]))
+        receiptDataViewModel.insertCategoryList(Category("ZDROWIE", COLORS[2]))
+        receiptDataViewModel.insertCategoryList(Category("KULTURA", COLORS[3]))
+        receiptDataViewModel.insertCategoryList(Category("OPŁATY", COLORS[4]))
+        receiptDataViewModel.insertCategoryList(Category("KOSTMETYKI", COLORS[5]))
+        receiptDataViewModel.insertCategoryList(Category("SPORT", COLORS[6]))
+        receiptDataViewModel.insertCategoryList(Category("MOTORYZACJA", COLORS[7]))
+        receiptDataViewModel.insertCategoryList(Category("SPORT", COLORS[8]))
+        receiptDataViewModel.insertCategoryList(Category("UBRANIA", COLORS[9]))
         receiptDataViewModel.insertReceipt(Receipt(1, 7.79F, 0F, "2023-09-22", "17:33"))
         receiptDataViewModel.insertProducts(
             listOf(
