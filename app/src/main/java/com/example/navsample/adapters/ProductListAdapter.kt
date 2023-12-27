@@ -36,7 +36,7 @@ class ProductListAdapter(
         holder.binding.amount.text = productList[position].amount.toString()
         holder.binding.itemPrice.text = productList[position].itemPrice.toString()
         holder.binding.finalPrice.text = productList[position].finalPrice.toString()
-        holder.binding.productName.text = productList[position].name?.let { trimDescription(it) }
+        holder.binding.productName.text = trimDescription(productList[position].name)
         holder.binding.mainLayout.setOnClickListener {
             itemClickListener.onItemClick(position)
         }

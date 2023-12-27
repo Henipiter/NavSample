@@ -88,7 +88,7 @@ class AddCategoryFragment : Fragment() {
 
 
 
-        binding.colorView.setOnClickListener { v ->
+        binding.colorView.setOnClickListener { _ ->
             colorPicker()
         }
         binding.categoryColorLayout.setStartIconOnClickListener {

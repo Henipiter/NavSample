@@ -43,6 +43,7 @@ class ReceiptDataViewModel : ViewModel() {
     lateinit var chartData: MutableLiveData<ArrayList<PriceByCategory>>
     lateinit var reorderedProductTiles: MutableLiveData<Boolean>
 
+    private val dao = ApplicationContext.context?.let { ReceiptDatabase.getInstance(it).receiptDao }
     init {
         clearData()
     }
@@ -84,7 +85,6 @@ class ReceiptDataViewModel : ViewModel() {
         )
     }
 
-    val dao = ApplicationContext.context?.let { ReceiptDatabase.getInstance(it).receiptDao }
 
     fun insertProducts(products: List<Product>) {
         viewModelScope.launch {
@@ -128,12 +128,12 @@ class ReceiptDataViewModel : ViewModel() {
     }
 
     private fun convertDateFormat(date: String): String {
-        val date = date.replace(".", "-")
-        val splitDate = date.split("-")
+        val newDate = date.replace(".", "-")
+        val splitDate = newDate.split("-")
         if (splitDate[2].length == 4) {
             return splitDate[2] + "-" + splitDate[1] + "-" + splitDate[0]
         }
-        return date
+        return newDate
     }
 
     fun insertStore(store: Store) {
@@ -338,10 +338,10 @@ class ReceiptDataViewModel : ViewModel() {
 
     fun convertDTOToProduct() {
         val newProducts = ArrayList<Product>()
-        val receiptId = savedReceipt.value?.id ?: receipt.value?.id ?: -1
+        val receiptId = savedReceipt.value?.id ?: receipt.value?.id
         product.value?.forEach { productDTO ->
             val newProduct = Product(
-                receiptId,
+                receiptId ?: productDTO.id ?: -1,
                 productDTO.name.toString(),
                 getCategoryId(productDTO.category.toString()),
                 transformToFloat(productDTO.amount.toString()),

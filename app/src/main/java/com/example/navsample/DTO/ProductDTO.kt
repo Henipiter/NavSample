@@ -6,7 +6,7 @@ import kotlinx.parcelize.Parcelize
 @Parcelize
 data class ProductDTO(
     var id: Int?,
-    var receiptId: Int,
+    var receiptId: Int?,
     var name: String?,
     var finalPrice: String?,
     var category: String?,
@@ -17,8 +17,8 @@ data class ProductDTO(
     var original: String?,
 ) : Parcelable {
     constructor() : this(
-        -1,
-        -1,
+        null,
+        null,
         "---",
         "---",
         ChartColors.DEFAULT_CATEGORY_COLOR_STRING,

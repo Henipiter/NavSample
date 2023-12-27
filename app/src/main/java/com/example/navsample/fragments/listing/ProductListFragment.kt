@@ -63,11 +63,11 @@ class ProductListFragment : Fragment(), ItemClickListener {
         ) { i ->
             receiptDataViewModel.product.value?.get(i)?.let {
                 DeleteConfirmationDialog(
-                    "Are you sure you want to delete the product??\n\n"
-                            + "Name: " + it.name + "\nPLN: " + it.finalPrice
+                    "Are you sure you want to delete the product??\n\nName: " + it.name +
+                            "\nPLN: " + it.finalPrice
                 ) {
-                    if (it.id >= 0) {
-                        receiptDataViewModel.deleteProduct(it.id)
+                    if (it.id != null && it.id!! >= 0) {
+                        receiptDataViewModel.deleteProduct(it.id!!)
                     }
                     receiptDataViewModel.productRichList.value?.removeAt(i)
                     productListAdapter.productList =
@@ -117,7 +117,7 @@ class ProductListFragment : Fragment(), ItemClickListener {
             refreshList()
             receiptDataViewModel.refreshReceiptList("")
         }
-        binding.categoryNameInput.doOnTextChanged { text, _, _, _ ->
+        binding.categoryNameInput.doOnTextChanged { _, _, _, _ ->
             refreshList()
         }
         binding.dateBetweenLayout.setStartIconOnClickListener {

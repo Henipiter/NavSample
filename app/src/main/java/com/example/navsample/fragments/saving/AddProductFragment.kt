@@ -33,7 +33,8 @@ class AddProductFragment : Fragment() {
     private val receiptImageViewModel: ReceiptImageViewModel by activityViewModels()
     private val receiptDataViewModel: ReceiptDataViewModel by activityViewModels()
 
-    private var productOriginal = ""
+    private var productOriginalInput = ""
+    private var productOriginal: ProductDTO? = null
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?,
@@ -146,20 +147,21 @@ class AddProductFragment : Fragment() {
         }
 
         if (args.productIndex != -1) {
-            val product = receiptDataViewModel.product.value?.get(args.productIndex)
-            product?.let {
-                binding.productNameInput.setText(product.name)
-                binding.productFinalPriceInput.setText(product.finalPrice.toString())
-                binding.productItemPriceInput.setText(product.itemPrice.toString())
-                binding.productAmountInput.setText(product.amount.toString())
-                binding.ptuTypeInput.setText(product.ptuType.toString())
-                binding.productCategoryInput.setText(product.category)
-                binding.productOriginalInput.setText(product.original)
-                productOriginal = product.original.toString()
+            productOriginal = receiptDataViewModel.product.value?.get(args.productIndex)
+
+            productOriginal?.let {
+                binding.productNameInput.setText(it.name)
+                binding.productFinalPriceInput.setText(it.finalPrice.toString())
+                binding.productItemPriceInput.setText(it.itemPrice.toString())
+                binding.productAmountInput.setText(it.amount.toString())
+                binding.ptuTypeInput.setText(it.ptuType.toString())
+                binding.productCategoryInput.setText(it.category)
+                binding.productOriginalInput.setText(it.original)
+                productOriginalInput = it.original.toString()
 
             }
         }
-        if (productOriginal == "") {
+        if (productOriginalInput == "") {
             binding.productOriginalLayout.visibility = View.INVISIBLE
         }
         binding.productCategoryInput.setOnItemClickListener { adapter, _, i, _ ->
@@ -174,10 +176,10 @@ class AddProductFragment : Fragment() {
         }
 
         binding.productOriginalLayout.setEndIconOnClickListener {
-            binding.productOriginalInput.setText(productOriginal)
+            binding.productOriginalInput.setText(productOriginalInput)
         }
         binding.productNameInput.doOnTextChanged { actual, _, _, _ ->
-            if (productOriginal != "" && !actual.isNullOrEmpty()) {
+            if (productOriginalInput != "" && !actual.isNullOrEmpty()) {
                 binding.productNameLayout.error = null
                 validatePrices()
             }
@@ -227,14 +229,10 @@ class AddProductFragment : Fragment() {
                     binding.productCategoryInput.text.toString(),
                     ChartColors.DEFAULT_CATEGORY_COLOR_STRING
                 )
-            if (receiptDataViewModel.categoryList.value?.map { it.name }
-                    ?.contains(category.name) == false) {
-                receiptDataViewModel.insertCategoryList(category)
-            }
 
             val product = ProductDTO(
-                -1,
-                -1,
+                productOriginal?.id,
+                productOriginal?.receiptId,
                 binding.productNameInput.text.toString(),
                 binding.productFinalPriceInput.text.toString(),
                 category.name,
