@@ -1,8 +1,10 @@
 package com.example.navsample.fragments
 
 import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import android.graphics.Canvas
 import android.graphics.Paint
+import android.net.Uri
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -11,6 +13,10 @@ import androidx.camera.core.ExperimentalGetImage
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.navigation.Navigation
+import com.canhub.cropper.CropImage
+import com.canhub.cropper.CropImageContract
+import com.canhub.cropper.CropImageContractOptions
+import com.canhub.cropper.CropImageOptions
 import com.example.navsample.ImageAnalyzer
 import com.example.navsample.databinding.FragmentImageImportBinding
 import com.example.navsample.viewmodels.ReceiptDataViewModel
@@ -18,6 +24,7 @@ import com.example.navsample.viewmodels.ReceiptImageViewModel
 import com.google.mlkit.vision.common.InputImage
 
 
+@ExperimentalGetImage
 class ImageImportFragment : Fragment() {
 
     private var _binding: FragmentImageImportBinding? = null
@@ -50,7 +57,10 @@ class ImageImportFragment : Fragment() {
             val action = ImageImportFragmentDirections.actionImageImportFragmentToCropFragment()
             Navigation.findNavController(view).navigate(action)
         }
-
+        binding.receiptImageBig.setOnLongClickListener {
+            startCameraWithUri()
+            true
+        }
         binding.manualButton.setOnClickListener {
             val action =
                 ImageImportFragmentDirections.actionImageImportFragmentToAddReceiptFragment()
@@ -127,9 +137,35 @@ class ImageImportFragment : Fragment() {
         stopX: Int,
         stopY: Int,
         canvas: Canvas,
-        paint: Paint
+        paint: Paint,
     ) {
         canvas.drawLine(startX.toFloat(), startY.toFloat(), stopX.toFloat(), stopY.toFloat(), paint)
     }
 
+    private fun startCameraWithUri() {
+        customCropImage.launch(
+            CropImageContractOptions(
+                uri = receiptImageViewModel.uri.value,
+                cropImageOptions = CropImageOptions(
+                    imageSourceIncludeCamera = false,
+                    imageSourceIncludeGallery = false,
+                ),
+            ),
+        )
+    }
+
+    private val customCropImage = registerForActivityResult(CropImageContract()) {
+        if (it !is CropImage.CancelledResult) {
+            handleCropImageResult(it.uriContent)
+        }
+    }
+
+    @ExperimentalGetImage
+    private fun handleCropImageResult(uri: Uri?) {
+        val bitmap = BitmapFactory.decodeStream(uri?.let {
+            requireContext().contentResolver.openInputStream(it)
+        })
+        receiptImageViewModel.bitmap.value = bitmap
+        receiptImageViewModel.setImageUriOriginal()
+    }
 }

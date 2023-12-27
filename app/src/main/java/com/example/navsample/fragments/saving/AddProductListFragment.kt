@@ -63,6 +63,12 @@ class AddProductListFragment : Fragment(), ItemClickListener {
                 productListAdapter.notifyDataSetChanged()
             }
         }
+        receiptDataViewModel.reorderedProductTiles.observe(viewLifecycleOwner) {
+            if (it == true) {
+                receiptDataViewModel.reorderedProductTiles.value = false
+                reorderTilesWithProducts()
+            }
+        }
 
     }
 
@@ -79,6 +85,7 @@ class AddProductListFragment : Fragment(), ItemClickListener {
                 receiptDataViewModel.experimental.value = analyzed
                 receiptDataViewModel.experimentalOriginal.value =
                     analyzed.toMutableList() as ArrayList<ExperimentalAdapterArgument>
+                receiptDataViewModel.reorderedProductTiles.value = true
             }
         }
     }
@@ -100,8 +107,8 @@ class AddProductListFragment : Fragment(), ItemClickListener {
                     "Are you sure you want to delete the product??\n\n"
                             + "Name: " + it.name + "\nPLN: " + it.finalPrice
                 ) {
-                    if (it.id >= 0) {
-                        receiptDataViewModel.deleteProduct(it.id)
+                    if (it.id != null && it.id!! >= 0) {
+                        receiptDataViewModel.deleteProduct(it.id!!)
                     }
                     receiptDataViewModel.product.value?.removeAt(i)
                     productListAdapter.productList =
@@ -123,8 +130,7 @@ class AddProductListFragment : Fragment(), ItemClickListener {
 
 
         binding.reorderButton.setOnClickListener {
-            Navigation.findNavController(it)
-                .navigate(R.id.action_addProductListFragment_to_experimentRecycleFragment)
+            reorderTilesWithProducts()
         }
 
         binding.addNewButton.setOnClickListener {
@@ -143,6 +149,12 @@ class AddProductListFragment : Fragment(), ItemClickListener {
         if (it !is CropImage.CancelledResult) {
             handleCropImageResult(it.uriContent)
         }
+    }
+
+    private fun reorderTilesWithProducts() {
+        Navigation.findNavController(requireView())
+            .navigate(R.id.action_addProductListFragment_to_experimentRecycleFragment)
+
     }
 
     @ExperimentalGetImage

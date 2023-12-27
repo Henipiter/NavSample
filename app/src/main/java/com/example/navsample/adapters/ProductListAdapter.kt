@@ -5,38 +5,37 @@ import android.graphics.Color
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
-import com.example.navsample.DTO.ProductDTO
 import com.example.navsample.ItemClickListener
-import com.example.navsample.databinding.ProductDtoRowBinding
+import com.example.navsample.databinding.ProductRowBinding
+import com.example.navsample.entities.relations.ProductRichData
 import kotlin.math.roundToInt
 
-class ProductDTOListAdapter(
+class ProductListAdapter(
     var context: Context,
-    var productList: ArrayList<ProductDTO>,
+    var productList: ArrayList<ProductRichData>,
     var itemClickListener: ItemClickListener,
     var onDelete: (Int) -> Unit,
-) : RecyclerView.Adapter<ProductDTOListAdapter.MyViewHolder>() {
+) : RecyclerView.Adapter<ProductListAdapter.MyViewHolder>() {
     var position = 0
 
-    class MyViewHolder(val binding: ProductDtoRowBinding) : RecyclerView.ViewHolder(binding.root)
+    class MyViewHolder(val binding: ProductRowBinding) : RecyclerView.ViewHolder(binding.root)
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MyViewHolder {
-        val binding =
-            ProductDtoRowBinding.inflate(LayoutInflater.from(parent.context), parent, false)
+        val binding = ProductRowBinding.inflate(LayoutInflater.from(parent.context), parent, false)
         return MyViewHolder(binding)
     }
 
 
     override fun onBindViewHolder(holder: MyViewHolder, position: Int) {
         this.position = position
-        holder.binding.ptuType.text = productList[position].ptuType.toString()
+        holder.binding.storeName.text = productList[position].storeName
+        holder.binding.receiptDate.text = productList[position].date
+        holder.binding.categoryName.text = productList[position].categoryName
+        holder.binding.categoryColor.setBackgroundColor(Color.parseColor(productList[position].categoryColor))
+        holder.binding.ptuType.text = productList[position].ptuType
         holder.binding.amount.text = productList[position].amount.toString()
         holder.binding.itemPrice.text = productList[position].itemPrice.toString()
         holder.binding.finalPrice.text = productList[position].finalPrice.toString()
-        holder.binding.storeName.text = ""
-        holder.binding.receiptDate.text = ""
-        holder.binding.categoryName.text = productList[position].category.toString()
-        holder.binding.categoryColor.setBackgroundColor(Color.parseColor(productList[position].color))
         holder.binding.productName.text = productList[position].name?.let { trimDescription(it) }
         holder.binding.mainLayout.setOnClickListener {
             itemClickListener.onItemClick(position)

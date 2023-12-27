@@ -6,15 +6,16 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.core.widget.doOnTextChanged
 import androidx.fragment.app.DialogFragment
 import com.example.navsample.databinding.DialogPricePickerBinding
 
 
 class PricePickerDialog(
-    var lowerPrice: String,
-    var higherPrice: String,
-    var onConfirmClick: (String, String) -> Unit,
+    private var lowerPrice: String,
+    private var higherPrice: String,
+    private var onConfirmClick: (String, String) -> Unit,
 
     ) : DialogFragment() {
 
@@ -36,42 +37,58 @@ class PricePickerDialog(
         binding.higherPriceInput.setText(higherPrice)
         binding.lowerPriceInput.doOnTextChanged { text, _, _, _ ->
             val higherPrice = binding.higherPriceInput.text.toString()
-            if (higherPrice != "") {
-                if (higherPrice.toFloat() < text.toString().toFloat()) {
-                    binding.lowerPriceLayout.error = "is to high"
-                    binding.higherPriceLayout.error = null
-                } else {
-                    binding.lowerPriceLayout.error = null
+            if (higherPrice != "" && text.toString() != "") {
+                try {
+                    if (higherPrice.toFloat() < text.toString().toFloat()) {
+                        binding.lowerPriceLayout.error = "Price too high"
+                        binding.higherPriceLayout.error = null
+                    } else {
+                        binding.lowerPriceLayout.error = null
+                        binding.higherPriceLayout.error = null
+                    }
+                } catch (e: Exception) {
+                    binding.lowerPriceLayout.error = "Cannot convert to float"
                     binding.higherPriceLayout.error = null
                 }
             }
         }
         binding.higherPriceInput.doOnTextChanged { text, _, _, _ ->
             val lowerPrice = binding.lowerPriceInput.text.toString()
-            if (lowerPrice != "") {
-                if (lowerPrice.toFloat() > text.toString().toFloat()) {
-                    binding.higherPriceLayout.error = "is to low"
+            if (lowerPrice != "" && text.toString() != "") {
+                try {
+                    if (lowerPrice.toFloat() > text.toString().toFloat()) {
+                        binding.higherPriceLayout.error = "Price too low"
+                        binding.lowerPriceLayout.error = null
+                    } else {
+                        binding.lowerPriceLayout.error = null
+                        binding.higherPriceLayout.error = null
+                    }
+                } catch (e: Exception) {
                     binding.lowerPriceLayout.error = null
-                } else {
-                    binding.lowerPriceLayout.error = null
-                    binding.higherPriceLayout.error = null
+                    binding.higherPriceLayout.error = "Cannot convert to float"
                 }
             }
         }
         binding.lowerPriceLayout.setStartIconOnClickListener {
             binding.lowerPriceInput.setText("")
+            binding.lowerPriceLayout.error = null
+            binding.higherPriceLayout.error = null
         }
         binding.higherPriceLayout.setStartIconOnClickListener {
             binding.higherPriceInput.setText("")
+            binding.lowerPriceLayout.error = null
+            binding.higherPriceLayout.error = null
         }
 
         binding.confirmButton.setOnClickListener {
             val lowerPrice = binding.lowerPriceInput.text.toString()
             val higherPrice = binding.higherPriceInput.text.toString()
-            if (lowerPrice != "" && higherPrice != "" && lowerPrice.toFloat() <= higherPrice.toFloat()
-            ) {
+            if (binding.lowerPriceLayout.error == null && binding.higherPriceLayout.error == null) {
                 onConfirmClick.invoke(lowerPrice, higherPrice)
                 dismiss()
+            } else {
+                Toast.makeText(requireContext(), "Incorrect input values", Toast.LENGTH_SHORT)
+                    .show()
             }
         }
         binding.cancelButton.setOnClickListener { dismiss() }
@@ -79,7 +96,7 @@ class PricePickerDialog(
     }
 
 
-    fun DialogFragment.setWidthPercent(percentage: Int) {
+    private fun DialogFragment.setWidthPercent(percentage: Int) {
         val percent = percentage.toFloat() / 100
         val dm = Resources.getSystem().displayMetrics
         val rect = dm.run { Rect(0, 0, widthPixels, heightPixels) }

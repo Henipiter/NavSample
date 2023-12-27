@@ -14,6 +14,11 @@ class ReceiptImageViewModel : ViewModel() {
     lateinit var uriCropped: MutableLiveData<Uri?>
     lateinit var bitmapCropped: MutableLiveData<Bitmap?>
 
+
+    init {
+        clearData()
+    }
+
     fun clearData() {
         uri = MutableLiveData<Uri?>(null)
         bitmap = MutableLiveData<Bitmap?>(null)
@@ -41,9 +46,5 @@ class ReceiptImageViewModel : ViewModel() {
         fileOutPut.close()
         return Uri.fromFile(tempFile)
 
-    }
-
-    init {
-        clearData()
     }
 }

@@ -11,6 +11,6 @@ data class Receipt(
     var date: String,
     var time: String
 ){
-    @PrimaryKey
+    @PrimaryKey(autoGenerate = true)
     var id: Int? = null
 }

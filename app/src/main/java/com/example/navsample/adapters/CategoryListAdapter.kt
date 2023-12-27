@@ -2,6 +2,7 @@ package com.example.navsample.adapters
 
 import android.content.Context
 import android.graphics.Color
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
@@ -29,7 +30,14 @@ class CategoryListAdapter(
     override fun onBindViewHolder(holder: MyViewHolder, position: Int) {
         this.position = position
         holder.binding.categoryName.text = categoryList[position].name
-        holder.binding.colorSquare.setBackgroundColor(Color.parseColor(categoryList[position].color))
+        try {
+            holder.binding.colorSquare.setBackgroundColor(Color.parseColor(categoryList[position].color))
+        } catch (e: Exception) {
+            Log.e(
+                "CategoryListAdapter",
+                "cannot parse category color" + categoryList[position].color,
+            )
+        }
 
         holder.binding.mainLayout.setOnClickListener {
             itemClickListener.onItemClick(position)

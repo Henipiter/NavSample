@@ -9,6 +9,6 @@ data class Store(
     var name: String,
     var nip: String
 ){
-    @PrimaryKey
+    @PrimaryKey(autoGenerate = true)
     var id: Int? = null
 }

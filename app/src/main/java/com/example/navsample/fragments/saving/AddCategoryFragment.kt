@@ -2,13 +2,16 @@ package com.example.navsample.fragments.saving
 
 import android.graphics.Color
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.core.widget.doOnTextChanged
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.navigation.Navigation
+import com.example.navsample.DTO.ChartColors
 import com.example.navsample.DTO.DataMode
 import com.example.navsample.databinding.FragmentAddCategoryBinding
 import com.example.navsample.entities.Category
@@ -21,8 +24,9 @@ class AddCategoryFragment : Fragment() {
     private val binding get() = _binding!!
     private val receiptDataViewModel: ReceiptDataViewModel by activityViewModels()
 
+    private var baseCategoryName: String = ""
     private var mode = DataMode.DISPLAY
-    private var pickedColor: Int = Color.rgb(255, 0, 0)
+    private var pickedColor: Int = ChartColors.DEFAULT_CATEGORY_COLOR_INT
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?,
@@ -34,14 +38,20 @@ class AddCategoryFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-
-        receiptDataViewModel.savedCategory.value?.id = 11
         binding.colorSquare.setBackgroundColor(pickedColor)
         receiptDataViewModel.refreshCategoryList()
         receiptDataViewModel.category.value?.let {
+            baseCategoryName = it.name
             binding.categoryNameInput.setText(it.name)
             binding.categoryColorInput.setText(it.color)
-            binding.colorSquare.setBackgroundColor(Color.parseColor(it.color))
+            try {
+                binding.colorSquare.setBackgroundColor(Color.parseColor(it.color))
+            } catch (e: Exception) {
+                Log.e(
+                    "AddCategoryFragment",
+                    "cannot parse category color" + it.color,
+                )
+            }
         }
         receiptDataViewModel.category.value = null
         if (receiptDataViewModel.savedCategory.value != null) {
@@ -56,7 +66,11 @@ class AddCategoryFragment : Fragment() {
             changeViewToEditMode()
         }
         binding.saveChangesButton.setOnClickListener {
-
+            if (binding.categoryColorLayout.error != null || binding.categoryNameLayout.error != null) {
+                Toast.makeText(requireContext(), "Incorrect input values", Toast.LENGTH_SHORT)
+                    .show()
+                return@setOnClickListener
+            }
             saveChangesToDatabase()
             changeViewToDisplayMode()
             receiptDataViewModel.category.value = Category(
@@ -87,11 +101,22 @@ class AddCategoryFragment : Fragment() {
                     binding.colorSquare.setBackgroundColor(pickedColor)
                     binding.categoryColorLayout.error = null
                 } catch (e: Exception) {
-                    binding.categoryColorLayout.error = "Cannnot parse"
+                    binding.categoryColorLayout.error = "Cannot parse"
                 }
             } else {
-                binding.categoryColorLayout.error = "Cannnot parse"
+                binding.categoryColorLayout.error = "Cannot parse"
             }
+        }
+        binding.categoryNameInput.doOnTextChanged { text, _, _, count ->
+            if (count == 0) {
+                binding.categoryNameLayout.error = "Cannot be empty"
+            } else if (receiptDataViewModel.categoryList.value?.map { it.name }
+                    ?.contains(text.toString()) == true && text.toString() != baseCategoryName) {
+                binding.categoryNameLayout.error = "Category name already defined"
+            } else {
+                binding.categoryNameLayout.error = null
+            }
+
         }
     }
 
@@ -99,7 +124,7 @@ class AddCategoryFragment : Fragment() {
         ColorPickerDialog(pickedColor) {
             pickedColor = it
             binding.colorSquare.setBackgroundColor(it)
-            binding.categoryColorInput.setText(String.format("#%06X", 0xFFFFFF and it))
+            binding.categoryColorInput.setText(String.format("#%06X", 0xBBBBBB and it))
             binding.categoryColorLayout.error = null
         }
             .show(childFragmentManager, "TAG")

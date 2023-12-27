@@ -53,6 +53,9 @@
             android:name="productIndex"
             app:argType="integer"
             android:defaultValue="-1" />
+        <action
+            android:id="@+id/action_addProductFragment_to_addCategoryFragment"
+            app:destination="@id/addCategoryFragment" />
     </fragment>
     <fragment
         android:id="@+id/addReceiptFragment"

@@ -41,19 +41,11 @@ class CategoryListFragment : Fragment(), ItemClickListener {
 
         recyclerViewEvent = binding.recyclerViewEventReceipts
         categoryListAdapter = CategoryListAdapter(
-            requireContext(),
-            receiptDataViewModel.categoryList.value ?: arrayListOf(),
-            this
+            requireContext(), receiptDataViewModel.categoryList.value ?: arrayListOf(), this
         ) { i ->
             receiptDataViewModel.categoryList.value?.get(i)?.let {
-
-
-                DeleteConfirmationDialog(
-                    "Are you sure you want to delete the category" +
-                            " products??\n\n" + "Name: " + it.name
-                ) {
-                    if (receiptDataViewModel.productList.value?.filter { it.categoryId == i }
-                            ?.isEmpty() != true) {
+                DeleteConfirmationDialog("Are you sure you want to delete the category products??\n\nName: " + it.name) {
+                    if (receiptDataViewModel.productRichList.value?.none { product -> product.categoryId == it.id } != true) {
                         Toast.makeText(
                             requireContext(),
                             "Cannot delete beacuse of existing products",
@@ -75,8 +67,7 @@ class CategoryListFragment : Fragment(), ItemClickListener {
             LinearLayoutManager(requireContext(), LinearLayoutManager.VERTICAL, false)
 
         binding.newButton.setOnClickListener {
-            val action =
-                ListingFragmentDirections.actionListingFragmentToAddCategoryFragment()
+            val action = ListingFragmentDirections.actionListingFragmentToAddCategoryFragment()
             Navigation.findNavController(requireView()).navigate(action)
         }
 
@@ -95,8 +86,7 @@ class CategoryListFragment : Fragment(), ItemClickListener {
         val category = receiptDataViewModel.categoryList.value!![index]
         receiptDataViewModel.savedCategory.value = category
         receiptDataViewModel.category.value = category
-        val action =
-            ListingFragmentDirections.actionListingFragmentToAddCategoryFragment()
+        val action = ListingFragmentDirections.actionListingFragmentToAddCategoryFragment()
         Navigation.findNavController(requireView()).navigate(action)
     }
 }

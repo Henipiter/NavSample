@@ -15,5 +15,5 @@ data class Product(
     var raw: String
 ){
     @PrimaryKey(autoGenerate = true)
-    var id: Int = 0
+    var id: Int? = null
 }

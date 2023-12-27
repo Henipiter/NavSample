@@ -1,5 +1,7 @@
 package com.example.navsample.DTO
 
+import android.graphics.Color
+
 class ChartColors {
 
 
@@ -10,5 +12,7 @@ class ChartColors {
             "#FFD700", "#DA70D6", "#00FF7F", "#FFB6C0", "#4B0082",
             "#FF8C00"
         )
+        const val DEFAULT_CATEGORY_COLOR_STRING = "#BBBBBB"
+        val DEFAULT_CATEGORY_COLOR_INT = Color.rgb(187, 187, 187)
     }
 }

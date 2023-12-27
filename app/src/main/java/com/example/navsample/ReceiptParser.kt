@@ -1,5 +1,6 @@
 package com.example.navsample
 
+import com.example.navsample.DTO.ChartColors
 import com.example.navsample.DTO.ProductDTO
 
 class ReceiptParser {
@@ -43,7 +44,8 @@ class ReceiptParser {
             -1,
             name.data.trim(),
             fixPrize(finalPrice.data),
-            "-",
+            "",
+            ChartColors.DEFAULT_CATEGORY_COLOR_STRING,
             fixPrize(itemAmount.data),
             fixPrize(itemPrice.data),
             fixPtuType(ptuType.data),

@@ -9,6 +9,6 @@ data class Category(
     var name: String,
     var color: String,
 ) {
-    @PrimaryKey(autoGenerate = false)
+    @PrimaryKey(autoGenerate = true)
     var id: Int? = null
 }

@@ -5,7 +5,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ArrayAdapter
-import android.widget.Toast
 import androidx.core.widget.doOnTextChanged
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
@@ -167,29 +166,10 @@ class AddProductFragment : Fragment() {
             val category = adapter.getItemAtPosition(i) as Category
             binding.productCategoryInput.setText(category.name)
         }
-        binding.productCategoryInput.setOnLongClickListener {
-            Toast.makeText(requireContext(), "CLICK", Toast.LENGTH_SHORT).show()
-            true
-        }
 
-        binding.productCategoryInput.doOnTextChanged { actual, start, before, count ->
-            if (actual.toString().contains(" ") || Regex(".*[a-z].*").matches(actual.toString())) {
-                val fixed = actual.toString().replace(" ", "_").uppercase()
-                binding.productCategoryInput.setText(fixed)
-                binding.productCategoryInput.setSelection(start + count)
-            }
-            if (receiptDataViewModel.categoryList.value?.map { it.name }?.contains(
-                    binding.productCategoryInput.text.toString()
-                ) == false
-            ) {
-                binding.productCategoryLayout.helperText = "New category will be added"
-            } else {
-                binding.productCategoryLayout.helperText = null
-            }
-        }
         binding.productCategoryLayout.setStartIconOnClickListener {
-            binding.productCategoryInput.setText("")
-            binding.productCategoryLayout.helperText = null
+            Navigation.findNavController(it)
+                .navigate(R.id.action_addProductFragment_to_addCategoryFragment)
 
         }
 
@@ -243,7 +223,10 @@ class AddProductFragment : Fragment() {
             }
 
             val category =
-                Category(binding.productCategoryInput.text.toString(), ChartColors.COLORS[0])
+                Category(
+                    binding.productCategoryInput.text.toString(),
+                    ChartColors.DEFAULT_CATEGORY_COLOR_STRING
+                )
             if (receiptDataViewModel.categoryList.value?.map { it.name }
                     ?.contains(category.name) == false) {
                 receiptDataViewModel.insertCategoryList(category)
@@ -255,6 +238,7 @@ class AddProductFragment : Fragment() {
                 binding.productNameInput.text.toString(),
                 binding.productFinalPriceInput.text.toString(),
                 category.name,
+                category.color,
                 binding.productAmountInput.text.toString(),
                 binding.productItemPriceInput.text.toString(),
                 binding.ptuTypeInput.text.toString(),

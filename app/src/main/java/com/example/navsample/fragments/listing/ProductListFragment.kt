@@ -14,11 +14,11 @@ import androidx.navigation.Navigation
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.navsample.ItemClickListener
-import com.example.navsample.adapters.ProductDTOListAdapter
+import com.example.navsample.R
+import com.example.navsample.adapters.ProductListAdapter
 import com.example.navsample.databinding.FragmentProductListBinding
 import com.example.navsample.fragments.dialogs.DeleteConfirmationDialog
 import com.example.navsample.fragments.dialogs.PricePickerDialog
-import com.example.navsample.fragments.saving.AddProductListFragmentDirections
 import com.example.navsample.viewmodels.ReceiptDataViewModel
 import com.google.android.material.datepicker.MaterialDatePicker
 import java.text.SimpleDateFormat
@@ -31,7 +31,7 @@ class ProductListFragment : Fragment(), ItemClickListener {
     private val receiptDataViewModel: ReceiptDataViewModel by activityViewModels()
 
     private lateinit var recyclerViewEvent: RecyclerView
-    private lateinit var productListAdapter: ProductDTOListAdapter
+    private lateinit var productListAdapter: ProductListAdapter
 
     private var lowerPrice = ""
     private var higherPrice = ""
@@ -56,9 +56,9 @@ class ProductListFragment : Fragment(), ItemClickListener {
         binding.priceBetweenInput.setText("-")
 
         recyclerViewEvent = binding.recyclerViewEventProducts
-        productListAdapter = ProductDTOListAdapter(
+        productListAdapter = ProductListAdapter(
             requireContext(),
-            receiptDataViewModel.product.value ?: arrayListOf(), this
+            receiptDataViewModel.productRichList.value ?: arrayListOf(), this
 
         ) { i ->
             receiptDataViewModel.product.value?.get(i)?.let {
@@ -69,9 +69,9 @@ class ProductListFragment : Fragment(), ItemClickListener {
                     if (it.id >= 0) {
                         receiptDataViewModel.deleteProduct(it.id)
                     }
-                    receiptDataViewModel.product.value?.removeAt(i)
+                    receiptDataViewModel.productRichList.value?.removeAt(i)
                     productListAdapter.productList =
-                        receiptDataViewModel.product.value ?: arrayListOf()
+                        receiptDataViewModel.productRichList.value ?: arrayListOf()
                     productListAdapter.notifyDataSetChanged()
                 }.show(childFragmentManager, "TAG")
             }
@@ -116,6 +116,9 @@ class ProductListFragment : Fragment(), ItemClickListener {
             text = ""
             refreshList()
             receiptDataViewModel.refreshReceiptList("")
+        }
+        binding.categoryNameInput.doOnTextChanged { text, _, _, _ ->
+            refreshList()
         }
         binding.dateBetweenLayout.setStartIconOnClickListener {
             binding.dateBetweenInput.setText("")
@@ -196,7 +199,7 @@ class ProductListFragment : Fragment(), ItemClickListener {
     }
 
     private fun initObserver() {
-        receiptDataViewModel.product.observe(viewLifecycleOwner) {
+        receiptDataViewModel.productRichList.observe(viewLifecycleOwner) {
             it?.let {
                 productListAdapter.productList = it
                 productListAdapter.notifyDataSetChanged()
@@ -228,9 +231,8 @@ class ProductListFragment : Fragment(), ItemClickListener {
 
 
     override fun onItemClick(index: Int) {
-        val action =
-            AddProductListFragmentDirections.actionAddProductListFragmentToAddProductFragment(index)
-        Navigation.findNavController(requireView()).navigate(action)
+        Navigation.findNavController(binding.root)
+            .navigate(R.id.action_listingFragment_to_addProductFragment)
     }
 
 }

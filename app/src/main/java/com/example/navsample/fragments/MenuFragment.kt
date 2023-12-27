@@ -10,6 +10,7 @@ import androidx.navigation.Navigation
 import com.example.navsample.R
 import com.example.navsample.databinding.FragmentMenuBinding
 import com.example.navsample.viewmodels.ReceiptDataViewModel
+import com.example.navsample.viewmodels.ReceiptImageViewModel
 
 
 class MenuFragment : Fragment() {
@@ -17,6 +18,7 @@ class MenuFragment : Fragment() {
 
     private val binding get() = _binding!!
     private val receiptDataViewModel: ReceiptDataViewModel by activityViewModels()
+    private val receiptImageViewModel: ReceiptImageViewModel by activityViewModels()
 
 
     override fun onCreateView(
@@ -51,5 +53,6 @@ class MenuFragment : Fragment() {
                 .navigate(R.id.action_menuFragment_to_diagramFragment)
         }
         receiptDataViewModel.clearData()
+        receiptImageViewModel.clearData()
     }
 }

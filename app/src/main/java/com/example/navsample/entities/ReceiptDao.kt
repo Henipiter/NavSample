@@ -8,6 +8,7 @@ import androidx.room.Query
 import androidx.room.Transaction
 import androidx.room.Update
 import com.example.navsample.entities.relations.PriceByCategory
+import com.example.navsample.entities.relations.ProductRichData
 import com.example.navsample.entities.relations.ReceiptWithProducts
 import com.example.navsample.entities.relations.ReceiptWithStore
 
@@ -115,7 +116,7 @@ interface ReceiptDao {
     ): List<ReceiptWithStore>
 
     @Transaction
-    @Query("SELECT * FROM category")
+    @Query("SELECT * FROM category order by name")
     suspend fun getAllCategories(): List<Category>
 
     @Transaction
@@ -128,7 +129,7 @@ interface ReceiptDao {
 
     @Transaction
     @Query(
-        "select p.* from product p, receipt r, store s, category c " +
+        "select s.name as storeName, r.date, c.name as categoryName, c.color as categoryColor, p.* from product p, receipt r, store s, category c " +
                 "where p.receiptId = r.id and s.id =r.storeId " +
                 "and s.name like '%'||:storeName||'%' " +
                 "and c.name like '%'||:categoryName||'%' " +
@@ -142,11 +143,11 @@ interface ReceiptDao {
         dateTo: String,
         lowerPrice: Float,
         higherPrice: Float,
-    ): List<Product>
+    ): List<ProductRichData>
 
     @Transaction
     @Query(
-        "select p.* from product p, receipt r, store s, category c " +
+        "select s.name as storeName, r.date, c.name as categoryName, c.color as categoryColor, p.* from product p, receipt r, store s, category c " +
                 "where p.receiptId = r.id and s.id =r.storeId and p.categoryId = c.id " +
                 "and s.name like '%'||:storeName||'%' " +
                 "and c.name like '%'||:categoryName||'%' " +
@@ -159,7 +160,7 @@ interface ReceiptDao {
         dateFrom: String,
         dateTo: String,
         lowerPrice: Float,
-    ): List<Product>
+    ): List<ProductRichData>
 
 //    @Transaction
 //    @Query("SELECT * FROM product WHERE id = :id")
@@ -197,3 +198,4 @@ interface ReceiptDao {
 
 
 }
+//select s.name as storeName, r.date, c.name as categoryName, c.color as categoryColor, p.* from product p, receipt r, store s, category c where p.receiptId = r.id and s.id =r.storeId and p.categoryId = c.id and s.name like '%'||""||'%'  and c.name like '%'||""||'%'  and r.date >= '0' and r.date <='9'  and p.finalPrice >= 0.0
