@@ -39,7 +39,7 @@ open class ExperimentRecycleFragment : Fragment() {
     private lateinit var recyclerViewEvent: RecyclerView
     private lateinit var experimentalListAdapter: ExperimentalListAdapter
     private var recycleList = arrayListOf<ExperimentalAdapterArgument>()
-    private var checkedElements = arrayListOf<Int>()
+    private var checkedElementsCounter = 0
 
     private var productListMode = ProductListMode.SELECT
     private var action = NONE
@@ -61,7 +61,6 @@ open class ExperimentRecycleFragment : Fragment() {
         }
     }
 
-
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         initObserver()
@@ -71,21 +70,21 @@ open class ExperimentRecycleFragment : Fragment() {
         experimentalListAdapter = ExperimentalListAdapter(
             recycleList,
             { position ->
-                val listPosition = checkedElements.contains(position)
-                if (listPosition) {
-                    val positionAtList = checkedElements.indexOf(position)
-                    checkedElements.remove(position)
-                    for (i in positionAtList..checkedElements.lastIndex) {
-                        recycleList[checkedElements[i]].number -= 1
-                        experimentalListAdapter.notifyItemChanged(checkedElements[i])
+                val currentItemNumber = recycleList[position].number
+                if (currentItemNumber > 0) {
+                    checkedElementsCounter -= 1
+                    for (i in 0..recycleList.lastIndex) {
+                        if (recycleList[i].number >= currentItemNumber) {
+                            recycleList[i].number -= 1
+                        }
+                        experimentalListAdapter.notifyItemChanged(i)
                     }
-                    recycleList[position].chosen = false
                     recycleList[position].number = 0
-                    experimentalListAdapter.notifyItemChanged(position)
+                    recycleList[position].chosen = false
                 } else {
-                    checkedElements.add(position)
+                    checkedElementsCounter += 1
                     recycleList[position].chosen = true
-                    recycleList[position].number = checkedElements.size
+                    recycleList[position].number = checkedElementsCounter
                     experimentalListAdapter.notifyItemChanged(position)
                 }
             }, { position ->
@@ -212,10 +211,8 @@ open class ExperimentRecycleFragment : Fragment() {
                 }
             }
             namePricePairs.forEach { Log.d("ImageProcess", it) }
-            val receiptParser = ReceiptParser()
-            receiptDataViewModel.product.value = receiptParser.parseToProducts(namePricePairs)
+            receiptDataViewModel.product.value = ReceiptParser().parseToProducts(namePricePairs)
             Navigation.findNavController(binding.root).popBackStack()
-
         }
     }
 
@@ -226,6 +223,7 @@ open class ExperimentRecycleFragment : Fragment() {
     }
 
     private fun execute() {
+        val checkedElements = getIndexOfChoseItems()
         when (action) {
             DELETE -> {
                 val leftSide =
@@ -256,7 +254,6 @@ open class ExperimentRecycleFragment : Fragment() {
                     }
                 }
                 experimentalListAdapter.setNewData(newList)
-                checkedElements.clear()
             }
 
             SWAP -> {
@@ -289,7 +286,6 @@ open class ExperimentRecycleFragment : Fragment() {
                     newList.removeAt(it)
                 }
                 experimentalListAdapter.setNewData(newList)
-                checkedElements.clear()
             }
 
             EDIT -> {}
@@ -300,13 +296,28 @@ open class ExperimentRecycleFragment : Fragment() {
     }
 
     private fun uncheckAll() {
-        val newList = recycleList.toMutableList()
-        checkedElements.forEach { position ->
-            newList[position] = ExperimentalAdapterArgument(newList[position])
-            newList[position].chosen = false
-            newList[position].number = 0
+        checkedElementsCounter = 0
+        val newList = arrayListOf<ExperimentalAdapterArgument>()
+        recycleList.forEach { item ->
+            val argument = ExperimentalAdapterArgument(item)
+            argument.chosen = false
+            argument.number = 0
+            newList.add(argument)
         }
         experimentalListAdapter.setNewData(newList)
-        checkedElements.clear()
+    }
+
+    private fun getIndexOfChoseItems(): ArrayList<Int> {
+        val list = arrayListOf<Int>()
+        for (i in 1..checkedElementsCounter) {
+            list.add(0)
+        }
+        for (i in 0..recycleList.lastIndex) {
+            val currentNumber = recycleList[i].number
+            if (currentNumber > 0) {
+                list[currentNumber - 1] = i
+            }
+        }
+        return list
     }
 }
