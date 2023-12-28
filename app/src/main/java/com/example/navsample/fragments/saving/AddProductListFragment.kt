@@ -96,7 +96,7 @@ class AddProductListFragment : Fragment(), ItemClickListener {
         if (receiptImageViewModel.uriCropped.value == null) {
             startCameraWithUri()
         }
-
+        initObserver()
         recyclerViewEvent = binding.recyclerViewEvent
         productListAdapter = ProductDTOListAdapter(
             requireContext(),
@@ -118,7 +118,7 @@ class AddProductListFragment : Fragment(), ItemClickListener {
             }
         }
 
-        initObserver()
+
         binding.receiptImageBig.setOnLongClickListener {
             startCameraWithUri()
             true

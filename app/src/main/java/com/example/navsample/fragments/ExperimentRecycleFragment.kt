@@ -1,6 +1,5 @@
 package com.example.navsample.fragments
 
-import android.graphics.Color
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -46,7 +45,7 @@ open class ExperimentRecycleFragment : Fragment() {
     private var action = NONE
 
     override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
+        inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?,
     ): View {
         _binding = FragmentExperimentRecycleBinding.inflate(inflater, container, false)
         return binding.root
@@ -70,18 +69,25 @@ open class ExperimentRecycleFragment : Fragment() {
         recyclerViewEvent = binding.recyclerViewEventReceipts
 
         experimentalListAdapter = ExperimentalListAdapter(
-            requireContext(),
             recycleList,
             { position ->
                 val listPosition = checkedElements.contains(position)
                 if (listPosition) {
+                    val positionAtList = checkedElements.indexOf(position)
                     checkedElements.remove(position)
-                    recycleList[position].color = Color.GRAY
+                    for (i in positionAtList..checkedElements.lastIndex) {
+                        recycleList[checkedElements[i]].number -= 1
+                        experimentalListAdapter.notifyItemChanged(checkedElements[i])
+                    }
+                    recycleList[position].chosen = false
+                    recycleList[position].number = 0
+                    experimentalListAdapter.notifyItemChanged(position)
                 } else {
                     checkedElements.add(position)
-                    recycleList[position].color = Color.YELLOW
+                    recycleList[position].chosen = true
+                    recycleList[position].number = checkedElements.size
+                    experimentalListAdapter.notifyItemChanged(position)
                 }
-                experimentalListAdapter.notifyItemChanged(position)
             }, { position ->
                 receiptDataViewModel.experimental.value = recycleList
                 val newList = recycleList.toMutableList()
@@ -135,6 +141,7 @@ open class ExperimentRecycleFragment : Fragment() {
                 ArrayList(it1)
             } ?: arrayListOf()
             experimentalListAdapter.setNewData(newList)
+            uncheckAll()
         }
         binding.deleteEmptyRowButton.setOnClickListener {
 
@@ -171,9 +178,6 @@ open class ExperimentRecycleFragment : Fragment() {
             experimentalListAdapter.setNewData(newList)
         }
 
-        binding.unselectAllButton.setOnClickListener {
-            uncheckAll()
-        }
         binding.unselectAllButton2.setOnClickListener {
             uncheckAll()
         }
@@ -213,31 +217,12 @@ open class ExperimentRecycleFragment : Fragment() {
             Navigation.findNavController(binding.root).popBackStack()
 
         }
-
-        binding.applyButton.setOnClickListener {
-            execute()
-            runButtonsView()
-            uncheckAll()
-        }
-        binding.cancelButton.setOnClickListener {
-            runButtonsView()
-            uncheckAll()
-        }
-
-    }
-
-
-    private fun runButtonsView() {
-        productListMode = ProductListMode.SELECT
-        binding.actionLayout.visibility = View.INVISIBLE
-        binding.buttonsLayout.visibility = View.VISIBLE
     }
 
     private fun runActionView(action: Action) {
         this.action = action
-        binding.buttonsLayout.visibility = View.INVISIBLE
-        binding.actionLayout.visibility = View.VISIBLE
-        binding.applyButton.text = action.toString()
+        execute()
+        uncheckAll()
     }
 
     private fun execute() {
@@ -285,7 +270,7 @@ open class ExperimentRecycleFragment : Fragment() {
             CLEAR -> {
                 val newList = recycleList.toMutableList()
                 for (i in checkedElements.lastIndex downTo 0) {
-                    newList[checkedElements[i]] = ExperimentalAdapterArgument(" ", Color.GRAY)
+                    newList[checkedElements[i]] = ExperimentalAdapterArgument(" ")
                 }
                 experimentalListAdapter.setNewData(newList)
             }
@@ -297,7 +282,7 @@ open class ExperimentRecycleFragment : Fragment() {
                 for (i in checkedElements.lastIndex downTo 0) {
                     text = newList[checkedElements[i]].value + " " + text
                 }
-                newList[firstIndex] = ExperimentalAdapterArgument(text, Color.GRAY)
+                newList[firstIndex] = ExperimentalAdapterArgument(text)
                 checkedElements.remove(firstIndex)
                 val indicesDescending = checkedElements.sortedDescending()
                 indicesDescending.forEach {
@@ -317,7 +302,9 @@ open class ExperimentRecycleFragment : Fragment() {
     private fun uncheckAll() {
         val newList = recycleList.toMutableList()
         checkedElements.forEach { position ->
-            newList[position].color = Color.GRAY
+            newList[position] = ExperimentalAdapterArgument(newList[position])
+            newList[position].chosen = false
+            newList[position].number = 0
         }
         experimentalListAdapter.setNewData(newList)
         checkedElements.clear()

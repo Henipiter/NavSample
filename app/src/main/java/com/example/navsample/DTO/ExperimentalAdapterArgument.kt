@@ -1,11 +1,15 @@
 package com.example.navsample.DTO
 
-import android.graphics.Color
-
 data class ExperimentalAdapterArgument(
     var value: String,
-    var color: Int
+    var chosen: Boolean,
+    var number: Int,
 ) {
-    constructor(value: String) : this(value, Color.GRAY)
-    constructor() : this("", Color.GRAY)
+    constructor(value: String) : this(value, false, 0)
+    constructor() : this("", false, 0)
+    constructor(argument: ExperimentalAdapterArgument) : this(
+        argument.value,
+        argument.chosen,
+        argument.number
+    )
 }

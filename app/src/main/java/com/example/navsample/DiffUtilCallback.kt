@@ -5,7 +5,7 @@ import com.example.navsample.DTO.ExperimentalAdapterArgument
 
 class DiffUtilCallback(
     private val oldList: List<ExperimentalAdapterArgument>,
-    private val newList: List<ExperimentalAdapterArgument>
+    private val newList: List<ExperimentalAdapterArgument>,
 ) :
     DiffUtil.Callback() {
 
@@ -27,6 +27,6 @@ class DiffUtilCallback(
         val oldItem = oldList[oldItemPosition]
         val newItem = newList[newItemPosition]
 
-        return oldItem.color == newItem.color && oldItem.value == newItem.value
+        return oldItem.chosen == newItem.chosen && oldItem.value == newItem.value && oldItem.number == newItem.number
     }
 }
