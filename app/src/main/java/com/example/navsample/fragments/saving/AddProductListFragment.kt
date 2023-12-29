@@ -57,8 +57,11 @@ class AddProductListFragment : Fragment(), ItemClickListener {
                 }
             }
         }
-        receiptDataViewModel.product.observe(viewLifecycleOwner) {
+        receiptDataViewModel.productList.observe(viewLifecycleOwner) {
             it?.let {
+                receiptDataViewModel.convertProductsToDTO()
+            }
+            receiptDataViewModel.product.value?.let {
                 productListAdapter.productList = it
                 productListAdapter.notifyDataSetChanged()
             }

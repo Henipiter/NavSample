@@ -44,6 +44,7 @@ class ReceiptDataViewModel : ViewModel() {
     lateinit var reorderedProductTiles: MutableLiveData<Boolean>
 
     private val dao = ApplicationContext.context?.let { ReceiptDatabase.getInstance(it).receiptDao }
+
     init {
         clearData()
     }
@@ -182,18 +183,6 @@ class ReceiptDataViewModel : ViewModel() {
         }
     }
 
-    fun getStoreByNip(nip: String) {
-        viewModelScope.launch {
-            try {
-                dao?.let {
-                    savedStore.postValue(dao.getStoreByNip(nip))
-                }
-            } catch (e: Exception) {
-                Log.e("Insert store to DB", e.message.toString())
-            }
-        }
-    }
-
     fun updateStore(store: Store) {
         viewModelScope.launch(Dispatchers.IO) {
             dao?.let {
@@ -304,7 +293,6 @@ class ReceiptDataViewModel : ViewModel() {
     fun refreshProductListWithConversion(receiptId: Int) {
         viewModelScope.launch {
             productList.postValue(dao?.getAllProducts(receiptId)?.let { ArrayList(it) })
-            convertProductsToDTO()
         }
     }
 
@@ -333,7 +321,7 @@ class ReceiptDataViewModel : ViewModel() {
                 )
             )
         }
-        product.postValue(newProductDTOs)
+        product.value = newProductDTOs
     }
 
     fun convertDTOToProduct() {
