@@ -16,5 +16,4 @@ data class ProductRichData(
     var finalPrice: Float,
     var ptuType: String,
     var raw: String,
-) {
-}
+)

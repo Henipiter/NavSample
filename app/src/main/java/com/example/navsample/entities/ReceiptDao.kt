@@ -7,10 +7,11 @@ import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Transaction
 import androidx.room.Update
+import com.example.navsample.entities.relations.AllData
 import com.example.navsample.entities.relations.PriceByCategory
 import com.example.navsample.entities.relations.ProductRichData
-import com.example.navsample.entities.relations.ReceiptWithProducts
 import com.example.navsample.entities.relations.ReceiptWithStore
+import com.example.navsample.entities.relations.TableCounts
 
 @Dao
 interface ReceiptDao {
@@ -88,10 +89,6 @@ interface ReceiptDao {
     suspend fun getCategoryId(rowId: Long): Int
 
     @Transaction
-    @Query("SELECT * FROM receipt WHERE id = :id")
-    suspend fun getReceiptWithProducts(id: Int): List<ReceiptWithProducts>
-
-    @Transaction
     @Query("SELECT * FROM store WHERE nip = :nip")
     suspend fun getStoreByNip(nip: String): Store
 
@@ -118,10 +115,6 @@ interface ReceiptDao {
     @Transaction
     @Query("SELECT * FROM category order by name")
     suspend fun getAllCategories(): List<Category>
-
-    @Transaction
-    @Query("SELECT * FROM receipt")
-    suspend fun getAllReceipts(): List<Receipt>
 
     @Transaction
     @Query("SELECT * FROM product WHERE receiptId=:receiptId")
@@ -162,10 +155,14 @@ interface ReceiptDao {
         lowerPrice: Float,
     ): List<ProductRichData>
 
-//    @Transaction
-//    @Query("SELECT * FROM product WHERE id = :id")
-////    @Query("SELECT * FROM product p, category c WHERE p.id = :id AND p.categoryId = c.id")
-//    suspend fun getCategoryWithProduct(id: Int): List<ProductWithCategory>
+    @Transaction
+    @Query(
+        "select 'store' as 'tableName', count(*) as 'count' from store " +
+                "union all select 'product' as 'tableName', count(*)  as 'count' from product " +
+                "union all select 'category' as 'tableName', count(*) as 'count'  from category " +
+                "union all select 'receipt' as 'tableName', count(*) as 'count'  from receipt"
+    )
+    suspend fun getTableCounts(): List<TableCounts>
 
     //charts
     @Transaction
@@ -195,6 +192,20 @@ interface ReceiptDao {
         dateFrom: String = "0",
         dateTo: String = "9",
     ): List<PriceByCategory>
+
+    @Transaction
+    @Query(
+        "select s.name as storeName, s.nip as storeNip, " +
+                "r.pln as receiptPln, r.ptu as receiptPtu, " +
+                "r.date as receiptDate, r.time as receiptTime, " +
+                "p.name as productName, p.amount as productAmount, " +
+                "p.itemPrice as productItemPrice, p.finalPrice as productFinalPrice, " +
+                "p.ptuType as productPtuType, p.raw as productRaw, " +
+                "c.name as categoryName, c.color as categoryColor " +
+                "from product p, receipt r, store s, category c " +
+                "where p.receiptId = r.id and s.id =r.storeId and p.categoryId = c.id "
+    )
+    suspend fun getAllData(): List<AllData>
 
 
 }

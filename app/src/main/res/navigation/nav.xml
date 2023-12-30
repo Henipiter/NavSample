@@ -22,6 +22,9 @@
         <action
             android:id="@+id/action_menuFragment_to_listingFragment"
             app:destination="@id/listingFragment" />
+        <action
+            android:id="@+id/action_menuFragment_to_exportDataFragment"
+            app:destination="@id/exportDataFragment" />
     </fragment>
     <fragment
         android:id="@+id/addProductListFragment"
@@ -135,4 +138,9 @@
         android:id="@+id/addCategoryFragment"
         android:name="com.example.navsample.fragments.saving.AddCategoryFragment"
         android:label="AddCategoryFragment" />
+    <fragment
+        android:id="@+id/exportDataFragment"
+        android:name="com.example.navsample.fragments.ExportDataFragment"
+        android:label="fragment_export_data"
+        tools:layout="@layout/fragment_export_data" />
 </navigation>

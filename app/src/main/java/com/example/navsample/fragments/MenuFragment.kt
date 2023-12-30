@@ -27,7 +27,6 @@ class MenuFragment : Fragment() {
     ): View {
         _binding = FragmentMenuBinding.inflate(inflater, container, false)
         return binding.root
-
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -40,9 +39,9 @@ class MenuFragment : Fragment() {
             Navigation.findNavController(it)
                 .navigate(R.id.action_menuFragment_to_listingFragment)
         }
-        binding.showStores.setOnClickListener {
-
-
+        binding.exportDataButton.setOnClickListener {
+            Navigation.findNavController(it)
+                .navigate(R.id.action_menuFragment_to_exportDataFragment)
         }
         binding.recycleViewTest.setOnClickListener {
             Navigation.findNavController(it)

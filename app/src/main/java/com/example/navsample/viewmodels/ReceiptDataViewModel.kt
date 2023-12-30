@@ -15,9 +15,11 @@ import com.example.navsample.entities.Product
 import com.example.navsample.entities.Receipt
 import com.example.navsample.entities.ReceiptDatabase
 import com.example.navsample.entities.Store
+import com.example.navsample.entities.relations.AllData
 import com.example.navsample.entities.relations.PriceByCategory
 import com.example.navsample.entities.relations.ProductRichData
 import com.example.navsample.entities.relations.ReceiptWithStore
+import com.example.navsample.entities.relations.TableCounts
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
@@ -41,6 +43,8 @@ class ReceiptDataViewModel : ViewModel() {
     lateinit var experimentalOriginal: MutableLiveData<ArrayList<ExperimentalAdapterArgument>>
 
     lateinit var chartData: MutableLiveData<ArrayList<PriceByCategory>>
+    lateinit var allData: MutableLiveData<ArrayList<AllData>>
+    lateinit var tableCounts: MutableLiveData<ArrayList<TableCounts>>
     lateinit var reorderedProductTiles: MutableLiveData<Boolean>
 
     private val dao = ApplicationContext.context?.let { ReceiptDatabase.getInstance(it).receiptDao }
@@ -67,6 +71,8 @@ class ReceiptDataViewModel : ViewModel() {
         storeList = MutableLiveData<ArrayList<Store>>(null)
 
         chartData = MutableLiveData<ArrayList<PriceByCategory>>(null)
+        tableCounts = MutableLiveData<ArrayList<TableCounts>>(null)
+        allData = MutableLiveData<ArrayList<AllData>>(null)
 
         experimental = MutableLiveData(
             arrayListOf(
@@ -389,4 +395,17 @@ class ReceiptDataViewModel : ViewModel() {
         }
     }
 
+    fun getTableCounts() {
+        viewModelScope.launch {
+            tableCounts.postValue(
+                dao?.getTableCounts()?.let { ArrayList(it) })
+        }
+    }
+
+    fun getAllData() {
+        viewModelScope.launch {
+            allData.postValue(
+                dao?.getAllData()?.let { ArrayList(it) })
+        }
+    }
 }
