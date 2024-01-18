@@ -61,11 +61,15 @@ class AddProductListFragment : Fragment(), ItemClickListener {
             it?.let {
                 receiptDataViewModel.convertProductsToDTO()
             }
-            receiptDataViewModel.product.value?.let {
+        }
+        receiptDataViewModel.product.observe(viewLifecycleOwner) {
+            it?.let {
                 productListAdapter.productList = it
                 productListAdapter.notifyDataSetChanged()
             }
+
         }
+
         receiptDataViewModel.reorderedProductTiles.observe(viewLifecycleOwner) {
             if (it == true) {
                 receiptDataViewModel.reorderedProductTiles.value = false

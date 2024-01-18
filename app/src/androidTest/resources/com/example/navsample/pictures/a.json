@@ -1,0 +1,511 @@
+[
+  {
+    "lines": [
+      {
+        "angle": -1.10019,
+        "confidence": 0.77584136,
+        "elements": [
+          {
+            "angle": -1.10019,
+            "confidence": 0.70182294,
+            "symbols": [
+              {
+                "angle": -1.10019,
+                "confidence": 0.80078125,
+                "text": "N",
+                "boundingBox": {
+                  "bottom": 1006,
+                  "left": 151,
+                  "right": 183,
+                  "top": 935,
+                  "empty": false
+                },
+                "cornerPoints": [
+                  {
+                    "x": 151,
+                    "y": 936
+                  },
+                  {
+                    "x": 182,
+                    "y": 935
+                  },
+                  {
+                    "x": 183,
+                    "y": 1005
+                  },
+                  {
+                    "x": 152,
+                    "y": 1006
+                  }
+                ],
+                "recognizedLanguage": ""
+              },
+              {
+                "angle": -1.10019,
+                "confidence": 0.484375,
+                "text": "I",
+                "boundingBox": {
+                  "bottom": 1005,
+                  "left": 190,
+                  "right": 206,
+                  "top": 934,
+                  "empty": false
+                },
+                "cornerPoints": [
+                  {
+                    "x": 190,
+                    "y": 935
+                  },
+                  {
+                    "x": 205,
+                    "y": 934
+                  },
+                  {
+                    "x": 206,
+                    "y": 1004
+                  },
+                  {
+                    "x": 191,
+                    "y": 1005
+                  }
+                ],
+                "recognizedLanguage": ""
+              },
+              {
+                "angle": -1.10019,
+                "confidence": 0.8203125,
+                "text": "P",
+                "boundingBox": {
+                  "bottom": 1004,
+                  "left": 218,
+                  "right": 246,
+                  "top": 933,
+                  "empty": false
+                },
+                "cornerPoints": [
+                  {
+                    "x": 218,
+                    "y": 934
+                  },
+                  {
+                    "x": 245,
+                    "y": 933
+                  },
+                  {
+                    "x": 246,
+                    "y": 1003
+                  },
+                  {
+                    "x": 219,
+                    "y": 1004
+                  }
+                ],
+                "recognizedLanguage": ""
+              }
+            ],
+            "text": "NIP",
+            "boundingBox": {
+              "bottom": 1006,
+              "left": 151,
+              "right": 246,
+              "top": 933,
+              "empty": false
+            },
+            "cornerPoints": [
+              {
+                "x": 151,
+                "y": 935
+              },
+              {
+                "x": 245,
+                "y": 933
+              },
+              {
+                "x": 246,
+                "y": 1004
+              },
+              {
+                "x": 152,
+                "y": 1006
+              }
+            ],
+            "recognizedLanguage": "en"
+          },
+          {
+            "angle": -1.1001899,
+            "confidence": 0.7980469,
+            "symbols": [
+              {
+                "angle": -1.10019,
+                "confidence": 0.51953125,
+                "text": "7",
+                "boundingBox": {
+                  "bottom": 1003,
+                  "left": 290,
+                  "right": 314,
+                  "top": 932,
+                  "empty": false
+                },
+                "cornerPoints": [
+                  {
+                    "x": 290,
+                    "y": 933
+                  },
+                  {
+                    "x": 313,
+                    "y": 932
+                  },
+                  {
+                    "x": 314,
+                    "y": 1002
+                  },
+                  {
+                    "x": 291,
+                    "y": 1003
+                  }
+                ],
+                "recognizedLanguage": ""
+              },
+              {
+                "angle": -1.10019,
+                "confidence": 0.8984375,
+                "text": "7",
+                "boundingBox": {
+                  "bottom": 1002,
+                  "left": 322,
+                  "right": 346,
+                  "top": 931,
+                  "empty": false
+                },
+                "cornerPoints": [
+                  {
+                    "x": 322,
+                    "y": 932
+                  },
+                  {
+                    "x": 345,
+                    "y": 931
+                  },
+                  {
+                    "x": 346,
+                    "y": 1001
+                  },
+                  {
+                    "x": 323,
+                    "y": 1002
+                  }
+                ],
+                "recognizedLanguage": ""
+              },
+              {
+                "angle": -1.10019,
+                "confidence": 0.75,
+                "text": "9",
+                "boundingBox": {
+                  "bottom": 1002,
+                  "left": 350,
+                  "right": 378,
+                  "top": 931,
+                  "empty": false
+                },
+                "cornerPoints": [
+                  {
+                    "x": 350,
+                    "y": 932
+                  },
+                  {
+                    "x": 377,
+                    "y": 931
+                  },
+                  {
+                    "x": 378,
+                    "y": 1001
+                  },
+                  {
+                    "x": 351,
+                    "y": 1002
+                  }
+                ],
+                "recognizedLanguage": ""
+              },
+              {
+                "angle": -1.10019,
+                "confidence": 0.77734375,
+                "text": "1",
+                "boundingBox": {
+                  "bottom": 1001,
+                  "left": 390,
+                  "right": 406,
+                  "top": 930,
+                  "empty": false
+                },
+                "cornerPoints": [
+                  {
+                    "x": 390,
+                    "y": 931
+                  },
+                  {
+                    "x": 405,
+                    "y": 930
+                  },
+                  {
+                    "x": 406,
+                    "y": 1000
+                  },
+                  {
+                    "x": 391,
+                    "y": 1001
+                  }
+                ],
+                "recognizedLanguage": ""
+              },
+              {
+                "angle": -1.10019,
+                "confidence": 0.75,
+                "text": "0",
+                "boundingBox": {
+                  "bottom": 1000,
+                  "left": 418,
+                  "right": 446,
+                  "top": 929,
+                  "empty": false
+                },
+                "cornerPoints": [
+                  {
+                    "x": 418,
+                    "y": 930
+                  },
+                  {
+                    "x": 445,
+                    "y": 929
+                  },
+                  {
+                    "x": 446,
+                    "y": 999
+                  },
+                  {
+                    "x": 419,
+                    "y": 1000
+                  }
+                ],
+                "recognizedLanguage": ""
+              },
+              {
+                "angle": -1.10019,
+                "confidence": 0.72265625,
+                "text": "1",
+                "boundingBox": {
+                  "bottom": 1000,
+                  "left": 458,
+                  "right": 474,
+                  "top": 929,
+                  "empty": false
+                },
+                "cornerPoints": [
+                  {
+                    "x": 458,
+                    "y": 930
+                  },
+                  {
+                    "x": 473,
+                    "y": 929
+                  },
+                  {
+                    "x": 474,
+                    "y": 999
+                  },
+                  {
+                    "x": 459,
+                    "y": 1000
+                  }
+                ],
+                "recognizedLanguage": ""
+              },
+              {
+                "angle": -1.10019,
+                "confidence": 0.83203125,
+                "text": "1",
+                "boundingBox": {
+                  "bottom": 999,
+                  "left": 490,
+                  "right": 506,
+                  "top": 928,
+                  "empty": false
+                },
+                "cornerPoints": [
+                  {
+                    "x": 490,
+                    "y": 929
+                  },
+                  {
+                    "x": 505,
+                    "y": 928
+                  },
+                  {
+                    "x": 506,
+                    "y": 998
+                  },
+                  {
+                    "x": 491,
+                    "y": 999
+                  }
+                ],
+                "recognizedLanguage": ""
+              },
+              {
+                "angle": -1.10019,
+                "confidence": 0.96484375,
+                "text": "3",
+                "boundingBox": {
+                  "bottom": 998,
+                  "left": 518,
+                  "right": 546,
+                  "top": 927,
+                  "empty": false
+                },
+                "cornerPoints": [
+                  {
+                    "x": 518,
+                    "y": 928
+                  },
+                  {
+                    "x": 545,
+                    "y": 927
+                  },
+                  {
+                    "x": 546,
+                    "y": 997
+                  },
+                  {
+                    "x": 519,
+                    "y": 998
+                  }
+                ],
+                "recognizedLanguage": ""
+              },
+              {
+                "angle": -1.10019,
+                "confidence": 0.90234375,
+                "text": "2",
+                "boundingBox": {
+                  "bottom": 998,
+                  "left": 551,
+                  "right": 583,
+                  "top": 927,
+                  "empty": false
+                },
+                "cornerPoints": [
+                  {
+                    "x": 551,
+                    "y": 928
+                  },
+                  {
+                    "x": 582,
+                    "y": 927
+                  },
+                  {
+                    "x": 583,
+                    "y": 997
+                  },
+                  {
+                    "x": 552,
+                    "y": 998
+                  }
+                ],
+                "recognizedLanguage": ""
+              },
+              {
+                "angle": -1.10019,
+                "confidence": 0.86328125,
+                "text": "7",
+                "boundingBox": {
+                  "bottom": 997,
+                  "left": 590,
+                  "right": 614,
+                  "top": 926,
+                  "empty": false
+                },
+                "cornerPoints": [
+                  {
+                    "x": 590,
+                    "y": 927
+                  },
+                  {
+                    "x": 613,
+                    "y": 926
+                  },
+                  {
+                    "x": 614,
+                    "y": 996
+                  },
+                  {
+                    "x": 591,
+                    "y": 997
+                  }
+                ],
+                "recognizedLanguage": ""
+              }
+            ],
+            "text": "7791011327",
+            "boundingBox": {
+              "bottom": 1003,
+              "left": 290,
+              "right": 614,
+              "top": 925,
+              "empty": false
+            },
+            "cornerPoints": [
+              {
+                "x": 290,
+                "y": 932
+              },
+              {
+                "x": 613,
+                "y": 925
+              },
+              {
+                "x": 614,
+                "y": 996
+              },
+              {
+                "x": 291,
+                "y": 1003
+              }
+            ],
+            "recognizedLanguage": "en"
+          }
+        ],
+        "text": "NIP 7791011327",
+        "boundingBox": {
+          "bottom": 1006,
+          "left": 151,
+          "right": 614,
+          "top": 926,
+          "empty": false
+        },
+        "cornerPoints": [
+          {
+            "x": 151,
+            "y": 935
+          },
+          {
+            "x": 613,
+            "y": 926
+          },
+          {
+            "x": 614,
+            "y": 997
+          },
+          {
+            "x": 152,
+            "y": 1006
+          }
+        ],
+        "recognizedLanguage": "en"
+      }
+    ],
+    "text": "NIP 7791011327",
+    "boundingBox": {
+      "bottom": 1006,
+      "left": 151,
+      "

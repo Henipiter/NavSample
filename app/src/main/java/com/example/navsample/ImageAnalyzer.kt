@@ -10,6 +10,9 @@ import com.google.mlkit.vision.common.InputImage
 import com.google.mlkit.vision.text.Text
 import com.google.mlkit.vision.text.TextRecognition
 import com.google.mlkit.vision.text.latin.TextRecognizerOptions
+import java.io.File
+import java.io.FileOutputStream
+import java.io.OutputStreamWriter
 import java.text.Normalizer
 import java.util.regex.Pattern
 import kotlin.math.abs
@@ -22,7 +25,6 @@ class ImageAnalyzer {
 
     val recognizer = TextRecognition.getClient(TextRecognizerOptions.DEFAULT_OPTIONS)
 
-    //    lateinit var bitmap: Bitmap
     var imageWidth = 0
 
     private var rawValueNIP: String? = null
@@ -51,15 +53,7 @@ class ImageAnalyzer {
         var p1: Point,
         var p2: Point,
         var p3: Point,
-    ) {
-        constructor(data: String) : this(
-            data,
-            Point(0.0, 0.0),
-            Point(0.0, 0.0),
-            Point(0.0, 0.0),
-            Point(0.0, 0.0)
-        )
-    }
+    )
 
     data class Point(var x: Double, var y: Double)
     data class Cell(var data: String, var x1: Int, var y1: Int, var x2: Int, var y2: Int)
@@ -81,6 +75,7 @@ class ImageAnalyzer {
                 Log.e("ImageProcess", it.message.orEmpty())
             }.addOnCompleteListener {
                 val blocks = it.result.textBlocks
+                blocksToLog(blocks, "TRIM")
                 productList = getProductContent(blocks)
                 onFinish.invoke()
             }
@@ -100,7 +95,7 @@ class ImageAnalyzer {
                 Log.e("ImageProcess", it.message.orEmpty())
             }.addOnCompleteListener {
                 val blocks = it.result.textBlocks
-
+                blocksToLog(blocks, "WHOLE")
                 val sortedCellList = sortText(blocks)
                 val lineList = convertCellsIntoString(sortedCellList).joinToString(separator = "\n")
                 Log.i("ImageProcess", lineList)
@@ -111,6 +106,36 @@ class ImageAnalyzer {
             }
 
 
+    }
+
+    private fun blocksToLog(blocks: List<Text.TextBlock>, prefix: String) {
+        data class ObjectItem(var text: String, var points: List<Int>) {
+            constructor(text: String, pixels: Array<android.graphics.Point>?) : this(
+                text,
+                pixels?.flatMap { point ->
+                    listOf(point.x, point.y)
+                }?.toList() ?: emptyList<Int>()
+            )
+        }
+
+        val lineConverted = ArrayList<ObjectItem>()
+        blocks.forEach { block ->
+            block.lines.forEach { line ->
+                lineConverted.add(ObjectItem(line.text, line.cornerPoints))
+            }
+        }
+        val lineOutputFile = File.createTempFile(prefix, ".txt")
+        val lineOutputStream = FileOutputStream(lineOutputFile)
+        val lineStreamWriter = OutputStreamWriter(lineOutputStream)
+
+
+        lineConverted.forEach { item ->
+            lineStreamWriter.write(item.points.toString())
+            lineStreamWriter.write(item.text)
+            lineStreamWriter.write("\n")
+        }
+        lineStreamWriter.close()
+        lineOutputStream.close()
     }
 
     private fun sortText(blocks: List<Text.TextBlock>): List<Cell> {

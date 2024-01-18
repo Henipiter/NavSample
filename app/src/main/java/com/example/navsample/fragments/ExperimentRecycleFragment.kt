@@ -40,7 +40,7 @@ open class ExperimentRecycleFragment : Fragment() {
     private lateinit var experimentalListAdapter: ExperimentalListAdapter
     private var recycleList = arrayListOf<ExperimentalAdapterArgument>()
     private var checkedElementsCounter = 0
-
+    private val receiptParser = ReceiptParser()
     private var productListMode = ProductListMode.SELECT
     private var action = NONE
 
@@ -204,14 +204,14 @@ open class ExperimentRecycleFragment : Fragment() {
             for (i in 0..recycleList.lastIndex step 2) {
                 var value = recycleList[i].value
                 if (i + 1 <= recycleList.lastIndex) {
-                    value += recycleList[i + 1].value
+                    value += " " + recycleList[i + 1].value
                 }
                 if (value != "") {
                     namePricePairs.add(value)
                 }
             }
             namePricePairs.forEach { Log.d("ImageProcess", it) }
-            receiptDataViewModel.product.value = ReceiptParser().parseToProducts(namePricePairs)
+            receiptDataViewModel.product.value = receiptParser.parseToProducts(namePricePairs)
             Navigation.findNavController(binding.root).popBackStack()
         }
     }

@@ -137,10 +137,15 @@ class ReceiptDataViewModel : ViewModel() {
     private fun convertDateFormat(date: String): String {
         val newDate = date.replace(".", "-")
         val splitDate = newDate.split("-")
-        if (splitDate[2].length == 4) {
-            return splitDate[2] + "-" + splitDate[1] + "-" + splitDate[0]
+        try {
+            if (splitDate[2].length == 4) {
+                return splitDate[2] + "-" + splitDate[1] + "-" + splitDate[0]
+            }
+            return newDate
+        } catch (e: Exception) {
+            Log.e("ConvertDate", "Cannot convert date: " + splitDate)
+            return newDate
         }
-        return newDate
     }
 
     fun insertStore(store: Store) {
