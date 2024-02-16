@@ -6,6 +6,7 @@ import android.graphics.Canvas
 import android.graphics.Paint
 import android.net.Uri
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -17,6 +18,8 @@ import com.canhub.cropper.CropImage
 import com.canhub.cropper.CropImageContract
 import com.canhub.cropper.CropImageContractOptions
 import com.canhub.cropper.CropImageOptions
+import com.example.navsample.DTO.ReceiptDTO
+import com.example.navsample.DTO.StoreDTO
 import com.example.navsample.ImageAnalyzer
 import com.example.navsample.databinding.FragmentImageImportBinding
 import com.example.navsample.viewmodels.ReceiptDataViewModel
@@ -75,8 +78,25 @@ class ImageImportFragment : Fragment() {
                     it1
                 ) {
 //                    drawRectangles()
-                    receiptDataViewModel.store.value = imageAnalyzer.store
-                    receiptDataViewModel.receipt.value = imageAnalyzer.receipt
+
+                    val store = StoreDTO(imageAnalyzer.companyName, imageAnalyzer.valueNIP)
+                    val receipt = ReceiptDTO(
+                        -1,
+                        imageAnalyzer.companyName,
+                        imageAnalyzer.valueNIP,
+                        imageAnalyzer.valuePLN.toString(),
+                        imageAnalyzer.valuePTU.toString(),
+                        imageAnalyzer.valueDate,
+                        imageAnalyzer.valueTime
+                    )
+                    Log.i("ImageProcess", "valueNIP ${imageAnalyzer.valueNIP}")
+                    Log.i("ImageProcess", "companyName ${imageAnalyzer.companyName}")
+                    Log.i("ImageProcess", "valuePTU ${imageAnalyzer.valuePTU}")
+                    Log.i("ImageProcess", "valuePLN ${imageAnalyzer.valuePLN}")
+                    Log.i("ImageProcess", "valueDate ${imageAnalyzer.valueDate}")
+                    Log.i("ImageProcess", "valueTime ${imageAnalyzer.valueTime}")
+                    receiptDataViewModel.store.value = store
+                    receiptDataViewModel.receipt.value = receipt
                 }
             }
         }
@@ -96,7 +116,7 @@ class ImageImportFragment : Fragment() {
             it?.let {
 
                 binding.indeterminateBar.visibility = View.GONE
-                if(goNext == true){
+                if (goNext == true) {
                     goNext = false
                     val action =
                         ImageImportFragmentDirections.actionImageImportFragmentToAddReceiptFragment()
@@ -125,11 +145,11 @@ class ImageImportFragment : Fragment() {
         receiptImageViewModel.setImageUriOriginal()
     }
 
-    private fun drawRectangle(pixel: ImageAnalyzer.Pixel?, canvas: Canvas, paint: Paint) {
-        if (pixel != null) {
-            drawLine(pixel.x2, pixel.y2, pixel.x1, pixel.y2, canvas, paint)
-        }
-    }
+//    private fun drawRectangle(pixel: ImageAnalyzerNew.Pixel?, canvas: Canvas, paint: Paint) {
+//        if (pixel != null) {
+//            drawLine(pixel.x2, pixel.y2, pixel.x1, pixel.y2, canvas, paint)
+//        }
+//    }
 
     private fun drawLine(
         startX: Int,
