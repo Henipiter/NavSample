@@ -6,8 +6,11 @@ import kotlin.math.min
 
 class ImageProductAnalyzer {
     var columnCell = ColumnCell()
-    var productList = ArrayList<String>()
+    var nameList = ArrayList<String>()
     var pricesList = ArrayList<String>()
+
+    var productList = ArrayList<String>()
+    var receiptLines = ArrayList<String>()
 
     var leftColumnBoundary = 0
     var rightColumnBoundary = 0
@@ -64,14 +67,32 @@ class ImageProductAnalyzer {
     }
 
     fun orderRowsInColumns() {
-
         val leftColumnSpaces = calculateSpacesBetweenRows(columnCell.leftColumnCells)
         val rightColumnSpaces = calculateSpacesBetweenRows(columnCell.rightColumnCells)
-
         getIndexesCells(columnCell, leftColumnSpaces, rightColumnSpaces)
+        joinNameAndPrice()
+    }
 
+    fun joinNameAndPrice() {
+        val items = min(columnCell.leftColumnCells.size, columnCell.rightColumnCells.size)
+        for (i in 0..<items) {
+            val name = getCellContent(columnCell.leftColumnCells[i])
+            val price = getCellContent(columnCell.rightColumnCells[i])
+            productList.add(name + " " + price)
+            receiptLines.add(name)
+            receiptLines.add(price)
+        }
 
     }
+
+    private fun getCellContent(cell: Cell): String {
+        return try {
+            cell.content
+        } catch (e: Exception) {
+            ""
+        }
+    }
+
 
     private fun getIndexesCells(
         columnCell: ColumnCell,
@@ -131,7 +152,7 @@ class ImageProductAnalyzer {
         listReduction(leftList, rightList, commonsList)
         leftList.forEach {
             val index = it.toInt()
-            productList.add(columnCell.leftColumnCells[index].content.trim())
+            nameList.add(columnCell.leftColumnCells[index].content.trim())
         }
         rightList.forEach {
             if (it == "" || it == "-") {
@@ -148,14 +169,12 @@ class ImageProductAnalyzer {
             }
         }
         println("Result:")
-        for (i in 0..productList.lastIndex) {
-            println("PRODUCT" + i.toString() + ";" + productList[i])
+        for (i in 0..nameList.lastIndex) {
+            println("PRODUCT" + i.toString() + ";" + nameList[i])
         }
         for (i in 0..pricesList.lastIndex) {
             println("PRICE" + i.toString() + ";" + pricesList[i])
         }
-
-
     }
 
     private fun listReduction(
@@ -195,8 +214,6 @@ class ImageProductAnalyzer {
 
         println("RedLeft  $leftList")
         println("RedRight $rightList")
-
-
     }
 
     private fun calculateSpacesBetweenRows(cells: List<Cell>): ArrayList<Boolean> {
@@ -205,7 +222,6 @@ class ImageProductAnalyzer {
             for (i in 0 until cells.lastIndex) {
                 val spaceBetween = Cell.getSpaceBetween(cells[i], cells[i + 1])
                 val height = cells[i].getHeight()
-//            println("Space: $spaceBetween,\tHeight $height")
                 if (spaceBetween > height * 0.3) {
                     columnSpaces.add(true)
                 } else {
@@ -213,7 +229,6 @@ class ImageProductAnalyzer {
                 }
             }
         }
-//    println("Size: ${columnSpaces.size} ${columnSpaces.size + columnSpaces.count { it == true }} $columnSpaces")
         return columnSpaces
     }
 
@@ -250,7 +265,5 @@ class ImageProductAnalyzer {
             }
         }
         return list
-
     }
-
 }

@@ -23,13 +23,9 @@ class ImageKeywordAnalyzer {
 
     val cellsInBounds = ArrayList<Cell>()
 
-    private val regexNIPfirst = """NIP(\.?:?)\s*(\d{10}|.{13})"""
-    private val regexNIPsecond = """(.IP|N.P|NI.)(\.?:?)\s*(\d{10}|.{13})"""
-    private val regexNIPthird = """(.IP|N.P|NI.)"""
-    private val regexPTUfirst =
-        """(.UMA|S.MA|SU.A|SUM.|.odatek|P.datek|Po.atek|Pod.tek|Poda.ek|Podat.k|Podate.)\s*\s*(PTU)\s*\d+[.,]\d\d"""
-    private val regexPTUsecond =
-        """(.UMA|S.MA|SU.A|SUM.|.odatek|P.datek|Po.atek|Pod.tek|Poda.ek|Podat.k|Podate.)\s*(.TU|P.U|PT.)\s*\d+[.,]\d\d"""
+    private val regexNIPfirst = """NIP(\.?:?)\s*(\d{10}|\d{3}-\d{2}-\d{2}-\d{3})"""
+    private val regexNIPsecond = """(.IP|N.P|NI.)(\.?:?)\s*(\d{10}|\d{3}-\d{2}-\d{2}-\d{3})"""
+
     private val regexPLNfirst =
         """(SUMA|.UMA|S.MA|SU.A|SUM.)\s*:?\s*(PLN)\s*"""
     private val regexPLNsecond =
@@ -158,9 +154,7 @@ class ImageKeywordAnalyzer {
     }
 
     private fun isContainsNip(cell: Cell): Boolean {
-        return Regex(regexNIPfirst).containsMatchIn(cell.content) || Regex(regexNIPsecond).containsMatchIn(
-            cell.content
-        ) ||
-                Regex(regexNIPthird).containsMatchIn(cell.content)
+        return Regex(regexNIPfirst).containsMatchIn(cell.content) ||
+                Regex(regexNIPsecond).containsMatchIn(cell.content)
     }
 }

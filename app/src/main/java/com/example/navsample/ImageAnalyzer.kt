@@ -8,8 +8,12 @@ import com.example.navsample.imageanalyzer.DataReader
 import com.example.navsample.imageanalyzer.ImageKeywordAnalyzer
 import com.example.navsample.imageanalyzer.ImageProductAnalyzer
 import com.google.mlkit.vision.common.InputImage
+import com.google.mlkit.vision.text.Text
 import com.google.mlkit.vision.text.TextRecognition
 import com.google.mlkit.vision.text.latin.TextRecognizerOptions
+import java.io.File
+import java.io.FileOutputStream
+import java.io.OutputStreamWriter
 
 
 class ImageAnalyzer {
@@ -39,7 +43,7 @@ class ImageAnalyzer {
         onFinish: () -> Unit,
     ) {
 
-        imageWidth = inputImage.width
+        imageWidth = inputImage.width / 10
 
         recognizer.process(inputImage)
             .addOnSuccessListener { _ ->
@@ -48,6 +52,7 @@ class ImageAnalyzer {
                 Log.e("ImageProcess", it.message.orEmpty())
             }.addOnCompleteListener {
                 val blocks = it.result.textBlocks
+                blocksToLog(blocks, "TRIM")
                 val cells = DataReader.convertContentToCells(blocks)
                 imageProductAnalyzer.orderLinesByColumnContinuously(imageWidth, cells)
                 imageProductAnalyzer.orderRowsInColumns()
@@ -55,6 +60,7 @@ class ImageAnalyzer {
 
                 val receiptParser = ReceiptParser()
                 productList = receiptParser.parseToProducts(imageProductAnalyzer.productList)
+                receiptLines = imageProductAnalyzer.receiptLines
                 onFinish.invoke()
             }
     }
@@ -74,6 +80,7 @@ class ImageAnalyzer {
                 Log.e("ImageProcess", it.message.orEmpty())
             }.addOnCompleteListener {
                 val blocks = it.result.textBlocks
+                blocksToLog(blocks, "WHOLE")
                 val cells = DataReader.convertContentToCells(blocks)
                 imageKeywordAnalyzer.findKeywordsIndexes(cells)
                 imageKeywordAnalyzer.findKeywordsValues(cells)
@@ -92,6 +99,37 @@ class ImageAnalyzer {
 
     }
 
+    private fun blocksToLog(blocks: List<Text.TextBlock>, prefix: String) {
+        data class ObjectItem(var text: String, var points: List<Int>) {
+            constructor(text: String, pixels: Array<android.graphics.Point>?) : this(
+                text,
+                pixels?.flatMap { point ->
+                    listOf(point.x, point.y)
+                }?.toList() ?: emptyList<Int>()
+            )
+        }
+
+        val lineConverted = ArrayList<ObjectItem>()
+        blocks.forEach { block ->
+            block.lines.forEach { line ->
+                lineConverted.add(ObjectItem(line.text, line.cornerPoints))
+            }
+        }
+        val lineOutputFile = File.createTempFile(prefix, ".txt")
+        val lineOutputStream = FileOutputStream(lineOutputFile)
+        val lineStreamWriter = OutputStreamWriter(lineOutputStream)
+
+
+        lineStreamWriter.write(blocks[0].lines[0].angle.toString())
+        lineStreamWriter.write("\n")
+        lineConverted.forEach { item ->
+            lineStreamWriter.write(item.points.toString())
+            lineStreamWriter.write(item.text)
+            lineStreamWriter.write("\n")
+        }
+        lineStreamWriter.close()
+        lineOutputStream.close()
+    }
 
 }
 

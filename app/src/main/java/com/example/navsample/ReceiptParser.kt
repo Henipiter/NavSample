@@ -16,16 +16,12 @@ class ReceiptParser {
         sortedProductListOnRecipe: MutableList<String>,
     ): ArrayList<ProductDTO> {
         //SORTOWANIE LISTY PRODUKTOW PO Y
-
         val productList = ArrayList<ProductDTO>()
         for (data in sortedProductListOnRecipe) {
-
             val parsedProduct = parseStringToProduct(data)
             if (parsedProduct.name != "---" || parsedProduct.finalPrice != "---") {
                 productList.add(parsedProduct)
             }
-//            Log.i("ImageProcess", "${data}\n${parsedProduct}")
-
         }
         return productList
     }
@@ -37,7 +33,6 @@ class ReceiptParser {
         val itemPrice = findItemPrice(productInformation, finalPrice.startIndex)
         val itemAmount = findItemAmount(productInformation, itemPrice.startIndex)
         val name = findName(productInformation, itemAmount.startIndex)
-
 
         return ProductDTO(
             null,
