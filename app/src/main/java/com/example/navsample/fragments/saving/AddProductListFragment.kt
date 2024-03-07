@@ -57,11 +57,6 @@ class AddProductListFragment : Fragment(), ItemClickListener {
                 }
             }
         }
-        receiptDataViewModel.productList.observe(viewLifecycleOwner) {
-            it?.let {
-                receiptDataViewModel.convertProductsToDTO()
-            }
-        }
         receiptDataViewModel.product.observe(viewLifecycleOwner) {
             it?.let {
                 productListAdapter.productList = it
@@ -107,7 +102,9 @@ class AddProductListFragment : Fragment(), ItemClickListener {
         recyclerViewEvent = binding.recyclerViewEvent
         productListAdapter = ProductDTOListAdapter(
             requireContext(),
-            receiptDataViewModel.product.value ?: arrayListOf(), this
+            receiptDataViewModel.product.value ?: arrayListOf(),
+            receiptDataViewModel.categoryList.value ?: arrayListOf(),
+            this
         ) { i: Int ->
             receiptDataViewModel.product.value?.get(i)?.let {
                 DeleteConfirmationDialog(
@@ -145,8 +142,9 @@ class AddProductListFragment : Fragment(), ItemClickListener {
                 .navigate(R.id.action_addProductListFragment_to_addProductFragment)
         }
         binding.confirmButton.setOnClickListener {
-            receiptDataViewModel.convertDTOToProduct()
-            receiptDataViewModel.insertProducts()
+            receiptDataViewModel.insertProducts(
+                receiptDataViewModel.product.value?.toList() ?: listOf()
+            )
             Navigation.findNavController(binding.root).popBackStack(R.id.menuFragment, false)
         }
     }

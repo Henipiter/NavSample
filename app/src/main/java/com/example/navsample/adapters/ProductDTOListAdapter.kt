@@ -5,14 +5,16 @@ import android.graphics.Color
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
-import com.example.navsample.DTO.ProductDTO
 import com.example.navsample.ItemClickListener
 import com.example.navsample.databinding.ProductDtoRowBinding
+import com.example.navsample.entities.Category
+import com.example.navsample.entities.Product
 import kotlin.math.roundToInt
 
 class ProductDTOListAdapter(
     var context: Context,
-    var productList: ArrayList<ProductDTO>,
+    var productList: ArrayList<Product>,
+    var categoryList: ArrayList<Category>,
     var itemClickListener: ItemClickListener,
     var onDelete: (Int) -> Unit,
 ) : RecyclerView.Adapter<ProductDTOListAdapter.MyViewHolder>() {
@@ -28,16 +30,26 @@ class ProductDTOListAdapter(
 
 
     override fun onBindViewHolder(holder: MyViewHolder, position: Int) {
+
         this.position = position
+
+        val category = try {
+
+
+            categoryList.filter { it.id == productList[position].categoryId }.first()
+        } catch (e: Exception) {
+            categoryList[0]
+        }
+
         holder.binding.ptuType.text = productList[position].ptuType.toString()
         holder.binding.amount.text = productList[position].amount.toString()
         holder.binding.itemPrice.text = productList[position].itemPrice.toString()
         holder.binding.finalPrice.text = productList[position].finalPrice.toString()
         holder.binding.storeName.text = ""
         holder.binding.receiptDate.text = ""
-        holder.binding.categoryName.text = productList[position].category.toString()
-        holder.binding.categoryColor.setBackgroundColor(Color.parseColor(productList[position].color))
-        holder.binding.productName.text = productList[position].name?.let { trimDescription(it) }
+        holder.binding.categoryName.text = category.name
+        holder.binding.categoryColor.setBackgroundColor(Color.parseColor(category.color))
+        holder.binding.productName.text = productList[position].name.let { trimDescription(it) }
         holder.binding.mainLayout.setOnClickListener {
             itemClickListener.onItemClick(position)
         }

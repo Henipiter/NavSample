@@ -3,7 +3,7 @@ package com.example.navsample
 
 import android.util.Log
 import androidx.camera.core.ExperimentalGetImage
-import com.example.navsample.DTO.ProductDTO
+import com.example.navsample.entities.Product
 import com.example.navsample.imageanalyzer.DataReader
 import com.example.navsample.imageanalyzer.ImageKeywordAnalyzer
 import com.example.navsample.imageanalyzer.ImageProductAnalyzer
@@ -32,7 +32,7 @@ class ImageAnalyzer {
 
 
     var receiptLines: ArrayList<String> = ArrayList()
-    var productList: ArrayList<ProductDTO> = ArrayList()
+    var productList: ArrayList<Product> = ArrayList()
 
     val imageProductAnalyzer = ImageProductAnalyzer()
     val imageKeywordAnalyzer = ImageKeywordAnalyzer()

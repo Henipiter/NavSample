@@ -8,10 +8,10 @@ data class ReceiptDTO(
     var id: Int?,
     var storeName: String?,
     var storeNIP: String?,
-    var receiptPLN: String?,
-    var receiptPTU: String?,
+    var receiptPLN: Float?,
+    var receiptPTU: Float?,
     var receiptDate: String?,
     var receiptTime: String?,
 ) : Parcelable {
-    constructor() : this(-1,"---", "---", "---", "---", "---", "---")
+    constructor() : this(-1, "---", "---", -1f, -1f, "---", "---")
 }

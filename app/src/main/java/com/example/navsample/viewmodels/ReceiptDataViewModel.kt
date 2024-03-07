@@ -7,7 +7,6 @@ import androidx.lifecycle.viewModelScope
 import com.example.navsample.ApplicationContext
 import com.example.navsample.DTO.ChartColors
 import com.example.navsample.DTO.ExperimentalAdapterArgument
-import com.example.navsample.DTO.ProductDTO
 import com.example.navsample.DTO.ReceiptDTO
 import com.example.navsample.DTO.StoreDTO
 import com.example.navsample.entities.Category
@@ -26,14 +25,13 @@ import kotlinx.coroutines.launch
 class ReceiptDataViewModel : ViewModel() {
     lateinit var store: MutableLiveData<StoreDTO?>
     lateinit var receipt: MutableLiveData<ReceiptDTO?>
-    lateinit var product: MutableLiveData<ArrayList<ProductDTO>>
+    lateinit var product: MutableLiveData<ArrayList<Product>>
     lateinit var category: MutableLiveData<Category?>
 
     lateinit var savedStore: MutableLiveData<Store>
     lateinit var savedReceipt: MutableLiveData<Receipt>
     lateinit var savedCategory: MutableLiveData<Category>
 
-    lateinit var productList: MutableLiveData<ArrayList<Product>>
     lateinit var productRichList: MutableLiveData<ArrayList<ProductRichData>>
     lateinit var receiptList: MutableLiveData<ArrayList<ReceiptWithStore>>
     lateinit var categoryList: MutableLiveData<ArrayList<Category>>
@@ -57,14 +55,13 @@ class ReceiptDataViewModel : ViewModel() {
         reorderedProductTiles = MutableLiveData<Boolean>(false)
         store = MutableLiveData<StoreDTO?>(null)
         receipt = MutableLiveData<ReceiptDTO?>(null)
-        product = MutableLiveData<ArrayList<ProductDTO>>(ArrayList())
+        product = MutableLiveData<ArrayList<Product>>(ArrayList())
         category = MutableLiveData<Category?>(null)
 
         savedStore = MutableLiveData<Store>(null)
         savedReceipt = MutableLiveData<Receipt>(null)
         savedCategory = MutableLiveData<Category>(null)
 
-        productList = MutableLiveData<ArrayList<Product>>(null)
         productRichList = MutableLiveData<ArrayList<ProductRichData>>(null)
         receiptList = MutableLiveData<ArrayList<ReceiptWithStore>>(null)
         categoryList = MutableLiveData<ArrayList<Category>>(null)
@@ -107,9 +104,6 @@ class ReceiptDataViewModel : ViewModel() {
         }
     }
 
-    fun insertProducts() {
-        productList.value?.let { insertProducts(it) }
-    }
 
     fun insertReceipt(newReceipt: Receipt) {
         viewModelScope.launch {
@@ -303,7 +297,7 @@ class ReceiptDataViewModel : ViewModel() {
 
     fun refreshProductListWithConversion(receiptId: Int) {
         viewModelScope.launch {
-            productList.postValue(dao?.getAllProducts(receiptId)?.let { ArrayList(it) })
+            product.postValue(dao?.getAllProducts(receiptId)?.let { ArrayList(it) })
         }
     }
 
@@ -312,49 +306,6 @@ class ReceiptDataViewModel : ViewModel() {
             dao?.insertCategory(category)
         }
     }
-
-    fun convertProductsToDTO() {
-        val newProductDTOs = ArrayList<ProductDTO>()
-        productList.value?.forEach { product ->
-            val category = getCategory(product.categoryId)
-            newProductDTOs.add(
-                ProductDTO(
-                    product.id,
-                    receipt.value?.id ?: product.receiptId,
-                    product.name,
-                    product.finalPrice.toString(),
-                    category.name,
-                    category.color,
-                    product.amount.toString(),
-                    product.itemPrice.toString(),
-                    product.ptuType,
-                    product.raw
-                )
-            )
-        }
-        product.value = newProductDTOs
-    }
-
-    fun convertDTOToProduct() {
-        val newProducts = ArrayList<Product>()
-        val receiptId = savedReceipt.value?.id ?: receipt.value?.id
-        product.value?.forEach { productDTO ->
-            val newProduct = Product(
-                receiptId ?: productDTO.id ?: -1,
-                productDTO.name.toString(),
-                getCategoryId(productDTO.category.toString()),
-                transformToFloat(productDTO.amount.toString()),
-                transformToFloat(productDTO.itemPrice.toString()),
-                transformToFloat(productDTO.finalPrice.toString()),
-                productDTO.ptuType.toString(),
-                productDTO.original.toString()
-            )
-            newProduct.id = productDTO.id
-            newProducts.add(newProduct)
-        }
-        productList.value = newProducts
-    }
-
 
     private fun getCategoryId(name: String): Int {
         val categoryNames = categoryList.value?.map { it.name } ?: listOf()

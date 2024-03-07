@@ -84,8 +84,8 @@ class ImageImportFragment : Fragment() {
                         -1,
                         imageAnalyzer.companyName,
                         imageAnalyzer.valueNIP,
-                        imageAnalyzer.valuePLN.toString(),
-                        imageAnalyzer.valuePTU.toString(),
+                        imageAnalyzer.valuePLN.toString().toFloat(),
+                        imageAnalyzer.valuePTU.toString().toFloat(),
                         imageAnalyzer.valueDate,
                         imageAnalyzer.valueTime
                     )

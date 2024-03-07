@@ -172,8 +172,8 @@ class ReceiptListFragment : Fragment(), ItemClickListener {
                 receipt.id,
                 receipt.name,
                 receipt.nip,
-                receipt.pln.toString(),
-                receipt.ptu.toString(),
+                receipt.pln.toString().toFloat(),
+                receipt.ptu.toString().toFloat(),
                 receipt.date,
                 receipt.time
             )

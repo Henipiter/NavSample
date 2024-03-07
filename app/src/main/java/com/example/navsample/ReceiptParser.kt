@@ -1,25 +1,22 @@
 package com.example.navsample
 
-import com.example.navsample.DTO.ChartColors
-import com.example.navsample.DTO.ProductDTO
+import com.example.navsample.entities.Product
 
 class ReceiptParser {
     val REGEX_PRICE = """-*(\d+\s*[,.]\s*\d\s*\d)|(\d+\s+\d\s*\d)"""
     val REGEX_AMOUNT = """(\d+[,.]\s*\d*\s*\d*\s*\d*)|(\d+\s*)"""
 
-    data class ReceiptElement(val data: String, val startIndex: Int, val endIndex: Int) {
-        constructor() : this("", 1, -1)
-    }
+    data class ReceiptElement(val data: String, val startIndex: Int, val endIndex: Int)
 
 
     fun parseToProducts(
         sortedProductListOnRecipe: MutableList<String>,
-    ): ArrayList<ProductDTO> {
+    ): ArrayList<Product> {
         //SORTOWANIE LISTY PRODUKTOW PO Y
-        val productList = ArrayList<ProductDTO>()
+        val productList = ArrayList<Product>()
         for (data in sortedProductListOnRecipe) {
             val parsedProduct = parseStringToProduct(data)
-            if (parsedProduct.name != "---" || parsedProduct.finalPrice != "---") {
+            if (parsedProduct.name != "---" || parsedProduct.finalPrice != -1f) {
                 productList.add(parsedProduct)
             }
         }
@@ -27,20 +24,18 @@ class ReceiptParser {
     }
 
 
-    fun parseStringToProduct(productInformation: String): ProductDTO {
+    fun parseStringToProduct(productInformation: String): Product {
         val ptuType = findPtuType(productInformation)
         val finalPrice = findFinalPrice(productInformation)
         val itemPrice = findItemPrice(productInformation, finalPrice.startIndex)
         val itemAmount = findItemAmount(productInformation, itemPrice.startIndex)
         val name = findName(productInformation, itemAmount.startIndex)
 
-        return ProductDTO(
-            null,
-            null,
+        return Product(
+            -1,
             name.data.trim(),
+            0,
             fixPrize(finalPrice.data),
-            "",
-            ChartColors.DEFAULT_CATEGORY_COLOR_STRING,
             fixPrize(itemAmount.data),
             fixPrize(itemPrice.data),
             fixPtuType(ptuType.data),
@@ -48,13 +43,20 @@ class ReceiptParser {
         )
     }
 
-    private fun fixPrize(price: String): String {
+
+    private fun fixPrize(price: String): Float {
         var newPrice = price.replace("\\s*".toRegex(), " ").trim()
         newPrice = newPrice.replace(",", ".")
         if (!newPrice.contains(".")) {
             newPrice = newPrice.replaceFirst(" ", ".")
         }
-        return newPrice.replace("\\s*".toRegex(), "").trim()
+        newPrice = newPrice.replace("\\s*".toRegex(), "").trim()
+
+        return try {
+            newPrice.toFloat()
+        } catch (exception: Exception) {
+            0f
+        }
 
 
     }

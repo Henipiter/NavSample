@@ -11,12 +11,12 @@ import androidx.fragment.app.activityViewModels
 import androidx.navigation.Navigation
 import androidx.navigation.fragment.navArgs
 import com.example.navsample.DTO.ChartColors
-import com.example.navsample.DTO.ProductDTO
 import com.example.navsample.R
 import com.example.navsample.ReceiptParser
 import com.example.navsample.adapters.CategoryDropdownAdapter
 import com.example.navsample.databinding.FragmentAddProductBinding
 import com.example.navsample.entities.Category
+import com.example.navsample.entities.Product
 import com.example.navsample.viewmodels.ReceiptDataViewModel
 import com.example.navsample.viewmodels.ReceiptImageViewModel
 import kotlin.math.round
@@ -34,7 +34,7 @@ class AddProductFragment : Fragment() {
     private val receiptDataViewModel: ReceiptDataViewModel by activityViewModels()
 
     private var productOriginalInput = ""
-    private var productOriginal: ProductDTO? = null
+    private var productOriginal: Product? = null
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?,
@@ -149,15 +149,23 @@ class AddProductFragment : Fragment() {
         if (args.productIndex != -1) {
             productOriginal = receiptDataViewModel.product.value?.get(args.productIndex)
 
-            productOriginal?.let {
-                binding.productNameInput.setText(it.name)
-                binding.productFinalPriceInput.setText(it.finalPrice.toString())
-                binding.productItemPriceInput.setText(it.itemPrice.toString())
-                binding.productAmountInput.setText(it.amount.toString())
-                binding.ptuTypeInput.setText(it.ptuType.toString())
-                binding.productCategoryInput.setText(it.category)
-                binding.productOriginalInput.setText(it.original)
-                productOriginalInput = it.original.toString()
+
+            productOriginal?.let { product ->
+                val category = try {
+                    receiptDataViewModel.categoryList.value?.filter { it.id == product.categoryId }
+                        ?.first()
+                } catch (e: Exception) {
+                    receiptDataViewModel.categoryList.value!![0]
+                }
+
+                binding.productNameInput.setText(product.name)
+                binding.productFinalPriceInput.setText(product.finalPrice.toString())
+                binding.productItemPriceInput.setText(product.itemPrice.toString())
+                binding.productAmountInput.setText(product.amount.toString())
+                binding.ptuTypeInput.setText(product.ptuType)
+                binding.productCategoryInput.setText(category?.name)
+                binding.productOriginalInput.setText(product.raw)
+                productOriginalInput = product.raw
 
             }
         }
@@ -205,13 +213,16 @@ class AddProductFragment : Fragment() {
         binding.productOriginalInput.doOnTextChanged { actual, _, _, _ ->
             val receiptParser = ReceiptParser()
             val product = receiptParser.parseStringToProduct(actual.toString())
+            val category =
+                receiptDataViewModel.categoryList.value?.filter { it.id == product.categoryId }
+                    ?.first()
 
             binding.productNameInput.setText(product.name)
             binding.productFinalPriceInput.setText(product.finalPrice.toString())
             binding.productItemPriceInput.setText(product.itemPrice.toString())
             binding.productAmountInput.setText(product.amount.toString())
-            binding.ptuTypeInput.setText(product.ptuType.toString())
-            binding.productCategoryInput.setText(product.category)
+            binding.ptuTypeInput.setText(product.ptuType)
+            binding.productCategoryInput.setText(category?.name)
 
         }
 
@@ -230,18 +241,17 @@ class AddProductFragment : Fragment() {
                     ChartColors.DEFAULT_CATEGORY_COLOR_STRING
                 )
 
-            val product = ProductDTO(
-                productOriginal?.id,
-                productOriginal?.receiptId,
+            val product = Product(
+                productOriginal?.receiptId ?: -1,
                 binding.productNameInput.text.toString(),
-                binding.productFinalPriceInput.text.toString(),
-                category.name,
-                category.color,
-                binding.productAmountInput.text.toString(),
-                binding.productItemPriceInput.text.toString(),
+                category.id ?: 0,
+                binding.productFinalPriceInput.text.toString().toFloat(),
+                binding.productAmountInput.text.toString().toFloat(),
+                binding.productItemPriceInput.text.toString().toFloat(),
                 binding.ptuTypeInput.text.toString(),
                 binding.productOriginalInput.text.toString()
             )
+            product.id = productOriginal?.id
 
             if (args.productIndex != -1) {
                 receiptDataViewModel.product.value!![args.productIndex] = product

@@ -83,8 +83,8 @@ class AddReceiptFragment : Fragment() {
     }
 
     private fun setReceiptDataToInputs(receipt: ReceiptDTO) {
-        binding.receiptPTUInput.setText(receipt.receiptPTU)
-        binding.receiptPLNInput.setText(receipt.receiptPLN)
+        binding.receiptPTUInput.setText(receipt.receiptPTU.toString())
+        binding.receiptPLNInput.setText(receipt.receiptPLN.toString())
         binding.receiptDateInput.setText(receipt.receiptDate)
         binding.receiptTimeInput.setText(receipt.receiptTime)
     }
@@ -245,8 +245,8 @@ class AddReceiptFragment : Fragment() {
                     receipt.id,
                     savedStore.name,
                     savedStore.nip,
-                    receipt.pln.toString(),
-                    receipt.ptu.toString(),
+                    receipt.pln.toString().toFloat(),
+                    receipt.ptu.toString().toFloat(),
                     receipt.date,
                     receipt.time
                 )
@@ -259,8 +259,8 @@ class AddReceiptFragment : Fragment() {
             changeViewToDisplayMode()
 
             binding.storeNIPInput.setText(receiptDataViewModel.receipt.value?.storeNIP)
-            binding.receiptPTUInput.setText(receiptDataViewModel.receipt.value?.receiptPTU)
-            binding.receiptPLNInput.setText(receiptDataViewModel.receipt.value?.receiptPLN)
+            binding.receiptPTUInput.setText(receiptDataViewModel.receipt.value?.receiptPTU.toString())
+            binding.receiptPLNInput.setText(receiptDataViewModel.receipt.value?.receiptPLN.toString())
             binding.receiptDateInput.setText(receiptDataViewModel.receipt.value?.receiptDate)
             binding.receiptTimeInput.setText(receiptDataViewModel.receipt.value?.receiptTime)
         }
