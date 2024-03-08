@@ -12,16 +12,14 @@ class ImageKeywordAnalyzer {
     var indexOfCellWithDate = -1
     var indexOfCellWithTime = -1
     var indexOfCellWithNip = -1
-    var indexOfCellCompanyName = 0
 
-    var companyName: String? = null
-    var valueTotalSum: Double? = null
-    var valueTaxSum: Double? = null
-    var valueDate: String? = null
-    var valueTime: String? = null
-    var valueNIP: String? = null
+    var companyName: String = ""
+    var valueTotalSum: Double = 0.0
+    var valueTaxSum: Double = 0.0
+    var valueDate: String = ""
+    var valueTime: String = ""
+    var valueNIP: String = ""
 
-    val cellsInBounds = ArrayList<Cell>()
 
     private val regexNIPfirst = """NIP(\.?:?)\s*(\d{10}|\d{3}-\d{2}-\d{2}-\d{3})"""
     private val regexNIPsecond = """(.IP|N.P|NI.)(\.?:?)\s*(\d{10}|\d{3}-\d{2}-\d{2}-\d{3})"""
@@ -95,7 +93,7 @@ class ImageKeywordAnalyzer {
             valueDate = Regex(regexDate).find(data[indexOfCellWithDate].content)?.value?.replace(
                 "\\s".toRegex(),
                 ""
-            )
+            ) ?: ""
         }
         if (indexOfCellWithTime == -1) {
             println("not found 'time'")
@@ -103,7 +101,7 @@ class ImageKeywordAnalyzer {
             valueTime = Regex(regexTime).find(data[indexOfCellWithTime].content)?.value?.replace(
                 "\\s".toRegex(),
                 ""
-            )
+            ) ?: ""
         }
         if (indexOfCellWithNip == -1) {
             println("not found 'nip'")

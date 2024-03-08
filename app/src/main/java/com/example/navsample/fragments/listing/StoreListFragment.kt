@@ -9,10 +9,10 @@ import androidx.fragment.app.activityViewModels
 import androidx.navigation.Navigation
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.example.navsample.DTO.StoreDTO
 import com.example.navsample.ItemClickListener
 import com.example.navsample.adapters.StoreListAdapter
 import com.example.navsample.databinding.FragmentStoreListBinding
+import com.example.navsample.entities.Store
 import com.example.navsample.fragments.dialogs.DeleteConfirmationDialog
 import com.example.navsample.viewmodels.ReceiptDataViewModel
 
@@ -72,8 +72,7 @@ class StoreListFragment : Fragment(), ItemClickListener {
 
     override fun onItemClick(index: Int) {
         val store = receiptDataViewModel.storeList.value!![index]
-        receiptDataViewModel.savedStore.value = store
-        receiptDataViewModel.store.value = StoreDTO(store.name, store.nip)
+        receiptDataViewModel.store.value = Store(store.name, store.nip)
         val action =
             ListingFragmentDirections.actionListingFragmentToAddStoreFragment()
         Navigation.findNavController(requireView()).navigate(action)

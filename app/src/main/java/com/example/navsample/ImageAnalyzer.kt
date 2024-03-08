@@ -16,19 +16,19 @@ import java.io.FileOutputStream
 import java.io.OutputStreamWriter
 
 
-class ImageAnalyzer(var receiptId: Int) {
+class ImageAnalyzer {
 
 
     val recognizer = TextRecognition.getClient(TextRecognizerOptions.DEFAULT_OPTIONS)
     var imageWidth = 0
 
 
-    var valuePLN: Double? = null
-    var valuePTU: Double? = null
-    var valueDate: String? = null
-    var valueTime: String? = null
-    var valueNIP: String? = null
-    var companyName: String? = null
+    var valuePLN: Double = 0.0
+    var valuePTU: Double = 0.0
+    var valueDate: String = ""
+    var valueTime: String = ""
+    var valueNIP: String = ""
+    var companyName: String = ""
 
 
     var receiptLines: ArrayList<String> = ArrayList()
@@ -40,9 +40,9 @@ class ImageAnalyzer(var receiptId: Int) {
     @ExperimentalGetImage
     fun analyzeProductList(
         inputImage: InputImage,
+        receiptId: Int,
         onFinish: () -> Unit,
     ) {
-
         imageWidth = inputImage.width / 10
 
         recognizer.process(inputImage)
@@ -57,14 +57,12 @@ class ImageAnalyzer(var receiptId: Int) {
                 imageProductAnalyzer.orderLinesByColumnContinuously(imageWidth, cells)
                 imageProductAnalyzer.orderRowsInColumns()
 
-
                 val receiptParser = ReceiptParser(receiptId)
                 productList = receiptParser.parseToProducts(imageProductAnalyzer.productList)
                 receiptLines = imageProductAnalyzer.receiptLines
                 onFinish.invoke()
             }
     }
-
 
     @ExperimentalGetImage
     fun analyzeReceipt(

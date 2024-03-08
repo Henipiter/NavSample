@@ -44,7 +44,7 @@ class AddStoreFragment : Fragment() {
         receiptDataViewModel.store.value = null
 
 
-        if (receiptDataViewModel.savedStore.value != null) {
+        if (receiptDataViewModel.store.value != null) {
             changeViewToDisplayMode()
         } else {
             mode = DataMode.NEW
@@ -82,15 +82,15 @@ class AddStoreFragment : Fragment() {
             }
             saveChangesToDatabase()
             changeViewToDisplayMode()
-            receiptDataViewModel.savedStore.value?.nip = binding.storeNIPInput.text.toString()
-            receiptDataViewModel.savedStore.value?.name = binding.storeNameInput.text.toString()
+            receiptDataViewModel.store.value?.nip = binding.storeNIPInput.text.toString()
+            receiptDataViewModel.store.value?.name = binding.storeNameInput.text.toString()
             receiptDataViewModel.refreshStoreList()
             Navigation.findNavController(it).popBackStack()
         }
         binding.cancelChangesButton.setOnClickListener {
             changeViewToDisplayMode()
-            binding.storeNIPInput.setText(receiptDataViewModel.savedStore.value?.nip)
-            binding.storeNameInput.setText(receiptDataViewModel.savedStore.value?.name)
+            binding.storeNIPInput.setText(receiptDataViewModel.store.value?.nip)
+            binding.storeNameInput.setText(receiptDataViewModel.store.value?.name)
         }
 
     }
@@ -104,7 +104,7 @@ class AddStoreFragment : Fragment() {
             receiptDataViewModel.insertStore(store)
         }
         if (mode == DataMode.EDIT) {
-            val store = receiptDataViewModel.savedStore.value!!
+            val store = receiptDataViewModel.store.value!!
             store.nip = binding.storeNIPInput.text.toString()
             store.name = binding.storeNameInput.text.toString()
             receiptDataViewModel.updateStore(store)

@@ -8,7 +8,6 @@ import com.example.navsample.ApplicationContext
 import com.example.navsample.DTO.ChartColors
 import com.example.navsample.DTO.ExperimentalAdapterArgument
 import com.example.navsample.DTO.ReceiptDTO
-import com.example.navsample.DTO.StoreDTO
 import com.example.navsample.entities.Category
 import com.example.navsample.entities.Product
 import com.example.navsample.entities.Receipt
@@ -23,12 +22,11 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 class ReceiptDataViewModel : ViewModel() {
-    lateinit var store: MutableLiveData<StoreDTO?>
+    lateinit var store: MutableLiveData<Store>
     lateinit var receipt: MutableLiveData<ReceiptDTO?>
     lateinit var product: MutableLiveData<ArrayList<Product>>
     lateinit var category: MutableLiveData<Category?>
 
-    lateinit var savedStore: MutableLiveData<Store>
     lateinit var savedReceipt: MutableLiveData<Receipt>
     lateinit var savedCategory: MutableLiveData<Category>
 
@@ -53,12 +51,11 @@ class ReceiptDataViewModel : ViewModel() {
 
     fun clearData() {
         reorderedProductTiles = MutableLiveData<Boolean>(false)
-        store = MutableLiveData<StoreDTO?>(null)
+        store = MutableLiveData<Store>(null)
         receipt = MutableLiveData<ReceiptDTO?>(null)
         product = MutableLiveData<ArrayList<Product>>(ArrayList())
         category = MutableLiveData<Category?>(null)
 
-        savedStore = MutableLiveData<Store>(null)
         savedReceipt = MutableLiveData<Receipt>(null)
         savedCategory = MutableLiveData<Category>(null)
 
@@ -149,19 +146,19 @@ class ReceiptDataViewModel : ViewModel() {
         }
     }
 
-    fun insertStore(store: Store) {
-        Log.i("Database", "insert store ${store.name}")
+    fun insertStore(newStore: Store) {
+        Log.i("Database", "insert store ${newStore.name}")
         viewModelScope.launch {
             try {
                 dao?.let {
-                    val rowId = dao.insertStore(store)
-                    store.id = dao.getStoreId(rowId)
+                    val rowId = dao.insertStore(newStore)
+                    newStore.id = dao.getStoreId(rowId)
                 }
-                Log.i("Database", "inserted receipt with id ${store.id}")
+                Log.i("Database", "inserted receipt with id ${newStore.id}")
             } catch (e: Exception) {
                 Log.e("Insert store to DB", e.message.toString())
             }
-            savedStore.postValue(store)
+            store.postValue(newStore)
             refreshStoreList()
         }
     }
@@ -194,7 +191,7 @@ class ReceiptDataViewModel : ViewModel() {
         viewModelScope.launch {
             try {
                 dao?.let {
-                    savedStore.postValue(dao.getStoreById(id))
+                    store.postValue(dao.getStoreById(id))
                 }
             } catch (e: Exception) {
                 Log.e("Insert store to DB", e.message.toString())
@@ -202,14 +199,14 @@ class ReceiptDataViewModel : ViewModel() {
         }
     }
 
-    fun updateStore(store: Store) {
-        Log.i("Database", "update store with id ${store.id}: ${store.name}")
+    fun updateStore(newStore: Store) {
+        Log.i("Database", "update store with id ${newStore.id}: ${newStore.name}")
         viewModelScope.launch(Dispatchers.IO) {
             dao?.let {
-                dao.updateStore(store)
+                dao.updateStore(newStore)
             }
         }
-        savedStore.value = store
+        store.value = newStore
     }
 
     fun refreshReceiptList(name: String) {

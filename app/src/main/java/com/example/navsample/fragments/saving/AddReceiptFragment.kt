@@ -61,7 +61,7 @@ class AddReceiptFragment : Fragment() {
         if (receiptDataViewModel.receipt.value == null) {
             changeViewToNewMode()
         }
-        receiptDataViewModel.savedStore.value?.let {
+        receiptDataViewModel.store.value?.let {
             setStoreDataToInputs(it)
         }
         receiptDataViewModel.receipt.value?.let { receipt ->
@@ -127,7 +127,7 @@ class AddReceiptFragment : Fragment() {
 
 
         }
-        receiptDataViewModel.savedStore.observe(viewLifecycleOwner) {
+        receiptDataViewModel.store.observe(viewLifecycleOwner) {
             it?.let {
                 setStoreDataToInputs(it)
             }
@@ -196,7 +196,6 @@ class AddReceiptFragment : Fragment() {
             }
             receiptDataViewModel.insertReceipt(receipt)
         } else if (mode == DataMode.EDIT) {
-            pickedStore = receiptDataViewModel.savedStore.value
             receiptDataViewModel.receipt.value?.let {
                 val receipt = Receipt(-1, -1F, -1F, "", "")
                 receipt.id = it.id
@@ -209,7 +208,7 @@ class AddReceiptFragment : Fragment() {
 
             }
         }
-        pickedStore = receiptDataViewModel.savedStore.value
+        pickedStore = receiptDataViewModel.store.value
 
 
     }
@@ -240,7 +239,7 @@ class AddReceiptFragment : Fragment() {
             saveChangesToDatabase()
 
             receiptDataViewModel.savedReceipt.value?.let { receipt ->
-                val savedStore = receiptDataViewModel.savedStore.value ?: Store("", "")
+                val savedStore = receiptDataViewModel.store.value ?: Store("", "")
                 receiptDataViewModel.receipt.value = ReceiptDTO(
                     receipt.id,
                     savedStore.name,

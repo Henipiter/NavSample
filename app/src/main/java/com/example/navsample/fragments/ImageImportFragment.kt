@@ -19,10 +19,9 @@ import com.canhub.cropper.CropImageContract
 import com.canhub.cropper.CropImageContractOptions
 import com.canhub.cropper.CropImageOptions
 import com.example.navsample.DTO.ReceiptDTO
-import com.example.navsample.DTO.StoreDTO
 import com.example.navsample.ImageAnalyzer
 import com.example.navsample.databinding.FragmentImageImportBinding
-import com.example.navsample.exception.NoReceiptIdException
+import com.example.navsample.entities.Store
 import com.example.navsample.viewmodels.ReceiptDataViewModel
 import com.example.navsample.viewmodels.ReceiptImageViewModel
 import com.google.mlkit.vision.common.InputImage
@@ -55,10 +54,7 @@ class ImageImportFragment : Fragment() {
 
         initObserver()
 
-
-        imageAnalyzer = ImageAnalyzer(
-            receiptDataViewModel.savedReceipt.value?.id ?: throw NoReceiptIdException()
-        )
+        imageAnalyzer = ImageAnalyzer()
         binding.loadImage.setOnClickListener {
             val action = ImageImportFragmentDirections.actionImageImportFragmentToCropFragment()
             Navigation.findNavController(view).navigate(action)
@@ -76,13 +72,14 @@ class ImageImportFragment : Fragment() {
         binding.analyzeButton.setOnClickListener {
             goNext = true
             binding.indeterminateBar.visibility = View.VISIBLE
+
             analyzedImage?.let { it1 ->
                 imageAnalyzer.analyzeReceipt(
                     it1
                 ) {
 //                    drawRectangles()
 
-                    val store = StoreDTO(imageAnalyzer.companyName, imageAnalyzer.valueNIP)
+                    val store = Store(imageAnalyzer.companyName, imageAnalyzer.valueNIP)
                     val receipt = ReceiptDTO(
                         -1,
                         imageAnalyzer.companyName,

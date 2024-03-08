@@ -77,12 +77,12 @@ class AddProductListFragment : Fragment(), ItemClickListener {
 
     @ExperimentalGetImage
     private fun analyzeImage() {
-        val imageAnalyzer = ImageAnalyzer(
-            receiptDataViewModel.savedReceipt.value?.id ?: throw NoReceiptIdException()
-        )
+        val receiptId = receiptDataViewModel.savedReceipt.value?.id ?: throw NoReceiptIdException()
+        val imageAnalyzer = ImageAnalyzer()
         receiptImageViewModel.bitmapCropped.value?.let {
             imageAnalyzer.analyzeProductList(
-                InputImage.fromBitmap(it, 0)
+                InputImage.fromBitmap(it, 0),
+                receiptId
             ) {
                 receiptDataViewModel.product.value = imageAnalyzer.productList
                 val analyzed =
@@ -130,7 +130,7 @@ class AddProductListFragment : Fragment(), ItemClickListener {
             startCameraWithUri()
             true
         }
-        binding.storeDetails.text = receiptDataViewModel.savedStore.value?.name
+        binding.storeDetails.text = receiptDataViewModel.store.value?.name
         recyclerViewEvent.adapter = productListAdapter
         recyclerViewEvent.layoutManager =
             LinearLayoutManager(requireContext(), LinearLayoutManager.VERTICAL, false)

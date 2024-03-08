@@ -10,13 +10,13 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.navigation.Navigation
 import androidx.navigation.fragment.navArgs
-import com.example.navsample.DTO.ChartColors
 import com.example.navsample.R
 import com.example.navsample.ReceiptParser
 import com.example.navsample.adapters.CategoryDropdownAdapter
 import com.example.navsample.databinding.FragmentAddProductBinding
 import com.example.navsample.entities.Category
 import com.example.navsample.entities.Product
+import com.example.navsample.exception.NoCategoryIdException
 import com.example.navsample.exception.NoReceiptIdException
 import com.example.navsample.viewmodels.ReceiptDataViewModel
 import com.example.navsample.viewmodels.ReceiptImageViewModel
@@ -36,7 +36,7 @@ class AddProductFragment : Fragment() {
 
     private var productOriginalInput = ""
     private var productOriginal: Product? = null
-
+    private var chosenCategory = Category("", "")
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?,
     ): View {
@@ -61,6 +61,9 @@ class AddProductFragment : Fragment() {
                 ).also { adapter ->
                     binding.productCategoryInput.setAdapter(adapter)
                 }
+            }
+            if (chosenCategory.name == "") {
+                chosenCategory = it[0]
             }
         }
     }
@@ -156,7 +159,10 @@ class AddProductFragment : Fragment() {
                     receiptDataViewModel.categoryList.value?.filter { it.id == product.categoryId }
                         ?.first()
                 } catch (e: Exception) {
-                    receiptDataViewModel.categoryList.value!![0]
+                    null
+                }
+                if (category != null) {
+                    chosenCategory = category
                 }
 
                 binding.productNameInput.setText(product.name)
@@ -164,7 +170,7 @@ class AddProductFragment : Fragment() {
                 binding.productItemPriceInput.setText(product.itemPrice.toString())
                 binding.productAmountInput.setText(product.amount.toString())
                 binding.ptuTypeInput.setText(product.ptuType)
-                binding.productCategoryInput.setText(category?.name)
+                binding.productCategoryInput.setText(chosenCategory.name)
                 binding.productOriginalInput.setText(product.raw)
                 productOriginalInput = product.raw
 
@@ -174,8 +180,8 @@ class AddProductFragment : Fragment() {
             binding.productOriginalLayout.visibility = View.INVISIBLE
         }
         binding.productCategoryInput.setOnItemClickListener { adapter, _, i, _ ->
-            val category = adapter.getItemAtPosition(i) as Category
-            binding.productCategoryInput.setText(category.name)
+            chosenCategory = adapter.getItemAtPosition(i) as Category
+            binding.productCategoryInput.setText(chosenCategory.name)
         }
 
         binding.productCategoryLayout.setStartIconOnClickListener {
@@ -216,16 +222,21 @@ class AddProductFragment : Fragment() {
                 receiptDataViewModel.savedReceipt.value?.id ?: throw NoReceiptIdException()
             )
             val product = receiptParser.parseStringToProduct(actual.toString())
-            val category =
+            val category = try {
                 receiptDataViewModel.categoryList.value?.filter { it.id == product.categoryId }
                     ?.first()
-
+            } catch (e: Exception) {
+                null
+            }
+            if (category != null) {
+                chosenCategory = category
+            }
             binding.productNameInput.setText(product.name)
             binding.productFinalPriceInput.setText(product.finalPrice.toString())
             binding.productItemPriceInput.setText(product.itemPrice.toString())
             binding.productAmountInput.setText(product.amount.toString())
             binding.ptuTypeInput.setText(product.ptuType)
-            binding.productCategoryInput.setText(category?.name)
+            binding.productCategoryInput.setText(chosenCategory.name)
 
         }
 
@@ -238,15 +249,11 @@ class AddProductFragment : Fragment() {
                 return@setOnClickListener
             }
 
-            val category = Category(
-                binding.productCategoryInput.text.toString(),
-                ChartColors.DEFAULT_CATEGORY_COLOR_STRING
-            )
 
             val product = Product(
                 productOriginal?.receiptId ?: throw NoReceiptIdException(),
                 binding.productNameInput.text.toString(),
-                category.id ?: 1,
+                chosenCategory.id ?: throw NoCategoryIdException(),
                 binding.productFinalPriceInput.text.toString().toFloat(),
                 binding.productAmountInput.text.toString().toFloat(),
                 binding.productItemPriceInput.text.toString().toFloat(),
