@@ -2,7 +2,7 @@ package com.example.navsample
 
 import com.example.navsample.entities.Product
 
-class ReceiptParser {
+class ReceiptParser(var receiptId: Int) {
     val REGEX_PRICE = """-*(\d+\s*[,.]\s*\d\s*\d)|(\d+\s+\d\s*\d)"""
     val REGEX_AMOUNT = """(\d+[,.]\s*\d*\s*\d*\s*\d*)|(\d+\s*)"""
 
@@ -32,9 +32,9 @@ class ReceiptParser {
         val name = findName(productInformation, itemAmount.startIndex)
 
         return Product(
-            -1,
+            receiptId,
             name.data.trim(),
-            0,
+            1,
             fixPrize(finalPrice.data),
             fixPrize(itemAmount.data),
             fixPrize(itemPrice.data),

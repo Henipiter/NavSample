@@ -17,6 +17,7 @@ import com.example.navsample.adapters.CategoryDropdownAdapter
 import com.example.navsample.databinding.FragmentAddProductBinding
 import com.example.navsample.entities.Category
 import com.example.navsample.entities.Product
+import com.example.navsample.exception.NoReceiptIdException
 import com.example.navsample.viewmodels.ReceiptDataViewModel
 import com.example.navsample.viewmodels.ReceiptImageViewModel
 import kotlin.math.round
@@ -211,7 +212,9 @@ class AddProductFragment : Fragment() {
             }
         }
         binding.productOriginalInput.doOnTextChanged { actual, _, _, _ ->
-            val receiptParser = ReceiptParser()
+            val receiptParser = ReceiptParser(
+                receiptDataViewModel.savedReceipt.value?.id ?: throw NoReceiptIdException()
+            )
             val product = receiptParser.parseStringToProduct(actual.toString())
             val category =
                 receiptDataViewModel.categoryList.value?.filter { it.id == product.categoryId }
@@ -235,16 +238,15 @@ class AddProductFragment : Fragment() {
                 return@setOnClickListener
             }
 
-            val category =
-                Category(
-                    binding.productCategoryInput.text.toString(),
-                    ChartColors.DEFAULT_CATEGORY_COLOR_STRING
-                )
+            val category = Category(
+                binding.productCategoryInput.text.toString(),
+                ChartColors.DEFAULT_CATEGORY_COLOR_STRING
+            )
 
             val product = Product(
-                productOriginal?.receiptId ?: -1,
+                productOriginal?.receiptId ?: throw NoReceiptIdException(),
                 binding.productNameInput.text.toString(),
-                category.id ?: 0,
+                category.id ?: 1,
                 binding.productFinalPriceInput.text.toString().toFloat(),
                 binding.productAmountInput.text.toString().toFloat(),
                 binding.productItemPriceInput.text.toString().toFloat(),
@@ -258,7 +260,6 @@ class AddProductFragment : Fragment() {
             } else {
                 receiptDataViewModel.product.value!!.add(product)
             }
-
             Navigation.findNavController(requireView()).popBackStack()
         }
     }

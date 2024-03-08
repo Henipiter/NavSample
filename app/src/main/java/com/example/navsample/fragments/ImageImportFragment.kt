@@ -22,6 +22,7 @@ import com.example.navsample.DTO.ReceiptDTO
 import com.example.navsample.DTO.StoreDTO
 import com.example.navsample.ImageAnalyzer
 import com.example.navsample.databinding.FragmentImageImportBinding
+import com.example.navsample.exception.NoReceiptIdException
 import com.example.navsample.viewmodels.ReceiptDataViewModel
 import com.example.navsample.viewmodels.ReceiptImageViewModel
 import com.google.mlkit.vision.common.InputImage
@@ -37,7 +38,7 @@ class ImageImportFragment : Fragment() {
     private val receiptDataViewModel: ReceiptDataViewModel by activityViewModels()
 
     private var analyzedImage: InputImage? = null
-    private val imageAnalyzer = ImageAnalyzer()
+    private lateinit var imageAnalyzer: ImageAnalyzer
     private var goNext = false
 
     override fun onCreateView(
@@ -55,7 +56,9 @@ class ImageImportFragment : Fragment() {
         initObserver()
 
 
-
+        imageAnalyzer = ImageAnalyzer(
+            receiptDataViewModel.savedReceipt.value?.id ?: throw NoReceiptIdException()
+        )
         binding.loadImage.setOnClickListener {
             val action = ImageImportFragmentDirections.actionImageImportFragmentToCropFragment()
             Navigation.findNavController(view).navigate(action)

@@ -283,7 +283,7 @@ class AddReceiptFragment : Fragment() {
         }
         binding.addProductsButton.setOnClickListener {
             receiptDataViewModel.receipt.value?.id?.let {
-                receiptDataViewModel.refreshProductListWithConversion(it)
+                receiptDataViewModel.refreshProductListForReceipt(it)
             }
 
             val action =

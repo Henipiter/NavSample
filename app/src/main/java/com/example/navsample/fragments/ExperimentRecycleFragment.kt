@@ -22,6 +22,7 @@ import com.example.navsample.DTO.ProductListMode
 import com.example.navsample.ReceiptParser
 import com.example.navsample.adapters.ExperimentalListAdapter
 import com.example.navsample.databinding.FragmentExperimentRecycleBinding
+import com.example.navsample.exception.NoReceiptIdException
 import com.example.navsample.fragments.dialogs.EditTextDialog
 import com.example.navsample.viewmodels.ReceiptDataViewModel
 import com.example.navsample.viewmodels.ReceiptImageViewModel
@@ -40,7 +41,7 @@ open class ExperimentRecycleFragment : Fragment() {
     private lateinit var experimentalListAdapter: ExperimentalListAdapter
     private var recycleList = arrayListOf<ExperimentalAdapterArgument>()
     private var checkedElementsCounter = 0
-    private val receiptParser = ReceiptParser()
+    private lateinit var receiptParser: ReceiptParser
     private var productListMode = ProductListMode.SELECT
     private var action = NONE
 
@@ -64,6 +65,9 @@ open class ExperimentRecycleFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         initObserver()
+        receiptParser = ReceiptParser(
+            receiptDataViewModel.savedReceipt.value?.id ?: throw NoReceiptIdException()
+        )
         recycleList = receiptDataViewModel.experimental.value ?: arrayListOf()
         recyclerViewEvent = binding.recyclerViewEventReceipts
 

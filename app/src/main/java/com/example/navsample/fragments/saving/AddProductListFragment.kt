@@ -23,6 +23,7 @@ import com.example.navsample.ItemClickListener
 import com.example.navsample.R
 import com.example.navsample.adapters.ProductDTOListAdapter
 import com.example.navsample.databinding.FragmentAddProductListBinding
+import com.example.navsample.exception.NoReceiptIdException
 import com.example.navsample.fragments.dialogs.DeleteConfirmationDialog
 import com.example.navsample.viewmodels.ReceiptDataViewModel
 import com.example.navsample.viewmodels.ReceiptImageViewModel
@@ -76,7 +77,9 @@ class AddProductListFragment : Fragment(), ItemClickListener {
 
     @ExperimentalGetImage
     private fun analyzeImage() {
-        val imageAnalyzer = ImageAnalyzer()
+        val imageAnalyzer = ImageAnalyzer(
+            receiptDataViewModel.savedReceipt.value?.id ?: throw NoReceiptIdException()
+        )
         receiptImageViewModel.bitmapCropped.value?.let {
             imageAnalyzer.analyzeProductList(
                 InputImage.fromBitmap(it, 0)

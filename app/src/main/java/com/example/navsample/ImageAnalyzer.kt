@@ -16,7 +16,7 @@ import java.io.FileOutputStream
 import java.io.OutputStreamWriter
 
 
-class ImageAnalyzer {
+class ImageAnalyzer(var receiptId: Int) {
 
 
     val recognizer = TextRecognition.getClient(TextRecognizerOptions.DEFAULT_OPTIONS)
@@ -58,7 +58,7 @@ class ImageAnalyzer {
                 imageProductAnalyzer.orderRowsInColumns()
 
 
-                val receiptParser = ReceiptParser()
+                val receiptParser = ReceiptParser(receiptId)
                 productList = receiptParser.parseToProducts(imageProductAnalyzer.productList)
                 receiptLines = imageProductAnalyzer.receiptLines
                 onFinish.invoke()

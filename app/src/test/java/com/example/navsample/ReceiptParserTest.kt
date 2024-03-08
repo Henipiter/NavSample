@@ -8,13 +8,13 @@ import org.junit.jupiter.params.provider.CsvSource
 
 class ReceiptParserTest {
 
-    var receiptParser = ReceiptParser()
+    var receiptParser = ReceiptParser(0)
 
     @ParameterizedTest
     @CsvFileSource(resources = ["x.csv"], numLinesToSkip = 1, delimiterString = "|||")
     fun test(line: String, expect: String) {
 
-        val receiptParser = ReceiptParser()
+        val receiptParser = ReceiptParser(0)
         val convertedLines = convertStringToLine(line)
         val result = receiptParser.parseToProducts(convertedLines)[0]
         assertEquals(expect, result.toString())

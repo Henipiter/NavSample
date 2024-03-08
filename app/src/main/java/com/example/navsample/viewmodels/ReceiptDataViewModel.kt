@@ -71,6 +71,8 @@ class ReceiptDataViewModel : ViewModel() {
         tableCounts = MutableLiveData<ArrayList<TableCounts>>(null)
         allData = MutableLiveData<ArrayList<AllData>>(null)
 
+
+        refreshCategoryList()
         experimental = MutableLiveData(
             arrayListOf(
                 ExperimentalAdapterArgument("01"),
@@ -91,12 +93,15 @@ class ReceiptDataViewModel : ViewModel() {
 
 
     fun insertProducts(products: List<Product>) {
+        Log.i("Database", "insert products. Size: ${products.size}")
         viewModelScope.launch {
             dao?.let {
                 products.forEach { product ->
                     if (product.id == null) {
+                        Log.i("Database", "insert product: ${product.name}")
                         dao.insertProduct(product)
                     } else {
+                        Log.i("Database", "update product: ${product.name}")
                         dao.updateProduct(product)
                     }
                 }
@@ -106,25 +111,27 @@ class ReceiptDataViewModel : ViewModel() {
 
 
     fun insertReceipt(newReceipt: Receipt) {
+        Log.i("Database", "insert receipt: ${newReceipt.date} ${newReceipt.pln}")
         viewModelScope.launch {
             dao?.let {
                 newReceipt.date = convertDateFormat(newReceipt.date)
                 val rowId = dao.insertReceipt(newReceipt)
                 newReceipt.id = dao.getReceiptId(rowId)
             }
+            Log.i("Database", "inserted receipt with id ${newReceipt.id}")
             savedReceipt.value = newReceipt
-            Log.e("DAO RECEIPT", newReceipt.id.toString())
         }
     }
 
     fun insertCategory(newCategory: Category) {
+        Log.i("Database", "insert category: ${newCategory.name}")
         viewModelScope.launch {
             dao?.let {
                 val rowId = dao.insertCategory(newCategory)
                 newCategory.id = dao.getCategoryId(rowId)
             }
+            Log.i("Database", "inserted category with id ${newCategory.id}")
             savedCategory.value = newCategory
-            Log.e("DAO RECEIPT", newCategory.id.toString())
         }
     }
 
@@ -143,22 +150,27 @@ class ReceiptDataViewModel : ViewModel() {
     }
 
     fun insertStore(store: Store) {
+        Log.i("Database", "insert store ${store.name}")
         viewModelScope.launch {
             try {
                 dao?.let {
                     val rowId = dao.insertStore(store)
                     store.id = dao.getStoreId(rowId)
                 }
+                Log.i("Database", "inserted receipt with id ${store.id}")
             } catch (e: Exception) {
                 Log.e("Insert store to DB", e.message.toString())
             }
             savedStore.postValue(store)
             refreshStoreList()
-            Log.e("DAO STORE", store.id.toString())
         }
     }
 
     fun updateReceipt(newReceipt: Receipt) {
+        Log.i(
+            "Database",
+            "update receipt with id ${newReceipt.id}: ${newReceipt.date} ${newReceipt.pln}"
+        )
         viewModelScope.launch {
             dao?.let {
                 dao.updateReceipt(newReceipt)
@@ -168,6 +180,7 @@ class ReceiptDataViewModel : ViewModel() {
     }
 
     fun updateCategory(newCategory: Category) {
+        Log.i("Database", "update category with id ${newCategory.id}: ${newCategory.name}")
         viewModelScope.launch {
             dao?.let {
                 dao.updateCategory(newCategory)
@@ -177,6 +190,7 @@ class ReceiptDataViewModel : ViewModel() {
     }
 
     fun getStoreById(id: Int) {
+        Log.i("Database", "get store with id ${id}")
         viewModelScope.launch {
             try {
                 dao?.let {
@@ -189,6 +203,7 @@ class ReceiptDataViewModel : ViewModel() {
     }
 
     fun updateStore(store: Store) {
+        Log.i("Database", "update store with id ${store.id}: ${store.name}")
         viewModelScope.launch(Dispatchers.IO) {
             dao?.let {
                 dao.updateStore(store)
@@ -198,6 +213,7 @@ class ReceiptDataViewModel : ViewModel() {
     }
 
     fun refreshReceiptList(name: String) {
+        Log.i("Database", "refresh receipt for store ${name}")
         viewModelScope.launch {
             receiptList.postValue(
                 dao?.getReceiptWithStore(name)?.let { ArrayList(it) })
@@ -205,6 +221,7 @@ class ReceiptDataViewModel : ViewModel() {
     }
 
     fun refreshReceiptList(name: String, dateFrom: String, dateTo: String) {
+        Log.i("Database", "refresh receipt for store ${name}")
         viewModelScope.launch {
             receiptList.postValue(
                 dao?.getReceiptWithStore(name, dateFrom, dateTo)?.let { ArrayList(it) })
@@ -212,6 +229,7 @@ class ReceiptDataViewModel : ViewModel() {
     }
 
     fun refreshCategoryList() {
+        Log.i("Database", "refresh category list")
         viewModelScope.launch {
             categoryList.postValue(
                 dao?.getAllCategories() as ArrayList<Category>
@@ -220,12 +238,14 @@ class ReceiptDataViewModel : ViewModel() {
     }
 
     fun refreshStoreList() {
+        Log.i("Database", "refresh store list")
         viewModelScope.launch {
             storeList.postValue(dao?.getAllStores()?.let { ArrayList(it) })
         }
     }
 
     fun deleteStore(store: Store) {
+        Log.i("Database", "delete store - id ${store.id}")
         viewModelScope.launch {
             dao?.deleteProductsOfStore(store.id!!)
             dao?.deleteReceiptsOfStore(store.id!!)
@@ -234,12 +254,14 @@ class ReceiptDataViewModel : ViewModel() {
     }
 
     fun deleteCategory(category: Category) {
+        Log.i("Database", "delete category - id ${category.id}")
         viewModelScope.launch {
             dao?.deleteCategory(category)
         }
     }
 
     fun deleteReceipt(receiptId: Int) {
+        Log.i("Database", "delete receipt - id ${receiptId}")
         viewModelScope.launch {
             dao?.deleteProductsOfReceipt(receiptId)
             dao?.deleteReceiptById(receiptId)
@@ -247,6 +269,7 @@ class ReceiptDataViewModel : ViewModel() {
     }
 
     fun deleteProduct(productId: Int) {
+        Log.i("Database", "delete product - id ${productId}")
         viewModelScope.launch {
             dao?.deleteProductById(productId)
         }
@@ -261,6 +284,7 @@ class ReceiptDataViewModel : ViewModel() {
         lowerPrice: Float,
         higherPrice: Float,
     ) {
+        Log.i("Database", "refresh product list limited")
         viewModelScope.launch {
             productRichList.postValue(
                 dao?.getAllProducts(
@@ -275,6 +299,7 @@ class ReceiptDataViewModel : ViewModel() {
     }
 
     fun refreshProductList() {
+        Log.i("Database", "refresh product list all")
         viewModelScope.launch {
             productRichList.postValue(
                 dao?.getAllProducts("", "", "0", "9", 0F)?.let { ArrayList(it) })
@@ -288,6 +313,7 @@ class ReceiptDataViewModel : ViewModel() {
         dateTo: String,
         lowerPrice: Float,
     ) {
+        Log.i("Database", "refresh product list not limited")
         viewModelScope.launch {
             productRichList.postValue(
                 dao?.getAllProducts(storeName, categoryName, dateFrom, dateTo, lowerPrice)
@@ -295,13 +321,14 @@ class ReceiptDataViewModel : ViewModel() {
         }
     }
 
-    fun refreshProductListWithConversion(receiptId: Int) {
+    fun refreshProductListForReceipt(receiptId: Int) {
         viewModelScope.launch {
             product.postValue(dao?.getAllProducts(receiptId)?.let { ArrayList(it) })
         }
     }
 
     fun insertCategoryList(category: Category) {
+        Log.i("Database", "insert category ${category.name} - id ${category.id}")
         viewModelScope.launch {
             dao?.insertCategory(category)
         }
