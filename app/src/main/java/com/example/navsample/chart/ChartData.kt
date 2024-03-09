@@ -1,4 +1,4 @@
-package com.example.navsample.DTO
+package com.example.navsample.chart
 
 data class ChartData(
     var label: String,

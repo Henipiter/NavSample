@@ -1,4 +1,4 @@
-package com.example.navsample.DTO
+package com.example.navsample.chart
 
 import android.graphics.Color
 

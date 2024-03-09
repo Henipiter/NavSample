@@ -1,5 +1,6 @@
 package com.example.navsample
 
+import com.example.navsample.chart.ChartHelper
 import com.example.navsample.entities.relations.PriceByCategory
 import org.junit.jupiter.api.Assertions.assertAll
 import org.junit.jupiter.api.Assertions.assertEquals

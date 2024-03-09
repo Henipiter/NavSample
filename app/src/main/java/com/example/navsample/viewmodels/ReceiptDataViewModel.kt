@@ -5,8 +5,8 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.navsample.ApplicationContext
-import com.example.navsample.DTO.ChartColors
 import com.example.navsample.DTO.ExperimentalAdapterArgument
+import com.example.navsample.chart.ChartColors
 import com.example.navsample.entities.Category
 import com.example.navsample.entities.Product
 import com.example.navsample.entities.Receipt

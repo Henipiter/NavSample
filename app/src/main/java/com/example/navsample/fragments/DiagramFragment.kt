@@ -8,10 +8,10 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
-import com.example.navsample.ChartHelper
-import com.example.navsample.DTO.ChartData
-import com.example.navsample.DTO.ChartMode
-import com.example.navsample.MyXAxisFormatter
+import com.example.navsample.chart.ChartData
+import com.example.navsample.chart.ChartHelper
+import com.example.navsample.chart.ChartMode
+import com.example.navsample.chart.MyXAxisFormatter
 import com.example.navsample.databinding.FragmentDiagramBinding
 import com.example.navsample.viewmodels.ReceiptDataViewModel
 import com.github.mikephil.charting.components.Legend

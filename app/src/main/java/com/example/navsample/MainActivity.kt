@@ -4,7 +4,7 @@ import android.content.SharedPreferences
 import android.os.Bundle
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
-import com.example.navsample.DTO.ChartColors.Companion.COLORS
+import com.example.navsample.chart.ChartColors.Companion.COLORS
 import com.example.navsample.entities.Category
 import com.example.navsample.entities.Product
 import com.example.navsample.entities.Receipt

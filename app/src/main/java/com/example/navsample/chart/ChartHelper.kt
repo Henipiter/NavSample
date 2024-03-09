@@ -1,8 +1,6 @@
-package com.example.navsample
+package com.example.navsample.chart
 
 import android.graphics.Color
-import com.example.navsample.DTO.ChartColors
-import com.example.navsample.DTO.ChartData
 import com.example.navsample.entities.relations.PriceByCategory
 import com.github.mikephil.charting.data.BarDataSet
 import com.github.mikephil.charting.data.BarEntry

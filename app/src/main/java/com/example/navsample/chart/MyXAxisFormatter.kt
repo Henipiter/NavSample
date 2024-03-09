@@ -1,4 +1,4 @@
-package com.example.navsample
+package com.example.navsample.chart
 
 import com.github.mikephil.charting.components.AxisBase
 import com.github.mikephil.charting.formatter.ValueFormatter

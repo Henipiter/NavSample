@@ -1,4 +1,4 @@
-package com.example.navsample.DTO
+package com.example.navsample.chart
 
 enum class ChartMode {
     PIE, LINE, RADAR, BAR
