@@ -9,10 +9,10 @@ import androidx.core.widget.doOnTextChanged
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.navigation.Navigation
-import com.example.navsample.DTO.DataMode
 import com.example.navsample.R
 import com.example.navsample.adapters.StoreDropdownAdapter
 import com.example.navsample.databinding.FragmentAddReceiptBinding
+import com.example.navsample.dto.DataMode
 import com.example.navsample.entities.Receipt
 import com.example.navsample.entities.Store
 import com.example.navsample.exception.NoStoreIdException

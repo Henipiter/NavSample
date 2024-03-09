@@ -1,7 +1,7 @@
 package com.example.navsample
 
 import androidx.recyclerview.widget.DiffUtil
-import com.example.navsample.DTO.ExperimentalAdapterArgument
+import com.example.navsample.dto.ExperimentalAdapterArgument
 
 class DiffUtilCallback(
     private val oldList: List<ExperimentalAdapterArgument>,

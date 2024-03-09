@@ -11,9 +11,9 @@ import androidx.core.widget.doOnTextChanged
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.navigation.Navigation
-import com.example.navsample.DTO.DataMode
 import com.example.navsample.chart.ChartColors
 import com.example.navsample.databinding.FragmentAddCategoryBinding
+import com.example.navsample.dto.DataMode
 import com.example.navsample.entities.Category
 import com.example.navsample.fragments.dialogs.ColorPickerDialog
 import com.example.navsample.viewmodels.ReceiptDataViewModel

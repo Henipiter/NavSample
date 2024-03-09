@@ -6,9 +6,9 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
-import com.example.navsample.DTO.ExperimentalAdapterArgument
 import com.example.navsample.DiffUtilCallback
 import com.example.navsample.databinding.RowExperimentBinding
+import com.example.navsample.dto.ExperimentalAdapterArgument
 
 class ExperimentalListAdapter(
     var recycleList: ArrayList<ExperimentalAdapterArgument>,

@@ -1,4 +1,4 @@
-package com.example.navsample.DTO
+package com.example.navsample.dto
 
 enum class DataMode {
     DISPLAY, EDIT, NEW
