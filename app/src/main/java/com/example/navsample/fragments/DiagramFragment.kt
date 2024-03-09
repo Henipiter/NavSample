@@ -9,17 +9,15 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import com.example.navsample.chart.ChartData
-import com.example.navsample.chart.ChartHelper
 import com.example.navsample.chart.ChartMode
 import com.example.navsample.chart.MyXAxisFormatter
+import com.example.navsample.chart.creator.BarChartCreator
+import com.example.navsample.chart.creator.LineChartCreator
+import com.example.navsample.chart.creator.PieChartCreator
+import com.example.navsample.chart.creator.RadarChartCreator
 import com.example.navsample.databinding.FragmentDiagramBinding
 import com.example.navsample.viewmodels.ReceiptDataViewModel
 import com.github.mikephil.charting.components.Legend
-import com.github.mikephil.charting.data.BarData
-import com.github.mikephil.charting.data.LineData
-import com.github.mikephil.charting.data.PieData
-import com.github.mikephil.charting.data.RadarData
-import com.github.mikephil.charting.formatter.PercentFormatter
 import com.google.android.material.tabs.TabLayout
 import java.text.SimpleDateFormat
 import java.util.Calendar
@@ -38,7 +36,6 @@ class DiagramFragment : Fragment() {
 
     private lateinit var today: String
     private lateinit var ago: String
-    private val chartHelper = ChartHelper()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?,
@@ -166,24 +163,14 @@ class DiagramFragment : Fragment() {
     }
 
 
-
     private fun initObserver() {
         receiptDataViewModel.chartData.observe(viewLifecycleOwner) { it ->
             it?.let {
 
                 when (mode) {
                     ChartMode.PIE -> {
-                        categoryData.clear()
-                        it.forEach {
-                            categoryData.add(ChartData(it.category, it.price))
-                        }
-
-                        val dataSet = chartHelper.getPieData("title", categoryData)
-
-                        val data = PieData(dataSet)
-                        data.setValueFormatter(PercentFormatter())
-                        data.setValueTextSize(11f)
-                        data.setValueTextColor(Color.WHITE)
+                        val pieChartCreator = PieChartCreator()
+                        val data = pieChartCreator.getData(it)
 
                         binding.pieChart.data = data
                         binding.pieChart.highlightValues(null)
@@ -191,35 +178,25 @@ class DiagramFragment : Fragment() {
                     }
 
                     ChartMode.RADAR -> {
-                        categoryData.clear()
-                        it.forEach {
-                            categoryData.add(ChartData(it.category, it.price))
-                        }
-
-                        val dataSet = chartHelper.getRadarData("title", categoryData)
-
-                        val data = RadarData(dataSet)
-                        data.setValueFormatter(PercentFormatter())
-                        data.setValueTextSize(11f)
-                        data.setValueTextColor(Color.WHITE)
+                        val radarChartCreator = RadarChartCreator()
+                        val data = radarChartCreator.getData(it)
 
                         binding.radarChart.data = data
-
                         binding.radarChart.highlightValues(null)
                         binding.radarChart.invalidate()
                     }
 
                     ChartMode.BAR -> {
 
-                        val categories = it.map { it.category }.toSortedSet()
-                        val dataSet = chartHelper.createTimelineData(ago, today, it)
-                        val dataSets = chartHelper.convertToBarChart(categories, dataSet)
+                        val barChartCreator = BarChartCreator(ago, today, it)
+                        val data = barChartCreator.getData(it)
+                        val legendDates = barChartCreator.getDateLegend(ago, today)
+
+
                         val groupSpace = 0.1f
                         val barSpace = 0.01f
                         val barWidth = 0.23f
-                        val legendDates = chartHelper.getDateLegend(ago, today)
 
-                        val data = BarData(dataSets)
                         data.setValueTextColor(Color.WHITE)
                         binding.barChart.setDrawValueAboveBar(true)
                         binding.barChart.data = data
@@ -235,18 +212,16 @@ class DiagramFragment : Fragment() {
                     }
 
                     ChartMode.LINE -> {
-                        timelineData.clear()
 
-                        val categories = it.map { it.category }.toSortedSet()
-                        val dataSet = chartHelper.createTimelineData(ago, today, it)
-                        val dataSets = chartHelper.convertToLineChart(categories, dataSet)
+                        val lineChartCreator = LineChartCreator(ago, today, it)
+                        val data = lineChartCreator.getData(it)
+                        val legendDates = lineChartCreator.getDateLegend(ago, today)
 
-                        binding.lineChart.data = LineData(dataSets)
+                        binding.lineChart.data = data
                         binding.lineChart.invalidate()
                         binding.lineChart.description.isEnabled = false
                         binding.lineChart.setNoDataTextColor(Color.WHITE)
-                        binding.lineChart.xAxis.valueFormatter =
-                            MyXAxisFormatter(chartHelper.getDateLegend(ago, today))
+                        binding.lineChart.xAxis.valueFormatter = MyXAxisFormatter(legendDates)
 
                         binding.lineChart.xAxis.textColor = Color.WHITE
                         binding.lineChart.axisLeft.textColor = Color.WHITE
