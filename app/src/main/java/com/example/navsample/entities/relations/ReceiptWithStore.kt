@@ -9,5 +9,6 @@ data class ReceiptWithStore(
     var pln: Float,
     var ptu: Float,
     var date: String,
-    var time: String
+    var time: String,
+    var productAmount: Int
 )

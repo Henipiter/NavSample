@@ -149,7 +149,7 @@ class AddReceiptFragment : Fragment() {
         binding.saveChangesButton.visibility = View.VISIBLE
         binding.cancelChangesButton.visibility = View.GONE
         binding.editButton.visibility = View.GONE
-        binding.addProductsButton.isEnabled = false
+        binding.addProductsButton.visibility = View.GONE
     }
 
     private fun changeViewToDisplayMode() {
@@ -157,12 +157,13 @@ class AddReceiptFragment : Fragment() {
         binding.storeNameLayout.isEnabled = false
         binding.receiptPLNLayout.isEnabled = false
         binding.receiptPTULayout.isEnabled = false
+        binding.receiptPTUInput.isEnabled = false
         binding.receiptTimeLayout.isEnabled = false
         binding.receiptDateLayout.isEnabled = false
         binding.saveChangesButton.visibility = View.GONE
         binding.cancelChangesButton.visibility = View.GONE
         binding.editButton.visibility = View.VISIBLE
-        binding.addProductsButton.isEnabled = true
+        binding.addProductsButton.visibility = View.VISIBLE
     }
 
     private fun changeViewToEditMode() {
@@ -170,13 +171,13 @@ class AddReceiptFragment : Fragment() {
         binding.storeNameLayout.isEnabled = true
         binding.receiptPLNLayout.isEnabled = true
         binding.receiptPTULayout.isEnabled = true
+        binding.receiptPTUInput.isEnabled = true
         binding.receiptTimeLayout.isEnabled = true
         binding.receiptDateLayout.isEnabled = true
         binding.saveChangesButton.visibility = View.VISIBLE
         binding.cancelChangesButton.visibility = View.VISIBLE
         binding.editButton.visibility = View.GONE
-
-        binding.addProductsButton.isEnabled = false
+        binding.addProductsButton.visibility = View.GONE
     }
 
     private fun saveChangesToDatabase() {

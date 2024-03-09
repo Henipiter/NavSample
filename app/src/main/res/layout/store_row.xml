@@ -22,10 +22,9 @@
                 android:id="@+id/nip"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginEnd="8dp"
-                android:layout_marginTop="10dp"
                 android:text="012-34-56-789"
                 android:textSize="12sp"
+                app:layout_constraintBottom_toBottomOf="@+id/store_name"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
 
@@ -33,7 +32,6 @@
                 android:id="@+id/store_name"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="8dp"
                 android:layout_marginEnd="16dp"
                 android:text="Bread jdawd jdawodoaw da jw  d"
                 android:textSize="18sp"

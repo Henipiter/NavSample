@@ -167,13 +167,15 @@ class ReceiptListFragment : Fragment(), ItemClickListener {
     override fun onItemClick(index: Int) {
         receiptDataViewModel.receiptList.value?.get(index)?.let {
             receiptDataViewModel.getStoreById(it.storeId)
-            receiptDataViewModel.receipt.value = Receipt(
+            val receipt = Receipt(
                 it.id,
                 it.pln.toString().toFloat(),
                 it.ptu.toString().toFloat(),
                 it.date,
                 it.time
             )
+            receipt.id = it.id
+            receiptDataViewModel.receipt.value = receipt
         }
 
         Navigation.findNavController(binding.root)

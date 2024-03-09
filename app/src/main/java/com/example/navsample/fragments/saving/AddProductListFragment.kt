@@ -21,7 +21,7 @@ import com.example.navsample.DTO.ExperimentalAdapterArgument
 import com.example.navsample.ImageAnalyzer
 import com.example.navsample.ItemClickListener
 import com.example.navsample.R
-import com.example.navsample.adapters.ProductDTOListAdapter
+import com.example.navsample.adapters.ProductListAdapter
 import com.example.navsample.databinding.FragmentAddProductListBinding
 import com.example.navsample.exception.NoReceiptIdException
 import com.example.navsample.fragments.dialogs.DeleteConfirmationDialog
@@ -40,7 +40,7 @@ class AddProductListFragment : Fragment(), ItemClickListener {
     private val receiptDataViewModel: ReceiptDataViewModel by activityViewModels()
 
     private lateinit var recyclerViewEvent: RecyclerView
-    private lateinit var productListAdapter: ProductDTOListAdapter
+    private lateinit var productListAdapter: ProductListAdapter
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?,
@@ -103,7 +103,7 @@ class AddProductListFragment : Fragment(), ItemClickListener {
         }
         initObserver()
         recyclerViewEvent = binding.recyclerViewEvent
-        productListAdapter = ProductDTOListAdapter(
+        productListAdapter = ProductListAdapter(
             requireContext(),
             receiptDataViewModel.product.value ?: arrayListOf(),
             receiptDataViewModel.categoryList.value ?: arrayListOf(),

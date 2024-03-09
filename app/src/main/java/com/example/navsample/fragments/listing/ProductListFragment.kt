@@ -14,7 +14,7 @@ import androidx.navigation.Navigation
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.navsample.ItemClickListener
-import com.example.navsample.adapters.ProductListAdapter
+import com.example.navsample.adapters.RichProductListAdapter
 import com.example.navsample.databinding.FragmentProductListBinding
 import com.example.navsample.entities.Product
 import com.example.navsample.fragments.dialogs.DeleteConfirmationDialog
@@ -31,7 +31,7 @@ class ProductListFragment : Fragment(), ItemClickListener {
     private val receiptDataViewModel: ReceiptDataViewModel by activityViewModels()
 
     private lateinit var recyclerViewEvent: RecyclerView
-    private lateinit var productListAdapter: ProductListAdapter
+    private lateinit var richProductListAdapter: RichProductListAdapter
 
     private var lowerPrice = ""
     private var higherPrice = ""
@@ -56,7 +56,7 @@ class ProductListFragment : Fragment(), ItemClickListener {
         binding.priceBetweenInput.setText("-")
 
         recyclerViewEvent = binding.recyclerViewEventProducts
-        productListAdapter = ProductListAdapter(
+        richProductListAdapter = RichProductListAdapter(
             requireContext(),
             receiptDataViewModel.productRichList.value ?: arrayListOf(), this
 
@@ -70,13 +70,13 @@ class ProductListFragment : Fragment(), ItemClickListener {
                         receiptDataViewModel.deleteProduct(it.id!!)
                     }
                     receiptDataViewModel.productRichList.value?.removeAt(i)
-                    productListAdapter.productList =
+                    richProductListAdapter.productList =
                         receiptDataViewModel.productRichList.value ?: arrayListOf()
-                    productListAdapter.notifyDataSetChanged()
+                    richProductListAdapter.notifyDataSetChanged()
                 }.show(childFragmentManager, "TAG")
             }
         }
-        recyclerViewEvent.adapter = productListAdapter
+        recyclerViewEvent.adapter = richProductListAdapter
         recyclerViewEvent.layoutManager =
             LinearLayoutManager(requireContext(), LinearLayoutManager.VERTICAL, false)
 
@@ -201,8 +201,8 @@ class ProductListFragment : Fragment(), ItemClickListener {
     private fun initObserver() {
         receiptDataViewModel.productRichList.observe(viewLifecycleOwner) {
             it?.let {
-                productListAdapter.productList = it
-                productListAdapter.notifyDataSetChanged()
+                richProductListAdapter.productList = it
+                richProductListAdapter.notifyDataSetChanged()
             }
         }
         receiptDataViewModel.storeList.observe(viewLifecycleOwner) {
