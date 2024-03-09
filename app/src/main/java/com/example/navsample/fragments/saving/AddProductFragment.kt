@@ -37,6 +37,11 @@ class AddProductFragment : Fragment() {
     private var productOriginalInput = ""
     private var productOriginal: Product? = null
     private var chosenCategory = Category("", "")
+
+    companion object {
+        private val SUGGESTION_PREFIX = "Maybe "
+    }
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?,
     ): View {
@@ -55,9 +60,7 @@ class AddProductFragment : Fragment() {
         receiptDataViewModel.categoryList.observe(viewLifecycleOwner) {
             it?.let {
                 CategoryDropdownAdapter(
-                    requireContext(),
-                    R.layout.array_adapter_row,
-                    it
+                    requireContext(), R.layout.array_adapter_row, it
                 ).also { adapter ->
                     binding.productCategoryInput.setAdapter(adapter)
                 }
@@ -84,37 +87,38 @@ class AddProductFragment : Fragment() {
         val checks = arrayOf(finalPrice, itemPrice, amount).count { it >= 0 }
         if (checks == 3) {
             if (itemPrice * amount == finalPrice) {
-                binding.productFinalPriceLayout.helperText = null
-                binding.productItemPriceLayout.helperText = null
-                binding.productAmountLayout.helperText = null
+                binding.productFinalPriceHelperText.text = ""
+                binding.productItemPriceHelperText.text = ""
+                binding.productAmountHelperText.text = ""
             } else {
-                binding.productFinalPriceLayout.helperText =
-                    "Maybe ${round(itemPrice * amount * 100) / 100}"
-                binding.productItemPriceLayout.helperText =
-                    "Maybe ${round(finalPrice / amount * 100) / 100}"
-                binding.productAmountLayout.helperText =
-                    "Maybe ${round(finalPrice / itemPrice * 100) / 100}"
+                binding.productFinalPriceHelperText.text =
+                    "${SUGGESTION_PREFIX}${round(itemPrice * amount * 100) / 100}"
+                binding.productItemPriceHelperText.text =
+                    "${SUGGESTION_PREFIX}${round(finalPrice / amount * 100) / 100}"
+                binding.productAmountHelperText.text =
+                    "${SUGGESTION_PREFIX}${round(finalPrice / itemPrice * 100) / 100}"
             }
         } else if (checks == 2) {
             if (finalPrice < 0) {
-                binding.productFinalPriceLayout.helperText =
-                    "Maybe ${round(itemPrice * amount * 100) / 100}"
+                binding.productFinalPriceHelperText.text =
+                    "${SUGGESTION_PREFIX}${round(itemPrice * amount * 100) / 100}"
             }
             if (itemPrice < 0) {
-                binding.productItemPriceLayout.helperText =
-                    "Maybe ${round(finalPrice / amount * 100) / 100}"
+                binding.productItemPriceHelperText.text =
+                    "${SUGGESTION_PREFIX}${round(finalPrice / amount * 100) / 100}"
             }
             if (amount < 0) {
-                binding.productAmountLayout.helperText =
-                    "Maybe ${round(finalPrice / itemPrice * 100) / 100}"
+                binding.productAmountHelperText.text =
+                    "${SUGGESTION_PREFIX}${round(finalPrice / itemPrice * 100) / 100}"
             }
         } else {
-            binding.productFinalPriceLayout.helperText = null
-            binding.productItemPriceLayout.helperText = null
-            binding.productAmountLayout.helperText = null
+            binding.productFinalPriceHelperText.text = ""
+            binding.productItemPriceHelperText.text = ""
+            binding.productAmountHelperText.text = ""
 
         }
     }
+
 
     private fun validateObligatoryFields(): Boolean {
         var succeedValidation = true
@@ -123,15 +127,15 @@ class AddProductFragment : Fragment() {
             succeedValidation = false
         }
         if (binding.productFinalPriceInput.text.isNullOrEmpty()) {
-            binding.productFinalPriceLayout.error = "Empty"
+            binding.productFinalPriceHelperText.text = "Empty"
             succeedValidation = false
         }
         if (binding.productItemPriceInput.text.isNullOrEmpty()) {
-            binding.productItemPriceLayout.error = "Empty"
+            binding.productItemPriceHelperText.text = "Empty"
             succeedValidation = false
         }
         if (binding.productAmountInput.text.isNullOrEmpty()) {
-            binding.productAmountLayout.error = "Empty"
+            binding.productAmountHelperText.text = "Empty"
             succeedValidation = false
         }
         return succeedValidation
@@ -142,7 +146,6 @@ class AddProductFragment : Fragment() {
 
         receiptDataViewModel.refreshCategoryList()
         initObserver()
-        validatePrices()
 
         ArrayAdapter(
             requireContext(), android.R.layout.simple_list_item_1, ptuTypeList
@@ -152,8 +155,6 @@ class AddProductFragment : Fragment() {
 
         if (args.productIndex != -1) {
             productOriginal = receiptDataViewModel.product.value?.get(args.productIndex)
-
-
             productOriginal?.let { product ->
                 val category = try {
                     receiptDataViewModel.categoryList.value?.first { it.id == product.categoryId }
@@ -173,6 +174,7 @@ class AddProductFragment : Fragment() {
                 binding.productOriginalInput.setText(product.raw)
                 productOriginalInput = product.raw
 
+                validatePrices()
             }
         }
         if (productOriginalInput == "") {
@@ -200,19 +202,19 @@ class AddProductFragment : Fragment() {
         }
         binding.productFinalPriceInput.doOnTextChanged { actual, _, _, _ ->
             if (!actual.isNullOrEmpty()) {
-                binding.productFinalPriceLayout.error = null
+                binding.productFinalPriceHelperText.text = ""
                 validatePrices()
             }
         }
         binding.productItemPriceInput.doOnTextChanged { actual, _, _, _ ->
             if (!actual.isNullOrEmpty()) {
-                binding.productItemPriceLayout.error = null
+                binding.productItemPriceHelperText.text = ""
                 validatePrices()
             }
         }
         binding.productAmountInput.doOnTextChanged { actual, _, _, _ ->
             if (!actual.isNullOrEmpty()) {
-                binding.productAmountLayout.error = null
+                binding.productAmountHelperText.text = ""
                 validatePrices()
             }
         }
@@ -269,5 +271,36 @@ class AddProductFragment : Fragment() {
             }
             Navigation.findNavController(requireView()).popBackStack()
         }
+
+        binding.productFinalPriceHelperText.setOnClickListener {
+            if (binding.productFinalPriceHelperText.text.toString().contains(SUGGESTION_PREFIX)) {
+                binding.productFinalPriceInput.setText(
+                    convertSuggestionToValue(binding.productFinalPriceHelperText.text.toString())
+                )
+                validatePrices()
+            }
+        }
+        binding.productItemPriceHelperText.setOnClickListener {
+            if (binding.productItemPriceHelperText.text.toString().contains(SUGGESTION_PREFIX)) {
+                binding.productItemPriceInput.setText(
+                    convertSuggestionToValue(binding.productItemPriceHelperText.text.toString())
+                )
+                validatePrices()
+            }
+        }
+        binding.productAmountHelperText.setOnClickListener {
+            if (binding.productAmountHelperText.text.toString().contains(SUGGESTION_PREFIX)) {
+                binding.productAmountInput.setText(
+                    convertSuggestionToValue(binding.productAmountHelperText.text.toString())
+                )
+                validatePrices()
+            }
+        }
+    }
+
+    private fun convertSuggestionToValue(suggestion: String): String {
+        return suggestion.substring(
+            SUGGESTION_PREFIX.length, suggestion.lastIndex + 1
+        )
     }
 }
