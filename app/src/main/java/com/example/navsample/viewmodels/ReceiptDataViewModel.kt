@@ -54,6 +54,8 @@ class ReceiptDataViewModel : ViewModel() {
         product = MutableLiveData<ArrayList<Product>>(ArrayList())
         category = MutableLiveData<Category?>(null)
 
+        savedCategory = MutableLiveData<Category>(null)
+
         productRichList = MutableLiveData<ArrayList<ProductRichData>>(null)
         receiptList = MutableLiveData<ArrayList<ReceiptWithStore>>(null)
         categoryList = MutableLiveData<ArrayList<Category>>(null)
@@ -136,7 +138,7 @@ class ReceiptDataViewModel : ViewModel() {
             }
             return newDate
         } catch (e: Exception) {
-            Log.e("ConvertDate", "Cannot convert date: " + splitDate)
+            Log.e("ConvertDate", "Cannot convert date: $splitDate")
             return newDate
         }
     }
@@ -182,14 +184,19 @@ class ReceiptDataViewModel : ViewModel() {
     }
 
     fun getStoreById(id: Int) {
-        Log.i("Database", "get store with id ${id}")
+        Log.i("Database", "get store with id $id")
         viewModelScope.launch {
-            try {
-                dao?.let {
-                    store.postValue(dao.getStoreById(id))
-                }
-            } catch (e: Exception) {
-                Log.e("Insert store to DB", e.message.toString())
+            dao?.let {
+                store.postValue(dao.getStoreById(id))
+            }
+        }
+    }
+
+    fun getReceiptById(id: Int) {
+        Log.i("Database", "get receipt with id $id")
+        viewModelScope.launch {
+            dao?.let {
+                receipt.postValue(dao.getReceipt(id))
             }
         }
     }
@@ -205,7 +212,7 @@ class ReceiptDataViewModel : ViewModel() {
     }
 
     fun refreshReceiptList(name: String) {
-        Log.i("Database", "refresh receipt for store ${name}")
+        Log.i("Database", "refresh receipt for store $name")
         viewModelScope.launch {
             receiptList.postValue(
                 dao?.getReceiptWithStore(name)?.let { ArrayList(it) })
@@ -213,7 +220,7 @@ class ReceiptDataViewModel : ViewModel() {
     }
 
     fun refreshReceiptList(name: String, dateFrom: String, dateTo: String) {
-        Log.i("Database", "refresh receipt for store ${name}")
+        Log.i("Database", "refresh receipt for store $name")
         viewModelScope.launch {
             receiptList.postValue(
                 dao?.getReceiptWithStore(name, dateFrom, dateTo)?.let { ArrayList(it) })
@@ -253,7 +260,7 @@ class ReceiptDataViewModel : ViewModel() {
     }
 
     fun deleteReceipt(receiptId: Int) {
-        Log.i("Database", "delete receipt - id ${receiptId}")
+        Log.i("Database", "delete receipt - id $receiptId")
         viewModelScope.launch {
             dao?.deleteProductsOfReceipt(receiptId)
             dao?.deleteReceiptById(receiptId)
@@ -261,7 +268,7 @@ class ReceiptDataViewModel : ViewModel() {
     }
 
     fun deleteProduct(productId: Int) {
-        Log.i("Database", "delete product - id ${productId}")
+        Log.i("Database", "delete product - id $productId")
         viewModelScope.launch {
             dao?.deleteProductById(productId)
         }
