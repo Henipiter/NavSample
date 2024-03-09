@@ -66,7 +66,7 @@ open class ExperimentRecycleFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         initObserver()
         receiptParser = ReceiptParser(
-            receiptDataViewModel.savedReceipt.value?.id ?: throw NoReceiptIdException()
+            receiptDataViewModel.receipt.value?.id ?: throw NoReceiptIdException()
         )
         recycleList = receiptDataViewModel.experimental.value ?: arrayListOf()
         recyclerViewEvent = binding.recyclerViewEventReceipts

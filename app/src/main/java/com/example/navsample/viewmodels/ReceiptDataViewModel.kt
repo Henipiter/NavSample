@@ -26,7 +26,6 @@ class ReceiptDataViewModel : ViewModel() {
     lateinit var product: MutableLiveData<ArrayList<Product>>
     lateinit var category: MutableLiveData<Category?>
 
-    lateinit var savedReceipt: MutableLiveData<Receipt>
     lateinit var savedCategory: MutableLiveData<Category>
 
     lateinit var productRichList: MutableLiveData<ArrayList<ProductRichData>>
@@ -54,9 +53,6 @@ class ReceiptDataViewModel : ViewModel() {
         receipt = MutableLiveData<Receipt>(null)
         product = MutableLiveData<ArrayList<Product>>(ArrayList())
         category = MutableLiveData<Category?>(null)
-
-        savedReceipt = MutableLiveData<Receipt>(null)
-        savedCategory = MutableLiveData<Category>(null)
 
         productRichList = MutableLiveData<ArrayList<ProductRichData>>(null)
         receiptList = MutableLiveData<ArrayList<ReceiptWithStore>>(null)
@@ -115,7 +111,7 @@ class ReceiptDataViewModel : ViewModel() {
                 newReceipt.id = dao.getReceiptId(rowId)
             }
             Log.i("Database", "inserted receipt with id ${newReceipt.id}")
-            savedReceipt.value = newReceipt
+            receipt.value = newReceipt
         }
     }
 

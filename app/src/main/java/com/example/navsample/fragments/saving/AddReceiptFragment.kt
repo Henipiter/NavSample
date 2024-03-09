@@ -237,7 +237,7 @@ class AddReceiptFragment : Fragment() {
         binding.saveChangesButton.setOnClickListener {
             saveChangesToDatabase()
 
-            receiptDataViewModel.savedReceipt.value?.let { receipt ->
+            receiptDataViewModel.receipt.value?.let { receipt ->
                 val savedStore = receiptDataViewModel.store.value
                 receiptDataViewModel.receipt.value = Receipt(
                     savedStore?.id ?: throw NoStoreIdException(),

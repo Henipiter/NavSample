@@ -218,7 +218,7 @@ class AddProductFragment : Fragment() {
         }
         binding.productOriginalInput.doOnTextChanged { actual, _, _, _ ->
             val receiptParser = ReceiptParser(
-                receiptDataViewModel.savedReceipt.value?.id ?: throw NoReceiptIdException()
+                receiptDataViewModel.receipt.value?.id ?: throw NoReceiptIdException()
             )
             val product = receiptParser.parseStringToProduct(actual.toString())
             val category = try {

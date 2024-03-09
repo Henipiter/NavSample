@@ -77,7 +77,7 @@ class AddProductListFragment : Fragment(), ItemClickListener {
 
     @ExperimentalGetImage
     private fun analyzeImage() {
-        val receiptId = receiptDataViewModel.savedReceipt.value?.id ?: throw NoReceiptIdException()
+        val receiptId = receiptDataViewModel.receipt.value?.id ?: throw NoReceiptIdException()
         val imageAnalyzer = ImageAnalyzer()
         receiptImageViewModel.bitmapCropped.value?.let {
             imageAnalyzer.analyzeProductList(
