@@ -191,7 +191,7 @@ class AddProductListFragment : Fragment(), ItemClickListener {
     override fun onItemClick(index: Int) {
         val action =
             AddProductListFragmentDirections.actionAddProductListFragmentToAddProductFragment(
-                index
+                false, index
             )
         Navigation.findNavController(requireView()).navigate(action)
 

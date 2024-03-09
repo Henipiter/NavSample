@@ -6,9 +6,8 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.navsample.databinding.TableCountRowBinding
 import com.example.navsample.entities.relations.TableCounts
 
-class TableCountListAdapter(
-    var recycleList: ArrayList<TableCounts>
-) : RecyclerView.Adapter<TableCountListAdapter.MyViewHolder>() {
+class TableCountListAdapter(var recycleList: ArrayList<TableCounts>) :
+    RecyclerView.Adapter<TableCountListAdapter.MyViewHolder>() {
 
     class MyViewHolder(val binding: TableCountRowBinding) : RecyclerView.ViewHolder(binding.root)
 

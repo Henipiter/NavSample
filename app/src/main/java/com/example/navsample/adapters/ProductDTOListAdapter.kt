@@ -15,8 +15,8 @@ class ProductDTOListAdapter(
     var context: Context,
     var productList: ArrayList<Product>,
     var categoryList: ArrayList<Category>,
-    var itemClickListener: ItemClickListener,
-    var onDelete: (Int) -> Unit,
+    private var itemClickListener: ItemClickListener,
+    private var onDelete: (Int) -> Unit,
 ) : RecyclerView.Adapter<ProductDTOListAdapter.MyViewHolder>() {
     var position = 0
 
@@ -34,14 +34,12 @@ class ProductDTOListAdapter(
         this.position = position
 
         val category = try {
-
-
-            categoryList.filter { it.id == productList[position].categoryId }.first()
+            categoryList.first { it.id == productList[position].categoryId }
         } catch (e: Exception) {
             categoryList[0]
         }
 
-        holder.binding.ptuType.text = productList[position].ptuType.toString()
+        holder.binding.ptuType.text = productList[position].ptuType
         holder.binding.amount.text = productList[position].amount.toString()
         holder.binding.itemPrice.text = productList[position].itemPrice.toString()
         holder.binding.finalPrice.text = productList[position].finalPrice.toString()
@@ -49,7 +47,7 @@ class ProductDTOListAdapter(
         holder.binding.receiptDate.text = ""
         holder.binding.categoryName.text = category.name
         holder.binding.categoryColor.setBackgroundColor(Color.parseColor(category.color))
-        holder.binding.productName.text = productList[position].name.let { trimDescription(it) }
+        holder.binding.productName.text = trimDescription(productList[position].name)
         holder.binding.mainLayout.setOnClickListener {
             itemClickListener.onItemClick(position)
         }

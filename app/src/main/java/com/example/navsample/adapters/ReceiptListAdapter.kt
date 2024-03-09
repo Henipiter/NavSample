@@ -11,8 +11,8 @@ import com.example.navsample.entities.relations.ReceiptWithStore
 class ReceiptListAdapter(
     var context: Context,
     var receiptList: ArrayList<ReceiptWithStore>,
-    var itemClickListener: ItemClickListener,
-    var onDelete: (Int) -> Unit
+    private var itemClickListener: ItemClickListener,
+    private var onDelete: (Int) -> Unit
 ) : RecyclerView.Adapter<ReceiptListAdapter.MyViewHolder>() {
     var position = 0
 

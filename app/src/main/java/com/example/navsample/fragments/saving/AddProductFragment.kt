@@ -156,8 +156,7 @@ class AddProductFragment : Fragment() {
 
             productOriginal?.let { product ->
                 val category = try {
-                    receiptDataViewModel.categoryList.value?.filter { it.id == product.categoryId }
-                        ?.first()
+                    receiptDataViewModel.categoryList.value?.first { it.id == product.categoryId }
                 } catch (e: Exception) {
                     null
                 }
@@ -223,8 +222,7 @@ class AddProductFragment : Fragment() {
             )
             val product = receiptParser.parseStringToProduct(actual.toString())
             val category = try {
-                receiptDataViewModel.categoryList.value?.filter { it.id == product.categoryId }
-                    ?.first()
+                receiptDataViewModel.categoryList.value?.first { it.id == product.categoryId }
             } catch (e: Exception) {
                 null
             }
@@ -249,7 +247,6 @@ class AddProductFragment : Fragment() {
                 return@setOnClickListener
             }
 
-
             val product = Product(
                 productOriginal?.receiptId ?: throw NoReceiptIdException(),
                 binding.productNameInput.text.toString(),
@@ -266,6 +263,9 @@ class AddProductFragment : Fragment() {
                 receiptDataViewModel.product.value!![args.productIndex] = product
             } else {
                 receiptDataViewModel.product.value!!.add(product)
+            }
+            if (args.saveProduct) {
+                receiptDataViewModel.insertProducts(listOf(product))
             }
             Navigation.findNavController(requireView()).popBackStack()
         }

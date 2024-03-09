@@ -9,7 +9,9 @@ import com.example.navsample.databinding.ArrayAdapterRowBinding
 import com.example.navsample.entities.Category
 
 class CategoryDropdownAdapter(
-    ctx: Context, res: Int, private var categoryList: ArrayList<Category>
+    ctx: Context,
+    res: Int,
+    private var categoryList: ArrayList<Category>
 ) : ArrayAdapter<Category>(ctx, res, categoryList) {
 
     override fun getView(position: Int, convertView: View?, parent: ViewGroup): View {

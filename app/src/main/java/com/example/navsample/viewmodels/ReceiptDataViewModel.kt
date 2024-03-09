@@ -7,7 +7,6 @@ import androidx.lifecycle.viewModelScope
 import com.example.navsample.ApplicationContext
 import com.example.navsample.DTO.ChartColors
 import com.example.navsample.DTO.ExperimentalAdapterArgument
-import com.example.navsample.DTO.ReceiptDTO
 import com.example.navsample.entities.Category
 import com.example.navsample.entities.Product
 import com.example.navsample.entities.Receipt
@@ -23,7 +22,7 @@ import kotlinx.coroutines.launch
 
 class ReceiptDataViewModel : ViewModel() {
     lateinit var store: MutableLiveData<Store>
-    lateinit var receipt: MutableLiveData<ReceiptDTO?>
+    lateinit var receipt: MutableLiveData<Receipt>
     lateinit var product: MutableLiveData<ArrayList<Product>>
     lateinit var category: MutableLiveData<Category?>
 
@@ -52,7 +51,7 @@ class ReceiptDataViewModel : ViewModel() {
     fun clearData() {
         reorderedProductTiles = MutableLiveData<Boolean>(false)
         store = MutableLiveData<Store>(null)
-        receipt = MutableLiveData<ReceiptDTO?>(null)
+        receipt = MutableLiveData<Receipt>(null)
         product = MutableLiveData<ArrayList<Product>>(ArrayList())
         category = MutableLiveData<Category?>(null)
 
@@ -172,7 +171,7 @@ class ReceiptDataViewModel : ViewModel() {
             dao?.let {
                 dao.updateReceipt(newReceipt)
             }
-            savedReceipt.postValue(newReceipt)
+            receipt.postValue(newReceipt)
         }
     }
 

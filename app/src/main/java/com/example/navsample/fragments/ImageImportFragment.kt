@@ -18,9 +18,9 @@ import com.canhub.cropper.CropImage
 import com.canhub.cropper.CropImageContract
 import com.canhub.cropper.CropImageContractOptions
 import com.canhub.cropper.CropImageOptions
-import com.example.navsample.DTO.ReceiptDTO
 import com.example.navsample.ImageAnalyzer
 import com.example.navsample.databinding.FragmentImageImportBinding
+import com.example.navsample.entities.Receipt
 import com.example.navsample.entities.Store
 import com.example.navsample.viewmodels.ReceiptDataViewModel
 import com.example.navsample.viewmodels.ReceiptImageViewModel
@@ -80,10 +80,8 @@ class ImageImportFragment : Fragment() {
 //                    drawRectangles()
 
                     val store = Store(imageAnalyzer.companyName, imageAnalyzer.valueNIP)
-                    val receipt = ReceiptDTO(
+                    val receipt = Receipt(
                         -1,
-                        imageAnalyzer.companyName,
-                        imageAnalyzer.valueNIP,
                         imageAnalyzer.valuePLN.toString().toFloat(),
                         imageAnalyzer.valuePTU.toString().toFloat(),
                         imageAnalyzer.valueDate,

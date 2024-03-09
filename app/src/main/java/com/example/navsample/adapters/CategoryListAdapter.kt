@@ -13,8 +13,8 @@ import com.example.navsample.entities.Category
 class CategoryListAdapter(
     var context: Context,
     var categoryList: ArrayList<Category>,
-    var itemClickListener: ItemClickListener,
-    var onDelete: (Int) -> Unit,
+    private var itemClickListener: ItemClickListener,
+    private var onDelete: (Int) -> Unit,
 ) : RecyclerView.Adapter<CategoryListAdapter.MyViewHolder>() {
     var position = 0
 

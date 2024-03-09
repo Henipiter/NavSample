@@ -12,11 +12,11 @@ import androidx.fragment.app.activityViewModels
 import androidx.navigation.Navigation
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.example.navsample.DTO.ReceiptDTO
 import com.example.navsample.ItemClickListener
 import com.example.navsample.R
 import com.example.navsample.adapters.ReceiptListAdapter
 import com.example.navsample.databinding.FragmentReceiptListBinding
+import com.example.navsample.entities.Receipt
 import com.example.navsample.fragments.dialogs.DeleteConfirmationDialog
 import com.example.navsample.viewmodels.ReceiptDataViewModel
 import com.google.android.material.datepicker.MaterialDatePicker
@@ -164,18 +164,15 @@ class ReceiptListFragment : Fragment(), ItemClickListener {
     }
 
 
-    override fun onItemClick(productIndex: Int) {
-        val receipt = receiptDataViewModel.receiptList.value?.get(productIndex)
-        receipt?.let {
+    override fun onItemClick(index: Int) {
+        receiptDataViewModel.receiptList.value?.get(index)?.let {
             receiptDataViewModel.getStoreById(it.storeId)
-            receiptDataViewModel.receipt.value = ReceiptDTO(
-                receipt.id,
-                receipt.name,
-                receipt.nip,
-                receipt.pln.toString().toFloat(),
-                receipt.ptu.toString().toFloat(),
-                receipt.date,
-                receipt.time
+            receiptDataViewModel.receipt.value = Receipt(
+                it.id,
+                it.pln.toString().toFloat(),
+                it.ptu.toString().toFloat(),
+                it.date,
+                it.time
             )
         }
 

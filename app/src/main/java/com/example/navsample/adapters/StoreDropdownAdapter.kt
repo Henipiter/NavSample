@@ -11,7 +11,9 @@ import com.example.navsample.databinding.ArrayAdapterRowBinding
 import com.example.navsample.entities.Store
 
 class StoreDropdownAdapter(
-    ctx: Context, res: Int, var storeList: ArrayList<Store>
+    ctx: Context,
+    res: Int,
+    var storeList: ArrayList<Store>
 ) : ArrayAdapter<Store>(ctx, res, storeList), Filterable {
 
     private var filteredList = ArrayList<Store>()

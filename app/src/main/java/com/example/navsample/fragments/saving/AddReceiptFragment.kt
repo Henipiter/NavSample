@@ -10,12 +10,12 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.navigation.Navigation
 import com.example.navsample.DTO.DataMode
-import com.example.navsample.DTO.ReceiptDTO
 import com.example.navsample.R
 import com.example.navsample.adapters.StoreDropdownAdapter
 import com.example.navsample.databinding.FragmentAddReceiptBinding
 import com.example.navsample.entities.Receipt
 import com.example.navsample.entities.Store
+import com.example.navsample.exception.NoStoreIdException
 import com.example.navsample.viewmodels.ReceiptDataViewModel
 import com.example.navsample.viewmodels.ReceiptImageViewModel
 import com.google.android.material.datepicker.MaterialDatePicker
@@ -82,11 +82,11 @@ class AddReceiptFragment : Fragment() {
         binding.storeNameInput.setText(store.name)
     }
 
-    private fun setReceiptDataToInputs(receipt: ReceiptDTO) {
-        binding.receiptPTUInput.setText(receipt.receiptPTU.toString())
-        binding.receiptPLNInput.setText(receipt.receiptPLN.toString())
-        binding.receiptDateInput.setText(receipt.receiptDate)
-        binding.receiptTimeInput.setText(receipt.receiptTime)
+    private fun setReceiptDataToInputs(receipt: Receipt) {
+        binding.receiptPTUInput.setText(receipt.ptu.toString())
+        binding.receiptPLNInput.setText(receipt.pln.toString())
+        binding.receiptDateInput.setText(receipt.date)
+        binding.receiptTimeInput.setText(receipt.time)
     }
 
     private fun initObserver() {
@@ -110,8 +110,7 @@ class AddReceiptFragment : Fragment() {
                     binding.storeNIPInput.setText(it.nip)
                     binding.storeNameInput.setText(it.name)
 
-                    val readNIP = it.nip ?: ""
-                    val indexOfStore = storeList.map { it.nip }.indexOf(readNIP)
+                    val indexOfStore = storeList.map { it.nip }.indexOf(it.nip)
                     if (indexOfStore < 0) {
                         Navigation.findNavController(requireView())
                             .navigate(R.id.action_addReceiptFragment_to_editStoreFragment)
@@ -120,7 +119,6 @@ class AddReceiptFragment : Fragment() {
                         binding.storeNameInput.setText(storeList[indexOfStore].name)
                         binding.storeNIPInput.setText(storeList[indexOfStore].nip)
                         binding.storeNameInput.isEnabled = false
-
                     }
                 }
             }
@@ -239,16 +237,15 @@ class AddReceiptFragment : Fragment() {
             saveChangesToDatabase()
 
             receiptDataViewModel.savedReceipt.value?.let { receipt ->
-                val savedStore = receiptDataViewModel.store.value ?: Store("", "")
-                receiptDataViewModel.receipt.value = ReceiptDTO(
-                    receipt.id,
-                    savedStore.name,
-                    savedStore.nip,
+                val savedStore = receiptDataViewModel.store.value
+                receiptDataViewModel.receipt.value = Receipt(
+                    savedStore?.id ?: throw NoStoreIdException(),
                     receipt.pln.toString().toFloat(),
                     receipt.ptu.toString().toFloat(),
                     receipt.date,
                     receipt.time
                 )
+                receiptDataViewModel.receipt.value?.id = receipt.id
             }
             binding.storeNIPLayout.visibility = View.GONE
             changeViewToDisplayMode()
@@ -257,11 +254,11 @@ class AddReceiptFragment : Fragment() {
         binding.cancelChangesButton.setOnClickListener {
             changeViewToDisplayMode()
 
-            binding.storeNIPInput.setText(receiptDataViewModel.receipt.value?.storeNIP)
-            binding.receiptPTUInput.setText(receiptDataViewModel.receipt.value?.receiptPTU.toString())
-            binding.receiptPLNInput.setText(receiptDataViewModel.receipt.value?.receiptPLN.toString())
-            binding.receiptDateInput.setText(receiptDataViewModel.receipt.value?.receiptDate)
-            binding.receiptTimeInput.setText(receiptDataViewModel.receipt.value?.receiptTime)
+            binding.storeNIPInput.setText(receiptDataViewModel.store.value?.nip)
+            binding.receiptPTUInput.setText(receiptDataViewModel.receipt.value?.ptu.toString())
+            binding.receiptPLNInput.setText(receiptDataViewModel.receipt.value?.pln.toString())
+            binding.receiptDateInput.setText(receiptDataViewModel.receipt.value?.date)
+            binding.receiptTimeInput.setText(receiptDataViewModel.receipt.value?.time)
         }
 
         binding.storeNameLayout.setStartIconOnClickListener {

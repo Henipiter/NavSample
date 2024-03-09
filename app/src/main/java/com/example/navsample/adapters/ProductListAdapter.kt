@@ -13,8 +13,8 @@ import kotlin.math.roundToInt
 class ProductListAdapter(
     var context: Context,
     var productList: ArrayList<ProductRichData>,
-    var itemClickListener: ItemClickListener,
-    var onDelete: (Int) -> Unit,
+    private var itemClickListener: ItemClickListener,
+    private var onDelete: (Int) -> Unit,
 ) : RecyclerView.Adapter<ProductListAdapter.MyViewHolder>() {
     var position = 0
 

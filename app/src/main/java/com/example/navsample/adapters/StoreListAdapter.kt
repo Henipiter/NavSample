@@ -7,13 +7,12 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.navsample.ItemClickListener
 import com.example.navsample.databinding.StoreRowBinding
 import com.example.navsample.entities.Store
-import com.example.navsample.entities.relations.ReceiptWithStore
 
 class StoreListAdapter(
     var context: Context,
     var storeList: ArrayList<Store>,
-    var itemClickListener: ItemClickListener,
-    var onDelete: (Int) -> Unit
+    private var itemClickListener: ItemClickListener,
+    private var onDelete: (Int) -> Unit
 ) : RecyclerView.Adapter<StoreListAdapter.MyViewHolder>() {
     var position = 0
 

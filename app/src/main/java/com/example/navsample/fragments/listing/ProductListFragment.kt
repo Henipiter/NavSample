@@ -14,9 +14,9 @@ import androidx.navigation.Navigation
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.navsample.ItemClickListener
-import com.example.navsample.R
 import com.example.navsample.adapters.ProductListAdapter
 import com.example.navsample.databinding.FragmentProductListBinding
+import com.example.navsample.entities.Product
 import com.example.navsample.fragments.dialogs.DeleteConfirmationDialog
 import com.example.navsample.fragments.dialogs.PricePickerDialog
 import com.example.navsample.viewmodels.ReceiptDataViewModel
@@ -231,8 +231,23 @@ class ProductListFragment : Fragment(), ItemClickListener {
 
 
     override fun onItemClick(index: Int) {
-        Navigation.findNavController(binding.root)
-            .navigate(R.id.action_listingFragment_to_addProductFragment)
+        receiptDataViewModel.productRichList.value?.get(index)?.let {
+            val chosenProduct = Product(
+                it.receiptId,
+                it.name,
+                it.categoryId,
+                it.amount,
+                it.itemPrice,
+                it.finalPrice,
+                it.ptuType,
+                it.raw
+            )
+            chosenProduct.id = it.id
+            receiptDataViewModel.product.value = arrayListOf(chosenProduct)
+        }
+        val action =
+            ListingFragmentDirections.actionListingFragmentToAddProductFragment(true, 0)
+        Navigation.findNavController(requireView()).navigate(action)
     }
 
 }
