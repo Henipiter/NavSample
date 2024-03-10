@@ -53,20 +53,18 @@ class DiagramFragment : Fragment() {
             updateData(value.toInt())
         }
 
-
         binding.tabLayout.addOnTabSelectedListener(object : TabLayout.OnTabSelectedListener {
 
             override fun onTabSelected(tab: TabLayout.Tab?) {
                 tab?.let {
                     setChartVisibility(it.position)
+                    refreshChart()
                 }
             }
 
             override fun onTabReselected(tab: TabLayout.Tab?) {}
             override fun onTabUnselected(tab: TabLayout.Tab?) {}
         })
-
-
     }
 
     private fun initialCharts() {
@@ -84,43 +82,55 @@ class DiagramFragment : Fragment() {
         today = dateFormat.format(Date())
         ago = dateFormat.format(threeMonthsAgo)
 
+        receiptDataViewModel.getChartDataCategory(ago, today)
+        receiptDataViewModel.getChartDataTimeline(ago, today)
 
-        when (mode) {
-            ChartMode.PIE -> receiptDataViewModel.getChartDataCategory(ago, today)
-            ChartMode.RADAR -> receiptDataViewModel.getChartDataCategory(ago, today)
-            ChartMode.BAR -> receiptDataViewModel.getChartDataTimeline(ago, today)
-            ChartMode.LINE -> receiptDataViewModel.getChartDataTimeline(ago, today)
-
-        }
     }
 
 
     private fun initObserver() {
-        receiptDataViewModel.chartData.observe(viewLifecycleOwner) { it ->
-            it?.let {
+        receiptDataViewModel.categoryChartData.observe(viewLifecycleOwner) {
+            if (mode == ChartMode.PIE || mode == ChartMode.RADAR) {
+                refreshChart()
+            }
+        }
+        receiptDataViewModel.timelineChartData.observe(viewLifecycleOwner) {
+            if (mode == ChartMode.BAR || mode == ChartMode.LINE) {
+                refreshChart()
+            }
+        }
+    }
 
-                when (mode) {
-                    ChartMode.PIE -> {
-                        val data = pieChartCreator.getData(it)
-                        pieChartCreator.drawChart(binding.pieChart, data)
-                    }
-
-                    ChartMode.RADAR -> {
-                        val data = radarChartCreator.getData(it)
-                        radarChartCreator.drawChart(binding.radarChart, data)
-                    }
-
-                    ChartMode.BAR -> {
-                        val data = barChartCreator.getData(it)
-                        barChartCreator.drawChart(binding.barChart, data)
-                    }
-
-                    ChartMode.LINE -> {
-                        val data = lineChartCreator.getData(it)
-                        lineChartCreator.drawChart(binding.lineChart, data)
-                    }
+    private fun refreshChart() {
+        when (mode) {
+            ChartMode.PIE -> {
+                receiptDataViewModel.categoryChartData.value?.let {
+                    val data = pieChartCreator.getData(it)
+                    pieChartCreator.drawChart(binding.pieChart, data)
                 }
             }
+
+            ChartMode.RADAR -> {
+                receiptDataViewModel.categoryChartData.value?.let {
+                    val data = radarChartCreator.getData(it)
+                    radarChartCreator.drawChart(binding.radarChart, data)
+                }
+            }
+
+            ChartMode.BAR -> {
+                receiptDataViewModel.timelineChartData.value?.let {
+                    val data = barChartCreator.getData(it)
+                    barChartCreator.drawChart(binding.barChart, data)
+                }
+            }
+
+            ChartMode.LINE -> {
+                receiptDataViewModel.timelineChartData.value?.let {
+                    val data = lineChartCreator.getData(it)
+                    lineChartCreator.drawChart(binding.lineChart, data)
+                }
+            }
+
         }
     }
 
@@ -156,8 +166,8 @@ class DiagramFragment : Fragment() {
                 binding.radarChart.visibility = View.INVISIBLE
                 binding.barChart.visibility = View.VISIBLE
                 binding.pieChart.visibility = View.INVISIBLE
+
             }
         }
-        updateData(binding.monthRangeSlider.value.toInt())
     }
 }

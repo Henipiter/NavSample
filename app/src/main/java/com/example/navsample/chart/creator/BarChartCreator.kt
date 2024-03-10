@@ -67,7 +67,6 @@ class BarChartCreator : LinearChartFactory<BarEntry, BarDataSet, IBarDataSet, Ba
     }
 
     override fun initializeChart(chart: BarChart) {
-        TODO("Not yet implemented")
     }
 
     override fun drawChart(chart: BarChart, data: BarData) {

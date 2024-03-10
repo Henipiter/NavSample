@@ -36,7 +36,8 @@ class ReceiptDataViewModel : ViewModel() {
     lateinit var experimental: MutableLiveData<ArrayList<ExperimentalAdapterArgument>>
     lateinit var experimentalOriginal: MutableLiveData<ArrayList<ExperimentalAdapterArgument>>
 
-    lateinit var chartData: MutableLiveData<ArrayList<PriceByCategory>>
+    lateinit var timelineChartData: MutableLiveData<List<PriceByCategory>>
+    lateinit var categoryChartData: MutableLiveData<List<PriceByCategory>>
     lateinit var allData: MutableLiveData<ArrayList<AllData>>
     lateinit var tableCounts: MutableLiveData<ArrayList<TableCounts>>
     lateinit var reorderedProductTiles: MutableLiveData<Boolean>
@@ -61,7 +62,8 @@ class ReceiptDataViewModel : ViewModel() {
         categoryList = MutableLiveData<ArrayList<Category>>(null)
         storeList = MutableLiveData<ArrayList<Store>>(null)
 
-        chartData = MutableLiveData<ArrayList<PriceByCategory>>(null)
+        timelineChartData = MutableLiveData<List<PriceByCategory>>(null)
+        categoryChartData = MutableLiveData<List<PriceByCategory>>(null)
         tableCounts = MutableLiveData<ArrayList<TableCounts>>(null)
         allData = MutableLiveData<ArrayList<AllData>>(null)
 
@@ -364,7 +366,7 @@ class ReceiptDataViewModel : ViewModel() {
 
     fun getChartDataTimeline(dateFrom: String = "0", dateTo: String = "9") {
         viewModelScope.launch {
-            chartData.postValue(
+            timelineChartData.postValue(
                 dao?.getPricesForCategoryComparisonWithDate(dateFrom, dateTo)
                     ?.let { ArrayList(it) })
         }
@@ -372,7 +374,7 @@ class ReceiptDataViewModel : ViewModel() {
 
     fun getChartDataCategory(dateFrom: String = "0", dateTo: String = "9") {
         viewModelScope.launch {
-            chartData.postValue(
+            categoryChartData.postValue(
                 dao?.getPricesForCategoryComparison(dateFrom, dateTo)?.let { ArrayList(it) })
         }
     }

@@ -34,7 +34,7 @@ class RadarChartCreator :
     }
 
     override fun initializeChart(chart: RadarChart) {
-        TODO("Not yet implemented")
+
     }
 
     override fun drawChart(chart: RadarChart, data: RadarData) {
