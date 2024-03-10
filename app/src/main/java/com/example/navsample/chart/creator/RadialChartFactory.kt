@@ -6,14 +6,16 @@ import com.example.navsample.entities.relations.PriceByCategory
 import com.github.mikephil.charting.data.DataSet
 import com.github.mikephil.charting.data.Entry
 import com.github.mikephil.charting.formatter.PercentFormatter
+import com.github.mikephil.charting.interfaces.dataprovider.ChartInterface
 import com.github.mikephil.charting.interfaces.datasets.IDataSet
 
 interface RadialChartFactory<
         ENTRY : Entry,
         DATASET : DataSet<ENTRY>,
         I_DATASET : IDataSet<ENTRY>,
-        CHART_DATA : com.github.mikephil.charting.data.ChartData<I_DATASET>
-        > : ChartFactory<ENTRY, DATASET, I_DATASET, CHART_DATA> {
+        CHART_DATA : com.github.mikephil.charting.data.ChartData<I_DATASET>,
+        CHART : ChartInterface
+        > : ChartFactory<ENTRY, DATASET, I_DATASET, CHART_DATA, CHART> {
 
     fun getSpecificEntry(value: Float, label: String): ENTRY
     fun getSpecificChartData(dataset: DATASET): CHART_DATA

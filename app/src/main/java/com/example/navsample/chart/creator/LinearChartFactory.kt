@@ -5,6 +5,7 @@ import com.example.navsample.chart.ChartColors
 import com.example.navsample.entities.relations.PriceByCategory
 import com.github.mikephil.charting.data.DataSet
 import com.github.mikephil.charting.data.Entry
+import com.github.mikephil.charting.interfaces.dataprovider.ChartInterface
 import com.github.mikephil.charting.interfaces.datasets.IDataSet
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
@@ -15,8 +16,10 @@ interface LinearChartFactory<
         ENTRY : Entry,
         DATASET : DataSet<ENTRY>,
         I_DATASET : IDataSet<ENTRY>,
-        CHART_DATA : com.github.mikephil.charting.data.ChartData<I_DATASET>
-        > : ChartFactory<ENTRY, DATASET, I_DATASET, CHART_DATA> {
+        CHART_DATA : com.github.mikephil.charting.data.ChartData<I_DATASET>,
+        CHART : ChartInterface
+
+        > : ChartFactory<ENTRY, DATASET, I_DATASET, CHART_DATA, CHART> {
 
     fun getSpecificEntry(x: Float, y: Float): ENTRY
     fun getSpecificChartData(dataset: List<I_DATASET>): CHART_DATA
@@ -63,7 +66,7 @@ interface LinearChartFactory<
         fun createTimelineData(
             ago: String,
             today: String,
-            list: ArrayList<PriceByCategory>,
+            list: List<PriceByCategory>,
         ): List<List<Float>> {
 
             val categories = list.map { it.category }.toSortedSet()
@@ -106,12 +109,12 @@ interface LinearChartFactory<
         }
 
         private fun getValueByCategoryAndDate(
-            priceByCategoryList: ArrayList<PriceByCategory>,
+            priceByCategoryList: List<PriceByCategory>,
             category: String,
             date: String,
         ): Float {
-            return priceByCategoryList.filter { it.category == category && it.date == date }
-                .firstOrNull()?.price ?: 0f
+            return priceByCategoryList.firstOrNull { it.category == category && it.date == date }?.price
+                ?: 0f
         }
     }
 

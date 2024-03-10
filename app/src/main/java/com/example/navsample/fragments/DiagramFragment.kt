@@ -10,7 +10,6 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import com.example.navsample.chart.ChartData
 import com.example.navsample.chart.ChartMode
-import com.example.navsample.chart.MyXAxisFormatter
 import com.example.navsample.chart.creator.BarChartCreator
 import com.example.navsample.chart.creator.LineChartCreator
 import com.example.navsample.chart.creator.PieChartCreator
@@ -80,18 +79,18 @@ class DiagramFragment : Fragment() {
                         }
 
                         2 -> {
-                            mode = ChartMode.BAR
-                            binding.lineChart.visibility = View.INVISIBLE
-                            binding.radarChart.visibility = View.INVISIBLE
-                            binding.barChart.visibility = View.VISIBLE
-                            binding.pieChart.visibility = View.INVISIBLE
-                        }
-
-                        3 -> {
                             mode = ChartMode.LINE
                             binding.lineChart.visibility = View.VISIBLE
                             binding.radarChart.visibility = View.INVISIBLE
                             binding.barChart.visibility = View.INVISIBLE
+                            binding.pieChart.visibility = View.INVISIBLE
+                        }
+
+                        3 -> {
+                            mode = ChartMode.BAR
+                            binding.lineChart.visibility = View.INVISIBLE
+                            binding.radarChart.visibility = View.INVISIBLE
+                            binding.barChart.visibility = View.VISIBLE
                             binding.pieChart.visibility = View.INVISIBLE
                         }
                     }
@@ -171,67 +170,26 @@ class DiagramFragment : Fragment() {
                     ChartMode.PIE -> {
                         val pieChartCreator = PieChartCreator()
                         val data = pieChartCreator.getData(it)
-
-                        binding.pieChart.data = data
-                        binding.pieChart.highlightValues(null)
-                        binding.pieChart.invalidate()
+                        pieChartCreator.drawChart(binding.pieChart, data)
                     }
 
                     ChartMode.RADAR -> {
                         val radarChartCreator = RadarChartCreator()
                         val data = radarChartCreator.getData(it)
-
-                        binding.radarChart.data = data
-                        binding.radarChart.highlightValues(null)
-                        binding.radarChart.invalidate()
+                        radarChartCreator.drawChart(binding.radarChart, data)
                     }
 
                     ChartMode.BAR -> {
-
-                        val barChartCreator = BarChartCreator(ago, today, it)
+                        val barChartCreator = BarChartCreator(ago, today)
                         val data = barChartCreator.getData(it)
-                        val legendDates = barChartCreator.getDateLegend(ago, today)
-
-
-                        val groupSpace = 0.1f
-                        val barSpace = 0.01f
-                        val barWidth = 0.23f
-
-                        data.setValueTextColor(Color.WHITE)
-                        binding.barChart.setDrawValueAboveBar(true)
-                        binding.barChart.data = data
-
-                        binding.barChart.barData.barWidth = barWidth
-                        binding.barChart.xAxis.valueFormatter = MyXAxisFormatter(legendDates)
-                        binding.barChart.xAxis.setCenterAxisLabels(true)
-                        binding.barChart.setVisibleXRangeMaximum(4F)
-                        binding.barChart.moveViewToX(1F)
-
-                        binding.barChart.groupBars(1F, groupSpace, barSpace)
-                        binding.barChart.invalidate()
+                        barChartCreator.drawChart(binding.barChart, data)
                     }
 
                     ChartMode.LINE -> {
-
-                        val lineChartCreator = LineChartCreator(ago, today, it)
+                        val lineChartCreator = LineChartCreator(ago, today)
                         val data = lineChartCreator.getData(it)
-                        val legendDates = lineChartCreator.getDateLegend(ago, today)
-
-                        binding.lineChart.data = data
-                        binding.lineChart.invalidate()
-                        binding.lineChart.description.isEnabled = false
-                        binding.lineChart.setNoDataTextColor(Color.WHITE)
-                        binding.lineChart.xAxis.valueFormatter = MyXAxisFormatter(legendDates)
-
-                        binding.lineChart.xAxis.textColor = Color.WHITE
-                        binding.lineChart.axisLeft.textColor = Color.WHITE
-                        binding.lineChart.axisRight.textColor = Color.WHITE
-                        binding.lineChart.description.textColor = Color.WHITE
-                        binding.lineChart.xAxis.enableGridDashedLine(10f, 20f, 10f)
-                        binding.lineChart.axisLeft.enableGridDashedLine(10f, 20f, 10f)
-                        binding.lineChart.axisRight.enableGridDashedLine(10f, 20f, 10f)
+                        lineChartCreator.drawChart(binding.lineChart, data)
                     }
-
                 }
             }
         }

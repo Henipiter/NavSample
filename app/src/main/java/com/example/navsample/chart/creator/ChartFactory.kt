@@ -5,6 +5,7 @@ import com.example.navsample.chart.ChartColors
 import com.example.navsample.entities.relations.PriceByCategory
 import com.github.mikephil.charting.data.DataSet
 import com.github.mikephil.charting.data.Entry
+import com.github.mikephil.charting.interfaces.dataprovider.ChartInterface
 import com.github.mikephil.charting.interfaces.datasets.IDataSet
 import com.github.mikephil.charting.utils.ColorTemplate
 
@@ -12,7 +13,8 @@ interface ChartFactory<
         ENTRY : Entry,
         DATASET : DataSet<ENTRY>,
         I_DATASET : IDataSet<ENTRY>,
-        CHART_DATA : com.github.mikephil.charting.data.ChartData<I_DATASET>
+        CHART_DATA : com.github.mikephil.charting.data.ChartData<I_DATASET>,
+        CHART : ChartInterface
         > {
     fun getTitle(): String
 
@@ -26,5 +28,7 @@ interface ChartFactory<
         colors.add(ColorTemplate.getHoloBlue())
         return colors
     }
+
+    fun drawChart(chart: CHART, data: CHART_DATA)
 
 }
