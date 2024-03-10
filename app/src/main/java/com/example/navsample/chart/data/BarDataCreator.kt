@@ -36,6 +36,10 @@ class BarDataCreator : LinearDataFactory<BarEntry, BarDataSet, IBarDataSet, BarD
         return barData
     }
 
+    override fun getLegend(): List<String> {
+        return getLegend(ago, today)
+    }
+
     override fun getSpecificDataSet(entries: List<BarEntry>): BarDataSet {
         return BarDataSet(entries, getTitle())
     }
@@ -54,9 +58,7 @@ class BarDataCreator : LinearDataFactory<BarEntry, BarDataSet, IBarDataSet, BarD
     }
 
     override fun createDataSet(
-        values: List<BarEntry>,
-        categories: Set<String>,
-        id: Int
+        values: List<BarEntry>, categories: Set<String>, id: Int
     ): IBarDataSet {
         val dataSet = BarDataSet(values, categories.toList()[id])
         dataSet.valueTextColor = Color.WHITE

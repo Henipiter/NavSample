@@ -119,28 +119,32 @@ class DiagramFragment : Fragment() {
             ChartMode.PIE -> {
                 receiptDataViewModel.categoryChartData.value?.let {
                     val data = pieDataCreator.getData(it)
-                    pieChartCreator.drawChart(binding.pieChart, data)
+                    val legend = pieDataCreator.getLegend(it)
+                    pieChartCreator.drawChart(binding.pieChart, data, legend)
                 }
             }
 
             ChartMode.RADAR -> {
                 receiptDataViewModel.categoryChartData.value?.let {
                     val data = radarDataCreator.getData(it)
-                    radarChartCreator.drawChart(binding.radarChart, data)
+                    val legend = radarDataCreator.getLegend(it)
+                    radarChartCreator.drawChart(binding.radarChart, data, legend)
                 }
             }
 
             ChartMode.BAR -> {
                 receiptDataViewModel.timelineChartData.value?.let {
                     val data = barDataCreator.getData(it)
-                    barChartCreator.drawChart(binding.barChart, data)
+                    val legend = barDataCreator.getLegend()
+                    barChartCreator.drawChart(binding.barChart, data, legend)
                 }
             }
 
             ChartMode.LINE -> {
                 receiptDataViewModel.timelineChartData.value?.let {
                     val data = lineDataCreator.getData(it)
-                    lineChartCreator.drawChart(binding.lineChart, data)
+                    val legend = lineDataCreator.getLegend()
+                    lineChartCreator.drawChart(binding.lineChart, data, legend)
                 }
             }
 

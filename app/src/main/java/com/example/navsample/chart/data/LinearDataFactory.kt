@@ -40,7 +40,8 @@ interface LinearDataFactory<
         return Color.parseColor(ChartColors.COLORS[id % ChartColors.COLORS.size])
     }
 
-    fun getDateLegend(fromDate: String, toDate: String): List<String> {
+    fun getLegend(): List<String>
+    fun getLegend(fromDate: String, toDate: String): List<String> {
         val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd")
         val startDate = LocalDate.parse(fromDate, formatter)
         val endDate = LocalDate.parse(toDate, formatter)

@@ -16,7 +16,12 @@ class PieDataCreator : RadialDataFactory<PieEntry, PieDataSet, IPieDataSet, PieD
         val categoryData = createCategoryData(data)
         val entries = getRadialEntries(categoryData)
         val dataSet = getDataSetTemplate(entries)
+        dataSet.colors = getColors()
         return getDataTemplate(dataSet)
+    }
+
+    override fun getLegend(data: List<PriceByCategory>): List<String> {
+        return listOf()
     }
 
     override fun getSpecificDataSet(entries: List<PieEntry>): PieDataSet {

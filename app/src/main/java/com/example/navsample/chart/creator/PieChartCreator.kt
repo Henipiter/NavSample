@@ -32,7 +32,7 @@ class PieChartCreator : ChartFactory<PieEntry, IPieDataSet, PieData, PieChart> {
         chart.setEntryLabelTextSize(12f)
     }
 
-    override fun drawChart(chart: PieChart, data: PieData) {
+    override fun drawChart(chart: PieChart, data: PieData, legend: List<String>) {
         chart.data = data
         chart.highlightValues(null)
         chart.invalidate()

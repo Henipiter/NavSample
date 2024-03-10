@@ -12,6 +12,6 @@ interface ChartFactory<
         > {
 
     fun initializeChart(chart: CHART)
-    fun drawChart(chart: CHART, data: CHART_DATA)
+    fun drawChart(chart: CHART, data: CHART_DATA, legend: List<String>)
 
 }

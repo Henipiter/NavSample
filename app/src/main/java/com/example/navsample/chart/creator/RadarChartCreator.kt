@@ -1,6 +1,7 @@
 package com.example.navsample.chart.creator
 
 
+import com.example.navsample.chart.MyXAxisFormatter
 import com.github.mikephil.charting.charts.RadarChart
 import com.github.mikephil.charting.data.RadarData
 import com.github.mikephil.charting.data.RadarEntry
@@ -12,8 +13,9 @@ class RadarChartCreator :
     override fun initializeChart(chart: RadarChart) {
     }
 
-    override fun drawChart(chart: RadarChart, data: RadarData) {
+    override fun drawChart(chart: RadarChart, data: RadarData, legend: List<String>) {
         chart.data = data
+        chart.xAxis.valueFormatter = MyXAxisFormatter(legend)
         chart.highlightValues(null)
         chart.invalidate()
     }

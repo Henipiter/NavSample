@@ -17,7 +17,12 @@ class RadarDataCreator :
         val categoryData = createCategoryData(data)
         val entries = getRadialEntries(categoryData)
         val dataSet: RadarDataSet = getDataSetTemplate(entries)
+        dataSet.color = getColors()[0]
         return getDataTemplate(dataSet)
+    }
+
+    override fun getLegend(data: List<PriceByCategory>): List<String> {
+        return data.map { it.category }
     }
 
     override fun getSpecificDataSet(entries: List<RadarEntry>): RadarDataSet {

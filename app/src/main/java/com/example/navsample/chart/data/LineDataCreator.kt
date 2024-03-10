@@ -32,6 +32,10 @@ class LineDataCreator : LinearDataFactory<Entry, LineDataSet, ILineDataSet, Line
         return getSpecificChartData(dataSets)
     }
 
+    override fun getLegend(): List<String> {
+        return getLegend(ago, today)
+    }
+
     override fun getSpecificDataSet(entries: List<Entry>): LineDataSet {
         return LineDataSet(entries, getTitle())
     }

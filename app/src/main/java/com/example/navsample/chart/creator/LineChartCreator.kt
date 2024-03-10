@@ -33,11 +33,11 @@ class LineChartCreator : LinearChartFactory<Entry, ILineDataSet, LineData, LineC
         chart.legend.setDrawInside(false)
     }
 
-    override fun drawChart(chart: LineChart, data: LineData) {
+    override fun drawChart(chart: LineChart, data: LineData, legend: List<String>) {
         chart.data = data
         chart.description.isEnabled = false
         chart.setNoDataTextColor(Color.WHITE)
-        chart.xAxis.valueFormatter = MyXAxisFormatter(getDateLegend(ago, today))
+        chart.xAxis.valueFormatter = MyXAxisFormatter(legend)
 
         chart.xAxis.textColor = Color.WHITE
         chart.axisLeft.textColor = Color.WHITE
