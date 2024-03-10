@@ -1,6 +1,6 @@
 package com.example.navsample
 
-import com.example.navsample.chart.creator.LinearChartFactory
+import com.example.navsample.chart.data.LinearDataFactory
 import com.example.navsample.entities.relations.PriceByCategory
 import org.junit.jupiter.api.Assertions.assertAll
 import org.junit.jupiter.api.Assertions.assertEquals
@@ -8,7 +8,7 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.CsvSource
 
-class LinearChartFactoryTest {
+class LinearDataFactoryTest {
 
 
     @Test
@@ -19,7 +19,7 @@ class LinearChartFactoryTest {
         list.add(PriceByCategory(10F, "FOOD", "2023-11"))
         list.add(PriceByCategory(20F, "SPORT", "2023-10"))
         //when
-        val result = LinearChartFactory.createTimelineData("2023-09", "2023-11", list)
+        val result = LinearDataFactory.createTimelineData("2023-09", "2023-11", list)
         //then
         assertAll({
             assertEquals(2, result.size)
@@ -37,7 +37,7 @@ class LinearChartFactoryTest {
         list.add(PriceByCategory(10F, "FOOD", "2023-11"))
         list.add(PriceByCategory(20F, "SPORT", "2023-10"))
         //when
-        val result = LinearChartFactory.createTimelineData("2023-10", "2023-11", list)
+        val result = LinearDataFactory.createTimelineData("2023-10", "2023-11", list)
         //then
         assertAll({
             assertEquals(2, result.size)

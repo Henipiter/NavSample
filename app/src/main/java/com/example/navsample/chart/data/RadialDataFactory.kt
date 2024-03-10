@@ -1,4 +1,4 @@
-package com.example.navsample.chart.creator
+package com.example.navsample.chart.data
 
 import android.graphics.Color
 import com.example.navsample.chart.ChartData
@@ -6,16 +6,14 @@ import com.example.navsample.entities.relations.PriceByCategory
 import com.github.mikephil.charting.data.DataSet
 import com.github.mikephil.charting.data.Entry
 import com.github.mikephil.charting.formatter.PercentFormatter
-import com.github.mikephil.charting.interfaces.dataprovider.ChartInterface
 import com.github.mikephil.charting.interfaces.datasets.IDataSet
 
-interface RadialChartFactory<
+interface RadialDataFactory<
         ENTRY : Entry,
         DATASET : DataSet<ENTRY>,
         I_DATASET : IDataSet<ENTRY>,
-        CHART_DATA : com.github.mikephil.charting.data.ChartData<I_DATASET>,
-        CHART : ChartInterface
-        > : ChartFactory<ENTRY, DATASET, I_DATASET, CHART_DATA, CHART> {
+        CHART_DATA : com.github.mikephil.charting.data.ChartData<I_DATASET>
+        > : ChartDataFactory<ENTRY, DATASET, I_DATASET, CHART_DATA> {
 
     fun getSpecificEntry(value: Float, label: String): ENTRY
     fun getSpecificChartData(dataset: DATASET): CHART_DATA

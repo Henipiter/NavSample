@@ -12,6 +12,10 @@ import com.example.navsample.chart.creator.BarChartCreator
 import com.example.navsample.chart.creator.LineChartCreator
 import com.example.navsample.chart.creator.PieChartCreator
 import com.example.navsample.chart.creator.RadarChartCreator
+import com.example.navsample.chart.data.BarDataCreator
+import com.example.navsample.chart.data.LineDataCreator
+import com.example.navsample.chart.data.PieDataCreator
+import com.example.navsample.chart.data.RadarDataCreator
 import com.example.navsample.databinding.FragmentDiagramBinding
 import com.example.navsample.viewmodels.ReceiptDataViewModel
 import com.google.android.material.tabs.TabLayout
@@ -35,6 +39,10 @@ class DiagramFragment : Fragment() {
     private var radarChartCreator = RadarChartCreator()
     private var barChartCreator = BarChartCreator()
     private var lineChartCreator = LineChartCreator()
+    private var pieDataCreator = PieDataCreator()
+    private var radarDataCreator = RadarDataCreator()
+    private var barDataCreator = BarDataCreator()
+    private var lineDataCreator = LineDataCreator()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?,
@@ -81,10 +89,15 @@ class DiagramFragment : Fragment() {
 
         today = dateFormat.format(Date())
         ago = dateFormat.format(threeMonthsAgo)
-
+        updateRangeOfTimelineChart(today, ago)
         receiptDataViewModel.getChartDataCategory(ago, today)
         receiptDataViewModel.getChartDataTimeline(ago, today)
 
+    }
+
+    private fun updateRangeOfTimelineChart(today: String, ago: String) {
+        barChartCreator.setDateRange(ago, today)
+        lineChartCreator.setDateRange(ago, today)
     }
 
 
@@ -105,28 +118,28 @@ class DiagramFragment : Fragment() {
         when (mode) {
             ChartMode.PIE -> {
                 receiptDataViewModel.categoryChartData.value?.let {
-                    val data = pieChartCreator.getData(it)
+                    val data = pieDataCreator.getData(it)
                     pieChartCreator.drawChart(binding.pieChart, data)
                 }
             }
 
             ChartMode.RADAR -> {
                 receiptDataViewModel.categoryChartData.value?.let {
-                    val data = radarChartCreator.getData(it)
+                    val data = radarDataCreator.getData(it)
                     radarChartCreator.drawChart(binding.radarChart, data)
                 }
             }
 
             ChartMode.BAR -> {
                 receiptDataViewModel.timelineChartData.value?.let {
-                    val data = barChartCreator.getData(it)
+                    val data = barDataCreator.getData(it)
                     barChartCreator.drawChart(binding.barChart, data)
                 }
             }
 
             ChartMode.LINE -> {
                 receiptDataViewModel.timelineChartData.value?.let {
-                    val data = lineChartCreator.getData(it)
+                    val data = lineDataCreator.getData(it)
                     lineChartCreator.drawChart(binding.lineChart, data)
                 }
             }
