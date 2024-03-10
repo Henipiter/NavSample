@@ -29,6 +29,7 @@ interface ChartFactory<
         return colors
     }
 
+    fun initializeChart(chart: CHART)
     fun drawChart(chart: CHART, data: CHART_DATA)
 
 }

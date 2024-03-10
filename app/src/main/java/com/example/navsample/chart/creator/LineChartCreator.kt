@@ -5,15 +5,22 @@ import android.graphics.Color
 import com.example.navsample.chart.MyXAxisFormatter
 import com.example.navsample.entities.relations.PriceByCategory
 import com.github.mikephil.charting.charts.LineChart
+import com.github.mikephil.charting.components.Legend
 import com.github.mikephil.charting.data.Entry
 import com.github.mikephil.charting.data.LineData
 import com.github.mikephil.charting.data.LineDataSet
 import com.github.mikephil.charting.interfaces.datasets.ILineDataSet
+import java.text.SimpleDateFormat
+import java.util.Calendar
+import java.util.Date
 
-class LineChartCreator(
-    private var ago: String,
-    private var today: String
-) : LinearChartFactory<Entry, LineDataSet, ILineDataSet, LineData, LineChart> {
+class LineChartCreator : LinearChartFactory<Entry, LineDataSet, ILineDataSet, LineData, LineChart> {
+
+    private val dateFormat = SimpleDateFormat("yyyy-MM-dd")
+    private val threeMonthsAgo = Calendar.getInstance().apply { add(Calendar.MONTH, -3) }.time
+    private var today = dateFormat.format(Date())
+    private var ago = dateFormat.format(threeMonthsAgo)
+
     override fun getTitle(): String {
         return "Line Chart"
     }
@@ -32,6 +39,11 @@ class LineChartCreator(
         return LineDataSet(entries, getTitle())
     }
 
+    override fun setDateRange(ago: String, currentDate: String) {
+        this.ago = ago
+        this.today = currentDate
+    }
+
     override fun getSpecificEntry(x: Float, y: Float): Entry {
         return Entry(x, y)
     }
@@ -41,9 +53,7 @@ class LineChartCreator(
     }
 
     override fun createDataSet(
-        values: List<Entry>,
-        categories: Set<String>,
-        id: Int
+        values: List<Entry>, categories: Set<String>, id: Int
     ): ILineDataSet {
 
         val dataSet = LineDataSet(values, categories.toList()[id])
@@ -55,6 +65,16 @@ class LineChartCreator(
         dataSet.color = color
         dataSet.setCircleColor(color)
         return dataSet
+    }
+
+    override fun initializeChart(chart: LineChart) {
+        chart.resetTracking()
+
+        chart.legend.verticalAlignment = Legend.LegendVerticalAlignment.BOTTOM
+        chart.legend.horizontalAlignment = Legend.LegendHorizontalAlignment.RIGHT
+        chart.legend.orientation = Legend.LegendOrientation.HORIZONTAL
+        chart.legend.textColor = Color.WHITE
+        chart.legend.setDrawInside(false)
     }
 
     override fun drawChart(chart: LineChart, data: LineData) {

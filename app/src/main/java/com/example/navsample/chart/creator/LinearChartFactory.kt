@@ -21,6 +21,7 @@ interface LinearChartFactory<
 
         > : ChartFactory<ENTRY, DATASET, I_DATASET, CHART_DATA, CHART> {
 
+    fun setDateRange(ago: String, currentDate: String)
     fun getSpecificEntry(x: Float, y: Float): ENTRY
     fun getSpecificChartData(dataset: List<I_DATASET>): CHART_DATA
     fun createDataSet(values: List<ENTRY>, categories: Set<String>, id: Int): I_DATASET

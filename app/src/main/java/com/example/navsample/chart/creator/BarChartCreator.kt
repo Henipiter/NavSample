@@ -9,11 +9,17 @@ import com.github.mikephil.charting.data.BarData
 import com.github.mikephil.charting.data.BarDataSet
 import com.github.mikephil.charting.data.BarEntry
 import com.github.mikephil.charting.interfaces.datasets.IBarDataSet
+import java.text.SimpleDateFormat
+import java.util.Calendar
+import java.util.Date
 
-class BarChartCreator(
-    private var ago: String,
-    private var today: String
-) : LinearChartFactory<BarEntry, BarDataSet, IBarDataSet, BarData, BarChart> {
+class BarChartCreator : LinearChartFactory<BarEntry, BarDataSet, IBarDataSet, BarData, BarChart> {
+
+    private val dateFormat = SimpleDateFormat("yyyy-MM-dd")
+    private val threeMonthsAgo = Calendar.getInstance().apply { add(Calendar.MONTH, -3) }.time
+    private var today = dateFormat.format(Date())
+    private var ago = dateFormat.format(threeMonthsAgo)
+
     override fun getTitle(): String {
         return "Bar Chart"
     }
@@ -44,6 +50,11 @@ class BarChartCreator(
         return BarData(dataset)
     }
 
+    override fun setDateRange(ago: String, currentDate: String) {
+        this.ago = ago
+        this.today = currentDate
+    }
+
     override fun createDataSet(
         values: List<BarEntry>,
         categories: Set<String>,
@@ -53,6 +64,10 @@ class BarChartCreator(
         dataSet.valueTextColor = Color.WHITE
         dataSet.color = getChartColor(id)
         return dataSet
+    }
+
+    override fun initializeChart(chart: BarChart) {
+        TODO("Not yet implemented")
     }
 
     override fun drawChart(chart: BarChart, data: BarData) {

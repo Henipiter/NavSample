@@ -33,6 +33,10 @@ class RadarChartCreator :
         return RadarData(dataset)
     }
 
+    override fun initializeChart(chart: RadarChart) {
+        TODO("Not yet implemented")
+    }
+
     override fun drawChart(chart: RadarChart, data: RadarData) {
         chart.data = data
         chart.highlightValues(null)

@@ -1,14 +1,12 @@
 package com.example.navsample.fragments
 
 
-import android.graphics.Color
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
-import com.example.navsample.chart.ChartData
 import com.example.navsample.chart.ChartMode
 import com.example.navsample.chart.creator.BarChartCreator
 import com.example.navsample.chart.creator.LineChartCreator
@@ -16,7 +14,6 @@ import com.example.navsample.chart.creator.PieChartCreator
 import com.example.navsample.chart.creator.RadarChartCreator
 import com.example.navsample.databinding.FragmentDiagramBinding
 import com.example.navsample.viewmodels.ReceiptDataViewModel
-import com.github.mikephil.charting.components.Legend
 import com.google.android.material.tabs.TabLayout
 import java.text.SimpleDateFormat
 import java.util.Calendar
@@ -30,11 +27,14 @@ class DiagramFragment : Fragment() {
     private val receiptDataViewModel: ReceiptDataViewModel by activityViewModels()
 
     private var mode = ChartMode.PIE
-    private var categoryData: MutableList<ChartData> = mutableListOf()
-    private var timelineData: MutableList<Pair<String, ChartData>> = mutableListOf()
 
     private lateinit var today: String
     private lateinit var ago: String
+
+    private var pieChartCreator = PieChartCreator()
+    private var radarChartCreator = RadarChartCreator()
+    private var barChartCreator = BarChartCreator()
+    private var lineChartCreator = LineChartCreator()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?,
@@ -45,15 +45,12 @@ class DiagramFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        initialCharts()
         initObserver()
-
+        setChartVisibility(0)
         updateData(binding.monthRangeSlider.value.toInt())
-
-
-
         binding.monthRangeSlider.addOnChangeListener { slider, value, fromUser ->
             updateData(value.toInt())
-            // Responds to when slider's value is changed
         }
 
 
@@ -61,86 +58,22 @@ class DiagramFragment : Fragment() {
 
             override fun onTabSelected(tab: TabLayout.Tab?) {
                 tab?.let {
-                    when (it.position) {
-                        0 -> {
-                            mode = ChartMode.PIE
-                            binding.lineChart.visibility = View.INVISIBLE
-                            binding.radarChart.visibility = View.INVISIBLE
-                            binding.barChart.visibility = View.INVISIBLE
-                            binding.pieChart.visibility = View.VISIBLE
-                        }
-
-                        1 -> {
-                            mode = ChartMode.RADAR
-                            binding.lineChart.visibility = View.INVISIBLE
-                            binding.radarChart.visibility = View.VISIBLE
-                            binding.barChart.visibility = View.INVISIBLE
-                            binding.pieChart.visibility = View.INVISIBLE
-                        }
-
-                        2 -> {
-                            mode = ChartMode.LINE
-                            binding.lineChart.visibility = View.VISIBLE
-                            binding.radarChart.visibility = View.INVISIBLE
-                            binding.barChart.visibility = View.INVISIBLE
-                            binding.pieChart.visibility = View.INVISIBLE
-                        }
-
-                        3 -> {
-                            mode = ChartMode.BAR
-                            binding.lineChart.visibility = View.INVISIBLE
-                            binding.radarChart.visibility = View.INVISIBLE
-                            binding.barChart.visibility = View.VISIBLE
-                            binding.pieChart.visibility = View.INVISIBLE
-                        }
-                    }
-                    updateData(binding.monthRangeSlider.value.toInt())
+                    setChartVisibility(it.position)
                 }
             }
 
-            override fun onTabReselected(tab: TabLayout.Tab?) {
-                // Handle tab reselect
-            }
-
-            override fun onTabUnselected(tab: TabLayout.Tab?) {
-                // Handle tab unselect
-            }
+            override fun onTabReselected(tab: TabLayout.Tab?) {}
+            override fun onTabUnselected(tab: TabLayout.Tab?) {}
         })
 
 
+    }
 
-        binding.pieChart.setUsePercentValues(false)
-        binding.pieChart.description.isEnabled = false
-        binding.pieChart.setExtraOffsets(5F, 10F, 5F, 5F)
-
-
-        binding.pieChart.transparentCircleRadius = 21f
-        binding.pieChart.holeRadius = 16f
-
-        val l: Legend = binding.pieChart.legend
-        l.verticalAlignment = Legend.LegendVerticalAlignment.BOTTOM
-        l.horizontalAlignment = Legend.LegendHorizontalAlignment.RIGHT
-        l.orientation = Legend.LegendOrientation.HORIZONTAL
-        l.setDrawInside(false)
-        l.isWordWrapEnabled = true
-        l.xEntrySpace = 7f
-        l.yEntrySpace = 0f
-        l.yOffset = 0f
-        l.textColor = Color.WHITE
-        l.form = Legend.LegendForm.CIRCLE
-
-        binding.pieChart.setEntryLabelColor(Color.WHITE)
-        binding.pieChart.setEntryLabelTextSize(12f)
-
-
-        binding.lineChart.resetTracking()
-        val l1 = binding.lineChart.legend
-        l1.verticalAlignment = Legend.LegendVerticalAlignment.BOTTOM
-        l1.horizontalAlignment = Legend.LegendHorizontalAlignment.RIGHT
-        l1.orientation = Legend.LegendOrientation.HORIZONTAL
-        l1.textColor = Color.WHITE
-        l1.setDrawInside(false)
-
+    private fun initialCharts() {
+        pieChartCreator.initializeChart(binding.pieChart)
+        radarChartCreator.initializeChart(binding.radarChart)
+        lineChartCreator.initializeChart(binding.lineChart)
+        barChartCreator.initializeChart(binding.barChart)
     }
 
     private fun updateData(monthsAgo: Int) {
@@ -168,30 +101,63 @@ class DiagramFragment : Fragment() {
 
                 when (mode) {
                     ChartMode.PIE -> {
-                        val pieChartCreator = PieChartCreator()
                         val data = pieChartCreator.getData(it)
                         pieChartCreator.drawChart(binding.pieChart, data)
                     }
 
                     ChartMode.RADAR -> {
-                        val radarChartCreator = RadarChartCreator()
                         val data = radarChartCreator.getData(it)
                         radarChartCreator.drawChart(binding.radarChart, data)
                     }
 
                     ChartMode.BAR -> {
-                        val barChartCreator = BarChartCreator(ago, today)
                         val data = barChartCreator.getData(it)
                         barChartCreator.drawChart(binding.barChart, data)
                     }
 
                     ChartMode.LINE -> {
-                        val lineChartCreator = LineChartCreator(ago, today)
                         val data = lineChartCreator.getData(it)
                         lineChartCreator.drawChart(binding.lineChart, data)
                     }
                 }
             }
         }
+    }
+
+    private fun setChartVisibility(position: Int) {
+        when (position) {
+            0 -> {
+                mode = ChartMode.PIE
+                binding.lineChart.visibility = View.INVISIBLE
+                binding.radarChart.visibility = View.INVISIBLE
+                binding.barChart.visibility = View.INVISIBLE
+                binding.pieChart.visibility = View.VISIBLE
+            }
+
+            1 -> {
+                mode = ChartMode.RADAR
+                binding.lineChart.visibility = View.INVISIBLE
+                binding.radarChart.visibility = View.VISIBLE
+                binding.barChart.visibility = View.INVISIBLE
+                binding.pieChart.visibility = View.INVISIBLE
+            }
+
+            2 -> {
+                mode = ChartMode.LINE
+                binding.lineChart.visibility = View.VISIBLE
+                binding.radarChart.visibility = View.INVISIBLE
+                binding.barChart.visibility = View.INVISIBLE
+                binding.pieChart.visibility = View.INVISIBLE
+            }
+
+            3 -> {
+                mode = ChartMode.BAR
+                binding.lineChart.visibility = View.INVISIBLE
+                binding.radarChart.visibility = View.INVISIBLE
+                binding.barChart.visibility = View.VISIBLE
+                binding.pieChart.visibility = View.INVISIBLE
+            }
+        }
+        updateData(binding.monthRangeSlider.value.toInt())
     }
 }
