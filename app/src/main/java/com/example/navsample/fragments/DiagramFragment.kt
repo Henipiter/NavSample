@@ -39,6 +39,7 @@ class DiagramFragment : Fragment() {
     private var radarChartCreator = RadarChartCreator()
     private var barChartCreator = BarChartCreator()
     private var lineChartCreator = LineChartCreator()
+
     private var pieDataCreator = PieDataCreator()
     private var radarDataCreator = RadarDataCreator()
     private var barDataCreator = BarDataCreator()
@@ -84,8 +85,9 @@ class DiagramFragment : Fragment() {
 
     private fun updateData(monthsAgo: Int) {
         val dateFormat = SimpleDateFormat("yyyy-MM-dd")
-        val threeMonthsAgo =
-            Calendar.getInstance().apply { add(Calendar.MONTH, -monthsAgo) }.time
+        val calendar = Calendar.getInstance()
+        calendar.set(Calendar.DAY_OF_MONTH, 1)
+        val threeMonthsAgo = calendar.apply { add(Calendar.MONTH, -monthsAgo) }.time
 
         today = dateFormat.format(Date())
         ago = dateFormat.format(threeMonthsAgo)
