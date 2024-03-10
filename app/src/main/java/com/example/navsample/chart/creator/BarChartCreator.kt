@@ -6,22 +6,9 @@ import com.github.mikephil.charting.charts.BarChart
 import com.github.mikephil.charting.data.BarData
 import com.github.mikephil.charting.data.BarEntry
 import com.github.mikephil.charting.interfaces.datasets.IBarDataSet
-import java.text.SimpleDateFormat
-import java.util.Calendar
-import java.util.Date
 
-class BarChartCreator : LinearChartFactory<BarEntry, IBarDataSet, BarData, BarChart> {
 
-    private val dateFormat = SimpleDateFormat("yyyy-MM-dd")
-    private val threeMonthsAgo = Calendar.getInstance().apply { add(Calendar.MONTH, -3) }.time
-    private var today = dateFormat.format(Date())
-    private var ago = dateFormat.format(threeMonthsAgo)
-
-    override fun setDateRange(ago: String, currentDate: String) {
-        this.ago = ago
-        this.today = currentDate
-    }
-
+class BarChartCreator : ChartFactory<BarEntry, IBarDataSet, BarData, BarChart> {
     override fun initializeChart(chart: BarChart) {
     }
 
@@ -36,9 +23,15 @@ class BarChartCreator : LinearChartFactory<BarEntry, IBarDataSet, BarData, BarCh
         chart.barData.barWidth = barWidth
         chart.xAxis.valueFormatter = MyXAxisFormatter(legend)
         chart.xAxis.setCenterAxisLabels(true)
+        chart.xAxis.disableGridDashedLine()
+
+        chart.setDrawGridBackground(false);
         chart.setVisibleXRangeMaximum(4F)
         chart.moveViewToX(1F)
+        chart.axisLeft.setDrawGridLines(false)
 
+        chart.axisRight.isEnabled = false
+        chart.axisLeft.isEnabled = false
         try {
             chart.groupBars(1F, groupSpace, barSpace)
         } catch (_: Exception) {

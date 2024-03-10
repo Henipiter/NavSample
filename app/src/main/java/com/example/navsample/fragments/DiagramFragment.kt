@@ -96,8 +96,8 @@ class DiagramFragment : Fragment() {
     }
 
     private fun updateRangeOfTimelineChart(today: String, ago: String) {
-        barChartCreator.setDateRange(ago, today)
-        lineChartCreator.setDateRange(ago, today)
+        barDataCreator.setDateRange(ago, today)
+        lineDataCreator.setDateRange(ago, today)
     }
 
 

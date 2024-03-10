@@ -8,20 +8,8 @@ import com.github.mikephil.charting.components.Legend
 import com.github.mikephil.charting.data.Entry
 import com.github.mikephil.charting.data.LineData
 import com.github.mikephil.charting.interfaces.datasets.ILineDataSet
-import java.text.SimpleDateFormat
-import java.util.Calendar
-import java.util.Date
 
-class LineChartCreator : LinearChartFactory<Entry, ILineDataSet, LineData, LineChart> {
-
-    private val dateFormat = SimpleDateFormat("yyyy-MM-dd")
-    private val threeMonthsAgo = Calendar.getInstance().apply { add(Calendar.MONTH, -3) }.time
-    private var today = dateFormat.format(Date())
-    private var ago = dateFormat.format(threeMonthsAgo)
-    override fun setDateRange(ago: String, currentDate: String) {
-        this.ago = ago
-        this.today = currentDate
-    }
+class LineChartCreator : ChartFactory<Entry, ILineDataSet, LineData, LineChart> {
 
     override fun initializeChart(chart: LineChart) {
         chart.resetTracking()

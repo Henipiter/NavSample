@@ -16,8 +16,12 @@ class RadarDataCreator :
     override fun getData(data: List<PriceByCategory>): RadarData {
         val categoryData = createCategoryData(data)
         val entries = getRadialEntries(categoryData)
+
         val dataSet: RadarDataSet = getDataSetTemplate(entries)
         dataSet.color = getColors()[0]
+        dataSet.fillColor = getColors()[0]
+        dataSet.fillAlpha = 160
+        dataSet.setDrawFilled(true)
         return getDataTemplate(dataSet)
     }
 
