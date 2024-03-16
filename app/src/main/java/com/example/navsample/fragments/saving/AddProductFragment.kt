@@ -39,7 +39,7 @@ class AddProductFragment : Fragment() {
     private var chosenCategory = Category("", "")
 
     companion object {
-        private val SUGGESTION_PREFIX = "Maybe "
+        private const val SUGGESTION_PREFIX = "Maybe "
     }
 
     override fun onCreateView(
@@ -166,9 +166,11 @@ class AddProductFragment : Fragment() {
                 }
 
                 binding.productNameInput.setText(product.name)
-                binding.productSubtotalPriceInput.setText(product.subtotalPrice.toString())
                 binding.productUnitPriceInput.setText(product.unitPrice.toString())
                 binding.productQuantityInput.setText(product.quantity.toString())
+                binding.productSubtotalPriceInput.setText(product.subtotalPrice.toString())
+                binding.productDiscountInput.setText(product.discount.toString())
+                binding.productFinalPriceInput.setText(product.finalPrice.toString())
                 binding.ptuTypeInput.setText(product.ptuType)
                 binding.productCategoryInput.setText(chosenCategory.name)
                 binding.productOriginalInput.setText(product.raw)
@@ -256,6 +258,8 @@ class AddProductFragment : Fragment() {
                 binding.productSubtotalPriceInput.text.toString().toFloat(),
                 binding.productQuantityInput.text.toString().toFloat(),
                 binding.productUnitPriceInput.text.toString().toFloat(),
+                binding.productDiscountInput.text.toString().toFloat(),
+                binding.productFinalPriceInput.text.toString().toFloat(),
                 binding.ptuTypeInput.text.toString(),
                 binding.productOriginalInput.text.toString()
             )

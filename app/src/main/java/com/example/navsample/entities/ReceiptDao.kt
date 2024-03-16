@@ -167,7 +167,7 @@ interface ReceiptDao {
     //charts
     @Transaction
     @Query(
-        "SELECT sum(p.subtotalPrice) AS price, c.name AS category, substr(r.date,0,8) AS date " +
+        "SELECT sum(p.finalPrice) AS price, c.name AS category, substr(r.date,0,8) AS date " +
                 "FROM product p, receipt r, category c " +
                 "WHERE p.receiptId = r.id AND p.categoryId = c.id " +
                 "AND  date>=:dateFrom AND date<=:dateTo " +
@@ -181,7 +181,7 @@ interface ReceiptDao {
 
     @Transaction
     @Query(
-        "SELECT sum(p.subtotalPrice) AS price, c.name AS category, '' AS date " +
+        "SELECT sum(p.finalPrice) AS price, c.name AS category, '' AS date " +
                 "FROM product p, receipt r, category c " +
                 "WHERE p.receiptId = r.id AND p.categoryId = c.id " +
                 "AND  date>=:dateFrom AND date<=:dateTo " +
@@ -200,6 +200,7 @@ interface ReceiptDao {
                 "r.date as receiptDate, r.time as receiptTime, " +
                 "p.name as productName, p.quantity as productQuantity, " +
                 "p.unitPrice as productUnitPrice, p.subtotalPrice as productSubtotalPrice, " +
+                "p.discount as productDiscount, p.finalPrice as productFinalPrice, " +
                 "p.ptuType as productPtuType, p.raw as productRaw, " +
                 "c.name as categoryName, c.color as categoryColor " +
                 "from product p, receipt r, store s, category c " +

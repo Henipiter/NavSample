@@ -239,6 +239,8 @@ class ProductListFragment : Fragment(), ItemClickListener {
                 it.quantity,
                 it.unitPrice,
                 it.subtotalPrice,
+                0f,
+                it.subtotalPrice,
                 it.ptuType,
                 it.raw
             )

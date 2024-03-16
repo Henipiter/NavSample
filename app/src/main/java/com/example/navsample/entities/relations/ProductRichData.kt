@@ -14,6 +14,8 @@ data class ProductRichData(
     var quantity: Float,
     var unitPrice: Float,
     var subtotalPrice: Float,
+    var discount: Float,
+    var finalPrice: Float,
     var ptuType: String,
     var raw: String,
     var id: Int

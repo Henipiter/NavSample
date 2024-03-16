@@ -1,0 +1,5 @@
+line|||expect
+WIZYTA LEKARSKA 1.00* 150.00 150.00E\nRabat -9,00 141,00E
+
+|||Product(receiptId=0, name=WIZYTA LEKARSKA, categoryId=1, quantity=1.0, unitPrice=150.0, subtotalPrice=150.0, discount=-9.0, finalPrice=141.0, ptuType=E, raw=WIZYTA LEKARSKA 1.00* 150.00 150.00E)
+

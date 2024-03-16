@@ -129,6 +129,7 @@ class AddReceiptFragment : Fragment() {
             it?.let {
                 setStoreDataToInputs(it)
             }
+            pickedStore = it
         }
         receiptDataViewModel.receipt.observe(viewLifecycleOwner) {
             it?.let {
@@ -181,11 +182,11 @@ class AddReceiptFragment : Fragment() {
     }
 
     private fun saveChangesToDatabase() {
+        if (pickedStore == null) {
+            Toast.makeText(requireContext(), "Pick store!", Toast.LENGTH_SHORT).show()
+            return
+        }
         if (mode == DataMode.NEW) {
-            if (pickedStore == null) {
-                Toast.makeText(requireContext(), "Pick store!", Toast.LENGTH_SHORT).show()
-                return
-            }
             val receipt = Receipt(-1, -1F, -1F, "", "").apply {
                 storeId = pickedStore!!.id!!
                 pln = transformToFloat(binding.receiptPLNInput.text.toString())
@@ -207,8 +208,20 @@ class AddReceiptFragment : Fragment() {
 
             }
         }
-        pickedStore = receiptDataViewModel.store.value
+        receiptDataViewModel.store.value = pickedStore
 
+        receiptDataViewModel.receipt.value?.let { receipt ->
+            receiptDataViewModel.receipt.value = Receipt(
+                pickedStore?.id ?: throw NoStoreIdException(),
+                receipt.pln.toString().toFloat(),
+                receipt.ptu.toString().toFloat(),
+                receipt.date,
+                receipt.time
+            )
+            receiptDataViewModel.receipt.value?.id = receipt.id
+        }
+        binding.storeNIPLayout.visibility = View.GONE
+        changeViewToDisplayMode()
 
     }
 
@@ -237,19 +250,6 @@ class AddReceiptFragment : Fragment() {
         binding.saveChangesButton.setOnClickListener {
             saveChangesToDatabase()
 
-            receiptDataViewModel.receipt.value?.let { receipt ->
-                val savedStore = receiptDataViewModel.store.value
-                receiptDataViewModel.receipt.value = Receipt(
-                    savedStore?.id ?: throw NoStoreIdException(),
-                    receipt.pln.toString().toFloat(),
-                    receipt.ptu.toString().toFloat(),
-                    receipt.date,
-                    receipt.time
-                )
-                receiptDataViewModel.receipt.value?.id = receipt.id
-            }
-            binding.storeNIPLayout.visibility = View.GONE
-            changeViewToDisplayMode()
 
         }
         binding.cancelChangesButton.setOnClickListener {

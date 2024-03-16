@@ -13,6 +13,8 @@ data class AllData(
     var productQuantity: Float,
     var productUnitPrice: Float,
     var productSubtotalPrice: Float,
+    var productDiscount: Float,
+    var productFinalPrice: Float,
     var productPtuType: String,
     var productRaw: String,
 

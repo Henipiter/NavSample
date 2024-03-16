@@ -18,7 +18,14 @@ class ReceiptParser(var receiptId: Int) {
         val productList = ArrayList<Product>()
         for (data in sortedProductListOnRecipe) {
             val parsedProduct = parseStringToProduct(data)
-            if (parsedProduct.name != "---" || parsedProduct.subtotalPrice != -1f) {
+            if (parsedProduct.discount != 0f) {
+                val lastProduct = productList.last()
+                lastProduct.discount = parsedProduct.discount
+                lastProduct.finalPrice = parsedProduct.finalPrice
+                continue
+            }
+
+            if (parsedProduct.name != "" || parsedProduct.subtotalPrice != 0f) {
                 productList.add(parsedProduct)
             }
         }
@@ -30,19 +37,42 @@ class ReceiptParser(var receiptId: Int) {
         val ptuType = findPtuType(productInformation)
         val subtotalPrice = findSubtotalPrice(productInformation)
         val unitPrice = findUnitPrice(productInformation, subtotalPrice.startIndex)
-        val quantity = findQuantity(productInformation, unitPrice.startIndex)
-        val name = findName(productInformation, quantity.startIndex)
+        val fixedUnitPrice = fixPrize(unitPrice.data)
+        val fixedSubtotalPrice = fixPrize(subtotalPrice.data)
+        val name: ReceiptElement
+        if (fixedUnitPrice < 0) {
+            name = findName(productInformation, unitPrice.startIndex)
+            return Product(
+                receiptId,
+                name.data.trim(),
+                1,
+                0f,
+                0f,
+                0f,
+                fixedUnitPrice,
+                fixedSubtotalPrice,
+                fixPtuType(ptuType.data),
+                productInformation
+            )
 
-        return Product(
-            receiptId,
-            name.data.trim(),
-            1,
-            fixPrize(subtotalPrice.data),
-            fixPrize(quantity.data),
-            fixPrize(unitPrice.data),
-            fixPtuType(ptuType.data),
-            productInformation
-        )
+        } else {
+            val quantity = findQuantity(productInformation, unitPrice.startIndex)
+            name = findName(productInformation, quantity.startIndex)
+            return Product(
+                receiptId,
+                name.data.trim(),
+                1,
+                fixPrize(quantity.data),
+                fixedUnitPrice,
+                fixedSubtotalPrice,
+                0f,
+                fixedSubtotalPrice,
+                fixPtuType(ptuType.data),
+                productInformation
+            )
+        }
+
+
     }
 
 

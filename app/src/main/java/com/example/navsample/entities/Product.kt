@@ -11,6 +11,8 @@ data class Product(
     var quantity: Float,
     var unitPrice: Float,
     var subtotalPrice: Float,
+    var discount: Float,
+    var finalPrice: Float,
     var ptuType: String,
     var raw: String
 ){

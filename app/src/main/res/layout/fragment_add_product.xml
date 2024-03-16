@@ -66,13 +66,13 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="32dp"
-                    android:layout_marginTop="16dp"
                     android:layout_marginEnd="20dp"
+                    android:layout_marginTop="20dp"
                     android:hint="Subtotal price"
                     app:endIconMode="clear_text"
                     app:layout_constraintEnd_toStartOf="@+id/ptu_type_layout"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@+id/product_name_layout">
+                    app:layout_constraintTop_toBottomOf="@+id/product_quantity_layout">
 
                     <AutoCompleteTextView
                         android:id="@+id/product_subtotal_price_input"
@@ -93,17 +93,81 @@
                     app:layout_constraintTop_toBottomOf="@+id/product_subtotal_price_layout" />
 
                 <com.google.android.material.textfield.TextInputLayout
+                    android:id="@+id/product_discount_layout"
+                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="32dp"
+                    android:layout_marginEnd="10dp"
+                    android:layout_marginTop="20dp"
+                    android:hint="Discount"
+                    app:endIconMode="clear_text"
+
+                    app:layout_constraintEnd_toStartOf="@+id/center"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/product_subtotal_price_layout">
+
+                    <AutoCompleteTextView
+                        android:id="@+id/product_discount_input"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:inputType="numberDecimal"
+                        android:padding="13dp"
+                        tools:ignore="LabelFor" />
+                </com.google.android.material.textfield.TextInputLayout>
+
+                <TextView
+                    android:id="@+id/product_discount_helper_text"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="ADWWAD"
+                    android:layout_marginStart="8dp"
+                    app:layout_constraintStart_toStartOf="@+id/product_discount_layout"
+                    app:layout_constraintTop_toBottomOf="@+id/product_discount_layout" />
+
+                <com.google.android.material.textfield.TextInputLayout
+                    android:id="@+id/product_final_price_layout"
+                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                    android:layout_width="0dp"
+
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="10dp"
+                    android:layout_marginEnd="32dp"
+                    android:hint="Final price"
+                    app:endIconMode="clear_text"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="@id/center"
+                    app:layout_constraintTop_toTopOf="@+id/product_discount_layout">
+
+                    <AutoCompleteTextView
+                        android:id="@+id/product_final_price_input"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:inputType="numberDecimal"
+                        android:padding="13dp"
+                        tools:ignore="LabelFor" />
+                </com.google.android.material.textfield.TextInputLayout>
+
+                <TextView
+                    android:id="@+id/product_final_price_helper_text"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="ADWWAD"
+                    android:layout_marginStart="8dp"
+                    app:layout_constraintStart_toStartOf="@+id/product_final_price_layout"
+                    app:layout_constraintTop_toBottomOf="@+id/product_final_price_layout" />
+
+                <com.google.android.material.textfield.TextInputLayout
                     android:id="@+id/ptu_type_layout"
                     style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="40dp"
-                    android:layout_marginTop="16dp"
                     android:layout_marginEnd="32dp"
                     android:hint="ptuType"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="@id/center"
-                    app:layout_constraintTop_toBottomOf="@+id/product_name_layout">
+                    app:layout_constraintTop_toTopOf="@+id/product_subtotal_price_layout">
 
                     <AutoCompleteTextView
                         android:id="@+id/ptu_type_input"
@@ -121,14 +185,13 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="32dp"
-                    android:layout_marginTop="32dp"
                     android:layout_marginEnd="10dp"
                     android:hint="Quantity"
                     app:endIconMode="clear_text"
 
                     app:layout_constraintEnd_toStartOf="@+id/center"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@+id/product_subtotal_price_layout">
+                    app:layout_constraintTop_toBottomOf="@+id/product_name_layout">
 
                     <AutoCompleteTextView
                         android:id="@+id/product_quantity_input"
@@ -155,13 +218,12 @@
 
                     android:layout_height="wrap_content"
                     android:layout_marginStart="10dp"
-                    android:layout_marginTop="32dp"
                     android:layout_marginEnd="32dp"
                     android:hint="Unit price"
                     app:endIconMode="clear_text"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="@id/center"
-                    app:layout_constraintTop_toBottomOf="@+id/product_subtotal_price_layout">
+                    app:layout_constraintTop_toTopOf="@+id/product_quantity_layout">
 
                     <AutoCompleteTextView
                         android:id="@+id/product_unit_price_input"
@@ -187,12 +249,12 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginHorizontal="32dp"
-                    android:layout_marginTop="32dp"
+                    android:layout_marginTop="20dp"
                     android:hint="Category"
                     app:helperTextEnabled="true"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@+id/product_quantity_layout"
+                    app:layout_constraintTop_toBottomOf="@+id/product_discount_layout"
                     app:startIconDrawable="@drawable/add">
 
                     <AutoCompleteTextView
