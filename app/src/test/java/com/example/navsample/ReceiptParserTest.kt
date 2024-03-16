@@ -57,9 +57,13 @@ class ReceiptParserTest {
 
         delimiterString = "|||"
     )
-    fun checkFinalPrice(stringToParse: String, expectedValue: String, markedStringToParse: String) {
+    fun checkSubtotalPrice(
+        stringToParse: String,
+        expectedValue: String,
+        markedStringToParse: String
+    ) {
         //when
-        val result = receiptParser.findFinalPrice(stringToParse)
+        val result = receiptParser.findSubtotalPrice(stringToParse)
 
         //then
         assertEquals(expectedValue, result.data)
@@ -78,14 +82,14 @@ class ReceiptParserTest {
 
         delimiterString = "|||"
     )
-    fun checkItemPrice(
+    fun checkUnitPrice(
         stringToParse: String,
-        finalPriceStartIndex: Int,
+        subtotalPriceStartIndex: Int,
         expectedValue: String,
         markedStringToParse: String
     ) {
         //when
-        val result = receiptParser.findItemPrice(stringToParse, finalPriceStartIndex)
+        val result = receiptParser.findUnitPrice(stringToParse, subtotalPriceStartIndex)
 
         //then
         assertEquals(expectedValue, result.data)
@@ -103,14 +107,14 @@ class ReceiptParserTest {
 
         delimiterString = "|||"
     )
-    fun checkItemAmount(
+    fun checkItemQuantity(
         stringToParse: String,
-        finalPriceStartIndex: Int,
+        subtotalPriceStartIndex: Int,
         expectedValue: String,
         markedStringToParse: String
     ) {
         //when
-        val result = receiptParser.findItemAmount(stringToParse, finalPriceStartIndex)
+        val result = receiptParser.findQuantity(stringToParse, subtotalPriceStartIndex)
 
         //then
         assertAll(
@@ -135,11 +139,11 @@ class ReceiptParserTest {
     )
     fun checkName(
         stringToParse: String,
-        finalPriceStartIndex: Int,
+        subtotalPriceStartIndex: Int,
         expectedValue: String
     ) {
         //when
-        val result = receiptParser.findName(stringToParse, finalPriceStartIndex)
+        val result = receiptParser.findName(stringToParse, subtotalPriceStartIndex)
 
         //then
         assertEquals(expectedValue, result.data.trim())

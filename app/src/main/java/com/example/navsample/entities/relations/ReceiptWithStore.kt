@@ -10,5 +10,5 @@ data class ReceiptWithStore(
     var ptu: Float,
     var date: String,
     var time: String,
-    var productAmount: Int
+    var productCount: Int
 )

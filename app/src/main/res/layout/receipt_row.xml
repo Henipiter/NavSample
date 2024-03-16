@@ -38,7 +38,7 @@
                 app:layout_constraintTop_toTopOf="@+id/date" />
 
             <TextView
-                android:id="@+id/final_prize"
+                android:id="@+id/subtotal_prize"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginEnd="4dp"
@@ -56,7 +56,7 @@
                 android:textSize="18sp"
                 android:textStyle="bold"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toTopOf="@+id/final_prize" />
+                app:layout_constraintTop_toTopOf="@+id/subtotal_prize" />
 
             <TextView
                 android:id="@+id/store_name"
@@ -67,7 +67,7 @@
                 android:layout_marginEnd="1dp"
                 android:text="Bread jdawd jdawodoaw da jwdoa dkwadawhd dawidbawdwj d"
                 android:textSize="18sp"
-                app:layout_constraintEnd_toStartOf="@+id/final_prize"
+                app:layout_constraintEnd_toStartOf="@+id/subtotal_prize"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/date" />
 

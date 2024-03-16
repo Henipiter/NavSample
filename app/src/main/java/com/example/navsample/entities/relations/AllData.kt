@@ -10,9 +10,9 @@ data class AllData(
     var receiptTime: String,
 
     var productName: String,
-    var productAmount: Float,
-    var productItemPrice: Float,
-    var productFinalPrice: Float,
+    var productQuantity: Float,
+    var productUnitPrice: Float,
+    var productSubtotalPrice: Float,
     var productPtuType: String,
     var productRaw: String,
 

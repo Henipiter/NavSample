@@ -8,9 +8,9 @@ data class Product(
     var receiptId: Int,
     var name: String,
     var categoryId: Int,
-    var amount: Float,
-    var itemPrice: Float,
-    var finalPrice: Float,
+    var quantity: Float,
+    var unitPrice: Float,
+    var subtotalPrice: Float,
     var ptuType: String,
     var raw: String
 ){

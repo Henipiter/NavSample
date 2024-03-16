@@ -4,11 +4,11 @@ import android.content.ContentValues
 import android.os.Bundle
 import android.os.Environment
 import android.provider.MediaStore
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -61,7 +61,7 @@ class ExportDataFragment : Fragment() {
     private fun prepareFileContents(): String {
         val data = StringBuilder(
             "storeName;storeNip;receiptPln;receiptPtu;receiptDate;receiptTime;" +
-                    "productName;productAmount;productItemPrice;productFinalPrice;productPtuType;" +
+                    "productName;productQuantity;productUnitPrice;productSubtotalPrice;productPtuType;" +
                     "productRaw;categoryName;categoryColor\n"
         )
 
@@ -73,9 +73,9 @@ class ExportDataFragment : Fragment() {
             data.append(products.receiptDate).append(";")
             data.append(products.receiptTime).append(";")
             data.append(products.productName).append(";")
-            data.append(products.productAmount).append(";")
-            data.append(products.productItemPrice).append(";")
-            data.append(products.productFinalPrice).append(";")
+            data.append(products.productQuantity).append(";")
+            data.append(products.productUnitPrice).append(";")
+            data.append(products.productSubtotalPrice).append(";")
             data.append(products.productPtuType).append(";")
             data.append(products.productRaw).append(";")
             data.append(products.categoryName).append(";")

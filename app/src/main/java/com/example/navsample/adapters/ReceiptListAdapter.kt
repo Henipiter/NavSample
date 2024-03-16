@@ -30,8 +30,8 @@ class ReceiptListAdapter(
         holder.binding.storeName.text = receiptList[position].name
         holder.binding.date.text = receiptList[position].date
         holder.binding.time.text = receiptList[position].time
-        holder.binding.finalPrize.text = receiptList[position].pln.toString()
-        holder.binding.productCount.text = receiptList[position].productAmount.toString()
+        holder.binding.subtotalPrize.text = receiptList[position].pln.toString()
+        holder.binding.productCount.text = receiptList[position].productCount.toString()
         holder.binding.mainLayout.setOnClickListener {
             itemClickListener.onItemClick(position)
         }

@@ -112,7 +112,7 @@ class AddProductListFragment : Fragment(), ItemClickListener {
             receiptDataViewModel.product.value?.get(i)?.let {
                 DeleteConfirmationDialog(
                     "Are you sure you want to delete the product??\n\n"
-                            + "Name: " + it.name + "\nPLN: " + it.finalPrice
+                            + "Name: " + it.name + "\nPLN: " + it.subtotalPrice
                 ) {
                     if (it.id != null && it.id!! >= 0) {
                         receiptDataViewModel.deleteProduct(it.id!!)

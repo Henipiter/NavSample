@@ -101,11 +101,11 @@ interface ReceiptDao {
     suspend fun getAllStores(): List<Store>
 
     @Transaction
-    @Query("SELECT r.id as id, storeId, nip, s.name, pln, ptu, date, time, count(p.id)  as productAmount FROM receipt r, store s, product p WHERE s.id = r.storeId AND r.id = p.receiptId AND s.name LIKE '%' || :name || '%' GROUP BY r.id ORDER BY date DESC")
+    @Query("SELECT r.id as id, storeId, nip, s.name, pln, ptu, date, time, count(p.id)  as productCount FROM receipt r, store s, product p WHERE s.id = r.storeId AND r.id = p.receiptId AND s.name LIKE '%' || :name || '%' GROUP BY r.id ORDER BY date DESC")
     suspend fun getReceiptWithStore(name: String): List<ReceiptWithStore>
 
     @Transaction
-    @Query("SELECT r.id as id, storeId, nip, s.name, pln, ptu, date, time, count(p.id)  as productAmount FROM receipt r, store s, product p WHERE s.id = r.storeId AND r.id = p.receiptId AND s.name LIKE '%' || :name || '%' and r.date >= :dateFrom and r.date <= :dateTo GROUP BY r.id ORDER BY date DESC")
+    @Query("SELECT r.id as id, storeId, nip, s.name, pln, ptu, date, time, count(p.id)  as productCount FROM receipt r, store s, product p WHERE s.id = r.storeId AND r.id = p.receiptId AND s.name LIKE '%' || :name || '%' and r.date >= :dateFrom and r.date <= :dateTo GROUP BY r.id ORDER BY date DESC")
     suspend fun getReceiptWithStore(
         name: String,
         dateFrom: String,
@@ -127,7 +127,7 @@ interface ReceiptDao {
                 "and s.name like '%'||:storeName||'%' " +
                 "and c.name like '%'||:categoryName||'%' " +
                 "and r.date >= :dateFrom and r.date <= :dateTo " +
-                "and p.finalPrice >= :lowerPrice and p.finalPrice <=:higherPrice"
+                "and p.subtotalPrice >= :lowerPrice and p.subtotalPrice <=:higherPrice"
     )
     suspend fun getAllProducts(
         storeName: String,
@@ -145,7 +145,7 @@ interface ReceiptDao {
                 "and s.name like '%'||:storeName||'%' " +
                 "and c.name like '%'||:categoryName||'%' " +
                 "and r.date >= :dateFrom and r.date <= :dateTo " +
-                "and p.finalPrice >= :lowerPrice"
+                "and p.subtotalPrice >= :lowerPrice"
     )
     suspend fun getAllProducts(
         storeName: String,
@@ -167,7 +167,7 @@ interface ReceiptDao {
     //charts
     @Transaction
     @Query(
-        "SELECT sum(p.finalPrice) AS price, c.name AS category, substr(r.date,0,8) AS date " +
+        "SELECT sum(p.subtotalPrice) AS price, c.name AS category, substr(r.date,0,8) AS date " +
                 "FROM product p, receipt r, category c " +
                 "WHERE p.receiptId = r.id AND p.categoryId = c.id " +
                 "AND  date>=:dateFrom AND date<=:dateTo " +
@@ -181,7 +181,7 @@ interface ReceiptDao {
 
     @Transaction
     @Query(
-        "SELECT sum(p.finalPrice) AS price, c.name AS category, '' AS date " +
+        "SELECT sum(p.subtotalPrice) AS price, c.name AS category, '' AS date " +
                 "FROM product p, receipt r, category c " +
                 "WHERE p.receiptId = r.id AND p.categoryId = c.id " +
                 "AND  date>=:dateFrom AND date<=:dateTo " +
@@ -198,8 +198,8 @@ interface ReceiptDao {
         "select s.name as storeName, s.nip as storeNip, " +
                 "r.pln as receiptPln, r.ptu as receiptPtu, " +
                 "r.date as receiptDate, r.time as receiptTime, " +
-                "p.name as productName, p.amount as productAmount, " +
-                "p.itemPrice as productItemPrice, p.finalPrice as productFinalPrice, " +
+                "p.name as productName, p.quantity as productQuantity, " +
+                "p.unitPrice as productUnitPrice, p.subtotalPrice as productSubtotalPrice, " +
                 "p.ptuType as productPtuType, p.raw as productRaw, " +
                 "c.name as categoryName, c.color as categoryColor " +
                 "from product p, receipt r, store s, category c " +
@@ -209,4 +209,3 @@ interface ReceiptDao {
 
 
 }
-//select s.name as storeName, r.date, c.name as categoryName, c.color as categoryColor, p.* from product p, receipt r, store s, category c where p.receiptId = r.id and s.id =r.storeId and p.categoryId = c.id and s.name like '%'||""||'%'  and c.name like '%'||""||'%'  and r.date >= '0' and r.date <='9'  and p.finalPrice >= 0.0

@@ -53,19 +53,19 @@
                     android:layout_marginEnd="4dp"
                     android:layout_marginTop="8dp"
 
-                    app:layout_constraintEnd_toStartOf="@+id/amount"
+                    app:layout_constraintEnd_toStartOf="@+id/quantity"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toBottomOf="@id/product_name" />
 
                 <TextView
-                    android:id="@+id/amount"
+                    android:id="@+id/quantity"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="8dp"
                     android:layout_marginEnd="4dp"
                     android:text="120"
                     android:textSize="14sp"
-                    app:layout_constraintBottom_toBottomOf="@+id/final_price"
+                    app:layout_constraintBottom_toBottomOf="@+id/subtotal_price"
                     app:layout_constraintEnd_toStartOf="@+id/x" />
 
                 <TextView
@@ -76,22 +76,22 @@
                     android:layout_marginEnd="4dp"
                     android:text="x"
                     android:textSize="14sp"
-                    app:layout_constraintBottom_toBottomOf="@+id/final_price"
-                    app:layout_constraintEnd_toStartOf="@+id/item_price" />
+                    app:layout_constraintBottom_toBottomOf="@+id/subtotal_price"
+                    app:layout_constraintEnd_toStartOf="@+id/unit_price" />
 
                 <TextView
-                    android:id="@+id/item_price"
+                    android:id="@+id/unit_price"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="8dp"
                     android:layout_marginEnd="8dp"
                     android:text="120"
                     android:textSize="14sp"
-                    app:layout_constraintBottom_toBottomOf="@+id/final_price"
-                    app:layout_constraintEnd_toStartOf="@+id/final_price" />
+                    app:layout_constraintBottom_toBottomOf="@+id/subtotal_price"
+                    app:layout_constraintEnd_toStartOf="@+id/subtotal_price" />
 
                 <TextView
-                    android:id="@+id/final_price"
+                    android:id="@+id/subtotal_price"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="4dp"
@@ -110,7 +110,7 @@
                     android:text="PLN"
                     android:textSize="14sp"
                     android:textStyle="bold"
-                    app:layout_constraintBottom_toBottomOf="@+id/final_price"
+                    app:layout_constraintBottom_toBottomOf="@+id/subtotal_price"
                     app:layout_constraintEnd_toStartOf="@+id/ptu_type" />
 
                 <TextView

@@ -3,8 +3,10 @@ package com.example.navsample
 import com.example.navsample.entities.Product
 
 class ReceiptParser(var receiptId: Int) {
-    val REGEX_PRICE = """-*(\d+\s*[,.]\s*\d\s*\d)|(\d+\s+\d\s*\d)"""
-    val REGEX_AMOUNT = """(\d+[,.]\s*\d*\s*\d*\s*\d*)|(\d+\s*)"""
+    companion object {
+        private const val REGEX_PRICE = """-*(\d+\s*[,.]\s*\d\s*\d)|(\d+\s+\d\s*\d)"""
+        private const val REGEX_QUANTITY = """(\d+[,.]\s*\d*\s*\d*\s*\d*)|(\d+\s*)"""
+    }
 
     data class ReceiptElement(val data: String, val startIndex: Int, val endIndex: Int)
 
@@ -16,7 +18,7 @@ class ReceiptParser(var receiptId: Int) {
         val productList = ArrayList<Product>()
         for (data in sortedProductListOnRecipe) {
             val parsedProduct = parseStringToProduct(data)
-            if (parsedProduct.name != "---" || parsedProduct.finalPrice != -1f) {
+            if (parsedProduct.name != "---" || parsedProduct.subtotalPrice != -1f) {
                 productList.add(parsedProduct)
             }
         }
@@ -26,18 +28,18 @@ class ReceiptParser(var receiptId: Int) {
 
     fun parseStringToProduct(productInformation: String): Product {
         val ptuType = findPtuType(productInformation)
-        val finalPrice = findFinalPrice(productInformation)
-        val itemPrice = findItemPrice(productInformation, finalPrice.startIndex)
-        val itemAmount = findItemAmount(productInformation, itemPrice.startIndex)
-        val name = findName(productInformation, itemAmount.startIndex)
+        val subtotalPrice = findSubtotalPrice(productInformation)
+        val unitPrice = findUnitPrice(productInformation, subtotalPrice.startIndex)
+        val quantity = findQuantity(productInformation, unitPrice.startIndex)
+        val name = findName(productInformation, quantity.startIndex)
 
         return Product(
             receiptId,
             name.data.trim(),
             1,
-            fixPrize(finalPrice.data),
-            fixPrize(itemAmount.data),
-            fixPrize(itemPrice.data),
+            fixPrize(subtotalPrice.data),
+            fixPrize(quantity.data),
+            fixPrize(unitPrice.data),
             fixPtuType(ptuType.data),
             productInformation
         )
@@ -71,25 +73,25 @@ class ReceiptParser(var receiptId: Int) {
         }
     }
 
-    fun findName(productInfo: String, itemAmountStartIndex: Int): ReceiptElement {
-        if (itemAmountStartIndex > -1) {
-            val trimProductInfo = productInfo.substring(0, itemAmountStartIndex)
-            return ReceiptElement(trimProductInfo, 0, itemAmountStartIndex)
+    fun findName(productInfo: String, itemQuantityStartIndex: Int): ReceiptElement {
+        if (itemQuantityStartIndex > -1) {
+            val trimProductInfo = productInfo.substring(0, itemQuantityStartIndex)
+            return ReceiptElement(trimProductInfo, 0, itemQuantityStartIndex)
         }
 
         return ReceiptElement("", -1, -1)
     }
 
-    fun findItemAmount(productInfo: String, itemPriceStartIndex: Int): ReceiptElement {
+    fun findQuantity(productInfo: String, unitPriceStartIndex: Int): ReceiptElement {
 
-        if (itemPriceStartIndex > -1) {
-            val trimProductInfo = productInfo.substring(0, itemPriceStartIndex)
-            val prices = REGEX_AMOUNT.toRegex().findAll(trimProductInfo).toList()
+        if (unitPriceStartIndex > -1) {
+            val trimProductInfo = productInfo.substring(0, unitPriceStartIndex)
+            val prices = REGEX_QUANTITY.toRegex().findAll(trimProductInfo).toList()
             if (prices.isEmpty()) {
                 return ReceiptElement("", -1, -1)
             }
             val price = prices.last().value
-            val startIndex = trimProductInfo.lastIndexOf(price, itemPriceStartIndex - 1, false)
+            val startIndex = trimProductInfo.lastIndexOf(price, unitPriceStartIndex - 1, false)
             var endIndex = -1
             if (startIndex != -1) {
                 endIndex = startIndex + price.length
@@ -99,16 +101,16 @@ class ReceiptParser(var receiptId: Int) {
         return ReceiptElement("", -1, -1)
     }
 
-    fun findItemPrice(productInfo: String, finalPriceStartIndex: Int): ReceiptElement {
-        if (finalPriceStartIndex > -1) {
-            val trimProductInfo = productInfo.substring(0, finalPriceStartIndex)
+    fun findUnitPrice(productInfo: String, subtotalPriceStartIndex: Int): ReceiptElement {
+        if (subtotalPriceStartIndex > -1) {
+            val trimProductInfo = productInfo.substring(0, subtotalPriceStartIndex)
 
             val prices = REGEX_PRICE.toRegex().findAll(trimProductInfo).toList()
             if (prices.isEmpty()) {
                 return ReceiptElement("", -1, -1)
             }
             val price = prices.last().value
-            val startIndex = productInfo.lastIndexOf(price, finalPriceStartIndex - 1, false)
+            val startIndex = productInfo.lastIndexOf(price, subtotalPriceStartIndex - 1, false)
             var endIndex = -1
             if (startIndex != -1) {
                 endIndex = startIndex + price.length
@@ -133,7 +135,7 @@ class ReceiptParser(var receiptId: Int) {
 
     }
 
-    fun findFinalPrice(productInfo: String): ReceiptElement {
+    fun findSubtotalPrice(productInfo: String): ReceiptElement {
         val prices = REGEX_PRICE.toRegex().findAll(productInfo).toList()
         if (prices.isEmpty()) {
             return ReceiptElement("", -1, -1)

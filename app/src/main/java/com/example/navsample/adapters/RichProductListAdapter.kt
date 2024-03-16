@@ -33,9 +33,9 @@ class RichProductListAdapter(
         holder.binding.categoryName.text = productList[position].categoryName
         holder.binding.categoryColor.setBackgroundColor(Color.parseColor(productList[position].categoryColor))
         holder.binding.ptuType.text = productList[position].ptuType
-        holder.binding.amount.text = productList[position].amount.toString()
-        holder.binding.itemPrice.text = productList[position].itemPrice.toString()
-        holder.binding.finalPrice.text = productList[position].finalPrice.toString()
+        holder.binding.quantity.text = productList[position].quantity.toString()
+        holder.binding.unitPrice.text = productList[position].unitPrice.toString()
+        holder.binding.subtotalPrice.text = productList[position].subtotalPrice.toString()
         holder.binding.productName.text = trimDescription(productList[position].name)
         holder.binding.mainLayout.setOnClickListener {
             itemClickListener.onItemClick(position)
@@ -44,12 +44,12 @@ class RichProductListAdapter(
             onDelete.invoke(position)
             true
         }
-        val floatAmount = trim(productList[position].amount.toString()).toDoubleOrNull()
-        val itemPrice = trim(productList[position].itemPrice.toString()).toDoubleOrNull()
-        val finalPrice = trim(productList[position].finalPrice.toString()).toDoubleOrNull()
+        val floatQuantity = trim(productList[position].quantity.toString()).toDoubleOrNull()
+        val unitPrice = trim(productList[position].unitPrice.toString()).toDoubleOrNull()
+        val subtotalPrice = trim(productList[position].subtotalPrice.toString()).toDoubleOrNull()
 
-        if (floatAmount == null || itemPrice == null || finalPrice == null || (floatAmount * itemPrice * 100.0).roundToInt() / 100.0 != finalPrice) {
-            holder.binding.finalPrice.setTextColor(Color.RED)
+        if (floatQuantity == null || unitPrice == null || subtotalPrice == null || (floatQuantity * unitPrice * 100.0).roundToInt() / 100.0 != subtotalPrice) {
+            holder.binding.subtotalPrice.setTextColor(Color.RED)
         }
     }
 
