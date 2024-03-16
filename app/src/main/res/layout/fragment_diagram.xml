@@ -89,4 +89,39 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/pie_chart" />
+
+    <TextView
+        android:id="@+id/range_text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:text="2020-01-01 - 2020-02-05"
+        android:textSize="20dp"
+        app:layout_constraintEnd_toEndOf="@+id/month_range_slider"
+        app:layout_constraintStart_toStartOf="@+id/month_range_slider"
+        app:layout_constraintTop_toBottomOf="@+id/month_range_slider" />
+
+    <RadioGroup
+        android:id="@+id/radioGroup"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:checkedButton="@+id/radio_button_1"
+        android:orientation="horizontal"
+        android:layout_marginTop="8dp"
+        app:layout_constraintEnd_toEndOf="@+id/month_range_slider"
+        app:layout_constraintStart_toStartOf="@+id/month_range_slider"
+        app:layout_constraintTop_toBottomOf="@+id/range_text">
+
+        <RadioButton
+            android:id="@+id/one_moth_button"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:text="One month" />
+
+        <RadioButton
+            android:id="@+id/sum_month_button"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:text="Sum months" />
+    </RadioGroup>
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -45,6 +45,8 @@ class DiagramFragment : Fragment() {
     private var barDataCreator = BarDataCreator()
     private var lineDataCreator = LineDataCreator()
 
+    private var sumLastMonths = false
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?,
     ): View {
@@ -58,10 +60,13 @@ class DiagramFragment : Fragment() {
         initObserver()
         setChartVisibility(0)
         updateData(binding.monthRangeSlider.value.toInt())
-        binding.monthRangeSlider.addOnChangeListener { slider, value, fromUser ->
+        binding.monthRangeSlider.addOnChangeListener { _, value, _ ->
             updateData(value.toInt())
         }
-
+        binding.radioGroup.setOnCheckedChangeListener { group, _ ->
+            sumLastMonths = group.checkedRadioButtonId == binding.sumMonthButton.id
+            updateData(binding.monthRangeSlider.value.toInt())
+        }
         binding.tabLayout.addOnTabSelectedListener(object : TabLayout.OnTabSelectedListener {
 
             override fun onTabSelected(tab: TabLayout.Tab?) {
@@ -89,8 +94,14 @@ class DiagramFragment : Fragment() {
         calendar.set(Calendar.DAY_OF_MONTH, 1)
         val threeMonthsAgo = calendar.apply { add(Calendar.MONTH, -monthsAgo) }.time
 
-        today = dateFormat.format(Date())
+        if (sumLastMonths) {
+            today = dateFormat.format(Date())
+        } else {
+            calendar.set(Calendar.DAY_OF_MONTH, calendar.getActualMaximum(Calendar.DAY_OF_MONTH))
+            today = dateFormat.format(calendar.time)
+        }
         ago = dateFormat.format(threeMonthsAgo)
+        binding.rangeText.text = "$ago - $today"
         updateRangeOfTimelineChart(today, ago)
         receiptDataViewModel.getChartDataCategory(ago, today)
         receiptDataViewModel.getChartDataTimeline(ago, today)
