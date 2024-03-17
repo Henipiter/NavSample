@@ -23,6 +23,7 @@ import com.example.navsample.dto.Action.SWAP
 import com.example.navsample.dto.ExperimentalAdapterArgument
 import com.example.navsample.dto.ProductListMode
 import com.example.navsample.exception.NoReceiptIdException
+import com.example.navsample.exception.NoStoreIdException
 import com.example.navsample.fragments.dialogs.EditTextDialog
 import com.example.navsample.viewmodels.ReceiptDataViewModel
 import com.example.navsample.viewmodels.ReceiptImageViewModel
@@ -66,7 +67,8 @@ open class ExperimentRecycleFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         initObserver()
         receiptParser = ReceiptParser(
-            receiptDataViewModel.receipt.value?.id ?: throw NoReceiptIdException()
+            receiptDataViewModel.receipt.value?.id ?: throw NoReceiptIdException(),
+            receiptDataViewModel.store.value?.defaultCategoryId ?: throw NoStoreIdException()
         )
         recycleList = receiptDataViewModel.experimental.value ?: arrayListOf()
         recyclerViewEvent = binding.recyclerViewEventReceipts

@@ -9,13 +9,13 @@ import org.junit.jupiter.params.provider.CsvSource
 
 class ReceiptParserTest {
 
-    var receiptParser = ReceiptParser(0)
+    var receiptParser = ReceiptParser(0, 0)
 
     @ParameterizedTest
     @CsvFileSource(resources = ["x.csv"], numLinesToSkip = 1, delimiterString = "|||")
     fun test(line: String, expect: String) {
 
-        val receiptParser = ReceiptParser(0)
+        val receiptParser = ReceiptParser(0, 0)
         val convertedLines = convertStringToLine(line)
         val result = receiptParser.parseToProducts(convertedLines)[0]
         assertEquals(expect, result.toString())
@@ -37,7 +37,7 @@ class ReceiptParserTest {
         val line = "WIZYTA LEKARSKA 1.00* 150.00 150.00E\nRabat -9,00 141,00E"
         val expect =
             "Product(receiptId=0, name=WIZYTA LEKARSKA, categoryId=1, quantity=1.0, unitPrice=150.0, subtotalPrice=150.0, discount=-9.0, finalPrice=141.0, ptuType=E, raw=WIZYTA LEKARSKA 1.00* 150.00 150.00E)"
-        val receiptParser = ReceiptParser(0)
+        val receiptParser = ReceiptParser(0, 0)
         val convertedLines = convertStringToLine(line)
         val result = receiptParser.parseToProducts(convertedLines)[0]
         assertEquals(expect, result.toString())

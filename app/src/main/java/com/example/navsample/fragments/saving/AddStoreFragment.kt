@@ -9,9 +9,13 @@ import androidx.core.widget.doOnTextChanged
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.navigation.Navigation
+import com.example.navsample.R
+import com.example.navsample.adapters.CategoryDropdownAdapter
 import com.example.navsample.databinding.FragmentAddStoreBinding
 import com.example.navsample.dto.DataMode
+import com.example.navsample.entities.Category
 import com.example.navsample.entities.Store
+import com.example.navsample.exception.NoCategoryIdException
 import com.example.navsample.viewmodels.ReceiptDataViewModel
 import com.example.navsample.viewmodels.ReceiptImageViewModel
 
@@ -23,6 +27,7 @@ class AddStoreFragment : Fragment() {
     private val receiptDataViewModel: ReceiptDataViewModel by activityViewModels()
 
     private var mode = DataMode.DISPLAY
+    private var chosenCategory = Category("", "")
 
 
     override fun onCreateView(
@@ -37,15 +42,28 @@ class AddStoreFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         initObserver()
         receiptDataViewModel.refreshStoreList()
+        receiptDataViewModel.refreshCategoryList()
         receiptImageViewModel.bitmap.value?.let {
             binding.receiptImageBig.setImageBitmap(it)
         }
         var actualNIP = ""
 
-        receiptDataViewModel.store.value?.let {
-            binding.storeNameInput.setText(it.name)
-            binding.storeNIPInput.setText(it.nip)
-            actualNIP = it.nip ?: ""
+        receiptDataViewModel.store.value?.let { store ->
+            val category = try {
+                receiptDataViewModel.categoryList.value?.first { it.id == store.defaultCategoryId }
+            } catch (e: Exception) {
+                null
+            }
+            if (category != null) {
+                chosenCategory = category
+            } else {
+                chosenCategory = receiptDataViewModel.categoryList.value?.get(0) ?: Category("", "")
+            }
+
+            binding.storeNameInput.setText(store.name)
+            binding.storeNIPInput.setText(store.nip)
+            binding.storeDefaultCategoryInput.setText(chosenCategory.name)
+            actualNIP = store.nip
         }
         receiptDataViewModel.store.value = null
 
@@ -98,21 +116,26 @@ class AddStoreFragment : Fragment() {
             binding.storeNIPInput.setText(receiptDataViewModel.store.value?.nip)
             binding.storeNameInput.setText(receiptDataViewModel.store.value?.name)
         }
-
+        binding.storeDefaultCategoryInput.setOnItemClickListener { adapter, _, i, _ ->
+            chosenCategory = adapter.getItemAtPosition(i) as Category
+            binding.storeDefaultCategoryInput.setText(chosenCategory.name)
+        }
     }
 
 
     private fun saveChangesToDatabase() {
         if (mode == DataMode.NEW) {
-            val store = Store("", "")
+            val store = Store("", "", 0)
             store.nip = binding.storeNIPInput.text.toString()
             store.name = binding.storeNameInput.text.toString()
+            store.defaultCategoryId = chosenCategory.id ?: throw NoCategoryIdException()
             receiptDataViewModel.insertStore(store)
         }
         if (mode == DataMode.EDIT) {
             val store = receiptDataViewModel.store.value!!
             store.nip = binding.storeNIPInput.text.toString()
             store.name = binding.storeNameInput.text.toString()
+            store.defaultCategoryId = chosenCategory.id ?: throw NoCategoryIdException()
             receiptDataViewModel.updateStore(store)
         }
     }
@@ -121,6 +144,7 @@ class AddStoreFragment : Fragment() {
         mode = DataMode.DISPLAY
         binding.storeNameLayout.isEnabled = false
         binding.storeNIPLayout.isEnabled = false
+        binding.storeDefaultCategoryLayout.isEnabled = false
         binding.saveChangesButton.visibility = View.GONE
         binding.cancelChangesButton.visibility = View.GONE
         binding.editButton.visibility = View.VISIBLE
@@ -130,6 +154,7 @@ class AddStoreFragment : Fragment() {
         mode = DataMode.EDIT
         binding.storeNameLayout.isEnabled = true
         binding.storeNIPLayout.isEnabled = true
+        binding.storeDefaultCategoryLayout.isEnabled = true
         binding.saveChangesButton.visibility = View.VISIBLE
         binding.cancelChangesButton.visibility = View.VISIBLE
         binding.editButton.visibility = View.GONE
@@ -154,6 +179,19 @@ class AddStoreFragment : Fragment() {
                 if (receiptImageViewModel.bitmapCropped.value != null) {
                     binding.receiptImageBig.setImageBitmap(receiptImageViewModel.bitmapCropped.value)
                 }
+            }
+        }
+
+        receiptDataViewModel.categoryList.observe(viewLifecycleOwner) {
+            it?.let {
+                CategoryDropdownAdapter(
+                    requireContext(), R.layout.array_adapter_row, it
+                ).also { adapter ->
+                    binding.storeDefaultCategoryInput.setAdapter(adapter)
+                }
+            }
+            if (chosenCategory.name == "") {
+                chosenCategory = it[0]
             }
         }
     }

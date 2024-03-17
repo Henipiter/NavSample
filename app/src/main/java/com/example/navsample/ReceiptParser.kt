@@ -2,7 +2,7 @@ package com.example.navsample
 
 import com.example.navsample.entities.Product
 
-class ReceiptParser(var receiptId: Int) {
+class ReceiptParser(var receiptId: Int, var categoryId: Int) {
     companion object {
         private const val REGEX_PRICE = """-*(\d+\s*[,.]\s*\d\s*\d)|(\d+\s+\d\s*\d)"""
         private const val REGEX_QUANTITY = """(\d+[,.]\s*\d*\s*\d*\s*\d*)|(\d+\s*)"""
@@ -45,7 +45,7 @@ class ReceiptParser(var receiptId: Int) {
             return Product(
                 receiptId,
                 name.data.trim(),
-                1,
+                categoryId,
                 0f,
                 0f,
                 0f,
@@ -61,7 +61,7 @@ class ReceiptParser(var receiptId: Int) {
             return Product(
                 receiptId,
                 name.data.trim(),
-                1,
+                categoryId,
                 fixPrize(quantity.data),
                 fixedUnitPrice,
                 fixedSubtotalPrice,

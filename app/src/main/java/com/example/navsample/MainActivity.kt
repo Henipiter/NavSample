@@ -31,11 +31,11 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun initDatabase() {
-        receiptDataViewModel.insertStore(Store("Carrefour", "9370008168"))
-        receiptDataViewModel.insertStore(Store("Biedronka", "7791011327"))
-        receiptDataViewModel.insertStore(Store("LIDL", "7811897358"))
-        receiptDataViewModel.insertStore(Store("SUPER-PHARM", "5252175977"))
-        receiptDataViewModel.insertStore(Store("MARTES-SPORT", "0001112223"))
+        receiptDataViewModel.insertStore(Store("Carrefour", "9370008168", 0))
+        receiptDataViewModel.insertStore(Store("Biedronka", "7791011327", 2))
+        receiptDataViewModel.insertStore(Store("LIDL", "7811897358", 0))
+        receiptDataViewModel.insertStore(Store("SUPER-PHARM", "5252175977", 0))
+        receiptDataViewModel.insertStore(Store("MARTES-SPORT", "0001112223", 0))
 
         receiptDataViewModel.insertCategoryList(Category("INNE", COLORS[0]))
         receiptDataViewModel.insertCategoryList(Category("JEDZENIE", COLORS[1]))

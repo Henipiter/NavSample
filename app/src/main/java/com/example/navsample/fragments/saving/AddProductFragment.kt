@@ -18,6 +18,7 @@ import com.example.navsample.entities.Category
 import com.example.navsample.entities.Product
 import com.example.navsample.exception.NoCategoryIdException
 import com.example.navsample.exception.NoReceiptIdException
+import com.example.navsample.exception.NoStoreIdException
 import com.example.navsample.viewmodels.ReceiptDataViewModel
 import com.example.navsample.viewmodels.ReceiptImageViewModel
 import kotlin.math.round
@@ -35,8 +36,9 @@ class AddProductFragment : Fragment() {
     private val receiptDataViewModel: ReceiptDataViewModel by activityViewModels()
 
     private var productOriginalInput = ""
-    private var productOriginal: Product? = null
     private var chosenCategory = Category("", "")
+    private var productId: Int? = null
+    private var receiptId: Int? = null
 
     companion object {
         private const val SUGGESTION_PREFIX = "Maybe "
@@ -144,8 +146,22 @@ class AddProductFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        receiptDataViewModel.refreshCategoryList()
         initObserver()
+        receiptDataViewModel.refreshCategoryList()
+        receiptDataViewModel.categoryList.value?.let {
+            if (chosenCategory.name == "") {
+                val categoryId = receiptDataViewModel.store.value?.defaultCategoryId
+                    ?: throw NoStoreIdException()
+
+                chosenCategory = try {
+                    receiptDataViewModel.categoryList.value?.first { it.id == categoryId }
+                        ?: Category("", "")
+                } catch (e: Exception) {
+                    Category("", "")
+                }
+
+            }
+        }
 
         ArrayAdapter(
             requireContext(), android.R.layout.simple_list_item_1, ptuTypeList
@@ -153,8 +169,10 @@ class AddProductFragment : Fragment() {
             binding.ptuTypeInput.setAdapter(adapter)
         }
 
+        receiptId = receiptDataViewModel.receipt.value?.id
         if (args.productIndex != -1) {
-            productOriginal = receiptDataViewModel.product.value?.get(args.productIndex)
+            val productOriginal = receiptDataViewModel.product.value?.get(args.productIndex)
+            productId = productOriginal?.id
             productOriginal?.let { product ->
                 val category = try {
                     receiptDataViewModel.categoryList.value?.first { it.id == product.categoryId }
@@ -178,6 +196,9 @@ class AddProductFragment : Fragment() {
 
                 validatePrices()
             }
+        } else {
+            binding.productCategoryInput.setText(chosenCategory.name)
+
         }
         if (productOriginalInput == "") {
             binding.productOriginalLayout.visibility = View.INVISIBLE
@@ -222,7 +243,8 @@ class AddProductFragment : Fragment() {
         }
         binding.productOriginalInput.doOnTextChanged { actual, _, _, _ ->
             val receiptParser = ReceiptParser(
-                receiptDataViewModel.receipt.value?.id ?: throw NoReceiptIdException()
+                receiptDataViewModel.receipt.value?.id ?: throw NoReceiptIdException(),
+                receiptDataViewModel.store.value?.defaultCategoryId ?: throw NoStoreIdException()
             )
             val product = receiptParser.parseStringToProduct(actual.toString())
             val category = try {
@@ -252,7 +274,7 @@ class AddProductFragment : Fragment() {
             }
 
             val product = Product(
-                productOriginal?.receiptId ?: throw NoReceiptIdException(),
+                receiptId ?: throw NoReceiptIdException(),
                 binding.productNameInput.text.toString(),
                 chosenCategory.id ?: throw NoCategoryIdException(),
                 binding.productSubtotalPriceInput.text.toString().toFloat(),
@@ -263,7 +285,7 @@ class AddProductFragment : Fragment() {
                 binding.ptuTypeInput.text.toString(),
                 binding.productOriginalInput.text.toString()
             )
-            product.id = productOriginal?.id
+            product.id = productId
 
             if (args.productIndex != -1) {
                 receiptDataViewModel.product.value!![args.productIndex] = product

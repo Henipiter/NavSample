@@ -80,7 +80,7 @@ class ImageImportFragment : Fragment() {
                 ) {
 //                    drawRectangles()
 
-                    val store = Store(imageAnalyzer.companyName, imageAnalyzer.valueNIP)
+                    val store = Store(imageAnalyzer.companyName, imageAnalyzer.valueNIP, 0)
                     val receipt = Receipt(
                         -1,
                         imageAnalyzer.valuePLN.toString().toFloat(),

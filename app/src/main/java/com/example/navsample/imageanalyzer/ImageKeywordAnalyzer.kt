@@ -3,15 +3,15 @@ package com.example.navsample.imageanalyzer
 import kotlin.math.max
 
 class ImageKeywordAnalyzer {
-    var topBoundary = 0
-    var bottomBoundary = 0
-    var leftBoundary = 0
+    private var topBoundary = 0
+    private var bottomBoundary = 0
+    private var leftBoundary = 0
 
 
-    var indexOfCellWithSumPrice = -1
-    var indexOfCellWithDate = -1
-    var indexOfCellWithTime = -1
-    var indexOfCellWithNip = -1
+    private var indexOfCellWithSumPrice = -1
+    private var indexOfCellWithDate = -1
+    private var indexOfCellWithTime = -1
+    private var indexOfCellWithNip = -1
 
     var companyName: String = ""
     var valueTotalSum: Double = 0.0

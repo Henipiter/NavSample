@@ -17,10 +17,10 @@ import java.io.OutputStreamWriter
 
 
 class ImageAnalyzer {
-var uid: String = "temp"
+    var uid: String = "temp"
 
-    val recognizer = TextRecognition.getClient(TextRecognizerOptions.DEFAULT_OPTIONS)
-    var imageWidth = 0
+    private val recognizer = TextRecognition.getClient(TextRecognizerOptions.DEFAULT_OPTIONS)
+    private var imageWidth = 0
 
 
     var valuePLN: Double = 0.0
@@ -34,13 +34,14 @@ var uid: String = "temp"
     var receiptLines: ArrayList<String> = ArrayList()
     var productList: ArrayList<Product> = ArrayList()
 
-    val imageProductAnalyzer = ImageProductAnalyzer()
-    val imageKeywordAnalyzer = ImageKeywordAnalyzer()
+    private val imageProductAnalyzer = ImageProductAnalyzer()
+    private val imageKeywordAnalyzer = ImageKeywordAnalyzer()
 
     @ExperimentalGetImage
     fun analyzeProductList(
         inputImage: InputImage,
         receiptId: Int,
+        categoryId: Int,
         onFinish: () -> Unit,
     ) {
         imageWidth = inputImage.width / 10
@@ -57,7 +58,7 @@ var uid: String = "temp"
                 imageProductAnalyzer.orderLinesByColumnContinuously(imageWidth, cells)
                 imageProductAnalyzer.orderRowsInColumns()
 
-                val receiptParser = ReceiptParser(receiptId)
+                val receiptParser = ReceiptParser(receiptId, categoryId)
                 productList = receiptParser.parseToProducts(imageProductAnalyzer.productList)
                 receiptLines = imageProductAnalyzer.receiptLines
                 onFinish.invoke()

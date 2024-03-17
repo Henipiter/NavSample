@@ -24,6 +24,7 @@ import com.example.navsample.adapters.ProductListAdapter
 import com.example.navsample.databinding.FragmentAddProductListBinding
 import com.example.navsample.dto.ExperimentalAdapterArgument
 import com.example.navsample.exception.NoReceiptIdException
+import com.example.navsample.exception.NoStoreIdException
 import com.example.navsample.fragments.dialogs.DeleteConfirmationDialog
 import com.example.navsample.viewmodels.ReceiptDataViewModel
 import com.example.navsample.viewmodels.ReceiptImageViewModel
@@ -78,12 +79,15 @@ class AddProductListFragment : Fragment(), ItemClickListener {
     @ExperimentalGetImage
     private fun analyzeImage() {
         val receiptId = receiptDataViewModel.receipt.value?.id ?: throw NoReceiptIdException()
+        val categoryId =
+            receiptDataViewModel.store.value?.defaultCategoryId ?: throw NoStoreIdException()
         val imageAnalyzer = ImageAnalyzer()
         imageAnalyzer.uid = receiptImageViewModel.uid.value ?: "temp"
         receiptImageViewModel.bitmapCropped.value?.let {
             imageAnalyzer.analyzeProductList(
                 InputImage.fromBitmap(it, 0),
-                receiptId
+                receiptId,
+                categoryId
             ) {
                 receiptDataViewModel.product.value = imageAnalyzer.productList
                 val analyzed =
@@ -142,8 +146,11 @@ class AddProductListFragment : Fragment(), ItemClickListener {
         }
 
         binding.addNewButton.setOnClickListener {
-            Navigation.findNavController(it)
-                .navigate(R.id.action_addProductListFragment_to_addProductFragment)
+            val action =
+                AddProductListFragmentDirections.actionAddProductListFragmentToAddProductFragment(
+                    false, -1
+                )
+            Navigation.findNavController(requireView()).navigate(action)
         }
         binding.confirmButton.setOnClickListener {
             receiptDataViewModel.insertProducts(

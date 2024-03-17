@@ -6,6 +6,7 @@ data class ReceiptWithStore(
     var storeId: Int,
     var nip: String,
     var name: String,
+    var defaultCategoryId: Int,
     var pln: Float,
     var ptu: Float,
     var date: String,
