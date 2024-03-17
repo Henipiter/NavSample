@@ -11,6 +11,7 @@ import com.example.navsample.R
 import com.example.navsample.databinding.FragmentMenuBinding
 import com.example.navsample.viewmodels.ReceiptDataViewModel
 import com.example.navsample.viewmodels.ReceiptImageViewModel
+import java.util.UUID
 
 
 class MenuFragment : Fragment() {
@@ -51,7 +52,11 @@ class MenuFragment : Fragment() {
             Navigation.findNavController(it)
                 .navigate(R.id.action_menuFragment_to_diagramFragment)
         }
+
+        val myUuid = UUID.randomUUID()
         receiptDataViewModel.clearData()
         receiptImageViewModel.clearData()
+        receiptDataViewModel.uid.value = myUuid.toString()
+        receiptImageViewModel.uid.value = myUuid.toString()
     }
 }

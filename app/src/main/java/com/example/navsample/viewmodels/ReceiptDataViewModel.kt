@@ -21,6 +21,8 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 class ReceiptDataViewModel : ViewModel() {
+    lateinit var uid: MutableLiveData<String>
+
     lateinit var store: MutableLiveData<Store>
     lateinit var receipt: MutableLiveData<Receipt>
     lateinit var product: MutableLiveData<ArrayList<Product>>
@@ -49,6 +51,7 @@ class ReceiptDataViewModel : ViewModel() {
     }
 
     fun clearData() {
+        uid = MutableLiveData<String>(null)
         reorderedProductTiles = MutableLiveData<Boolean>(false)
         store = MutableLiveData<Store>(null)
         receipt = MutableLiveData<Receipt>(null)

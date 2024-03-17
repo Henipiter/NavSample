@@ -13,10 +13,13 @@ import com.example.navsample.databinding.FragmentAddStoreBinding
 import com.example.navsample.dto.DataMode
 import com.example.navsample.entities.Store
 import com.example.navsample.viewmodels.ReceiptDataViewModel
+import com.example.navsample.viewmodels.ReceiptImageViewModel
 
 class AddStoreFragment : Fragment() {
     private var _binding: FragmentAddStoreBinding? = null
     private val binding get() = _binding!!
+
+    private val receiptImageViewModel: ReceiptImageViewModel by activityViewModels()
     private val receiptDataViewModel: ReceiptDataViewModel by activityViewModels()
 
     private var mode = DataMode.DISPLAY
@@ -32,8 +35,11 @@ class AddStoreFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
+        initObserver()
         receiptDataViewModel.refreshStoreList()
+        receiptImageViewModel.bitmap.value?.let {
+            binding.receiptImageBig.setImageBitmap(it)
+        }
         var actualNIP = ""
 
         receiptDataViewModel.store.value?.let {
@@ -139,5 +145,16 @@ class AddStoreFragment : Fragment() {
             sum += valueNIP[i].digitToInt() * weight[i]
         }
         return sum % 11 == valueNIP[9].digitToInt()
+    }
+
+    private fun initObserver() {
+
+        receiptImageViewModel.bitmapCropped.observe(viewLifecycleOwner) {
+            it?.let {
+                if (receiptImageViewModel.bitmapCropped.value != null) {
+                    binding.receiptImageBig.setImageBitmap(receiptImageViewModel.bitmapCropped.value)
+                }
+            }
+        }
     }
 }

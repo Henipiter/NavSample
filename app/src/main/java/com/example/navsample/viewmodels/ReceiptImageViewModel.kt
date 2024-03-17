@@ -13,6 +13,7 @@ class ReceiptImageViewModel : ViewModel() {
     lateinit var bitmap: MutableLiveData<Bitmap?>
     lateinit var uriCropped: MutableLiveData<Uri?>
     lateinit var bitmapCropped: MutableLiveData<Bitmap?>
+    lateinit var uid: MutableLiveData<String>
 
 
     init {
@@ -20,13 +21,15 @@ class ReceiptImageViewModel : ViewModel() {
     }
 
     fun clearData() {
-        clearDirectoryFromTempImages()
-        if (::uri.isInitialized) {
-            uri.value?.let { File(it.path.toString()).delete() }
-        }
-        if (::uriCropped.isInitialized) {
-            uriCropped.value?.let { File(it.path.toString()).delete() }
-        }
+//        clearDirectoryFromTempImages()
+//        if (::uri.isInitialized) {
+//            uri.value?.let { File(it.path.toString()).delete() }
+//        }
+//        if (::uriCropped.isInitialized) {
+//            uriCropped.value?.let { File(it.path.toString()).delete() }
+//        }
+
+        uid = MutableLiveData<String>(null)
         uri = MutableLiveData<Uri?>(null)
         bitmap = MutableLiveData<Bitmap?>(null)
         uriCropped = MutableLiveData<Uri?>(null)
@@ -35,7 +38,7 @@ class ReceiptImageViewModel : ViewModel() {
 
     private fun clearDirectoryFromTempImages() {
         val paths = mutableListOf<String>()
-        val tempFile = File.createTempFile("temp", ".png")
+        val tempFile = File.createTempFile(uid.value ?: "temp", ".png")
         tempFile.parent?.let { parentPath ->
             File(parentPath).listFiles()?.forEach { file ->
                 if (file.path.endsWith(".png")) {
@@ -60,7 +63,7 @@ class ReceiptImageViewModel : ViewModel() {
 
     private fun setImageUri(bitmap: Bitmap): Uri {
 
-        val tempFile = File.createTempFile("temp", ".png")
+        val tempFile = File.createTempFile(uid.value ?: "temp", ".png")
 //        File.
         val bytes = ByteArrayOutputStream()
         bitmap.compress(Bitmap.CompressFormat.PNG, 100, bytes)

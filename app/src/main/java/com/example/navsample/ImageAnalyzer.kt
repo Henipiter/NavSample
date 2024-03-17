@@ -17,7 +17,7 @@ import java.io.OutputStreamWriter
 
 
 class ImageAnalyzer {
-
+var uid: String = "temp"
 
     val recognizer = TextRecognition.getClient(TextRecognizerOptions.DEFAULT_OPTIONS)
     var imageWidth = 0
@@ -52,7 +52,7 @@ class ImageAnalyzer {
                 Log.e("ImageProcess", it.message.orEmpty())
             }.addOnCompleteListener {
                 val blocks = it.result.textBlocks
-                blocksToLog(blocks, "TRIM")
+                blocksToLog(blocks, "$uid-TRIM")
                 val cells = DataReader.convertContentToCells(blocks)
                 imageProductAnalyzer.orderLinesByColumnContinuously(imageWidth, cells)
                 imageProductAnalyzer.orderRowsInColumns()
@@ -78,7 +78,7 @@ class ImageAnalyzer {
                 Log.e("ImageProcess", it.message.orEmpty())
             }.addOnCompleteListener {
                 val blocks = it.result.textBlocks
-                blocksToLog(blocks, "WHOLE")
+                blocksToLog(blocks, "$uid-WHOLE")
                 val cells = DataReader.convertContentToCells(blocks)
                 imageKeywordAnalyzer.findKeywordsIndexes(cells)
                 imageKeywordAnalyzer.findKeywordsValues(cells)

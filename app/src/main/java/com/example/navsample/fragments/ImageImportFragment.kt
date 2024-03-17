@@ -55,6 +55,7 @@ class ImageImportFragment : Fragment() {
         initObserver()
 
         imageAnalyzer = ImageAnalyzer()
+        imageAnalyzer.uid = receiptImageViewModel.uid.value ?: "temp"
         binding.loadImage.setOnClickListener {
             val action = ImageImportFragmentDirections.actionImageImportFragmentToCropFragment()
             Navigation.findNavController(view).navigate(action)
