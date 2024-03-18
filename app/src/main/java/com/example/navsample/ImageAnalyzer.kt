@@ -31,7 +31,8 @@ class ImageAnalyzer {
     var companyName: String = ""
 
 
-    var receiptLines: ArrayList<String> = ArrayList()
+    var receiptNameLines: ArrayList<String> = ArrayList()
+    var receiptPriceLines: ArrayList<String> = ArrayList()
     var productList: ArrayList<Product> = ArrayList()
 
     private val imageProductAnalyzer = ImageProductAnalyzer()
@@ -60,7 +61,8 @@ class ImageAnalyzer {
 
                 val receiptParser = ReceiptParser(receiptId, categoryId)
                 productList = receiptParser.parseToProducts(imageProductAnalyzer.productList)
-                receiptLines = imageProductAnalyzer.receiptLines
+                receiptPriceLines = imageProductAnalyzer.receiptPriceLines
+                receiptNameLines = imageProductAnalyzer.receiptNameLines
                 onFinish.invoke()
             }
     }

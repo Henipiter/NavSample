@@ -35,8 +35,12 @@ class ReceiptDataViewModel : ViewModel() {
     lateinit var categoryList: MutableLiveData<ArrayList<Category>>
     lateinit var storeList: MutableLiveData<ArrayList<Store>>
 
-    lateinit var experimental: MutableLiveData<ArrayList<ExperimentalAdapterArgument>>
-    lateinit var experimentalOriginal: MutableLiveData<ArrayList<ExperimentalAdapterArgument>>
+
+    lateinit var userOrderedProducts: MutableLiveData<ArrayList<ExperimentalAdapterArgument>>
+    lateinit var userOrderedPrices: MutableLiveData<ArrayList<ExperimentalAdapterArgument>>
+    lateinit var algorithmOrderedNames: MutableLiveData<ArrayList<ExperimentalAdapterArgument>>
+    lateinit var algorithmOrderedPrices: MutableLiveData<ArrayList<ExperimentalAdapterArgument>>
+
 
     lateinit var timelineChartData: MutableLiveData<List<PriceByCategory>>
     lateinit var categoryChartData: MutableLiveData<List<PriceByCategory>>
@@ -72,22 +76,29 @@ class ReceiptDataViewModel : ViewModel() {
 
 
         refreshCategoryList()
-        experimental = MutableLiveData(
+        userOrderedProducts = MutableLiveData(arrayListOf())
+        userOrderedPrices = MutableLiveData(arrayListOf())
+        algorithmOrderedNames = MutableLiveData(
             arrayListOf(
-                ExperimentalAdapterArgument("01"),
-                ExperimentalAdapterArgument("02"),
-                ExperimentalAdapterArgument("03"),
-                ExperimentalAdapterArgument("04")
+                ExperimentalAdapterArgument("Name0"),
+                ExperimentalAdapterArgument("Name1"),
+                ExperimentalAdapterArgument("Name2"),
+                ExperimentalAdapterArgument("Name3"),
+                ExperimentalAdapterArgument("Name4"),
+                ExperimentalAdapterArgument("Name5")
             )
         )
-        experimentalOriginal = MutableLiveData(
+        algorithmOrderedPrices = MutableLiveData(
             arrayListOf(
-                ExperimentalAdapterArgument("01"),
-                ExperimentalAdapterArgument("02"),
-                ExperimentalAdapterArgument("03"),
-                ExperimentalAdapterArgument("04")
+                ExperimentalAdapterArgument("Price0"),
+                ExperimentalAdapterArgument("Price1"),
+                ExperimentalAdapterArgument("Price2"),
+                ExperimentalAdapterArgument("Price3"),
+                ExperimentalAdapterArgument("Price4"),
+                ExperimentalAdapterArgument("Price5")
             )
         )
+
     }
 
 

@@ -83,18 +83,18 @@ class AddProductListFragment : Fragment(), ItemClickListener {
             receiptDataViewModel.store.value?.defaultCategoryId ?: throw NoStoreIdException()
         val imageAnalyzer = ImageAnalyzer()
         imageAnalyzer.uid = receiptImageViewModel.uid.value ?: "temp"
-        receiptImageViewModel.bitmapCropped.value?.let {
+        receiptImageViewModel.bitmapCropped.value?.let { bitmap ->
             imageAnalyzer.analyzeProductList(
-                InputImage.fromBitmap(it, 0),
+                InputImage.fromBitmap(bitmap, 0),
                 receiptId,
                 categoryId
             ) {
                 receiptDataViewModel.product.value = imageAnalyzer.productList
-                val analyzed =
-                    imageAnalyzer.receiptLines.map { ExperimentalAdapterArgument(it) } as ArrayList<ExperimentalAdapterArgument>
-                receiptDataViewModel.experimental.value = analyzed
-                receiptDataViewModel.experimentalOriginal.value =
-                    analyzed.toMutableList() as ArrayList<ExperimentalAdapterArgument>
+
+                receiptDataViewModel.algorithmOrderedNames.value =
+                    imageAnalyzer.receiptNameLines.map { ExperimentalAdapterArgument(it) } as ArrayList<ExperimentalAdapterArgument>
+                receiptDataViewModel.algorithmOrderedPrices.value =
+                    imageAnalyzer.receiptPriceLines.map { ExperimentalAdapterArgument(it) } as ArrayList<ExperimentalAdapterArgument>
                 receiptDataViewModel.reorderedProductTiles.value = true
             }
         }

@@ -10,7 +10,8 @@ class ImageProductAnalyzer {
     var pricesList = ArrayList<String>()
 
     var productList = ArrayList<String>()
-    var receiptLines = ArrayList<String>()
+    var receiptNameLines = ArrayList<String>()
+    var receiptPriceLines = ArrayList<String>()
 
     var leftColumnBoundary = 0
     var rightColumnBoundary = 0
@@ -79,8 +80,8 @@ class ImageProductAnalyzer {
             val name = getCellContent(columnCell.leftColumnCells[i])
             val price = getCellContent(columnCell.rightColumnCells[i])
             productList.add(name + " " + price)
-            receiptLines.add(name)
-            receiptLines.add(price)
+            receiptNameLines.add(name)
+            receiptPriceLines.add(price)
         }
 
     }
