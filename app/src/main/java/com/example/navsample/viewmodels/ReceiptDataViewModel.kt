@@ -6,7 +6,8 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.navsample.ApplicationContext
 import com.example.navsample.chart.ChartColors
-import com.example.navsample.dto.ExperimentalAdapterArgument
+import com.example.navsample.dto.AlgorithmItemAdapterArgument
+import com.example.navsample.dto.UserItemAdapterArgument
 import com.example.navsample.entities.Category
 import com.example.navsample.entities.Product
 import com.example.navsample.entities.Receipt
@@ -36,10 +37,10 @@ class ReceiptDataViewModel : ViewModel() {
     lateinit var storeList: MutableLiveData<ArrayList<Store>>
 
 
-    lateinit var userOrderedProducts: MutableLiveData<ArrayList<ExperimentalAdapterArgument>>
-    lateinit var userOrderedPrices: MutableLiveData<ArrayList<ExperimentalAdapterArgument>>
-    lateinit var algorithmOrderedNames: MutableLiveData<ArrayList<ExperimentalAdapterArgument>>
-    lateinit var algorithmOrderedPrices: MutableLiveData<ArrayList<ExperimentalAdapterArgument>>
+    lateinit var userOrderedName: MutableLiveData<ArrayList<UserItemAdapterArgument>>
+    lateinit var userOrderedPrices: MutableLiveData<ArrayList<UserItemAdapterArgument>>
+    lateinit var algorithmOrderedNames: MutableLiveData<ArrayList<AlgorithmItemAdapterArgument>>
+    lateinit var algorithmOrderedPrices: MutableLiveData<ArrayList<AlgorithmItemAdapterArgument>>
 
 
     lateinit var timelineChartData: MutableLiveData<List<PriceByCategory>>
@@ -76,26 +77,26 @@ class ReceiptDataViewModel : ViewModel() {
 
 
         refreshCategoryList()
-        userOrderedProducts = MutableLiveData(arrayListOf())
+        userOrderedName = MutableLiveData(arrayListOf())
         userOrderedPrices = MutableLiveData(arrayListOf())
         algorithmOrderedNames = MutableLiveData(
             arrayListOf(
-                ExperimentalAdapterArgument("Name0"),
-                ExperimentalAdapterArgument("Name1"),
-                ExperimentalAdapterArgument("Name2"),
-                ExperimentalAdapterArgument("Name3"),
-                ExperimentalAdapterArgument("Name4"),
-                ExperimentalAdapterArgument("Name5")
+                AlgorithmItemAdapterArgument("Name0"),
+                AlgorithmItemAdapterArgument("Name1"),
+                AlgorithmItemAdapterArgument("Name2"),
+                AlgorithmItemAdapterArgument("Name3"),
+                AlgorithmItemAdapterArgument("Name4"),
+                AlgorithmItemAdapterArgument("Name5")
             )
         )
         algorithmOrderedPrices = MutableLiveData(
             arrayListOf(
-                ExperimentalAdapterArgument("Price0"),
-                ExperimentalAdapterArgument("Price1"),
-                ExperimentalAdapterArgument("Price2"),
-                ExperimentalAdapterArgument("Price3"),
-                ExperimentalAdapterArgument("Price4"),
-                ExperimentalAdapterArgument("Price5")
+                AlgorithmItemAdapterArgument("Price0"),
+                AlgorithmItemAdapterArgument("Price1"),
+                AlgorithmItemAdapterArgument("Price2"),
+                AlgorithmItemAdapterArgument("Price3"),
+                AlgorithmItemAdapterArgument("Price4"),
+                AlgorithmItemAdapterArgument("Price5")
             )
         )
 

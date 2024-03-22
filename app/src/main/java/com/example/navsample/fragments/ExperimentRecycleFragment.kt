@@ -7,10 +7,10 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
-import androidx.navigation.Navigation
 import com.example.navsample.NonScrollableGridLayoutManager
 import com.example.navsample.ReceiptParser
-import com.example.navsample.adapters.ExperimentalListAdapter
+import com.example.navsample.adapters.AlgorithmItemListAdapter
+import com.example.navsample.adapters.UserItemListAdapter
 import com.example.navsample.databinding.FragmentExperimentRecycleBinding
 import com.example.navsample.dto.Action
 import com.example.navsample.dto.Action.CLEAR
@@ -19,9 +19,13 @@ import com.example.navsample.dto.Action.EDIT
 import com.example.navsample.dto.Action.MERGE
 import com.example.navsample.dto.Action.NONE
 import com.example.navsample.dto.Action.SWAP
-import com.example.navsample.dto.ExperimentalAdapterArgument
+import com.example.navsample.dto.AlgorithmItemAdapterArgument
 import com.example.navsample.dto.ProductListMode
+import com.example.navsample.dto.SortingElementColor
+import com.example.navsample.dto.SortingElementMode
+import com.example.navsample.dto.Status
 import com.example.navsample.dto.Type
+import com.example.navsample.dto.UserItemAdapterArgument
 import com.example.navsample.viewmodels.ReceiptDataViewModel
 import com.example.navsample.viewmodels.ReceiptImageViewModel
 import java.lang.Integer.max
@@ -35,14 +39,19 @@ open class ExperimentRecycleFragment : Fragment() {
     private val receiptImageViewModel: ReceiptImageViewModel by activityViewModels()
     private val receiptDataViewModel: ReceiptDataViewModel by activityViewModels()
 
-    private lateinit var algorithmOrderedPricesAdapter: ExperimentalListAdapter
-    private lateinit var algorithmOrderedNamesAdapter: ExperimentalListAdapter
-    private var recycleListPrices = arrayListOf<ExperimentalAdapterArgument>()
-    private var recycleListNames = arrayListOf<ExperimentalAdapterArgument>()
+    private lateinit var algorithmOrderedPricesAdapter: AlgorithmItemListAdapter
+    private lateinit var algorithmOrderedNamesAdapter: AlgorithmItemListAdapter
+    private lateinit var userOrderedPricesAdapter: UserItemListAdapter
+    private lateinit var userOrderedNamesAdapter: UserItemListAdapter
+    private var recycleListAlgorithmPrices = arrayListOf<AlgorithmItemAdapterArgument>()
+    private var recycleListAlgorithmNames = arrayListOf<AlgorithmItemAdapterArgument>()
+    private var recycleListUserPrices = arrayListOf<UserItemAdapterArgument>()
+    private var recycleListUserNames = arrayListOf<UserItemAdapterArgument>()
     private var checkedElementsCounter = 0
     private lateinit var receiptParser: ReceiptParser
     private var productListMode = ProductListMode.SELECT
     private var action = NONE//recycler_view_event_receipts
+    private var mode = SortingElementMode.SWITCHING
 
 
     private var currentType = Type.NAME
@@ -64,13 +73,48 @@ open class ExperimentRecycleFragment : Fragment() {
         }
     }
 
-    private fun changeCurrentType() {
-        currentType = when (currentType) {
-            Type.PRICE -> Type.NAME
+    private fun changeCurrentType(type: Type) {
+        when (type) {
+            Type.PRICE -> {
+                currentType = Type.NAME
+                binding.modeColor.setBackgroundColor(SortingElementColor.NAME)
+            }
+
             else -> {
-                Type.PRICE
+                currentType = Type.PRICE
+                binding.modeColor.setBackgroundColor(SortingElementColor.PRICE)
             }
         }
+    }
+
+    private fun changeCurrentType() {
+        when (currentType) {
+            Type.PRICE -> {
+                currentType = Type.NAME
+                binding.modeColor.setBackgroundColor(SortingElementColor.NAME)
+            }
+
+            else -> {
+                currentType = Type.PRICE
+                binding.modeColor.setBackgroundColor(SortingElementColor.PRICE)
+            }
+        }
+    }
+
+    private fun putItemIntoRightList(item: AlgorithmItemAdapterArgument) {
+        val userItemAdapterArgument = UserItemAdapterArgument(
+            item.value,
+            currentType,
+            item
+        )
+        if (currentType == Type.PRICE) {
+            recycleListUserPrices.add(userItemAdapterArgument)
+            userOrderedPricesAdapter.notifyItemChanged(recycleListUserPrices.lastIndex)
+        } else {
+            recycleListUserNames.add(userItemAdapterArgument)
+            userOrderedNamesAdapter.notifyItemChanged(recycleListUserPrices.lastIndex)
+        }
+        item.status = Status.BLOCKED
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -80,46 +124,136 @@ open class ExperimentRecycleFragment : Fragment() {
             receiptDataViewModel.receipt.value?.id ?: -1,            //throw NoReceiptIdException(),
             receiptDataViewModel.store.value?.defaultCategoryId ?: -1 // throw NoStoreIdException()
         )
-        recycleListNames = receiptDataViewModel.algorithmOrderedNames.value ?: arrayListOf()
-        recycleListPrices = receiptDataViewModel.algorithmOrderedPrices.value ?: arrayListOf()
-        algorithmOrderedPricesAdapter = ExperimentalListAdapter(
-            recycleListPrices,
+        binding.switchingButton.isChecked = true
+        binding.modeColor.setBackgroundColor(SortingElementColor.NAME)
+        recycleListAlgorithmNames =
+            receiptDataViewModel.algorithmOrderedNames.value ?: arrayListOf()
+        recycleListAlgorithmPrices =
+            receiptDataViewModel.algorithmOrderedPrices.value ?: arrayListOf()
+        recycleListUserNames = receiptDataViewModel.userOrderedName.value ?: arrayListOf()
+        recycleListUserPrices = receiptDataViewModel.userOrderedPrices.value ?: arrayListOf()
+
+
+        binding.switchingButton.setOnClickListener {
+            mode = SortingElementMode.SWITCHING
+            changeCurrentType()
+        }
+        binding.nameOnlyButton.setOnClickListener {
+            mode = SortingElementMode.NAME_ONLY
+            changeCurrentType(Type.NAME)
+        }
+        binding.priceOnlyButton.setOnClickListener {
+            mode = SortingElementMode.PRICE_ONLY
+            changeCurrentType(Type.PRICE)
+        }
+
+        //ALGORITHM     PRICE
+        algorithmOrderedPricesAdapter = AlgorithmItemListAdapter(
+            recycleListAlgorithmPrices,
             { position ->
-                if (recycleListPrices[position].type == Type.UNDEFINED) {
-                    recycleListPrices[position].type = currentType
-                    changeCurrentType()
-                } else {
-                    recycleListPrices[position].type = Type.UNDEFINED
+                if (recycleListAlgorithmPrices[position].type == Type.UNDEFINED) {
+                    recycleListAlgorithmPrices[position].type = currentType
+                    putItemIntoRightList(recycleListAlgorithmPrices[position])
+                    if (mode == SortingElementMode.SWITCHING) {
+                        changeCurrentType()
+                    }
                 }
                 algorithmOrderedPricesAdapter.notifyItemChanged(position)
             }, { position ->
 
-                recycleListPrices[position].chosen = !recycleListPrices[position].chosen
+                if (recycleListAlgorithmPrices[position].status == Status.DEFAULT) {
+                    recycleListAlgorithmPrices[position].status = Status.CHOSEN
+                } else if (recycleListAlgorithmPrices[position].status == Status.CHOSEN) {
+                    recycleListAlgorithmPrices[position].status = Status.DEFAULT
+                }
+
                 algorithmOrderedPricesAdapter.notifyItemChanged(position)
             })
-        algorithmOrderedNamesAdapter = ExperimentalListAdapter(
-            recycleListNames,
+
+        //ALGORITHM     NAME
+        algorithmOrderedNamesAdapter = AlgorithmItemListAdapter(
+            recycleListAlgorithmNames,
             { position ->
-                if (recycleListNames[position].type == Type.UNDEFINED) {
-                    recycleListNames[position].type = currentType
-                    changeCurrentType()
-                } else {
-                    recycleListNames[position].type = Type.UNDEFINED
+                if (recycleListAlgorithmNames[position].type == Type.UNDEFINED) {
+                    recycleListAlgorithmNames[position].type = currentType
+                    putItemIntoRightList(recycleListAlgorithmNames[position])
+                    if (mode == SortingElementMode.SWITCHING) {
+                        changeCurrentType()
+                    }
                 }
                 algorithmOrderedNamesAdapter.notifyItemChanged(position)
 
             }, { position ->
 
-                recycleListNames[position].chosen = !recycleListNames[position].chosen
+                if (recycleListAlgorithmNames[position].status == Status.DEFAULT) {
+                    recycleListAlgorithmNames[position].status = Status.CHOSEN
+                } else if (recycleListAlgorithmNames[position].status == Status.CHOSEN) {
+                    recycleListAlgorithmNames[position].status = Status.DEFAULT
+                }
                 algorithmOrderedNamesAdapter.notifyItemChanged(position)
             })
 
+        //USER     NAME
+        userOrderedNamesAdapter = UserItemListAdapter(
+            recycleListUserNames,
+            { position ->
+                Log.d(
+                    "DELETE",
+                    "listing from recycleListUserNames: ${recycleListUserNames.map { it.value }}"
+                )
+                recycleListUserNames[position].algorithmItem.type = Type.UNDEFINED
+                recycleListUserNames[position].algorithmItem.status = Status.DEFAULT
 
-        binding.recyclerViewThree.adapter = algorithmOrderedPricesAdapter
-        binding.recyclerViewThree.layoutManager =
+                Log.d(
+                    "DELETE",
+                    "deleting from recycleListUserNames: ${recycleListUserNames.map { it.value }}"
+                )
+                recycleListUserNames.removeAt(position)
+                userOrderedNamesAdapter.notifyItemRemoved(position)
+                algorithmOrderedNamesAdapter.notifyDataSetChanged()
+                algorithmOrderedPricesAdapter.notifyDataSetChanged()
+
+            }, { position ->
+                //edycja
+            })
+
+        //USER     PRICE
+        userOrderedPricesAdapter = UserItemListAdapter(
+            recycleListUserPrices,
+            { position ->
+                Log.d(
+                    "DELETE",
+                    "listing from recycleListUserPrices: ${recycleListUserPrices.map { it.value }}"
+                )
+                recycleListUserPrices[position].algorithmItem.type = Type.UNDEFINED
+                recycleListUserPrices[position].algorithmItem.status = Status.DEFAULT
+
+                Log.d(
+                    "DELETE",
+                    "deleting from recycleListUserPrices: ${recycleListUserPrices.map { it.value }}"
+                )
+                recycleListUserPrices.removeAt(position)
+                userOrderedPricesAdapter.notifyItemRemoved(position)
+                algorithmOrderedNamesAdapter.notifyDataSetChanged()
+                algorithmOrderedPricesAdapter.notifyDataSetChanged()
+
+            }, { position ->
+                //edycja
+            })
+
+        binding.recyclerViewUserName.adapter = userOrderedNamesAdapter
+        binding.recyclerViewUserName.layoutManager =
             NonScrollableGridLayoutManager(requireContext(), 1)
-        binding.recyclerViewFour.adapter = algorithmOrderedNamesAdapter
-        binding.recyclerViewFour.layoutManager = NonScrollableGridLayoutManager(requireContext(), 1)
+        binding.recyclerViewUserPrice.adapter = userOrderedPricesAdapter
+        binding.recyclerViewUserPrice.layoutManager =
+            NonScrollableGridLayoutManager(requireContext(), 1)
+
+        binding.recyclerViewAlgorithmName.adapter = algorithmOrderedPricesAdapter
+        binding.recyclerViewAlgorithmName.layoutManager =
+            NonScrollableGridLayoutManager(requireContext(), 1)
+        binding.recyclerViewAlgorithmPrice.adapter = algorithmOrderedNamesAdapter
+        binding.recyclerViewAlgorithmPrice.layoutManager =
+            NonScrollableGridLayoutManager(requireContext(), 1)
 
         binding.resetButton.setOnClickListener {
 
@@ -158,19 +292,19 @@ open class ExperimentRecycleFragment : Fragment() {
         }
 
         binding.confirmButton.setOnClickListener {
-            val namePricePairs = arrayListOf<String>()
-            for (i in 0..recycleListPrices.lastIndex step 2) {
-                var value = recycleListPrices[i].value
-                if (i + 1 <= recycleListPrices.lastIndex) {
-                    value += " " + recycleListPrices[i + 1].value
-                }
-                if (value != "") {
-                    namePricePairs.add(value)
-                }
-            }
-            namePricePairs.forEach { Log.d("ImageProcess", it) }
-            receiptDataViewModel.product.value = receiptParser.parseToProducts(namePricePairs)
-            Navigation.findNavController(binding.root).popBackStack()
+//            val namePricePairs = arrayListOf<String>()
+//            for (i in 0..recycleListAlgorithmPrices.lastIndex step 2) {
+//                var value = recycleListAlgorithmPrices[i].value
+//                if (i + 1 <= recycleListAlgorithmPrices.lastIndex) {
+//                    value += " " + recycleListPrices[i + 1].value
+//                }
+//                if (value != "") {
+//                    namePricePairs.add(value)
+//                }
+//            }
+//            namePricePairs.forEach { Log.d("ImageProcess", it) }
+//            receiptDataViewModel.product.value = receiptParser.parseToProducts(namePricePairs)
+//            Navigation.findNavController(binding.root).popBackStack()
         }
     }
 
@@ -185,12 +319,14 @@ open class ExperimentRecycleFragment : Fragment() {
         when (action) {
             DELETE -> {
                 val leftSide =
-                    recycleListPrices.filterIndexed { index, _ -> index % 2 == 0 }.toMutableList()
+                    recycleListAlgorithmPrices.filterIndexed { index, _ -> index % 2 == 0 }
+                        .toMutableList()
                 val rightSide =
-                    recycleListPrices.filterIndexed { index, _ -> index % 2 == 1 }.toMutableList()
+                    recycleListAlgorithmPrices.filterIndexed { index, _ -> index % 2 == 1 }
+                        .toMutableList()
 
                 val indicesDescending = checkedElements.sortedDescending()
-                val newList = mutableListOf<ExperimentalAdapterArgument>()
+                val newList = mutableListOf<AlgorithmItemAdapterArgument>()
 
                 indicesDescending.forEach {
                     if (it % 2 == 0) {
@@ -203,19 +339,19 @@ open class ExperimentRecycleFragment : Fragment() {
                     if (i <= leftSide.lastIndex) {
                         newList.add(leftSide[i])
                     } else {
-                        newList.add(ExperimentalAdapterArgument())
+                        newList.add(AlgorithmItemAdapterArgument())
                     }
                     if (i <= rightSide.lastIndex) {
                         newList.add(rightSide[i])
                     } else {
-                        newList.add(ExperimentalAdapterArgument())
+                        newList.add(AlgorithmItemAdapterArgument())
                     }
                 }
                 algorithmOrderedPricesAdapter.setNewData(newList)
             }
 
             SWAP -> {
-                val newList = recycleListPrices.toMutableList()
+                val newList = recycleListAlgorithmPrices.toMutableList()
                 for (i in 1..checkedElements.lastIndex step 2) {
                     Collections.swap(newList, checkedElements[i - 1], checkedElements[i])
                 }
@@ -223,22 +359,22 @@ open class ExperimentRecycleFragment : Fragment() {
             }
 
             CLEAR -> {
-                val newList = recycleListPrices.toMutableList()
+                val newList = recycleListAlgorithmPrices.toMutableList()
                 for (i in checkedElements.lastIndex downTo 0) {
                     newList[checkedElements[i]] =
-                        ExperimentalAdapterArgument(" ", newList[checkedElements[i]].type)
+                        AlgorithmItemAdapterArgument(" ", newList[checkedElements[i]].type)
                 }
                 algorithmOrderedPricesAdapter.setNewData(newList)
             }
 
             MERGE -> {
-                val newList = recycleListPrices.toMutableList()
+                val newList = recycleListAlgorithmPrices.toMutableList()
                 val firstIndex = checkedElements[0]
                 var text = ""
                 for (i in checkedElements.lastIndex downTo 0) {
                     text = newList[checkedElements[i]].value + " " + text
                 }
-                newList[firstIndex] = ExperimentalAdapterArgument(text, newList[firstIndex].type)
+                newList[firstIndex] = AlgorithmItemAdapterArgument(text, newList[firstIndex].type)
                 checkedElements.remove(firstIndex)
                 val indicesDescending = checkedElements.sortedDescending()
                 indicesDescending.forEach {
@@ -256,10 +392,10 @@ open class ExperimentRecycleFragment : Fragment() {
 
     private fun uncheckAll() {
         checkedElementsCounter = 0
-        val newList = arrayListOf<ExperimentalAdapterArgument>()
-        recycleListPrices.forEach { item ->
-            val argument = ExperimentalAdapterArgument(item)
-            argument.chosen = false
+        val newList = arrayListOf<AlgorithmItemAdapterArgument>()
+        recycleListAlgorithmPrices.forEach { item ->
+            val argument = AlgorithmItemAdapterArgument(item)
+            argument.status = Status.DEFAULT
             argument.number = 0
             newList.add(argument)
         }
@@ -271,8 +407,8 @@ open class ExperimentRecycleFragment : Fragment() {
         for (i in 1..checkedElementsCounter) {
             list.add(0)
         }
-        for (i in 0..recycleListPrices.lastIndex) {
-            val currentNumber = recycleListPrices[i].number
+        for (i in 0..recycleListAlgorithmPrices.lastIndex) {
+            val currentNumber = recycleListAlgorithmPrices[i].number
             if (currentNumber > 0) {
                 list[currentNumber - 1] = i
             }

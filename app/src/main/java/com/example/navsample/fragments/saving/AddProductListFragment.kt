@@ -22,7 +22,7 @@ import com.example.navsample.ItemClickListener
 import com.example.navsample.R
 import com.example.navsample.adapters.ProductListAdapter
 import com.example.navsample.databinding.FragmentAddProductListBinding
-import com.example.navsample.dto.ExperimentalAdapterArgument
+import com.example.navsample.dto.AlgorithmItemAdapterArgument
 import com.example.navsample.exception.NoReceiptIdException
 import com.example.navsample.exception.NoStoreIdException
 import com.example.navsample.fragments.dialogs.DeleteConfirmationDialog
@@ -92,9 +92,9 @@ class AddProductListFragment : Fragment(), ItemClickListener {
                 receiptDataViewModel.product.value = imageAnalyzer.productList
 
                 receiptDataViewModel.algorithmOrderedNames.value =
-                    imageAnalyzer.receiptNameLines.map { ExperimentalAdapterArgument(it) } as ArrayList<ExperimentalAdapterArgument>
+                    imageAnalyzer.receiptNameLines.map { AlgorithmItemAdapterArgument(it) } as ArrayList<AlgorithmItemAdapterArgument>
                 receiptDataViewModel.algorithmOrderedPrices.value =
-                    imageAnalyzer.receiptPriceLines.map { ExperimentalAdapterArgument(it) } as ArrayList<ExperimentalAdapterArgument>
+                    imageAnalyzer.receiptPriceLines.map { AlgorithmItemAdapterArgument(it) } as ArrayList<AlgorithmItemAdapterArgument>
                 receiptDataViewModel.reorderedProductTiles.value = true
             }
         }

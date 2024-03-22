@@ -1,29 +1,23 @@
 package com.example.navsample.adapters
 
-import android.graphics.Color
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
-import com.example.navsample.DiffUtilCallback
+import com.example.navsample.AlgorithmDiffUtilCallback
 import com.example.navsample.databinding.RowExperimentBinding
-import com.example.navsample.dto.ExperimentalAdapterArgument
+import com.example.navsample.dto.AlgorithmItemAdapterArgument
+import com.example.navsample.dto.SortingElementColor
+import com.example.navsample.dto.Status
 import com.example.navsample.dto.Type
 
-class ExperimentalListAdapter(
-    var recycleList: ArrayList<ExperimentalAdapterArgument>,
+class AlgorithmItemListAdapter(
+    var recycleList: ArrayList<AlgorithmItemAdapterArgument>,
     private var onClick: (Int) -> Unit,
     private var onLongClick: (Int) -> Unit,
-) : RecyclerView.Adapter<ExperimentalListAdapter.MyViewHolder>() {
-    companion object {
-        val INACTIVE = Color.rgb(140, 140, 140)
-        val ACTIVE = Color.rgb(160, 125, 215)
+) : RecyclerView.Adapter<AlgorithmItemListAdapter.MyViewHolder>() {
 
-        val PRICE = Color.rgb(0, 0, 255)
-        val PRODUCT = Color.rgb(0, 255, 0)
-        val UNCHECKED = Color.rgb(200, 200, 200)
-    }
 
     class MyViewHolder(val binding: RowExperimentBinding) : RecyclerView.ViewHolder(binding.root)
 
@@ -37,22 +31,27 @@ class ExperimentalListAdapter(
         holder.binding.textView.text = recycleList[holder.adapterPosition].value
         holder.binding.counter.text = recycleList[holder.adapterPosition].number.toString()
 
-        when (recycleList[holder.adapterPosition].chosen) {
-            true -> {
-                holder.binding.mainLayout.setBackgroundColor(ACTIVE)
+        when (recycleList[holder.adapterPosition].status) {
+            Status.CHOSEN -> {
+                holder.binding.mainLayout.setBackgroundColor(SortingElementColor.CHOSEN)
                 holder.binding.counter.visibility = View.VISIBLE
             }
 
-            false -> {
-                holder.binding.mainLayout.setBackgroundColor(INACTIVE)
+            Status.DEFAULT -> {
+                holder.binding.mainLayout.setBackgroundColor(SortingElementColor.DEFAULT)
+                holder.binding.counter.visibility = View.INVISIBLE
+            }
+
+            Status.BLOCKED -> {
+                holder.binding.mainLayout.setBackgroundColor(SortingElementColor.BLOCKED)
                 holder.binding.counter.visibility = View.INVISIBLE
             }
         }
 
         when (recycleList[holder.adapterPosition].type) {
-            Type.NAME -> holder.binding.typeColor.setBackgroundColor(PRODUCT)
-            Type.PRICE -> holder.binding.typeColor.setBackgroundColor(PRICE)
-            else -> holder.binding.typeColor.setBackgroundColor(UNCHECKED)
+            Type.NAME -> holder.binding.typeColor.setBackgroundColor(SortingElementColor.NAME)
+            Type.PRICE -> holder.binding.typeColor.setBackgroundColor(SortingElementColor.PRICE)
+            else -> holder.binding.typeColor.setBackgroundColor(SortingElementColor.UNCHECKED)
         }
 
         holder.binding.mainLayout.setOnClickListener {
@@ -69,13 +68,13 @@ class ExperimentalListAdapter(
         return recycleList.size
     }
 
-    fun setData(data: ArrayList<ExperimentalAdapterArgument>) {
+    fun setData(data: ArrayList<AlgorithmItemAdapterArgument>) {
         recycleList = data
     }
 
     // add new data
-    fun setNewData(newData: MutableList<ExperimentalAdapterArgument>) {
-        val diffCallback = DiffUtilCallback(recycleList, newData)
+    fun setNewData(newData: MutableList<AlgorithmItemAdapterArgument>) {
+        val diffCallback = AlgorithmDiffUtilCallback(recycleList, newData)
         val diffResult = DiffUtil.calculateDiff(diffCallback)
         recycleList.clear()
         recycleList.addAll(newData)

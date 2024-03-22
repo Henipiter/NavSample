@@ -1,11 +1,11 @@
 package com.example.navsample
 
 import androidx.recyclerview.widget.DiffUtil
-import com.example.navsample.dto.ExperimentalAdapterArgument
+import com.example.navsample.dto.AlgorithmItemAdapterArgument
 
-class DiffUtilCallback(
-    private val oldList: List<ExperimentalAdapterArgument>,
-    private val newList: List<ExperimentalAdapterArgument>,
+class AlgorithmDiffUtilCallback(
+    private val oldList: List<AlgorithmItemAdapterArgument>,
+    private val newList: List<AlgorithmItemAdapterArgument>,
 ) :
     DiffUtil.Callback() {
 
@@ -27,6 +27,6 @@ class DiffUtilCallback(
         val oldItem = oldList[oldItemPosition]
         val newItem = newList[newItemPosition]
 
-        return oldItem.chosen == newItem.chosen && oldItem.value == newItem.value && oldItem.number == newItem.number
+        return oldItem.status == newItem.status && oldItem.value == newItem.value && oldItem.number == newItem.number
     }
 }
