@@ -50,13 +50,32 @@
             android:text="Price only" />
     </RadioGroup>
 
+    <Space
+        android:id="@+id/centerRadio"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintBottom_toBottomOf="@+id/radioGroup"
+        app:layout_constraintEnd_toEndOf="@+id/radioGroup"
+        app:layout_constraintStart_toStartOf="@+id/radioGroup"
+        app:layout_constraintTop_toTopOf="@+id/radioGroup" />
+
     <View
-        android:id="@+id/mode_color"
+        android:id="@+id/price_mode_color"
         android:layout_width="0dp"
         android:layout_height="4dp"
         android:layout_centerInParent="true"
-        android:background="#BBBBBB"
+        android:background="#0000FF"
         app:layout_constraintEnd_toEndOf="@id/radioGroup"
+        app:layout_constraintStart_toStartOf="@id/centerRadio"
+        app:layout_constraintTop_toTopOf="@+id/radioGroup" />
+
+    <View
+        android:id="@+id/name_mode_color"
+        android:layout_width="0dp"
+        android:layout_height="4dp"
+        android:layout_centerInParent="true"
+        android:background="#00FF00"
+        app:layout_constraintEnd_toEndOf="@id/centerRadio"
         app:layout_constraintStart_toStartOf="@id/radioGroup"
         app:layout_constraintTop_toTopOf="@+id/radioGroup" />
 
@@ -145,10 +164,11 @@
         app:layout_constraintStart_toStartOf="parent">
 
         <GridLayout
+            android:id="@+id/edit_grid"
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:columnCount="6"
-            app:layout_constraintBottom_toTopOf="@id/reset_button">
+            app:layout_constraintBottom_toTopOf="@id/button_section">
 
             <androidx.cardview.widget.CardView
                 android:id="@+id/swap_selected_button"
@@ -269,36 +289,52 @@
 
         </GridLayout>
 
-        <Button
-            android:id="@+id/confirm_button"
-            android:layout_width="120dp"
+        <LinearLayout
+            android:id="@+id/button_section"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginHorizontal="8dp"
-            android:layout_marginVertical="8dp"
-            android:text="Confirm"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent" />
+            android:orientation="horizontal"
+            app:layout_constraintBottom_toBottomOf="parent">
 
-        <Button
-            android:id="@+id/unselect_all_button2"
-            android:layout_width="120dp"
-            android:layout_height="wrap_content"
-            android:layout_marginHorizontal="8dp"
-            android:layout_marginVertical="8dp"
-            android:text="Unselect"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toStartOf="@+id/confirm_button"
-            app:layout_constraintStart_toEndOf="@+id/reset_button" />
 
-        <Button
-            android:id="@+id/reset_button"
-            android:layout_width="120dp"
-            android:layout_height="wrap_content"
-            android:layout_marginHorizontal="8dp"
-            android:layout_marginVertical="8dp"
-            android:text="Reset"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintStart_toStartOf="parent" />
+            <Button
+                android:id="@+id/confirm_button"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="8dp"
+                android:layout_marginVertical="8dp"
+                android:layout_weight="1"
+                android:text="Confirm" />
+
+            <Button
+                android:id="@+id/cancel_button"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="8dp"
+                android:layout_marginVertical="8dp"
+                android:layout_weight="1"
+                android:text="Cancel"
+                android:visibility="gone" />
+
+            <Button
+                android:id="@+id/edit_button"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="8dp"
+                android:layout_marginVertical="8dp"
+                android:layout_weight="1"
+                android:text="Edit" />
+
+            <Button
+                android:id="@+id/reset_button"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="8dp"
+                android:layout_marginVertical="8dp"
+                android:layout_weight="1"
+                android:text="Reset" />
+        </LinearLayout>
+
     </androidx.constraintlayout.widget.ConstraintLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
