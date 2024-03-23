@@ -3,11 +3,13 @@
 package com.example.navsample.fragments
 
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
+import androidx.navigation.Navigation
 import com.example.navsample.NonScrollableGridLayoutManager
 import com.example.navsample.ReceiptParser
 import com.example.navsample.adapters.AlgorithmItemListAdapter
@@ -28,6 +30,7 @@ import com.example.navsample.dto.UserItemAdapterArgument
 import com.example.navsample.fragments.dialogs.EditTextDialog
 import com.example.navsample.viewmodels.ReceiptDataViewModel
 import com.example.navsample.viewmodels.ReceiptImageViewModel
+import kotlin.math.max
 
 open class ExperimentRecycleFragment : Fragment() {
     private var _binding: FragmentExperimentRecycleBinding? = null
@@ -244,10 +247,9 @@ open class ExperimentRecycleFragment : Fragment() {
 
     private fun readList() {
         recycleListAlgorithmNames =
-            receiptDataViewModel.algorithmOrderedNames.value?.let { ArrayList(it) } ?: arrayListOf()
+            createDeepCopyOfAlgorithmElements(receiptDataViewModel.algorithmOrderedNames.value)
         recycleListAlgorithmPrices =
-            receiptDataViewModel.algorithmOrderedPrices.value?.let { ArrayList(it) }
-                ?: arrayListOf()
+            createDeepCopyOfAlgorithmElements(receiptDataViewModel.algorithmOrderedPrices.value)
         recycleListUserNames =
             receiptDataViewModel.userOrderedName.value?.let { ArrayList(it) } ?: arrayListOf()
         recycleListUserPrices =
@@ -299,20 +301,17 @@ open class ExperimentRecycleFragment : Fragment() {
             NonScrollableGridLayoutManager(requireContext(), 1)
 
         binding.resetButton.setOnClickListener {
-
-            val newPricesList = receiptDataViewModel.algorithmOrderedPrices.value?.let {
-                ArrayList(it)
-            } ?: arrayListOf()
-            algorithmOrderedPricesAdapter.setNewData(newPricesList)
-            val newNamesList = receiptDataViewModel.algorithmOrderedNames.value?.let {
-                ArrayList(it)
-            } ?: arrayListOf()
-            algorithmOrderedNamesAdapter.setNewData(newNamesList)
+            algorithmOrderedPricesAdapter.setNewData(
+                createDeepCopyOfAlgorithmElements(receiptDataViewModel.algorithmOrderedPrices.value)
+            )
+            algorithmOrderedNamesAdapter.setNewData(
+                createDeepCopyOfAlgorithmElements(receiptDataViewModel.algorithmOrderedNames.value)
+            )
             userOrderedNamesAdapter.setNewData(arrayListOf())
             userOrderedPricesAdapter.setNewData(arrayListOf())
 
             uncheckAll()
-            setDefaulStatustAll()
+            setDefaultStatustAll()
         }
 
         binding.cancelButton.setOnClickListener {
@@ -344,20 +343,47 @@ open class ExperimentRecycleFragment : Fragment() {
         }
 
         binding.confirmButton.setOnClickListener {
-//            val namePricePairs = arrayListOf<String>()
-//            for (i in 0..recycleListAlgorithmPrices.lastIndex step 2) {
-//                var value = recycleListAlgorithmPrices[i].value
-//                if (i + 1 <= recycleListAlgorithmPrices.lastIndex) {
-//                    value += " " + recycleListPrices[i + 1].value
-//                }
-//                if (value != "") {
-//                    namePricePairs.add(value)
-//                }
-//            }
-//            namePricePairs.forEach { Log.d("ImageProcess", it) }
-//            receiptDataViewModel.product.value = receiptParser.parseToProducts(namePricePairs)
-//            Navigation.findNavController(binding.root).popBackStack()
+            val namePricePairs =
+                prepareListWithGivenSize(max(recycleListUserPrices.size, recycleListUserNames.size))
+            recycleListUserNames.forEachIndexed { index, item ->
+                namePricePairs[index] += item.value
+            }
+            recycleListUserPrices.forEachIndexed { index, item ->
+                if (namePricePairs[index].isNotEmpty()) {
+                    namePricePairs[index] += " "
+                }
+                namePricePairs[index] += item.value
+            }
+            receiptDataViewModel.algorithmOrderedNames.value =
+                createAlgorithmElementsFromUserElements(recycleListUserNames)
+            receiptDataViewModel.algorithmOrderedPrices.value =
+                createAlgorithmElementsFromUserElements(recycleListUserPrices)
+            namePricePairs.forEach { Log.d("EEEE", it) }
+            receiptDataViewModel.product.value = receiptParser.parseToProducts(namePricePairs)
+            Navigation.findNavController(binding.root).popBackStack()
         }
+    }
+
+    private fun createDeepCopyOfAlgorithmElements(list: List<AlgorithmItemAdapterArgument>?): ArrayList<AlgorithmItemAdapterArgument> {
+        if (list == null) {
+            return arrayListOf()
+        }
+        val newList = ArrayList<AlgorithmItemAdapterArgument>()
+        list.forEach {
+            newList.add(AlgorithmItemAdapterArgument(it))
+        }
+        return newList
+    }
+
+    private fun createAlgorithmElementsFromUserElements(list: List<UserItemAdapterArgument>?): ArrayList<AlgorithmItemAdapterArgument> {
+        if (list == null) {
+            return arrayListOf()
+        }
+        val newList = ArrayList<AlgorithmItemAdapterArgument>()
+        list.forEach {
+            newList.add(AlgorithmItemAdapterArgument(it.value))
+        }
+        return newList
     }
 
     private fun findIndex(
@@ -572,7 +598,7 @@ open class ExperimentRecycleFragment : Fragment() {
         }
     }
 
-    private fun setDefaulStatustAll() {
+    private fun setDefaultStatustAll() {
         recycleListAlgorithmPrices.forEachIndexed { position, item ->
             item.status = Status.DEFAULT
             item.number = -1
