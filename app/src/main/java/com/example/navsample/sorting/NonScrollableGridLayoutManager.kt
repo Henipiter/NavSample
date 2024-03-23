@@ -1,4 +1,4 @@
-package com.example.navsample
+package com.example.navsample.sorting
 
 import android.content.Context
 import androidx.recyclerview.widget.GridLayoutManager

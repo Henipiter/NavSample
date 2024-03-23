@@ -11,7 +11,6 @@ import androidx.fragment.app.activityViewModels
 import androidx.navigation.Navigation
 import androidx.navigation.fragment.navArgs
 import com.example.navsample.R
-import com.example.navsample.ReceiptParser
 import com.example.navsample.adapters.CategoryDropdownAdapter
 import com.example.navsample.databinding.FragmentAddProductBinding
 import com.example.navsample.entities.Category
@@ -19,6 +18,7 @@ import com.example.navsample.entities.Product
 import com.example.navsample.exception.NoCategoryIdException
 import com.example.navsample.exception.NoReceiptIdException
 import com.example.navsample.exception.NoStoreIdException
+import com.example.navsample.imageanalyzer.ReceiptParser
 import com.example.navsample.viewmodels.ReceiptDataViewModel
 import com.example.navsample.viewmodels.ReceiptImageViewModel
 import kotlin.math.round

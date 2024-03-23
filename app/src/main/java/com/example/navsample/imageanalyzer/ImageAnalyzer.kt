@@ -1,12 +1,9 @@
-package com.example.navsample
+package com.example.navsample.imageanalyzer
 
 
 import android.util.Log
 import androidx.camera.core.ExperimentalGetImage
 import com.example.navsample.entities.Product
-import com.example.navsample.imageanalyzer.DataReader
-import com.example.navsample.imageanalyzer.ImageKeywordAnalyzer
-import com.example.navsample.imageanalyzer.ImageProductAnalyzer
 import com.google.mlkit.vision.common.InputImage
 import com.google.mlkit.vision.text.Text
 import com.google.mlkit.vision.text.TextRecognition

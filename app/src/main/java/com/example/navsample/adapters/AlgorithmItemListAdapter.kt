@@ -5,12 +5,12 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
-import com.example.navsample.AlgorithmDiffUtilCallback
 import com.example.navsample.databinding.RowExperimentBinding
 import com.example.navsample.dto.AlgorithmItemAdapterArgument
 import com.example.navsample.dto.SortingElementColor
 import com.example.navsample.dto.Status
 import com.example.navsample.dto.Type
+import com.example.navsample.sorting.AlgorithmDiffUtilCallback
 
 class AlgorithmItemListAdapter(
     var recycleList: ArrayList<AlgorithmItemAdapterArgument>,

@@ -7,11 +7,11 @@ import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import com.example.navsample.R
-import com.example.navsample.UserDiffUtilCallback
 import com.example.navsample.databinding.RowExperimentBinding
 import com.example.navsample.dto.SortingElementColor
 import com.example.navsample.dto.Type
 import com.example.navsample.dto.UserItemAdapterArgument
+import com.example.navsample.sorting.UserDiffUtilCallback
 
 class UserItemListAdapter(
     var context: Context,

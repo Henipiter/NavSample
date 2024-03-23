@@ -10,24 +10,22 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.navigation.Navigation
-import com.example.navsample.NonScrollableGridLayoutManager
-import com.example.navsample.ReceiptParser
 import com.example.navsample.adapters.AlgorithmItemListAdapter
 import com.example.navsample.adapters.UserItemListAdapter
 import com.example.navsample.databinding.FragmentExperimentRecycleBinding
-import com.example.navsample.dto.Action
-import com.example.navsample.dto.Action.CLEAR
-import com.example.navsample.dto.Action.DELETE
-import com.example.navsample.dto.Action.EDIT
-import com.example.navsample.dto.Action.MERGE
-import com.example.navsample.dto.Action.NONE
-import com.example.navsample.dto.Action.SWAP
 import com.example.navsample.dto.AlgorithmItemAdapterArgument
+import com.example.navsample.dto.SortingElementAction
+import com.example.navsample.dto.SortingElementAction.CLEAR
+import com.example.navsample.dto.SortingElementAction.DELETE
+import com.example.navsample.dto.SortingElementAction.MERGE
+import com.example.navsample.dto.SortingElementAction.SWAP
 import com.example.navsample.dto.SortingElementMode
 import com.example.navsample.dto.Status
 import com.example.navsample.dto.Type
 import com.example.navsample.dto.UserItemAdapterArgument
 import com.example.navsample.fragments.dialogs.EditTextDialog
+import com.example.navsample.imageanalyzer.ReceiptParser
+import com.example.navsample.sorting.NonScrollableGridLayoutManager
 import com.example.navsample.viewmodels.ReceiptDataViewModel
 import com.example.navsample.viewmodels.ReceiptImageViewModel
 import kotlin.math.max
@@ -410,15 +408,14 @@ open class ExperimentRecycleFragment : Fragment() {
         }
     }
 
-    private fun runActionView(action: Action) {
+    private fun runActionView(sortingElementAction: SortingElementAction) {
         if (checkedElementsCounter > 0) {
-            execute(action)
+            execute(sortingElementAction)
         }
-//        uncheckAll()
     }
 
-    private fun execute(action: Action) {
-        when (action) {
+    private fun execute(sortingElementAction: SortingElementAction) {
+        when (sortingElementAction) {
             DELETE -> {
                 for (i in recycleListAlgorithmPrices.lastIndex downTo 0) {
                     if (recycleListAlgorithmPrices[i].status != Status.CHOSEN) {
@@ -588,9 +585,6 @@ open class ExperimentRecycleFragment : Fragment() {
                 }
                 checkedElementsCounter = 0
             }
-
-            EDIT -> {}
-            NONE -> {}
         }
 
     }

@@ -1,4 +1,4 @@
-package com.example.navsample
+package com.example.navsample.imageanalyzer
 
 import com.example.navsample.entities.Product
 

@@ -1,5 +1,6 @@
 package com.example.navsample
 
+import com.example.navsample.imageanalyzer.ReceiptParser
 import org.junit.jupiter.api.Assertions.assertAll
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test

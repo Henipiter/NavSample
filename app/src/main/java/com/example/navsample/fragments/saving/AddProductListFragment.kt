@@ -17,7 +17,6 @@ import com.canhub.cropper.CropImage
 import com.canhub.cropper.CropImageContract
 import com.canhub.cropper.CropImageContractOptions
 import com.canhub.cropper.CropImageOptions
-import com.example.navsample.ImageAnalyzer
 import com.example.navsample.ItemClickListener
 import com.example.navsample.R
 import com.example.navsample.adapters.ProductListAdapter
@@ -26,6 +25,7 @@ import com.example.navsample.dto.AlgorithmItemAdapterArgument
 import com.example.navsample.exception.NoReceiptIdException
 import com.example.navsample.exception.NoStoreIdException
 import com.example.navsample.fragments.dialogs.DeleteConfirmationDialog
+import com.example.navsample.imageanalyzer.ImageAnalyzer
 import com.example.navsample.viewmodels.ReceiptDataViewModel
 import com.example.navsample.viewmodels.ReceiptImageViewModel
 import com.google.mlkit.vision.common.InputImage
