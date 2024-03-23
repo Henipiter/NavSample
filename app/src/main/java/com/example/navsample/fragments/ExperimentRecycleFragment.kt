@@ -111,10 +111,10 @@ open class ExperimentRecycleFragment : Fragment() {
         )
         if (currentType == Type.PRICE) {
             recycleListUserPrices.add(userItemAdapterArgument)
-            userOrderedPricesAdapter.notifyItemChanged(recycleListUserPrices.lastIndex)
+            userOrderedPricesAdapter.notifyItemInserted(recycleListUserPrices.lastIndex)
         } else {
             recycleListUserNames.add(userItemAdapterArgument)
-            userOrderedNamesAdapter.notifyItemChanged(recycleListUserPrices.lastIndex)
+            userOrderedNamesAdapter.notifyItemInserted(recycleListUserNames.lastIndex)
         }
         item.status = Status.BLOCKED
     }
@@ -311,13 +311,14 @@ open class ExperimentRecycleFragment : Fragment() {
             userOrderedPricesAdapter.setNewData(arrayListOf())
 
             uncheckAll()
-            setDefaultStatustAll()
+            setDefaultStatusAll()
         }
 
         binding.cancelButton.setOnClickListener {
             binding.editButton.visibility = View.VISIBLE
             binding.cancelButton.visibility = View.GONE
             binding.editGrid.visibility = View.GONE
+            binding.relativeLayout1.visibility = View.VISIBLE
             editingMode = false
             uncheckAll()
         }
@@ -325,6 +326,7 @@ open class ExperimentRecycleFragment : Fragment() {
             binding.editButton.visibility = View.GONE
             binding.cancelButton.visibility = View.VISIBLE
             binding.editGrid.visibility = View.VISIBLE
+            binding.relativeLayout1.visibility = View.GONE
             editingMode = true
         }
 
@@ -419,16 +421,18 @@ open class ExperimentRecycleFragment : Fragment() {
         when (action) {
             DELETE -> {
                 for (i in recycleListAlgorithmPrices.lastIndex downTo 0) {
-                    if (recycleListAlgorithmPrices[i].number >= 0) {
-                        recycleListAlgorithmPrices.removeAt(i)
-                        algorithmOrderedPricesAdapter.notifyItemRemoved(i)
+                    if (recycleListAlgorithmPrices[i].status != Status.CHOSEN) {
+                        continue
                     }
+                    recycleListAlgorithmPrices.removeAt(i)
+                    algorithmOrderedPricesAdapter.notifyItemRemoved(i)
                 }
                 for (i in recycleListAlgorithmNames.lastIndex downTo 0) {
-                    if (recycleListAlgorithmNames[i].number >= 0) {
-                        recycleListAlgorithmNames.removeAt(i)
-                        algorithmOrderedNamesAdapter.notifyItemRemoved(i)
+                    if (recycleListAlgorithmNames[i].status != Status.CHOSEN) {
+                        continue
                     }
+                    recycleListAlgorithmNames.removeAt(i)
+                    algorithmOrderedNamesAdapter.notifyItemRemoved(i)
                 }
                 checkedElementsCounter = 0
             }
@@ -436,18 +440,23 @@ open class ExperimentRecycleFragment : Fragment() {
             SWAP -> {
                 val valueList = prepareListWithGivenSize(checkedElementsCounter)
                 //reading values
-                recycleListAlgorithmPrices.forEachIndexed { position, it ->
-                    if (it.number >= 0) {
-                        valueList[it.number] = it.value
+                recycleListAlgorithmPrices.forEach {
+                    if (it.status != Status.CHOSEN) {
+                        return@forEach
                     }
+                    valueList[it.number] = it.value
                 }
-                recycleListAlgorithmNames.forEachIndexed { position, it ->
-                    if (it.number >= 0) {
-                        valueList[it.number] = it.value
+                recycleListAlgorithmNames.forEach {
+                    if (it.status != Status.CHOSEN) {
+                        return@forEach
                     }
+                    valueList[it.number] = it.value
                 }
                 //writing values
                 recycleListAlgorithmPrices.forEachIndexed { position, it ->
+                    if (it.status != Status.CHOSEN) {
+                        return@forEachIndexed
+                    }
                     if (checkedElementsCounter % 2 == 1 && it.number == checkedElementsCounter - 1) {
                         it.number = -1
                         it.status = Status.DEFAULT
@@ -463,8 +472,12 @@ open class ExperimentRecycleFragment : Fragment() {
                         it.status = Status.DEFAULT
                         algorithmOrderedPricesAdapter.notifyItemChanged(position)
                     }
+
                 }
                 recycleListAlgorithmNames.forEachIndexed { position, it ->
+                    if (it.status != Status.CHOSEN) {
+                        return@forEachIndexed
+                    }
                     if (checkedElementsCounter % 2 == 1 && it.number == checkedElementsCounter - 1) {
                         it.number = -1
                         it.status = Status.DEFAULT
@@ -486,20 +499,24 @@ open class ExperimentRecycleFragment : Fragment() {
 
             CLEAR -> {
                 recycleListAlgorithmPrices.forEachIndexed { position, it ->
-                    if (it.number >= 0) {
-                        it.value = ""
-                        it.number = -1
-                        it.status = Status.DEFAULT
-                        algorithmOrderedPricesAdapter.notifyItemChanged(position)
+                    if (it.status != Status.CHOSEN) {
+                        return@forEachIndexed
                     }
+                    it.value = ""
+                    it.number = -1
+                    it.status = Status.DEFAULT
+                    algorithmOrderedPricesAdapter.notifyItemChanged(position)
+
                 }
                 recycleListAlgorithmNames.forEachIndexed { position, it ->
-                    if (it.number >= 0) {
-                        it.value = ""
-                        it.number = -1
-                        it.status = Status.DEFAULT
-                        algorithmOrderedNamesAdapter.notifyItemChanged(position)
+                    if (it.status != Status.CHOSEN) {
+                        return@forEachIndexed
                     }
+                    it.value = ""
+                    it.number = -1
+                    it.status = Status.DEFAULT
+                    algorithmOrderedNamesAdapter.notifyItemChanged(position)
+
                 }
                 checkedElementsCounter = 0
 
@@ -512,6 +529,9 @@ open class ExperimentRecycleFragment : Fragment() {
                 var firstElementListType = Type.UNDEFINED
 
                 recycleListAlgorithmPrices.forEachIndexed { position, it ->
+                    if (it.status != Status.CHOSEN) {
+                        return@forEachIndexed
+                    }
                     if (it.number == 0) {
                         valueList[0] = it.value
                         it.number = -1
@@ -526,6 +546,9 @@ open class ExperimentRecycleFragment : Fragment() {
                 }
 
                 recycleListAlgorithmNames.forEachIndexed { position, it ->
+                    if (it.status != Status.CHOSEN) {
+                        return@forEachIndexed
+                    }
                     if (it.number == 0) {
                         valueList[0] = it.value
                         it.number = -1
@@ -552,13 +575,13 @@ open class ExperimentRecycleFragment : Fragment() {
                     }
                 }
                 for (i in recycleListAlgorithmNames.lastIndex downTo 0) {
-                    if (recycleListAlgorithmNames[i].number > 0) {
+                    if (recycleListAlgorithmNames[i].status == Status.CHOSEN && recycleListAlgorithmNames[i].number > 0) {
                         recycleListAlgorithmNames.removeAt(i)
                         algorithmOrderedNamesAdapter.notifyItemRemoved(i)
                     }
                 }
                 for (i in recycleListAlgorithmPrices.lastIndex downTo 0) {
-                    if (recycleListAlgorithmPrices[i].number > 0) {
+                    if (recycleListAlgorithmPrices[i].status == Status.CHOSEN && recycleListAlgorithmPrices[i].number > 0) {
                         recycleListAlgorithmPrices.removeAt(i)
                         algorithmOrderedPricesAdapter.notifyItemRemoved(i)
                     }
@@ -598,7 +621,7 @@ open class ExperimentRecycleFragment : Fragment() {
         }
     }
 
-    private fun setDefaultStatustAll() {
+    private fun setDefaultStatusAll() {
         recycleListAlgorithmPrices.forEachIndexed { position, item ->
             item.status = Status.DEFAULT
             item.number = -1
