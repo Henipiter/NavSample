@@ -1,9 +1,12 @@
 package com.example.navsample.adapters
 
+import android.content.Context
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
+import com.example.navsample.R
 import com.example.navsample.UserDiffUtilCallback
 import com.example.navsample.databinding.RowExperimentBinding
 import com.example.navsample.dto.SortingElementColor
@@ -11,6 +14,7 @@ import com.example.navsample.dto.Type
 import com.example.navsample.dto.UserItemAdapterArgument
 
 class UserItemListAdapter(
+    var context: Context,
     var recycleList: ArrayList<UserItemAdapterArgument>,
     private var onClick: (Int) -> Unit,
     private var onLongClick: (Int) -> Unit,
@@ -27,8 +31,18 @@ class UserItemListAdapter(
         holder.binding.textView.text = recycleList[holder.adapterPosition].value
 
         when (recycleList[holder.adapterPosition].type) {
-            Type.NAME -> holder.binding.typeColor.setBackgroundColor(SortingElementColor.NAME)
-            Type.PRICE -> holder.binding.typeColor.setBackgroundColor(SortingElementColor.PRICE)
+            Type.NAME -> {
+                holder.binding.typeColor.setBackgroundColor(SortingElementColor.NAME)
+                holder.binding.counter.background =
+                    ContextCompat.getDrawable(context, R.drawable.rounded_corner_green)
+            }
+
+            Type.PRICE -> {
+                holder.binding.typeColor.setBackgroundColor(SortingElementColor.PRICE)
+                holder.binding.counter.background =
+                    ContextCompat.getDrawable(context, R.drawable.rounded_corner_blue)
+            }
+
             else -> holder.binding.typeColor.setBackgroundColor(SortingElementColor.UNCHECKED)
         }
 

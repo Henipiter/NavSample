@@ -6,9 +6,9 @@ data class AlgorithmItemAdapterArgument(
     var type: Type,
     var number: Int,
 ) {
-    constructor(value: String) : this(value, Status.DEFAULT, Type.UNDEFINED, 0)
-    constructor(value: String, type: Type) : this(value, Status.DEFAULT, type, 0)
-    constructor() : this("", Status.DEFAULT, Type.NAME, 0)
+    constructor(value: String) : this(value, Status.DEFAULT, Type.UNDEFINED, -1)
+    constructor(value: String, type: Type) : this(value, Status.DEFAULT, type, -1)
+    constructor() : this("", Status.DEFAULT, Type.NAME, -1)
     constructor(argument: AlgorithmItemAdapterArgument) : this(
         argument.value,
         argument.status,

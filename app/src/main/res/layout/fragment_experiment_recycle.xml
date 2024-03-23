@@ -84,11 +84,11 @@
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_marginBottom="2dp"
+        android:background="@color/purple_200"
         android:paddingBottom="4dp"
         app:layout_constraintBottom_toTopOf="@+id/space"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        android:background="@color/purple_200"
         app:layout_constraintTop_toBottomOf="@+id/radioGroup">
 
         <LinearLayout
@@ -125,12 +125,12 @@
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_marginTop="2dp"
+        android:background="@color/purple_500"
         android:paddingTop="4dp"
         app:layout_constraintBottom_toTopOf="@+id/buttons_layout"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/space"
-        android:background="@color/purple_500">
+        app:layout_constraintTop_toBottomOf="@+id/space">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -298,13 +298,13 @@
 
 
             <Button
-                android:id="@+id/confirm_button"
+                android:id="@+id/reset_button"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginHorizontal="8dp"
                 android:layout_marginVertical="8dp"
                 android:layout_weight="1"
-                android:text="Confirm" />
+                android:text="Reset" />
 
             <Button
                 android:id="@+id/cancel_button"
@@ -326,13 +326,13 @@
                 android:text="Edit" />
 
             <Button
-                android:id="@+id/reset_button"
+                android:id="@+id/confirm_button"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginHorizontal="8dp"
                 android:layout_marginVertical="8dp"
                 android:layout_weight="1"
-                android:text="Reset" />
+                android:text="Confirm" />
         </LinearLayout>
 
     </androidx.constraintlayout.widget.ConstraintLayout>
