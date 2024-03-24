@@ -1,7 +1,7 @@
 package com.example.navsample.sorting.operation
 
-import com.example.navsample.adapters.AlgorithmItemListAdapter
-import com.example.navsample.dto.AlgorithmItemAdapterArgument
+import com.example.navsample.adapters.sorting.AlgorithmItemListAdapter
+import com.example.navsample.dto.sorting.AlgorithmItemAdapterArgument
 
 abstract class Operation(
     var algorithmPrices: ArrayList<AlgorithmItemAdapterArgument>,
@@ -11,11 +11,13 @@ abstract class Operation(
 ) {
     abstract fun execute(checkedElementsCounter: Int)
 
-    fun prepareListWithGivenSize(size: Int): MutableList<String> {
-        val list = mutableListOf<String>()
-        for (i in 1..size) {
-            list.add("")
+    companion object {
+        fun prepareListWithGivenSize(size: Int): MutableList<String> {
+            val list = mutableListOf<String>()
+            for (i in 1..size) {
+                list.add("")
+            }
+            return list
         }
-        return list
     }
 }

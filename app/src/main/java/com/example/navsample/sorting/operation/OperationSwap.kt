@@ -1,8 +1,8 @@
 package com.example.navsample.sorting.operation
 
-import com.example.navsample.adapters.AlgorithmItemListAdapter
-import com.example.navsample.dto.AlgorithmItemAdapterArgument
+import com.example.navsample.adapters.sorting.AlgorithmItemListAdapter
 import com.example.navsample.dto.Status
+import com.example.navsample.dto.sorting.AlgorithmItemAdapterArgument
 
 class OperationSwap(
     algorithmPrices: ArrayList<AlgorithmItemAdapterArgument>,

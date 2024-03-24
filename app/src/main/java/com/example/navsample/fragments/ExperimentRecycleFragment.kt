@@ -9,21 +9,21 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.navigation.Navigation
-import com.example.navsample.adapters.AlgorithmItemListAdapter
-import com.example.navsample.adapters.UserItemListAdapter
+import com.example.navsample.adapters.sorting.AlgorithmItemListAdapter
+import com.example.navsample.adapters.sorting.SortingItemListAdapter
+import com.example.navsample.adapters.sorting.UserItemListAdapter
 import com.example.navsample.databinding.FragmentExperimentRecycleBinding
-import com.example.navsample.dto.AlgorithmItemAdapterArgument
 import com.example.navsample.dto.SortingElementAction
 import com.example.navsample.dto.SortingElementMode
-import com.example.navsample.dto.Status
 import com.example.navsample.dto.Type
-import com.example.navsample.dto.UserItemAdapterArgument
+import com.example.navsample.dto.sorting.AlgorithmItemAdapterArgument
+import com.example.navsample.dto.sorting.ItemAdapterArgument
+import com.example.navsample.dto.sorting.UserItemAdapterArgument
 import com.example.navsample.imageanalyzer.ReceiptParser
 import com.example.navsample.sorting.NonScrollableGridLayoutManager
 import com.example.navsample.sorting.operation.ElementOperationHelper
 import com.example.navsample.viewmodels.ReceiptDataViewModel
 import com.example.navsample.viewmodels.ReceiptImageViewModel
-import kotlin.math.max
 
 open class ExperimentRecycleFragment : Fragment() {
     private var _binding: FragmentExperimentRecycleBinding? = null
@@ -56,170 +56,6 @@ open class ExperimentRecycleFragment : Fragment() {
         return binding.root
     }
 
-    private fun initObserver() {
-        receiptImageViewModel.bitmapCropped.observe(viewLifecycleOwner) {
-            it?.let {
-                if (receiptImageViewModel.bitmapCropped.value != null) {
-                    binding.receiptImageBig.setImageBitmap(receiptImageViewModel.bitmapCropped.value)
-                }
-            }
-        }
-    }
-
-    private fun changeCurrentType(type: Type) {
-        when (type) {
-            Type.PRICE -> {
-                currentType = Type.PRICE
-                binding.priceModeColor.visibility = View.VISIBLE
-                binding.nameModeColor.visibility = View.INVISIBLE
-            }
-
-            Type.NAME -> {
-                currentType = Type.NAME
-                binding.priceModeColor.visibility = View.INVISIBLE
-                binding.nameModeColor.visibility = View.VISIBLE
-            }
-
-            else -> {}
-        }
-    }
-
-    private fun changeCurrentType() {
-        when (currentType) {
-            Type.PRICE -> {
-                currentType = Type.NAME
-                binding.priceModeColor.visibility = View.INVISIBLE
-                binding.nameModeColor.visibility = View.VISIBLE
-            }
-
-            Type.NAME -> {
-                currentType = Type.PRICE
-                binding.priceModeColor.visibility = View.VISIBLE
-                binding.nameModeColor.visibility = View.INVISIBLE
-            }
-
-            else -> {}
-        }
-    }
-
-    private fun putItemIntoRightList(item: AlgorithmItemAdapterArgument) {
-        val userItemAdapterArgument = UserItemAdapterArgument(
-            item.value, currentType, item
-        )
-        if (currentType == Type.PRICE) {
-            recycleListUserPrices.add(userItemAdapterArgument)
-            userOrderedPricesAdapter.notifyItemInserted(recycleListUserPrices.lastIndex)
-        } else {
-            recycleListUserNames.add(userItemAdapterArgument)
-            userOrderedNamesAdapter.notifyItemInserted(recycleListUserNames.lastIndex)
-        }
-        item.status = Status.BLOCKED
-    }
-
-    private fun configureAlgorithmOneClickAtDefaultMode(
-        list: List<AlgorithmItemAdapterArgument>, position: Int
-    ) {
-        list[position].type = currentType
-        putItemIntoRightList(list[position])
-        if (sortingMode == SortingElementMode.SWITCHING) {
-            changeCurrentType()
-        }
-    }
-
-    private fun configureAlgorithmOneClick(
-        list: List<AlgorithmItemAdapterArgument>, position: Int
-    ) {
-        if (list[position].type != Type.UNDEFINED) {
-            return
-        }
-        if (editingMode) {
-            elementOperationHelper.checkAndUncheckSingleElement(list, position)
-        } else {
-            configureAlgorithmOneClickAtDefaultMode(list, position)
-        }
-    }
-
-    private fun configureListAdapter() {
-        //ALGORITHM     PRICE
-        algorithmOrderedPricesAdapter = AlgorithmItemListAdapter(recycleListAlgorithmPrices,
-            { position ->
-                configureAlgorithmOneClick(recycleListAlgorithmPrices, position)
-                algorithmOrderedPricesAdapter.notifyItemChanged(position)
-            }, { position ->
-                elementOperationHelper.editSingleAlgorithmElement(
-                    position, recycleListAlgorithmPrices, algorithmOrderedPricesAdapter
-                ) { it.show(childFragmentManager, "TAG") }
-            })
-
-        //ALGORITHM     NAME
-        algorithmOrderedNamesAdapter = AlgorithmItemListAdapter(recycleListAlgorithmNames,
-            { position ->
-                configureAlgorithmOneClick(recycleListAlgorithmNames, position)
-                algorithmOrderedNamesAdapter.notifyItemChanged(position)
-            }, { position ->
-                elementOperationHelper.editSingleAlgorithmElement(
-                    position, recycleListAlgorithmNames, algorithmOrderedNamesAdapter
-                ) { it.show(childFragmentManager, "TAG") }
-            })
-
-        //USER     NAME
-        userOrderedNamesAdapter = UserItemListAdapter(recycleListUserNames,
-            { position ->
-                configureUserOneClickAtDefaultMode(
-                    recycleListUserNames, position, userOrderedNamesAdapter
-                )
-            }, { position ->
-                elementOperationHelper.editSingleUserElement(
-                    position, recycleListUserNames, userOrderedNamesAdapter
-                ) { it.show(childFragmentManager, "TAG") }
-            })
-
-        //USER     PRICE
-        userOrderedPricesAdapter = UserItemListAdapter(recycleListUserPrices,
-            { position ->
-                configureUserOneClickAtDefaultMode(
-                    recycleListUserPrices, position, userOrderedPricesAdapter
-                )
-            }, { position ->
-                elementOperationHelper.editSingleUserElement(
-                    position, recycleListUserPrices, userOrderedPricesAdapter
-                ) { it.show(childFragmentManager, "TAG") }
-            })
-
-        elementOperationHelper = ElementOperationHelper(
-            recycleListAlgorithmPrices,
-            recycleListAlgorithmNames,
-            algorithmOrderedNamesAdapter,
-            algorithmOrderedPricesAdapter,
-            recycleListUserPrices,
-            recycleListUserNames,
-            userOrderedNamesAdapter,
-            userOrderedPricesAdapter,
-        )
-    }
-
-    private fun configureUserOneClickAtDefaultMode(
-        list: ArrayList<UserItemAdapterArgument>, position: Int, adapter: UserItemListAdapter
-    ) {
-        if (position >= 0) {
-            list[position].algorithmItem.type = Type.UNDEFINED
-            list[position].algorithmItem.status = Status.DEFAULT
-            refreshAlgPosition(list[position].algorithmItem)
-            list.removeAt(position)
-            adapter.notifyItemRemoved(position)
-        }
-    }
-
-    private fun readList() {
-        recycleListAlgorithmNames =
-            createDeepCopyOfAlgorithmElements(receiptDataViewModel.algorithmOrderedNames.value)
-        recycleListAlgorithmPrices =
-            createDeepCopyOfAlgorithmElements(receiptDataViewModel.algorithmOrderedPrices.value)
-        recycleListUserNames =
-            receiptDataViewModel.userOrderedName.value?.let { ArrayList(it) } ?: arrayListOf()
-        recycleListUserPrices =
-            receiptDataViewModel.userOrderedPrices.value?.let { ArrayList(it) } ?: arrayListOf()
-    }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -286,7 +122,6 @@ open class ExperimentRecycleFragment : Fragment() {
         binding.deleteButton.setOnClickListener {
             elementOperationHelper.executeElementOperation(SortingElementAction.DELETE)
         }
-
         binding.clearButton.setOnClickListener {
             elementOperationHelper.executeElementOperation(SortingElementAction.CLEAR_VALUE)
         }
@@ -298,17 +133,7 @@ open class ExperimentRecycleFragment : Fragment() {
         }
 
         binding.confirmButton.setOnClickListener {
-            val namePricePairs =
-                prepareListWithGivenSize(max(recycleListUserPrices.size, recycleListUserNames.size))
-            recycleListUserNames.forEachIndexed { index, item ->
-                namePricePairs[index] += item.value
-            }
-            recycleListUserPrices.forEachIndexed { index, item ->
-                if (namePricePairs[index].isNotEmpty()) {
-                    namePricePairs[index] += " "
-                }
-                namePricePairs[index] += item.value
-            }
+            val namePricePairs = elementOperationHelper.convertUserElementsToLines()
             receiptDataViewModel.algorithmOrderedNames.value =
                 createAlgorithmElementsFromUserElements(recycleListUserNames)
             receiptDataViewModel.algorithmOrderedPrices.value =
@@ -316,6 +141,138 @@ open class ExperimentRecycleFragment : Fragment() {
             receiptDataViewModel.product.value = receiptParser.parseToProducts(namePricePairs)
             Navigation.findNavController(binding.root).popBackStack()
         }
+    }
+
+    private fun initObserver() {
+        receiptImageViewModel.bitmapCropped.observe(viewLifecycleOwner) {
+            it?.let {
+                if (receiptImageViewModel.bitmapCropped.value != null) {
+                    binding.receiptImageBig.setImageBitmap(receiptImageViewModel.bitmapCropped.value)
+                }
+            }
+        }
+    }
+
+    private fun changeCurrentType(type: Type) {
+        when (type) {
+            Type.PRICE -> {
+                currentType = Type.PRICE
+                binding.priceModeColor.visibility = View.VISIBLE
+                binding.nameModeColor.visibility = View.INVISIBLE
+            }
+
+            Type.NAME -> {
+                currentType = Type.NAME
+                binding.priceModeColor.visibility = View.INVISIBLE
+                binding.nameModeColor.visibility = View.VISIBLE
+            }
+
+            else -> {}
+        }
+    }
+
+    private fun changeCurrentType() {
+        when (currentType) {
+            Type.PRICE -> {
+                currentType = Type.NAME
+                binding.priceModeColor.visibility = View.INVISIBLE
+                binding.nameModeColor.visibility = View.VISIBLE
+            }
+
+            Type.NAME -> {
+                currentType = Type.PRICE
+                binding.priceModeColor.visibility = View.VISIBLE
+                binding.nameModeColor.visibility = View.INVISIBLE
+            }
+
+            else -> {}
+        }
+    }
+
+    private fun configureListAdapter() {
+        //ALGORITHM     PRICE
+        algorithmOrderedPricesAdapter = AlgorithmItemListAdapter(recycleListAlgorithmPrices,
+            { position ->
+                configureAlgorithmOneClick(recycleListAlgorithmPrices[position])
+                algorithmOrderedPricesAdapter.notifyItemChanged(position)
+            }, { position ->
+                editElement(position, recycleListAlgorithmPrices, algorithmOrderedPricesAdapter)
+            })
+
+        //ALGORITHM     NAME
+        algorithmOrderedNamesAdapter = AlgorithmItemListAdapter(recycleListAlgorithmNames,
+            { position ->
+                configureAlgorithmOneClick(recycleListAlgorithmNames[position])
+                algorithmOrderedNamesAdapter.notifyItemChanged(position)
+            }, { position ->
+                editElement(position, recycleListAlgorithmNames, algorithmOrderedNamesAdapter)
+            })
+
+        //USER     NAME
+        userOrderedNamesAdapter = UserItemListAdapter(recycleListUserNames,
+            { position ->
+                elementOperationHelper.clickUserElement(
+                    recycleListUserNames, position, userOrderedNamesAdapter
+                )
+            }, { position ->
+                editElement(position, recycleListUserNames, userOrderedNamesAdapter)
+            })
+
+        //USER     PRICE
+        userOrderedPricesAdapter = UserItemListAdapter(recycleListUserPrices,
+            { position ->
+                elementOperationHelper.clickUserElement(
+                    recycleListUserPrices, position, userOrderedPricesAdapter
+                )
+            }, { position ->
+                editElement(position, recycleListUserPrices, userOrderedPricesAdapter)
+            })
+
+        elementOperationHelper = ElementOperationHelper(
+            recycleListAlgorithmPrices,
+            recycleListAlgorithmNames,
+            algorithmOrderedNamesAdapter,
+            algorithmOrderedPricesAdapter,
+            recycleListUserPrices,
+            recycleListUserNames,
+            userOrderedNamesAdapter,
+            userOrderedPricesAdapter,
+        )
+    }
+
+    private fun editElement(
+        position: Int,
+        item: List<ItemAdapterArgument>,
+        adapter: SortingItemListAdapter<*>
+    ) {
+        elementOperationHelper.editSingleElement(position, item[position], adapter) {
+            it.show(childFragmentManager, "TAG")
+        }
+    }
+
+    private fun configureAlgorithmOneClick(item: AlgorithmItemAdapterArgument) {
+        if (item.type != Type.UNDEFINED) {
+            return
+        }
+        if (editingMode) {
+            elementOperationHelper.checkAndUncheckSingleElement(item)
+        } else {
+            elementOperationHelper.clickAlgorithmElement(item, currentType)
+            if (sortingMode == SortingElementMode.SWITCHING) {
+                changeCurrentType()
+            }
+        }
+    }
+
+    private fun readList() {
+        recycleListAlgorithmNames =
+            createDeepCopyOfAlgorithmElements(receiptDataViewModel.algorithmOrderedNames.value)
+        recycleListAlgorithmPrices =
+            createDeepCopyOfAlgorithmElements(receiptDataViewModel.algorithmOrderedPrices.value)
+        recycleListUserNames =
+            receiptDataViewModel.userOrderedName.value?.let { ArrayList(it) } ?: arrayListOf()
+        recycleListUserPrices =
+            receiptDataViewModel.userOrderedPrices.value?.let { ArrayList(it) } ?: arrayListOf()
     }
 
     private fun setupRecycleViews() {
@@ -355,43 +312,11 @@ open class ExperimentRecycleFragment : Fragment() {
         return newList
     }
 
-    private fun findIndex(
-        refObj: AlgorithmItemAdapterArgument, list: List<AlgorithmItemAdapterArgument>
-    ): Int {
-        for ((index, obj) in list.withIndex()) {
-            if (obj === refObj) {
-                return index
-            }
-        }
-        return -1
-    }
-
-    private fun refreshAlgPosition(item: AlgorithmItemAdapterArgument) {
-        val indexInNameList = findIndex(item, algorithmOrderedNamesAdapter.recycleList)
-        val indexInPriceList = findIndex(item, algorithmOrderedPricesAdapter.recycleList)
-        if (indexInNameList != -1) {
-            algorithmOrderedNamesAdapter.notifyItemChanged(indexInNameList)
-        }
-        if (indexInPriceList != -1) {
-            algorithmOrderedPricesAdapter.notifyItemChanged(indexInPriceList)
-        }
-    }
-
-
-    private fun prepareListWithGivenSize(size: Int): MutableList<String> {
-        val list = mutableListOf<String>()
-        for (i in 1..size) {
-            list.add("")
-        }
-        return list
-    }
-
     private fun uncheckAll() {
         elementOperationHelper.executeElementOperation(SortingElementAction.UNCHECK)
     }
 
     private fun setDefaultStatusAll() {
-
         elementOperationHelper.executeElementOperation(SortingElementAction.CLEAR_STATUS)
     }
 

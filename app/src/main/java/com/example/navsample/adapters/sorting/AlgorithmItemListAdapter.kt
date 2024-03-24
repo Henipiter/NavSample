@@ -1,31 +1,19 @@
-package com.example.navsample.adapters
+package com.example.navsample.adapters.sorting
 
-import android.view.LayoutInflater
 import android.view.View
-import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
-import androidx.recyclerview.widget.RecyclerView
-import com.example.navsample.databinding.RowExperimentBinding
-import com.example.navsample.dto.AlgorithmItemAdapterArgument
 import com.example.navsample.dto.SortingElementColor
 import com.example.navsample.dto.Status
 import com.example.navsample.dto.Type
+import com.example.navsample.dto.sorting.AlgorithmItemAdapterArgument
 import com.example.navsample.sorting.AlgorithmDiffUtilCallback
 
 class AlgorithmItemListAdapter(
-    var recycleList: ArrayList<AlgorithmItemAdapterArgument>,
+    recycleList: ArrayList<AlgorithmItemAdapterArgument>,
     private var onClick: (Int) -> Unit,
     private var onLongClick: (Int) -> Unit,
-) : RecyclerView.Adapter<AlgorithmItemListAdapter.MyViewHolder>() {
+) : SortingItemListAdapter<AlgorithmItemAdapterArgument>(recycleList) {
 
-
-    class MyViewHolder(val binding: RowExperimentBinding) : RecyclerView.ViewHolder(binding.root)
-
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MyViewHolder {
-        val binding =
-            RowExperimentBinding.inflate(LayoutInflater.from(parent.context), parent, false)
-        return MyViewHolder(binding)
-    }
 
     override fun onBindViewHolder(holder: MyViewHolder, position: Int) {
         holder.binding.textView.text = recycleList[holder.adapterPosition].value
@@ -61,18 +49,8 @@ class AlgorithmItemListAdapter(
             onLongClick.invoke(holder.adapterPosition)
             true
         }
-
     }
 
-    override fun getItemCount(): Int {
-        return recycleList.size
-    }
-
-    fun setData(data: ArrayList<AlgorithmItemAdapterArgument>) {
-        recycleList = data
-    }
-
-    // add new data
     fun setNewData(newData: MutableList<AlgorithmItemAdapterArgument>) {
         val diffCallback = AlgorithmDiffUtilCallback(recycleList, newData)
         val diffResult = DiffUtil.calculateDiff(diffCallback)

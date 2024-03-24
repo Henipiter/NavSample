@@ -6,8 +6,8 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.navsample.ApplicationContext
 import com.example.navsample.chart.ChartColors
-import com.example.navsample.dto.AlgorithmItemAdapterArgument
-import com.example.navsample.dto.UserItemAdapterArgument
+import com.example.navsample.dto.sorting.AlgorithmItemAdapterArgument
+import com.example.navsample.dto.sorting.UserItemAdapterArgument
 import com.example.navsample.entities.Category
 import com.example.navsample.entities.Product
 import com.example.navsample.entities.Receipt

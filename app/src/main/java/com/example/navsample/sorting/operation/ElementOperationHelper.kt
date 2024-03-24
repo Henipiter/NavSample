@@ -1,12 +1,16 @@
 package com.example.navsample.sorting.operation
 
-import com.example.navsample.adapters.AlgorithmItemListAdapter
-import com.example.navsample.adapters.UserItemListAdapter
-import com.example.navsample.dto.AlgorithmItemAdapterArgument
+import com.example.navsample.adapters.sorting.AlgorithmItemListAdapter
+import com.example.navsample.adapters.sorting.SortingItemListAdapter
+import com.example.navsample.adapters.sorting.UserItemListAdapter
 import com.example.navsample.dto.SortingElementAction
 import com.example.navsample.dto.Status
-import com.example.navsample.dto.UserItemAdapterArgument
+import com.example.navsample.dto.Type
+import com.example.navsample.dto.sorting.AlgorithmItemAdapterArgument
+import com.example.navsample.dto.sorting.ItemAdapterArgument
+import com.example.navsample.dto.sorting.UserItemAdapterArgument
 import com.example.navsample.fragments.dialogs.EditTextDialog
+import kotlin.math.max
 
 class ElementOperationHelper(
     private val algorithmPrices: ArrayList<AlgorithmItemAdapterArgument>,
@@ -20,90 +24,93 @@ class ElementOperationHelper(
 ) {
     private var checkedElementsCounter = 0
 
-    fun editSingleAlgorithmElement(
-        position: Int,
-        list: ArrayList<AlgorithmItemAdapterArgument>,
-        adapter: AlgorithmItemListAdapter,
-        editTextDialog: (EditTextDialog) -> Unit
-    ) {
-        if (position >= 0 && list[position].status != Status.BLOCKED) {
-            editTextDialog.invoke(
-                EditTextDialog(
-                    list[position].value
-                ) { text ->
-                    list[position].value = text
-                    adapter.notifyItemChanged(position)
-                })
+    fun convertUserElementsToLines(): List<String> {
+        val namePricePairs =
+            Operation.prepareListWithGivenSize(max(userPrices.size, userNames.size))
+        userNames.forEachIndexed { index, item ->
+            namePricePairs[index] += item.value
         }
+        userPrices.forEachIndexed { index, item ->
+            if (namePricePairs[index].isNotEmpty()) {
+                namePricePairs[index] += " "
+            }
+            namePricePairs[index] += item.value
+        }
+        return namePricePairs
     }
 
-    fun editSingleUserElement(
-        position: Int,
-        list: ArrayList<UserItemAdapterArgument>,
-        adapter: UserItemListAdapter,
-        editTextDialog: (EditTextDialog) -> Unit
+    fun clickUserElement(
+        list: ArrayList<UserItemAdapterArgument>, position: Int, adapter: UserItemListAdapter
     ) {
         if (position >= 0) {
-            editTextDialog.invoke(
-                EditTextDialog(
-                    list[position].value
-                ) { text ->
-                    list[position].value = text
-                    list[position].algorithmItem.value = text
-                    refreshAlgPosition(list[position].algorithmItem)
+            list[position].algorithmItem.type = Type.UNDEFINED
+            list[position].algorithmItem.status = Status.DEFAULT
+            refreshAlgPosition(list[position].algorithmItem)
+            list.removeAt(position)
+            adapter.notifyItemRemoved(position)
+        }
+    }
+
+    fun clickAlgorithmElement(item: AlgorithmItemAdapterArgument, currentType: Type) {
+        item.type = currentType
+        val userItemAdapterArgument = UserItemAdapterArgument(
+            item.value, item.type, item
+        )
+        if (item.type == Type.PRICE) {
+            userPrices.add(userItemAdapterArgument)
+            userPricesAdapter.notifyItemInserted(userPrices.lastIndex)
+        } else {
+            userNames.add(userItemAdapterArgument)
+            userNamesAdapter.notifyItemInserted(userNames.lastIndex)
+        }
+        item.status = Status.BLOCKED
+    }
+
+    fun editSingleElement(
+        position: Int,
+        item: ItemAdapterArgument,
+        adapter: SortingItemListAdapter<*>,
+        editTextDialog: (EditTextDialog) -> Unit
+    ) {
+        if (position < 0) {
+            return
+        }
+        if (item is AlgorithmItemAdapterArgument) {
+            adapter as AlgorithmItemListAdapter
+            if (item.status != Status.BLOCKED) {
+                editTextDialog.invoke(EditTextDialog(item.value) { text ->
+                    item.value = text
                     adapter.notifyItemChanged(position)
                 })
-        }
-    }
-
-    private fun refreshAlgPosition(item: AlgorithmItemAdapterArgument) {
-        val indexInNameList = findIndex(item, algorithmNames)
-        val indexInPriceList = findIndex(item, algorithmPrices)
-        if (indexInNameList != -1) {
-            algorithmNamesAdapter.notifyItemChanged(indexInNameList)
-        }
-        if (indexInPriceList != -1) {
-            algorithmPricesAdapter.notifyItemChanged(indexInPriceList)
-        }
-    }
-
-    private fun findIndex(
-        refObj: AlgorithmItemAdapterArgument, list: List<AlgorithmItemAdapterArgument>
-    ): Int {
-        for ((index, obj) in list.withIndex()) {
-            if (obj === refObj) {
-                return index
             }
+        } else if (item is UserItemAdapterArgument) {
+            adapter as UserItemListAdapter
+
+            editTextDialog.invoke(
+                EditTextDialog(
+                    item.value,
+                ) { text ->
+                    item.value = text
+                    item.algorithmItem.value = text
+                    refreshAlgPosition(item.algorithmItem)
+                    adapter.notifyItemChanged(position)
+                }
+            )
         }
-        return -1
     }
 
-    fun checkAndUncheckSingleElement(
-        list: List<AlgorithmItemAdapterArgument>, position: Int
-    ) {
-        if (list[position].status == Status.DEFAULT) {
-            list[position].status = Status.CHOSEN
-            list[position].number = checkedElementsCounter
+
+    fun checkAndUncheckSingleElement(item: AlgorithmItemAdapterArgument) {
+        if (item.status == Status.DEFAULT) {
+            item.status = Status.CHOSEN
+            item.number = checkedElementsCounter
             checkedElementsCounter += 1
-        } else if (list[position].status == Status.CHOSEN) {
-            list[position].status = Status.DEFAULT
-            decrementNumberInCell(list[position].number, algorithmPrices, algorithmPricesAdapter)
-            decrementNumberInCell(list[position].number, algorithmNames, algorithmNamesAdapter)
-            list[position].number = 0
+        } else if (item.status == Status.CHOSEN) {
+            item.status = Status.DEFAULT
+            decrementNumberInCell(item.number, algorithmPrices, algorithmPricesAdapter)
+            decrementNumberInCell(item.number, algorithmNames, algorithmNamesAdapter)
+            item.number = 0
             checkedElementsCounter -= 1
-        }
-    }
-
-    private fun decrementNumberInCell(
-        limit: Int,
-        list: List<AlgorithmItemAdapterArgument>,
-        adapter: AlgorithmItemListAdapter
-    ) {
-        list.forEachIndexed { position, item ->
-            if (item.number > limit) {
-                item.number -= 1
-                adapter.notifyItemChanged(position)
-            }
         }
     }
 
@@ -156,5 +163,41 @@ class ElementOperationHelper(
         }
         operation.execute(checkedElementsCounter)
         checkedElementsCounter = 0
+    }
+
+    private fun refreshAlgPosition(item: AlgorithmItemAdapterArgument) {
+        val indexInNameList = findIndex(item, algorithmNames)
+        val indexInPriceList = findIndex(item, algorithmPrices)
+        if (indexInNameList != -1) {
+            algorithmNamesAdapter.notifyItemChanged(indexInNameList)
+        }
+        if (indexInPriceList != -1) {
+            algorithmPricesAdapter.notifyItemChanged(indexInPriceList)
+        }
+    }
+
+    private fun findIndex(
+        item: AlgorithmItemAdapterArgument,
+        list: List<AlgorithmItemAdapterArgument>
+    ): Int {
+        for ((index, obj) in list.withIndex()) {
+            if (obj === item) {
+                return index
+            }
+        }
+        return -1
+    }
+
+    private fun decrementNumberInCell(
+        limit: Int,
+        list: List<AlgorithmItemAdapterArgument>,
+        adapter: AlgorithmItemListAdapter
+    ) {
+        list.forEachIndexed { position, item ->
+            if (item.number > limit) {
+                item.number -= 1
+                adapter.notifyItemChanged(position)
+            }
+        }
     }
 }

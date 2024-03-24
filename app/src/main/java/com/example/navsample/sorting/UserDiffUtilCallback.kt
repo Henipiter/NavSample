@@ -1,7 +1,7 @@
 package com.example.navsample.sorting
 
 import androidx.recyclerview.widget.DiffUtil
-import com.example.navsample.dto.UserItemAdapterArgument
+import com.example.navsample.dto.sorting.UserItemAdapterArgument
 
 class UserDiffUtilCallback(
     private val oldList: List<UserItemAdapterArgument>,

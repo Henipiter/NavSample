@@ -21,7 +21,7 @@ import com.example.navsample.ItemClickListener
 import com.example.navsample.R
 import com.example.navsample.adapters.ProductListAdapter
 import com.example.navsample.databinding.FragmentAddProductListBinding
-import com.example.navsample.dto.AlgorithmItemAdapterArgument
+import com.example.navsample.dto.sorting.AlgorithmItemAdapterArgument
 import com.example.navsample.exception.NoReceiptIdException
 import com.example.navsample.exception.NoStoreIdException
 import com.example.navsample.fragments.dialogs.DeleteConfirmationDialog

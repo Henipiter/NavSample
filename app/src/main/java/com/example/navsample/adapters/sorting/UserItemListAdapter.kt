@@ -1,27 +1,17 @@
-package com.example.navsample.adapters
+package com.example.navsample.adapters.sorting
 
-import android.view.LayoutInflater
-import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
-import androidx.recyclerview.widget.RecyclerView
-import com.example.navsample.databinding.RowExperimentBinding
 import com.example.navsample.dto.SortingElementColor
 import com.example.navsample.dto.Type
-import com.example.navsample.dto.UserItemAdapterArgument
+import com.example.navsample.dto.sorting.UserItemAdapterArgument
 import com.example.navsample.sorting.UserDiffUtilCallback
 
 class UserItemListAdapter(
-    private var recycleList: ArrayList<UserItemAdapterArgument>,
+    recycleList: ArrayList<UserItemAdapterArgument>,
     private var onClick: (Int) -> Unit,
     private var onLongClick: (Int) -> Unit,
-) : RecyclerView.Adapter<UserItemListAdapter.MyViewHolder>() {
-    class MyViewHolder(val binding: RowExperimentBinding) : RecyclerView.ViewHolder(binding.root)
+) : SortingItemListAdapter<UserItemAdapterArgument>(recycleList) {
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MyViewHolder {
-        val binding =
-            RowExperimentBinding.inflate(LayoutInflater.from(parent.context), parent, false)
-        return MyViewHolder(binding)
-    }
 
     override fun onBindViewHolder(holder: MyViewHolder, position: Int) {
         holder.binding.textView.text = recycleList[holder.adapterPosition].value
@@ -45,18 +35,8 @@ class UserItemListAdapter(
             onLongClick.invoke(holder.adapterPosition)
             true
         }
-
     }
 
-    override fun getItemCount(): Int {
-        return recycleList.size
-    }
-
-    fun setData(data: ArrayList<UserItemAdapterArgument>) {
-        recycleList = data
-    }
-
-    // add new data
     fun setNewData(newData: MutableList<UserItemAdapterArgument>) {
         val diffCallback = UserDiffUtilCallback(recycleList, newData)
         val diffResult = DiffUtil.calculateDiff(diffCallback)
