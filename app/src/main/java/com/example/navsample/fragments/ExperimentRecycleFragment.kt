@@ -18,7 +18,6 @@ import com.example.navsample.dto.SortingElementMode
 import com.example.navsample.dto.Status
 import com.example.navsample.dto.Type
 import com.example.navsample.dto.UserItemAdapterArgument
-import com.example.navsample.fragments.dialogs.EditTextDialog
 import com.example.navsample.imageanalyzer.ReceiptParser
 import com.example.navsample.sorting.NonScrollableGridLayoutManager
 import com.example.navsample.sorting.operation.ElementOperationHelper
@@ -147,7 +146,9 @@ open class ExperimentRecycleFragment : Fragment() {
                 configureAlgorithmOneClick(recycleListAlgorithmPrices, position)
                 algorithmOrderedPricesAdapter.notifyItemChanged(position)
             }, { position ->
-                algorithmOrderedPricesAdapter.notifyItemChanged(position)
+                elementOperationHelper.editSingleAlgorithmElement(
+                    position, recycleListAlgorithmPrices, algorithmOrderedPricesAdapter
+                ) { it.show(childFragmentManager, "TAG") }
             })
 
         //ALGORITHM     NAME
@@ -156,7 +157,9 @@ open class ExperimentRecycleFragment : Fragment() {
                 configureAlgorithmOneClick(recycleListAlgorithmNames, position)
                 algorithmOrderedNamesAdapter.notifyItemChanged(position)
             }, { position ->
-                algorithmOrderedNamesAdapter.notifyItemChanged(position)
+                elementOperationHelper.editSingleAlgorithmElement(
+                    position, recycleListAlgorithmNames, algorithmOrderedNamesAdapter
+                ) { it.show(childFragmentManager, "TAG") }
             })
 
         //USER     NAME
@@ -166,9 +169,9 @@ open class ExperimentRecycleFragment : Fragment() {
                     recycleListUserNames, position, userOrderedNamesAdapter
                 )
             }, { position ->
-                configureUserLongClickAtDefaultMode(
-                    recycleListUserNames, position, userOrderedNamesAdapter
-                )
+                elementOperationHelper.editSingleUserElement(
+                    position, recycleListUserNames, userOrderedNamesAdapter
+                ) { it.show(childFragmentManager, "TAG") }
             })
 
         //USER     PRICE
@@ -178,16 +181,20 @@ open class ExperimentRecycleFragment : Fragment() {
                     recycleListUserPrices, position, userOrderedPricesAdapter
                 )
             }, { position ->
-                configureUserLongClickAtDefaultMode(
-                    recycleListUserPrices, position, userOrderedPricesAdapter
-                )
+                elementOperationHelper.editSingleUserElement(
+                    position, recycleListUserPrices, userOrderedPricesAdapter
+                ) { it.show(childFragmentManager, "TAG") }
             })
 
         elementOperationHelper = ElementOperationHelper(
             recycleListAlgorithmPrices,
             recycleListAlgorithmNames,
             algorithmOrderedNamesAdapter,
-            algorithmOrderedPricesAdapter
+            algorithmOrderedPricesAdapter,
+            recycleListUserPrices,
+            recycleListUserNames,
+            userOrderedNamesAdapter,
+            userOrderedPricesAdapter,
         )
     }
 
@@ -200,21 +207,6 @@ open class ExperimentRecycleFragment : Fragment() {
             refreshAlgPosition(list[position].algorithmItem)
             list.removeAt(position)
             adapter.notifyItemRemoved(position)
-        }
-    }
-
-    private fun configureUserLongClickAtDefaultMode(
-        list: ArrayList<UserItemAdapterArgument>, position: Int, adapter: UserItemListAdapter
-    ) {
-        if (position >= 0) {
-            EditTextDialog(
-                list[position].value
-            ) { text ->
-                list[position].value = text
-                list[position].algorithmItem.value = text
-                refreshAlgPosition(list[position].algorithmItem)
-                adapter.notifyItemChanged(position)
-            }.show(childFragmentManager, "TAG")
         }
     }
 
