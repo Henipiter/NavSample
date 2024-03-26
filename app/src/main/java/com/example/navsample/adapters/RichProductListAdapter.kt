@@ -36,6 +36,8 @@ class RichProductListAdapter(
         holder.binding.quantity.text = productList[position].quantity.toString()
         holder.binding.unitPrice.text = productList[position].unitPrice.toString()
         holder.binding.subtotalPrice.text = productList[position].subtotalPrice.toString()
+        holder.binding.discountPrice.text = productList[position].discount.toString()
+        holder.binding.finalPrice.text = productList[position].finalPrice.toString()
         holder.binding.productName.text = trimDescription(productList[position].name)
         holder.binding.mainLayout.setOnClickListener {
             itemClickListener.onItemClick(position)
