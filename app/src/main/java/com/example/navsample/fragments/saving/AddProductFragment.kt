@@ -71,6 +71,17 @@ class AddProductFragment : Fragment() {
                 chosenCategory = it[0]
             }
         }
+        receiptDataViewModel.store.observe(viewLifecycleOwner) { store ->
+            if (chosenCategory.name == "") {
+                chosenCategory = try {
+                    receiptDataViewModel.categoryList.value?.first { it.id == store.defaultCategoryId }
+                        ?: Category("", "")
+                } catch (e: Exception) {
+                    Category("", "")
+                }
+
+            }
+        }
     }
 
     private fun tryConvertToDouble(correctString: String): Double {
@@ -150,8 +161,7 @@ class AddProductFragment : Fragment() {
         receiptDataViewModel.refreshCategoryList()
         receiptDataViewModel.categoryList.value?.let {
             if (chosenCategory.name == "") {
-                val categoryId = receiptDataViewModel.store.value?.defaultCategoryId
-                    ?: throw NoStoreIdException()
+                val categoryId = receiptDataViewModel.store.value?.defaultCategoryId ?: 0
 
                 chosenCategory = try {
                     receiptDataViewModel.categoryList.value?.first { it.id == categoryId }

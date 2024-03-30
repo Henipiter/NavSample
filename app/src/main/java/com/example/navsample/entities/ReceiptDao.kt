@@ -122,7 +122,7 @@ interface ReceiptDao {
 
     @Transaction
     @Query(
-        "select s.name as storeName, r.date, c.name as categoryName, c.color as categoryColor, p.* from product p, receipt r, store s, category c " +
+        "select s.id as storeId, s.name as storeName, r.date, c.name as categoryName, c.color as categoryColor, p.* from product p, receipt r, store s, category c " +
                 "where p.receiptId = r.id and s.id =r.storeId " +
                 "and s.name like '%'||:storeName||'%' " +
                 "and c.name like '%'||:categoryName||'%' " +
@@ -140,7 +140,7 @@ interface ReceiptDao {
 
     @Transaction
     @Query(
-        "select s.name as storeName, r.date, c.name as categoryName, c.color as categoryColor, p.* from product p, receipt r, store s, category c " +
+        "select s.id as storeId, s.name as storeName, r.date, c.name as categoryName, c.color as categoryColor, p.* from product p, receipt r, store s, category c " +
                 "where p.receiptId = r.id and s.id =r.storeId and p.categoryId = c.id " +
                 "and s.name like '%'||:storeName||'%' " +
                 "and c.name like '%'||:categoryName||'%' " +

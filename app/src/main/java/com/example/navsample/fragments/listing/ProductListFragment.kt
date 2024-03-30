@@ -247,6 +247,7 @@ class ProductListFragment : Fragment(), ItemClickListener {
             chosenProduct.id = it.id
             receiptDataViewModel.product.value = arrayListOf(chosenProduct)
             receiptDataViewModel.getReceiptById(chosenProduct.receiptId)
+            receiptDataViewModel.getStoreById(it.storeId)
         }
         val action =
             ListingFragmentDirections.actionListingFragmentToAddProductFragment(true, 0)
