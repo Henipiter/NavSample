@@ -3,9 +3,11 @@ package com.example.navsample.adapters
 import android.content.Context
 import android.graphics.Color
 import android.view.LayoutInflater
+import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.example.navsample.ItemClickListener
+import com.example.navsample.R
 import com.example.navsample.databinding.ProductRowBinding
 import com.example.navsample.entities.relations.ProductRichData
 import kotlin.math.roundToInt
@@ -46,12 +48,27 @@ class RichProductListAdapter(
             onDelete.invoke(position)
             true
         }
+        holder.binding.boundary.setOnClickListener {
+            if (holder.binding.additional.visibility == View.GONE) {
+                holder.binding.additional.visibility = View.VISIBLE
+                holder.binding.boundary.setBackgroundResource(R.drawable.arrow_drop_up)
+            } else {
+                holder.binding.additional.visibility = View.GONE
+                holder.binding.boundary.setBackgroundResource(R.drawable.arrow_drop_down)
+            }
+        }
+
         val floatQuantity = trim(productList[position].quantity.toString()).toDoubleOrNull()
         val unitPrice = trim(productList[position].unitPrice.toString()).toDoubleOrNull()
         val subtotalPrice = trim(productList[position].subtotalPrice.toString()).toDoubleOrNull()
+        val discount = trim(productList[position].discount.toString()).toDoubleOrNull()
+        val finalPrice = trim(productList[position].finalPrice.toString()).toDoubleOrNull()
 
         if (floatQuantity == null || unitPrice == null || subtotalPrice == null || (floatQuantity * unitPrice * 100.0).roundToInt() / 100.0 != subtotalPrice) {
             holder.binding.subtotalPrice.setTextColor(Color.RED)
+        }
+        if (subtotalPrice == null || discount == null || finalPrice == null || subtotalPrice - discount != finalPrice) {
+            holder.binding.finalPrice.setTextColor(Color.RED)
         }
     }
 
