@@ -282,10 +282,10 @@ open class ExperimentRecycleFragment : Fragment() {
         binding.recyclerViewUserPrice.adapter = userOrderedPricesAdapter
         binding.recyclerViewUserPrice.layoutManager =
             NonScrollableGridLayoutManager(requireContext(), 1)
-        binding.recyclerViewAlgorithmName.adapter = algorithmOrderedPricesAdapter
+        binding.recyclerViewAlgorithmName.adapter = algorithmOrderedNamesAdapter
         binding.recyclerViewAlgorithmName.layoutManager =
             NonScrollableGridLayoutManager(requireContext(), 1)
-        binding.recyclerViewAlgorithmPrice.adapter = algorithmOrderedNamesAdapter
+        binding.recyclerViewAlgorithmPrice.adapter = algorithmOrderedPricesAdapter
         binding.recyclerViewAlgorithmPrice.layoutManager =
             NonScrollableGridLayoutManager(requireContext(), 1)
     }

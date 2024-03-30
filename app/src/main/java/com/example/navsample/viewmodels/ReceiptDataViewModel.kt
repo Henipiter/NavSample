@@ -81,22 +81,50 @@ class ReceiptDataViewModel : ViewModel() {
         userOrderedPrices = MutableLiveData(arrayListOf())
         algorithmOrderedNames = MutableLiveData(
             arrayListOf(
-                AlgorithmItemAdapterArgument("Name0"),
-                AlgorithmItemAdapterArgument("Name1"),
-                AlgorithmItemAdapterArgument("Name2"),
-                AlgorithmItemAdapterArgument("Name3"),
-                AlgorithmItemAdapterArgument("Name4"),
-                AlgorithmItemAdapterArgument("Name5")
+                AlgorithmItemAdapterArgument("Name100"),
+                AlgorithmItemAdapterArgument("Name01"),
+                AlgorithmItemAdapterArgument("Name02"),
+                AlgorithmItemAdapterArgument("Name03"),
+                AlgorithmItemAdapterArgument("Name04"),
+                AlgorithmItemAdapterArgument("Name05"),
+                AlgorithmItemAdapterArgument("Name06"),
+                AlgorithmItemAdapterArgument("Name07"),
+                AlgorithmItemAdapterArgument("Name08"),
+                AlgorithmItemAdapterArgument("Name09"),
+                AlgorithmItemAdapterArgument("Name10"),
+                AlgorithmItemAdapterArgument("Name11"),
+                AlgorithmItemAdapterArgument("Name12"),
+                AlgorithmItemAdapterArgument("Name13"),
+                AlgorithmItemAdapterArgument("Name14"),
+                AlgorithmItemAdapterArgument("Name15"),
+                AlgorithmItemAdapterArgument("Name16"),
+                AlgorithmItemAdapterArgument("Name17"),
+                AlgorithmItemAdapterArgument("Name18"),
+                AlgorithmItemAdapterArgument("Name19")
             )
         )
         algorithmOrderedPrices = MutableLiveData(
             arrayListOf(
-                AlgorithmItemAdapterArgument("Price0"),
-                AlgorithmItemAdapterArgument("Price1"),
-                AlgorithmItemAdapterArgument("Price2"),
-                AlgorithmItemAdapterArgument("Price3"),
-                AlgorithmItemAdapterArgument("Price4"),
-                AlgorithmItemAdapterArgument("Price5")
+                AlgorithmItemAdapterArgument("Price00"),
+                AlgorithmItemAdapterArgument("Price01"),
+                AlgorithmItemAdapterArgument("Price02"),
+                AlgorithmItemAdapterArgument("Price03"),
+                AlgorithmItemAdapterArgument("Price04"),
+                AlgorithmItemAdapterArgument("Price05"),
+                AlgorithmItemAdapterArgument("Price06"),
+                AlgorithmItemAdapterArgument("Price07"),
+                AlgorithmItemAdapterArgument("Price08"),
+                AlgorithmItemAdapterArgument("Price09"),
+                AlgorithmItemAdapterArgument("Price10"),
+                AlgorithmItemAdapterArgument("Price11"),
+                AlgorithmItemAdapterArgument("Price12"),
+                AlgorithmItemAdapterArgument("Price13"),
+                AlgorithmItemAdapterArgument("Price14"),
+                AlgorithmItemAdapterArgument("Price15"),
+                AlgorithmItemAdapterArgument("Price16"),
+                AlgorithmItemAdapterArgument("Price17"),
+                AlgorithmItemAdapterArgument("Price18"),
+                AlgorithmItemAdapterArgument("Price19"),
             )
         )
 
