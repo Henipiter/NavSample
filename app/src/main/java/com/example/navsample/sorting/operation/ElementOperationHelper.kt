@@ -23,6 +23,8 @@ class ElementOperationHelper(
     private val userPricesAdapter: UserItemListAdapter
 ) {
     private var checkedElementsCounter = 0
+    private var priceClickedItems = 0
+    private var nameClickedItems = 0
 
     fun convertUserElementsToLines(): List<String> {
         val namePricePairs =
@@ -43,6 +45,17 @@ class ElementOperationHelper(
         list: ArrayList<UserItemAdapterArgument>, position: Int, adapter: UserItemListAdapter
     ) {
         if (position >= 0) {
+            if (list[position].type == Type.NAME) {
+                nameClickedItems -= 1
+            } else {
+                priceClickedItems -= 1
+            }
+            for (pos in position + 1..list.lastIndex) {
+                list[pos].algorithmItem.number -= 1
+                adapter.notifyItemChanged(pos)
+            }
+
+
             list[position].algorithmItem.type = Type.UNDEFINED
             list[position].algorithmItem.status = Status.DEFAULT
             refreshAlgPosition(list[position].algorithmItem)
@@ -53,6 +66,14 @@ class ElementOperationHelper(
 
     fun clickAlgorithmElement(item: AlgorithmItemAdapterArgument, currentType: Type) {
         item.type = currentType
+        if (item.type == Type.NAME) {
+            item.number = nameClickedItems
+            nameClickedItems += 1
+        } else {
+            item.number = priceClickedItems
+            priceClickedItems += 1
+        }
+
         val userItemAdapterArgument = UserItemAdapterArgument(
             item.value, item.type, item
         )

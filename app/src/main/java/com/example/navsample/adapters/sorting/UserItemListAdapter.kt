@@ -27,6 +27,7 @@ class UserItemListAdapter(
 
             else -> holder.binding.typeColor.setBackgroundColor(SortingElementColor.UNCHECKED)
         }
+        holder.binding.counter.text = recycleList[position].algorithmItem.number.toString()
 
         holder.binding.mainLayout.setOnClickListener {
             onClick.invoke(holder.adapterPosition)
