@@ -5,5 +5,6 @@ import com.example.navsample.dto.Type
 data class UserItemAdapterArgument(
     override var value: String,
     override var type: Type,
-    var algorithmItem: AlgorithmItemAdapterArgument
+    var algorithmItem: AlgorithmItemAdapterArgument,
+    var empty: Boolean
 ) : ItemAdapterArgument(value, type)

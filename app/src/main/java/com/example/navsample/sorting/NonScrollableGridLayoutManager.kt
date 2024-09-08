@@ -6,7 +6,7 @@ import androidx.recyclerview.widget.GridLayoutManager
 class NonScrollableGridLayoutManager(context: Context?, spanCount: Int) :
     GridLayoutManager(context, spanCount) {
     override fun canScrollVertically(): Boolean {
-        return false
+        return true
     }
 
     override fun canScrollHorizontally(): Boolean {
