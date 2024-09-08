@@ -276,6 +276,9 @@ open class ExperimentRecycleFragment : Fragment() {
     }
 
     private fun setupRecycleViews() {
+        binding.recyclerViewUserName.verticalScrollbarPosition = View.SCROLLBAR_POSITION_LEFT
+        binding.recyclerViewAlgorithmName.verticalScrollbarPosition = View.SCROLLBAR_POSITION_LEFT
+
         binding.recyclerViewUserName.adapter = userOrderedNamesAdapter
         binding.recyclerViewUserName.layoutManager =
             NonScrollableGridLayoutManager(requireContext(), 1)
