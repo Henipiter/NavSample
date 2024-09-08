@@ -1,6 +1,5 @@
 package com.example.navsample.adapters.sorting
 
-import android.view.View
 import androidx.recyclerview.widget.DiffUtil
 import com.example.navsample.dto.SortingElementColor
 import com.example.navsample.dto.Type
@@ -27,12 +26,6 @@ class UserItemListAdapter(
             }
 
             else -> holder.binding.typeColor.setBackgroundColor(SortingElementColor.UNCHECKED)
-        }
-
-        if (recycleList[holder.adapterPosition].empty) {
-            holder.binding.mainLayout.visibility = View.VISIBLE
-        } else {
-//            holder.binding.mainLayout.visibility = View.INVISIBLE
         }
 
         holder.binding.mainLayout.setOnClickListener {

@@ -46,86 +46,25 @@ class ElementOperationHelper(
             list[position].algorithmItem.type = Type.UNDEFINED
             list[position].algorithmItem.status = Status.DEFAULT
             refreshAlgPosition(list[position].algorithmItem)
-            equalLengthUserElements()
             list.removeAt(position)
             adapter.notifyItemRemoved(position)
         }
     }
 
-    private fun getFirstEmptyItem(list: ArrayList<UserItemAdapterArgument>): Int {
-        for (i in 0..<list.size) {
-            if (list[i].type == Type.UNDEFINED) {
-                return i
-            }
-        }
-        return list.size
-    }
-
     fun clickAlgorithmElement(item: AlgorithmItemAdapterArgument, currentType: Type) {
         item.type = currentType
         val userItemAdapterArgument = UserItemAdapterArgument(
-            item.value, item.type, item, item.empty
+            item.value, item.type, item
         )
         if (item.type == Type.PRICE) {
-            val firstEmptyItem = getFirstEmptyItem(userPrices)
-            if (firstEmptyItem == userPrices.size) {
-                userPrices.add(userItemAdapterArgument)
-                userPricesAdapter.notifyItemInserted(firstEmptyItem)
-
-            } else {
-                userPrices[firstEmptyItem] = userItemAdapterArgument
-                userPricesAdapter.notifyItemChanged(firstEmptyItem)
-            }
-            equalLengthUserElements()
+            userPrices.add(userItemAdapterArgument)
+            userPricesAdapter.notifyItemInserted(userPrices.lastIndex)
         } else {
-            val firstEmptyItem = getFirstEmptyItem(userNames)
-            if (firstEmptyItem == userPrices.size) {
-                userNames.add(userItemAdapterArgument)
-                userNamesAdapter.notifyItemInserted(firstEmptyItem)
-            } else {
-                userNames[firstEmptyItem] = userItemAdapterArgument
-                userNamesAdapter.notifyItemChanged(firstEmptyItem)
-            }
-            equalLengthUserElements()
+            userNames.add(userItemAdapterArgument)
+            userNamesAdapter.notifyItemInserted(userNames.lastIndex)
+
         }
         item.status = Status.BLOCKED
-    }
-
-
-    private fun equalLengthUserElements() {
-        while (userNames.size < userPrices.size) {
-            userNames.add(
-                UserItemAdapterArgument(
-                    "",
-                    Type.UNDEFINED,
-                    AlgorithmItemAdapterArgument(""),
-                    true
-                )
-            )
-            userNamesAdapter.notifyItemInserted(userNames.lastIndex)
-        }
-
-        while (userNames.size > userPrices.size) {
-            userPrices.add(
-                UserItemAdapterArgument(
-                    "",
-                    Type.UNDEFINED,
-                    AlgorithmItemAdapterArgument(""),
-                    true
-                )
-            )
-            userPricesAdapter.notifyItemInserted(userPrices.lastIndex)
-        }
-
-        if (userNames.size == userPrices.size) {
-            while (userNames.last().empty && userPrices.last().empty) {
-                userNames.removeAt(userNames.lastIndex)
-                userPrices.removeAt(userNames.lastIndex)
-                userNamesAdapter.notifyItemInserted(userNames.lastIndex)
-                userPricesAdapter.notifyItemInserted(userPrices.lastIndex)
-            }
-        }
-
     }
 
     fun editSingleElement(
