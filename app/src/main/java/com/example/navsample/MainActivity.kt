@@ -31,11 +31,36 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun initDatabase() {
-        receiptDataViewModel.insertStore(Store("Carrefour", "9370008168", 0))
-        receiptDataViewModel.insertStore(Store("Biedronka", "7791011327", 2))
-        receiptDataViewModel.insertStore(Store("LIDL", "7811897358", 0))
-        receiptDataViewModel.insertStore(Store("SUPER-PHARM", "5252175977", 0))
-        receiptDataViewModel.insertStore(Store("MARTES-SPORT", "0001112223", 0))
+        receiptDataViewModel.insertStore(Store("9370008168", "Carrefour", 2))
+        receiptDataViewModel.insertStore(Store("7791011327", "Biedronka", 2))
+        receiptDataViewModel.insertStore(Store("7811897358", "LIDL", 2))
+        receiptDataViewModel.insertStore(Store("8992367273", "KAUFLAND", 2))
+        receiptDataViewModel.insertStore(Store("8521021463", "NETTO", 2))
+        receiptDataViewModel.insertStore(Store("5562125117", "POLOMARKET", 2))
+        receiptDataViewModel.insertStore(Store("1070002973", "ALDI", 2))
+        receiptDataViewModel.insertStore(Store("5260309174", "AUCHAN", 2))
+        receiptDataViewModel.insertStore(Store("5291799498", "ŻABKA", 2))
+        receiptDataViewModel.insertStore(Store("7821977018", "INTERMARCHE", 2))
+        receiptDataViewModel.insertStore(Store("6211766191", "DINO", 2))
+
+
+        receiptDataViewModel.insertStore(Store("5252175977", "SUPER-PHARM", 5))
+        receiptDataViewModel.insertStore(Store("7270019183", "ROSSMANN", 5))
+        receiptDataViewModel.insertStore(Store("2090001776", "HEBE", 5))
+
+
+        receiptDataViewModel.insertStore(Store("0001112223", "MARTES-SPORT", 6))
+
+
+        receiptDataViewModel.insertStore(Store("6222797516", "ZAHIR KEBAB", 1))
+
+        receiptDataViewModel.insertStore(Store("7740001454", "ORLEN", 10))
+        receiptDataViewModel.insertStore(Store("7790001083", "CIRCLE K", 10))
+        receiptDataViewModel.insertStore(Store("9452127910", "BP", 10))
+        receiptDataViewModel.insertStore(Store("5261009190", "SHELL", 10))
+        receiptDataViewModel.insertStore(Store("5270011878", "MOYA", 10))
+        receiptDataViewModel.insertStore(Store("5861988228", "MOL", 10))
+
 
         receiptDataViewModel.insertCategoryList(Category("INNE", COLORS[0]))
         receiptDataViewModel.insertCategoryList(Category("JEDZENIE", COLORS[1]))
@@ -45,8 +70,8 @@ class MainActivity : AppCompatActivity() {
         receiptDataViewModel.insertCategoryList(Category("KOSTMETYKI", COLORS[5]))
         receiptDataViewModel.insertCategoryList(Category("SPORT", COLORS[6]))
         receiptDataViewModel.insertCategoryList(Category("MOTORYZACJA", COLORS[7]))
-        receiptDataViewModel.insertCategoryList(Category("SPORT", COLORS[8]))
-        receiptDataViewModel.insertCategoryList(Category("UBRANIA", COLORS[9]))
+        receiptDataViewModel.insertCategoryList(Category("UBRANIA", COLORS[8]))
+        receiptDataViewModel.insertCategoryList(Category("PALIWO", COLORS[9]))
         receiptDataViewModel.insertReceipt(Receipt(1, 7.79F, 0F, "2024-09-22", "17:33"))
         receiptDataViewModel.insertProducts(
             listOf(
