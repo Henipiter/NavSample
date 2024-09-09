@@ -72,7 +72,7 @@ class StoreListFragment : Fragment(), ItemClickListener {
 
     override fun onItemClick(index: Int) {
         val store = receiptDataViewModel.storeList.value!![index]
-        receiptDataViewModel.store.value = Store(store.name, store.nip, store.defaultCategoryId)
+        receiptDataViewModel.store.value = Store(store.nip, store.name, store.defaultCategoryId)
         val action =
             ListingFragmentDirections.actionListingFragmentToAddStoreFragment()
         Navigation.findNavController(requireView()).navigate(action)
