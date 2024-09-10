@@ -2,6 +2,8 @@
 
 package com.example.navsample.fragments
 
+import android.animation.ArgbEvaluator
+import android.animation.ValueAnimator
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -9,6 +11,7 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.navigation.Navigation
+import com.example.navsample.R
 import com.example.navsample.adapters.sorting.AlgorithmItemListAdapter
 import com.example.navsample.adapters.sorting.SortingItemListAdapter
 import com.example.navsample.adapters.sorting.UserItemListAdapter
@@ -24,6 +27,7 @@ import com.example.navsample.sorting.NonScrollableGridLayoutManager
 import com.example.navsample.sorting.operation.ElementOperationHelper
 import com.example.navsample.viewmodels.ReceiptDataViewModel
 import com.example.navsample.viewmodels.ReceiptImageViewModel
+
 
 open class ExperimentRecycleFragment : Fragment() {
     private var _binding: FragmentExperimentRecycleBinding? = null
@@ -74,16 +78,17 @@ open class ExperimentRecycleFragment : Fragment() {
         binding.switchingButton.setOnClickListener {
             if (sortingMode == SortingElementMode.SWITCHING) {
                 changeCurrentType()
+                changeCurrentType(currentType, true)
             }
             sortingMode = SortingElementMode.SWITCHING
         }
         binding.nameOnlyButton.setOnClickListener {
             sortingMode = SortingElementMode.NAME_ONLY
-            changeCurrentType(Type.NAME)
+            changeCurrentType(Type.NAME, currentType != Type.NAME)
         }
         binding.priceOnlyButton.setOnClickListener {
             sortingMode = SortingElementMode.PRICE_ONLY
-            changeCurrentType(Type.PRICE)
+            changeCurrentType(Type.PRICE, currentType != Type.PRICE)
         }
 
         configureListAdapter()
@@ -153,18 +158,68 @@ open class ExperimentRecycleFragment : Fragment() {
         }
     }
 
-    private fun changeCurrentType(type: Type) {
+
+    private fun changeCurrentType(type: Type, animate: Boolean) {
+        val inactiveColor = resources.getColor(R.color.basic_grey)
+        val activePriceColor = resources.getColor(R.color.blue_200)
+        val activeNameColor = resources.getColor(R.color.green_200)
+
+        val activateNameAnimation =
+            ValueAnimator.ofObject(ArgbEvaluator(), inactiveColor, activeNameColor)
+        val deactivateNameAnimation =
+            ValueAnimator.ofObject(ArgbEvaluator(), activeNameColor, inactiveColor)
+        val activatePriceAnimation =
+            ValueAnimator.ofObject(ArgbEvaluator(), inactiveColor, activePriceColor)
+        val deactivatePriceAnimation =
+            ValueAnimator.ofObject(ArgbEvaluator(), activePriceColor, inactiveColor)
+
+        activateNameAnimation.setDuration(250) // milliseconds
+        deactivateNameAnimation.setDuration(250) // milliseconds
+        activatePriceAnimation.setDuration(250) // milliseconds
+        deactivatePriceAnimation.setDuration(250) // milliseconds
+
+        activateNameAnimation.addUpdateListener { animator ->
+            binding.cardViewUserName.setCardBackgroundColor(
+                animator.animatedValue as Int
+            )
+        }
+        deactivateNameAnimation.addUpdateListener { animator ->
+            binding.cardViewUserName.setCardBackgroundColor(
+                animator.animatedValue as Int
+            )
+        }
+        activatePriceAnimation.addUpdateListener { animator ->
+            binding.cardViewUserPrice.setCardBackgroundColor(
+                animator.animatedValue as Int
+            )
+        }
+        deactivatePriceAnimation.addUpdateListener { animator ->
+            binding.cardViewUserPrice.setCardBackgroundColor(
+                animator.animatedValue as Int
+            )
+        }
+
         when (type) {
             Type.PRICE -> {
                 currentType = Type.PRICE
                 binding.priceModeColor.visibility = View.VISIBLE
                 binding.nameModeColor.visibility = View.INVISIBLE
+                if (animate) {
+                    activatePriceAnimation.start()
+                    deactivateNameAnimation.start()
+                }
             }
 
             Type.NAME -> {
                 currentType = Type.NAME
                 binding.priceModeColor.visibility = View.INVISIBLE
                 binding.nameModeColor.visibility = View.VISIBLE
+                binding.cardViewUserPrice.setCardBackgroundColor(resources.getColor(R.color.basic_grey))
+                binding.cardViewUserName.setCardBackgroundColor(resources.getColor(R.color.green_200))
+                if (animate) {
+                    activateNameAnimation.start()
+                    deactivatePriceAnimation.start()
+                }
             }
 
             else -> {}
@@ -175,14 +230,10 @@ open class ExperimentRecycleFragment : Fragment() {
         when (currentType) {
             Type.PRICE -> {
                 currentType = Type.NAME
-                binding.priceModeColor.visibility = View.INVISIBLE
-                binding.nameModeColor.visibility = View.VISIBLE
             }
 
             Type.NAME -> {
                 currentType = Type.PRICE
-                binding.priceModeColor.visibility = View.VISIBLE
-                binding.nameModeColor.visibility = View.INVISIBLE
             }
 
             else -> {}
@@ -260,6 +311,7 @@ open class ExperimentRecycleFragment : Fragment() {
             elementOperationHelper.clickAlgorithmElement(item, currentType)
             if (sortingMode == SortingElementMode.SWITCHING) {
                 changeCurrentType()
+                changeCurrentType(currentType, true)
             }
         }
     }

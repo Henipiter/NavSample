@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+
+<resources>
+
+    <style name="RadioButtonOrange" parent="Widget.AppCompat.CompoundButton.RadioButton">
+        <item name="buttonTint">@color/orange_800</item>
+    </style>
+
+    <style name="ButtonOrange">
+        <item name="android:backgroundTint">@color/orange_800</item>
+        <item name="android:textColor">@color/orange_1000</item>
+    </style>
+
+
+</resources>

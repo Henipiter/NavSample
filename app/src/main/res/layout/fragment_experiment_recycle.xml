@@ -73,18 +73,21 @@
                 app:layout_constraintTop_toTopOf="parent">
 
                 <RadioButton
+                    style="@style/RadioButtonOrange"
                     android:id="@+id/name_only_button"
                     android:layout_width="wrap_content"
                     android:layout_height="match_parent"
                     android:text="Name only" />
 
                 <RadioButton
+                    style="@style/RadioButtonOrange"
                     android:id="@+id/switching_button"
                     android:layout_width="wrap_content"
                     android:layout_height="match_parent"
                     android:text="Switching" />
 
                 <RadioButton
+                    style="@style/RadioButtonOrange"
                     android:id="@+id/price_only_button"
                     android:layout_width="wrap_content"
                     android:layout_height="match_parent"
@@ -107,6 +110,7 @@
         app:layout_constraintTop_toBottomOf="@+id/relative_layout">
 
         <androidx.cardview.widget.CardView
+            android:id="@+id/card_view_user_name"
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="1"
@@ -122,12 +126,12 @@
                 android:layout_margin="6dp"
                 android:fadeScrollbars="false"
                 android:scrollbars="vertical"
-                android:scrollbarThumbHorizontal="@color/white"
-                android:scrollbarThumbVertical="@color/black"
+                android:scrollbarThumbVertical="@color/orange_800"
                 app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager" />
         </androidx.cardview.widget.CardView>
 
         <androidx.cardview.widget.CardView
+            android:id="@+id/card_view_user_price"
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="1"
@@ -143,8 +147,7 @@
                 android:layout_margin="6dp"
                 android:fadeScrollbars="false"
                 android:scrollbars="vertical"
-                android:scrollbarThumbHorizontal="@color/white"
-                android:scrollbarThumbVertical="@color/black"
+                android:scrollbarThumbVertical="@color/orange_800"
                 app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager" />
         </androidx.cardview.widget.CardView>
     </LinearLayout>
@@ -175,7 +178,6 @@
             android:layout_weight="1"
             android:layout_margin="3dp"
             android:padding="3dp"
-            app:cardBackgroundColor="@color/green_500"
             app:cardCornerRadius="10dp">
 
             <androidx.recyclerview.widget.RecyclerView
@@ -185,8 +187,7 @@
                 android:layout_margin="6dp"
                 android:fadeScrollbars="false"
                 android:scrollbars="vertical"
-                android:scrollbarThumbHorizontal="@color/white"
-                android:scrollbarThumbVertical="@color/black"
+                android:scrollbarThumbVertical="@color/orange_800"
                 app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager" />
         </androidx.cardview.widget.CardView>
 
@@ -196,7 +197,6 @@
             android:layout_weight="1"
             android:layout_margin="3dp"
             android:padding="3dp"
-            app:cardBackgroundColor="@color/blue_500"
             app:cardCornerRadius="10dp">
 
             <androidx.recyclerview.widget.RecyclerView
@@ -206,8 +206,7 @@
                 android:layout_margin="6dp"
                 android:fadeScrollbars="false"
                 android:scrollbars="vertical"
-                android:scrollbarThumbHorizontal="@color/white"
-                android:scrollbarThumbVertical="@color/black"
+                android:scrollbarThumbVertical="@color/orange_800"
                 app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager" />
         </androidx.cardview.widget.CardView>
 
@@ -358,6 +357,7 @@
 
 
             <Button
+                style="@style/ButtonOrange"
                 android:id="@+id/reset_button"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
@@ -367,6 +367,7 @@
                 android:text="Reset" />
 
             <Button
+                style="@style/ButtonOrange"
                 android:id="@+id/cancel_button"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
@@ -377,6 +378,7 @@
                 android:visibility="gone" />
 
             <Button
+                style="@style/ButtonOrange"
                 android:id="@+id/edit_button"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
@@ -386,6 +388,7 @@
                 android:text="Edit" />
 
             <Button
+                style="@style/ButtonOrange"
                 android:id="@+id/confirm_button"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
