@@ -26,6 +26,7 @@
         app:layout_constraintTop_toBottomOf="@id/colorPicker" />
 
     <Button
+        style="@style/ButtonOrange"
         android:id="@+id/confirm_button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -44,6 +45,7 @@
         app:layout_constraintTop_toTopOf="parent" />
 
     <Button
+        style="@style/ButtonOrange"
         android:id="@+id/cancel_button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"

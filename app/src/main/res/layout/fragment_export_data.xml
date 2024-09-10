@@ -17,6 +17,7 @@
 
 
     <Button
+                style="@style/ButtonOrange"
         android:enabled="false"
         android:id="@+id/export_data_button"
         android:layout_width="wrap_content"
