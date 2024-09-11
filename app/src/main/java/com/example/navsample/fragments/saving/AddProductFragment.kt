@@ -37,7 +37,6 @@ class AddProductFragment : Fragment() {
     private var productOriginalInput = ""
     private var chosenCategory = Category("", "")
     private var productId: Int? = null
-    private var receiptId: Int? = null
 
     companion object {
         private const val SUGGESTION_PREFIX = "Maybe "
@@ -182,7 +181,6 @@ class AddProductFragment : Fragment() {
             binding.ptuTypeInput.setAdapter(adapter)
         }
 
-        receiptId = receiptDataViewModel.receipt.value?.id
         if (args.productIndex != -1) {
             val productOriginal = receiptDataViewModel.product.value?.get(args.productIndex)
             productId = productOriginal?.id
@@ -287,7 +285,7 @@ class AddProductFragment : Fragment() {
             }
 
             val product = Product(
-                receiptId ?: throw NoReceiptIdException(),
+                receiptDataViewModel.receipt.value?.id ?: throw NoReceiptIdException(),
                 binding.productNameInput.text.toString(),
                 chosenCategory.id ?: throw NoCategoryIdException(),
                 binding.productQuantityInput.text.toString().toDouble(),

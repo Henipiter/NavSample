@@ -168,7 +168,7 @@ class ReceiptListFragment : Fragment(), ItemClickListener {
         receiptDataViewModel.receiptList.value?.get(index)?.let {
             receiptDataViewModel.getStoreById(it.storeId)
             val receipt = Receipt(
-                it.id,
+                it.storeId,
                 it.pln.toString().toDouble(),
                 it.ptu.toString().toDouble(),
                 it.date,
