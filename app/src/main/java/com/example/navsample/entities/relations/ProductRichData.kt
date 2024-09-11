@@ -1,6 +1,7 @@
 package com.example.navsample.entities.relations
 
 data class ProductRichData(
+    var storeId: Int,
     var storeName: String,
 
     var date: String,

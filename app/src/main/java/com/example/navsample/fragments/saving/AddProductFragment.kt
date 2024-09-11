@@ -11,7 +11,6 @@ import androidx.fragment.app.activityViewModels
 import androidx.navigation.Navigation
 import androidx.navigation.fragment.navArgs
 import com.example.navsample.R
-import com.example.navsample.ReceiptParser
 import com.example.navsample.adapters.CategoryDropdownAdapter
 import com.example.navsample.databinding.FragmentAddProductBinding
 import com.example.navsample.entities.Category
@@ -19,6 +18,7 @@ import com.example.navsample.entities.Product
 import com.example.navsample.exception.NoCategoryIdException
 import com.example.navsample.exception.NoReceiptIdException
 import com.example.navsample.exception.NoStoreIdException
+import com.example.navsample.imageanalyzer.ReceiptParser
 import com.example.navsample.viewmodels.ReceiptDataViewModel
 import com.example.navsample.viewmodels.ReceiptImageViewModel
 import kotlin.math.round
@@ -69,6 +69,17 @@ class AddProductFragment : Fragment() {
             }
             if (chosenCategory.name == "") {
                 chosenCategory = it[0]
+            }
+        }
+        receiptDataViewModel.store.observe(viewLifecycleOwner) { store ->
+            if (chosenCategory.name == "") {
+                chosenCategory = try {
+                    receiptDataViewModel.categoryList.value?.first { it.id == store.defaultCategoryId }
+                        ?: Category("", "")
+                } catch (e: Exception) {
+                    Category("", "")
+                }
+
             }
         }
     }
@@ -150,8 +161,7 @@ class AddProductFragment : Fragment() {
         receiptDataViewModel.refreshCategoryList()
         receiptDataViewModel.categoryList.value?.let {
             if (chosenCategory.name == "") {
-                val categoryId = receiptDataViewModel.store.value?.defaultCategoryId
-                    ?: throw NoStoreIdException()
+                val categoryId = receiptDataViewModel.store.value?.defaultCategoryId ?: 0
 
                 chosenCategory = try {
                     receiptDataViewModel.categoryList.value?.first { it.id == categoryId }
@@ -277,9 +287,9 @@ class AddProductFragment : Fragment() {
                 receiptId ?: throw NoReceiptIdException(),
                 binding.productNameInput.text.toString(),
                 chosenCategory.id ?: throw NoCategoryIdException(),
-                binding.productSubtotalPriceInput.text.toString().toFloat(),
                 binding.productQuantityInput.text.toString().toFloat(),
                 binding.productUnitPriceInput.text.toString().toFloat(),
+                binding.productSubtotalPriceInput.text.toString().toFloat(),
                 binding.productDiscountInput.text.toString().toFloat(),
                 binding.productFinalPriceInput.text.toString().toFloat(),
                 binding.ptuTypeInput.text.toString(),

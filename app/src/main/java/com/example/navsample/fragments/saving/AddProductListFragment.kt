@@ -17,15 +17,15 @@ import com.canhub.cropper.CropImage
 import com.canhub.cropper.CropImageContract
 import com.canhub.cropper.CropImageContractOptions
 import com.canhub.cropper.CropImageOptions
-import com.example.navsample.ImageAnalyzer
 import com.example.navsample.ItemClickListener
 import com.example.navsample.R
 import com.example.navsample.adapters.ProductListAdapter
 import com.example.navsample.databinding.FragmentAddProductListBinding
-import com.example.navsample.dto.ExperimentalAdapterArgument
+import com.example.navsample.dto.sorting.AlgorithmItemAdapterArgument
 import com.example.navsample.exception.NoReceiptIdException
 import com.example.navsample.exception.NoStoreIdException
 import com.example.navsample.fragments.dialogs.DeleteConfirmationDialog
+import com.example.navsample.imageanalyzer.ImageAnalyzer
 import com.example.navsample.viewmodels.ReceiptDataViewModel
 import com.example.navsample.viewmodels.ReceiptImageViewModel
 import com.google.mlkit.vision.common.InputImage
@@ -83,18 +83,18 @@ class AddProductListFragment : Fragment(), ItemClickListener {
             receiptDataViewModel.store.value?.defaultCategoryId ?: throw NoStoreIdException()
         val imageAnalyzer = ImageAnalyzer()
         imageAnalyzer.uid = receiptImageViewModel.uid.value ?: "temp"
-        receiptImageViewModel.bitmapCropped.value?.let {
+        receiptImageViewModel.bitmapCropped.value?.let { bitmap ->
             imageAnalyzer.analyzeProductList(
-                InputImage.fromBitmap(it, 0),
+                InputImage.fromBitmap(bitmap, 0),
                 receiptId,
                 categoryId
             ) {
                 receiptDataViewModel.product.value = imageAnalyzer.productList
-                val analyzed =
-                    imageAnalyzer.receiptLines.map { ExperimentalAdapterArgument(it) } as ArrayList<ExperimentalAdapterArgument>
-                receiptDataViewModel.experimental.value = analyzed
-                receiptDataViewModel.experimentalOriginal.value =
-                    analyzed.toMutableList() as ArrayList<ExperimentalAdapterArgument>
+
+                receiptDataViewModel.algorithmOrderedNames.value =
+                    imageAnalyzer.receiptNameLines.map { AlgorithmItemAdapterArgument(it) } as ArrayList<AlgorithmItemAdapterArgument>
+                receiptDataViewModel.algorithmOrderedPrices.value =
+                    imageAnalyzer.receiptPriceLines.map { AlgorithmItemAdapterArgument(it) } as ArrayList<AlgorithmItemAdapterArgument>
                 receiptDataViewModel.reorderedProductTiles.value = true
             }
         }

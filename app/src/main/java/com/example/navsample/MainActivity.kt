@@ -47,7 +47,7 @@ class MainActivity : AppCompatActivity() {
         receiptDataViewModel.insertCategoryList(Category("MOTORYZACJA", COLORS[7]))
         receiptDataViewModel.insertCategoryList(Category("SPORT", COLORS[8]))
         receiptDataViewModel.insertCategoryList(Category("UBRANIA", COLORS[9]))
-        receiptDataViewModel.insertReceipt(Receipt(1, 7.79F, 0F, "2023-09-22", "17:33"))
+        receiptDataViewModel.insertReceipt(Receipt(1, 7.79F, 0F, "2024-09-22", "17:33"))
         receiptDataViewModel.insertProducts(
             listOf(
                 Product(1, "D_JZN_ZIEMNIAKI JAD", 1, 0.496F, 3.99F, 1.98F, 0F, 1.98F, "D", ""),
@@ -57,7 +57,7 @@ class MainActivity : AppCompatActivity() {
         )
 
 
-        receiptDataViewModel.insertReceipt(Receipt(1, 28.11F, 0F, "2023-09-21", "18:30"))
+        receiptDataViewModel.insertReceipt(Receipt(1, 28.11F, 0F, "2024-09-21", "18:30"))
         receiptDataViewModel.insertProducts(
             listOf(
                 Product(2, "D_KAJZERKA 50G", 1, 8F, 0.37F, 2.96F, 0F, 2.96F, "D", ""),
@@ -69,7 +69,7 @@ class MainActivity : AppCompatActivity() {
                 Product(2, "D_MC CYTRYNY LUZ", 1, 0.258F, 7.99F, 2.06F, 0F, 2.06F, "D", ""),
             )
         )
-        receiptDataViewModel.insertReceipt(Receipt(2, 60.17F, 7.69F, "2023-09-22", "14:17"))
+        receiptDataViewModel.insertReceipt(Receipt(2, 60.17F, 7.69F, "2024-09-22", "14:17"))
         receiptDataViewModel.insertProducts(
             listOf(
                 Product(3, "ChlebWiel400g 50G", 1, 1F, 3.59F, 3.59F, 0F, 3.59F, "D", ""),
@@ -84,7 +84,7 @@ class MainActivity : AppCompatActivity() {
                 Product(3, "CebulaZolta Luz", 1, 0.08F, 4.99F, 0.4F, 0F, 0.4F, "D", "")
             )
         )
-        receiptDataViewModel.insertReceipt(Receipt(4, 12.24F, 0.01F, "2023-09-18", "19:54"))
+        receiptDataViewModel.insertReceipt(Receipt(4, 12.24F, 0.01F, "2024-09-18", "19:54"))
         receiptDataViewModel.insertProducts(
             listOf(
                 Product(
@@ -101,14 +101,14 @@ class MainActivity : AppCompatActivity() {
                 ),
             )
         )
-        receiptDataViewModel.insertReceipt(Receipt(5, 8.24F, 0.59F, "2023-08-18", "19:54"))
+        receiptDataViewModel.insertReceipt(Receipt(5, 8.24F, 0.59F, "2024-08-18", "19:54"))
         receiptDataViewModel.insertProducts(
             listOf(
                 Product(5, "KAPIELOWKI", 7, 1F, 89.99F, 89.99F, 0F, 89.99F, "D", ""),
                 Product(5, "BUTY BIEGANIE", 7, 1F, 299.99F, 299.99F, 0F, 299.99F, "D", ""),
             )
         )
-        receiptDataViewModel.insertReceipt(Receipt(5, 98.24F, 0.61F, "2023-07-18", "19:54"))
+        receiptDataViewModel.insertReceipt(Receipt(5, 98.24F, 0.61F, "2024-07-18", "19:54"))
         receiptDataViewModel.insertProducts(
             listOf(
                 Product(6, "KAPIELOWKI", 7, 1F, 89.99F, 89.99F, 0F, 89.99F, "D", ""),

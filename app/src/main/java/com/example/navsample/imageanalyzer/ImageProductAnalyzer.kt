@@ -5,15 +5,13 @@ import kotlin.math.max
 import kotlin.math.min
 
 class ImageProductAnalyzer {
-    var columnCell = ColumnCell()
-    var nameList = ArrayList<String>()
-    var pricesList = ArrayList<String>()
+    private var columnCell = ColumnCell()
+    private var nameList = ArrayList<String>()
+    private var pricesList = ArrayList<String>()
 
     var productList = ArrayList<String>()
-    var receiptLines = ArrayList<String>()
-
-    var leftColumnBoundary = 0
-    var rightColumnBoundary = 0
+    var receiptNameLines = ArrayList<String>()
+    var receiptPriceLines = ArrayList<String>()
     fun orderLinesByColumnContinuously(imageWidth: Int, data: List<Cell>) {
         val leftColumnPosition = ArrayList<Int>()
         val rightColumnPosition = ArrayList<Int>()
@@ -36,9 +34,9 @@ class ImageProductAnalyzer {
         val leftColumnIncreaseStep = abs(leftColumnPosition[0] - leftColumnPosition[1])
         val rightColumnIncreaseStep = abs(rightColumnPosition[0] - rightColumnPosition[1])
 
-        leftColumnBoundary =
+        val leftColumnBoundary =
             calculateBoundary(leftColumnPosition, imageWidth + leftColumnIncreaseStep)
-        rightColumnBoundary =
+        val rightColumnBoundary =
             calculateBoundary(rightColumnPosition, imageWidth + rightColumnIncreaseStep)
 
         for (cell in data) {
@@ -73,14 +71,14 @@ class ImageProductAnalyzer {
         joinNameAndPrice()
     }
 
-    fun joinNameAndPrice() {
+    private fun joinNameAndPrice() {
         val items = min(columnCell.leftColumnCells.size, columnCell.rightColumnCells.size)
         for (i in 0..<items) {
             val name = getCellContent(columnCell.leftColumnCells[i])
             val price = getCellContent(columnCell.rightColumnCells[i])
             productList.add(name + " " + price)
-            receiptLines.add(name)
-            receiptLines.add(price)
+            receiptNameLines.add(name)
+            receiptPriceLines.add(price)
         }
 
     }

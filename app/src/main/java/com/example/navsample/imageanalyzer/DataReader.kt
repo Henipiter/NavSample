@@ -2,6 +2,8 @@ package com.example.navsample.imageanalyzer
 
 import android.graphics.Point
 import com.google.mlkit.vision.text.Text
+import java.text.Normalizer
+import java.util.regex.Pattern
 import kotlin.math.abs
 import kotlin.math.cos
 import kotlin.math.sin
@@ -21,7 +23,7 @@ class DataReader {
 
             for (block in blocks) {
                 for (line in block.lines) {
-                    val content = line.text
+                    val content = normalizeText(line.text)
                     if (content.replace("\\s".toRegex(), "").length > 1) {
                         var realPoint: Array<Point>
                         line.cornerPoints.let {
@@ -66,6 +68,12 @@ class DataReader {
             )
             return point1
 
+        }
+
+        private fun normalizeText(text: String): String {
+            val normalizedText = Normalizer.normalize(text, Normalizer.Form.NFD)
+            val pattern = Pattern.compile("\\p{InCombiningDiacriticalMarks}+")
+            return pattern.matcher(normalizedText).replaceAll("")
         }
     }
 

@@ -13,6 +13,9 @@ class EditTextDialog(
     var onEndClick: () -> Unit,
     var returnChange: (String) -> Unit
 ) : DialogFragment() {
+
+    constructor(text: String, returnChange: (String) -> Unit) : this(text, {}, {}, returnChange)
+
     private var _binding: DialogEditTextBinding? = null
 
     private val binding get() = _binding!!

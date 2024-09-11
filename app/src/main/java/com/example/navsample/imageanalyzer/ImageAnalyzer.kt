@@ -1,12 +1,9 @@
-package com.example.navsample
+package com.example.navsample.imageanalyzer
 
 
 import android.util.Log
 import androidx.camera.core.ExperimentalGetImage
 import com.example.navsample.entities.Product
-import com.example.navsample.imageanalyzer.DataReader
-import com.example.navsample.imageanalyzer.ImageKeywordAnalyzer
-import com.example.navsample.imageanalyzer.ImageProductAnalyzer
 import com.google.mlkit.vision.common.InputImage
 import com.google.mlkit.vision.text.Text
 import com.google.mlkit.vision.text.TextRecognition
@@ -31,7 +28,8 @@ class ImageAnalyzer {
     var companyName: String = ""
 
 
-    var receiptLines: ArrayList<String> = ArrayList()
+    var receiptNameLines: ArrayList<String> = ArrayList()
+    var receiptPriceLines: ArrayList<String> = ArrayList()
     var productList: ArrayList<Product> = ArrayList()
 
     private val imageProductAnalyzer = ImageProductAnalyzer()
@@ -60,7 +58,8 @@ class ImageAnalyzer {
 
                 val receiptParser = ReceiptParser(receiptId, categoryId)
                 productList = receiptParser.parseToProducts(imageProductAnalyzer.productList)
-                receiptLines = imageProductAnalyzer.receiptLines
+                receiptPriceLines = imageProductAnalyzer.receiptPriceLines
+                receiptNameLines = imageProductAnalyzer.receiptNameLines
                 onFinish.invoke()
             }
     }
