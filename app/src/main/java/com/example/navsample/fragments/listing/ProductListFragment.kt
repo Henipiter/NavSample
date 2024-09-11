@@ -176,7 +176,7 @@ class ProductListFragment : Fragment(), ItemClickListener {
 
         val queryFromDate = if (dateFrom == "") "0" else dateFrom
         val queryToDate = if (dateTo == "") "9" else dateTo
-        val queryLowerPrice = if (lowerPrice == "") 0F else lowerPrice.toFloat()
+        val queryLowerPrice = if (lowerPrice == "") 0.0 else lowerPrice.toDouble()
 
         if (higherPrice != "") {
             receiptDataViewModel.refreshProductList(
@@ -185,7 +185,7 @@ class ProductListFragment : Fragment(), ItemClickListener {
                 queryFromDate,
                 queryToDate,
                 queryLowerPrice,
-                higherPrice.toFloat()
+                higherPrice.toDouble()
             )
         } else {
             receiptDataViewModel.refreshProductList(
@@ -239,7 +239,7 @@ class ProductListFragment : Fragment(), ItemClickListener {
                 it.quantity,
                 it.unitPrice,
                 it.subtotalPrice,
-                0f,
+                0.0,
                 it.subtotalPrice,
                 it.ptuType,
                 it.raw

@@ -21,7 +21,6 @@ import com.example.navsample.exception.NoStoreIdException
 import com.example.navsample.imageanalyzer.ReceiptParser
 import com.example.navsample.viewmodels.ReceiptDataViewModel
 import com.example.navsample.viewmodels.ReceiptImageViewModel
-import kotlin.math.round
 
 class AddProductFragment : Fragment() {
 
@@ -92,6 +91,10 @@ class AddProductFragment : Fragment() {
         }
     }
 
+    private fun roundDouble(double: Double): Double {
+        return "%.2f".format(double).toDouble()
+    }
+
     private fun validatePrices() {
         val subtotalPrice = tryConvertToDouble(binding.productSubtotalPriceInput.text.toString())
         val unitPrice = tryConvertToDouble(binding.productUnitPriceInput.text.toString())
@@ -99,30 +102,30 @@ class AddProductFragment : Fragment() {
 
         val checks = arrayOf(subtotalPrice, unitPrice, quantity).count { it >= 0 }
         if (checks == 3) {
-            if (unitPrice * quantity == subtotalPrice) {
+            if ("%.2f".format(unitPrice * quantity).toDouble() == subtotalPrice) {
                 binding.productSubtotalPriceHelperText.text = ""
                 binding.productUnitPriceHelperText.text = ""
                 binding.productQuantityHelperText.text = ""
             } else {
                 binding.productSubtotalPriceHelperText.text =
-                    "${SUGGESTION_PREFIX}${round(unitPrice * quantity * 100) / 100}"
+                    "${SUGGESTION_PREFIX}${roundDouble(unitPrice * quantity)}"
                 binding.productUnitPriceHelperText.text =
-                    "${SUGGESTION_PREFIX}${round(subtotalPrice / quantity * 100) / 100}"
+                    "${SUGGESTION_PREFIX}${roundDouble(subtotalPrice / quantity)}"
                 binding.productQuantityHelperText.text =
-                    "${SUGGESTION_PREFIX}${round(subtotalPrice / unitPrice * 100) / 100}"
+                    "${SUGGESTION_PREFIX}${roundDouble(subtotalPrice / unitPrice)}"
             }
         } else if (checks == 2) {
             if (subtotalPrice < 0) {
                 binding.productSubtotalPriceHelperText.text =
-                    "${SUGGESTION_PREFIX}${round(unitPrice * quantity * 100) / 100}"
+                    "${SUGGESTION_PREFIX}${roundDouble(unitPrice * quantity)}"
             }
             if (unitPrice < 0) {
                 binding.productUnitPriceHelperText.text =
-                    "${SUGGESTION_PREFIX}${round(subtotalPrice / quantity * 100) / 100}"
+                    "${SUGGESTION_PREFIX}${roundDouble(subtotalPrice / quantity)}"
             }
             if (quantity < 0) {
                 binding.productQuantityHelperText.text =
-                    "${SUGGESTION_PREFIX}${round(subtotalPrice / unitPrice * 100) / 100}"
+                    "${SUGGESTION_PREFIX}${roundDouble(subtotalPrice / unitPrice)}"
             }
         } else {
             binding.productSubtotalPriceHelperText.text = ""
@@ -287,11 +290,11 @@ class AddProductFragment : Fragment() {
                 receiptId ?: throw NoReceiptIdException(),
                 binding.productNameInput.text.toString(),
                 chosenCategory.id ?: throw NoCategoryIdException(),
-                binding.productQuantityInput.text.toString().toFloat(),
-                binding.productUnitPriceInput.text.toString().toFloat(),
-                binding.productSubtotalPriceInput.text.toString().toFloat(),
-                binding.productDiscountInput.text.toString().toFloat(),
-                binding.productFinalPriceInput.text.toString().toFloat(),
+                binding.productQuantityInput.text.toString().toDouble(),
+                binding.productUnitPriceInput.text.toString().toDouble(),
+                binding.productSubtotalPriceInput.text.toString().toDouble(),
+                binding.productDiscountInput.text.toString().toDouble(),
+                binding.productFinalPriceInput.text.toString().toDouble(),
                 binding.ptuTypeInput.text.toString(),
                 binding.productOriginalInput.text.toString()
             )

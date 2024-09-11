@@ -7,8 +7,8 @@ data class ReceiptWithStore(
     var nip: String,
     var name: String,
     var defaultCategoryId: Int,
-    var pln: Float,
-    var ptu: Float,
+    var pln: Double,
+    var ptu: Double,
     var date: String,
     var time: String,
     var productCount: Int

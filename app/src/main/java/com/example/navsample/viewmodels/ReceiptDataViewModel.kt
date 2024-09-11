@@ -325,8 +325,8 @@ class ReceiptDataViewModel : ViewModel() {
         categoryName: String,
         dateFrom: String,
         dateTo: String,
-        lowerPrice: Float,
-        higherPrice: Float,
+        lowerPrice: Double,
+        higherPrice: Double,
     ) {
         Log.i("Database", "refresh product list limited")
         viewModelScope.launch {
@@ -346,7 +346,7 @@ class ReceiptDataViewModel : ViewModel() {
         Log.i("Database", "refresh product list all")
         viewModelScope.launch {
             productRichList.postValue(
-                dao?.getAllProducts("", "", "0", "9", 0F)?.let { ArrayList(it) })
+                dao?.getAllProducts("", "", "0", "9", 0.0)?.let { ArrayList(it) })
         }
     }
 
@@ -355,7 +355,7 @@ class ReceiptDataViewModel : ViewModel() {
         categoryName: String,
         dateFrom: String,
         dateTo: String,
-        lowerPrice: Float,
+        lowerPrice: Double,
     ) {
         Log.i("Database", "refresh product list not limited")
         viewModelScope.launch {
@@ -399,11 +399,11 @@ class ReceiptDataViewModel : ViewModel() {
         )
     }
 
-    private fun transformToFloat(value: String): Float {
+    private fun transformToDouble(value: String): Double {
         return try {
-            value.replace(",", ".").toFloat()
+            value.replace(",", ".").toDouble()
         } catch (t: Throwable) {
-            0.0f
+            0.0
         }
     }
 

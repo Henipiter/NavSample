@@ -20,34 +20,35 @@
             app:layout_constraintTop_toTopOf="parent" />
 
         <Button
-            style="@style/ButtonOrange"
             android:id="@+id/reorder_button"
+            style="@style/ButtonOrange"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginHorizontal="16dp"
             android:text="Reorder"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/relative_layout" />
+            app:layout_constraintTop_toTopOf="@+id/add_new_button" />
 
         <Button
-            style="@style/ButtonOrange"
             android:id="@+id/add_new_button"
+            style="@style/ButtonOrange"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
             android:text="Add new"
             app:layout_constraintEnd_toStartOf="@+id/confirm_button"
             app:layout_constraintStart_toEndOf="@+id/reorder_button"
             app:layout_constraintTop_toBottomOf="@+id/relative_layout" />
 
         <Button
-            style="@style/ButtonOrange"
             android:id="@+id/confirm_button"
+            style="@style/ButtonOrange"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginHorizontal="16dp"
             android:text="Confirm"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/relative_layout" />
+            app:layout_constraintTop_toTopOf="@+id/add_new_button" />
 
         <TextView
             android:id="@+id/storeDetails"
@@ -62,7 +63,8 @@
         <RelativeLayout
             android:id="@+id/relative_layout"
             android:layout_width="match_parent"
-            android:layout_height="300dp"
+            android:layout_height="250dp"
+            android:layout_marginTop="5dp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/storeDetails">
@@ -79,13 +81,86 @@
             android:id="@+id/recycler_view_event"
             android:layout_width="match_parent"
             android:layout_height="0dp"
-            android:layout_marginTop="64dp"
+            android:layout_marginBottom="10dp"
+            android:layout_marginTop="10dp"
             android:paddingHorizontal="16dp"
-            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintBottom_toTopOf="@+id/summaryLayout"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/relative_layout" />
+            app:layout_constraintTop_toBottomOf="@+id/add_new_button" />
 
+        <androidx.cardview.widget.CardView
+            android:id="@+id/summaryLayout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="5dp"
+            android:padding="5dp"
+            app:cardCornerRadius="8dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent">
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <Space
+                    android:id="@+id/centerSummaryLayout"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Cart value"
+                    android:textSize="10sp"
+                    android:textAlignment="center"
+                    app:layout_constraintBottom_toTopOf="@+id/cartValueText"
+                    app:layout_constraintEnd_toStartOf="@+id/centerSummaryLayout"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Receipt value"
+                    android:textSize="10sp"
+                    android:textAlignment="center"
+                    app:layout_constraintBottom_toTopOf="@+id/receiptValueText"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toEndOf="@+id/centerSummaryLayout"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+
+                <TextView
+                    android:id="@+id/cartValueText"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="100"
+                    android:textSize="20sp"
+                    android:textAlignment="center"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toStartOf="@+id/centerSummaryLayout"
+                    app:layout_constraintStart_toStartOf="parent" />
+
+                <TextView
+                    android:id="@+id/receiptValueText"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="1000"
+                    android:textSize="20sp"
+                    android:textAlignment="center"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="@+id/centerSummaryLayout" />
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+        </androidx.cardview.widget.CardView>
     </androidx.constraintlayout.widget.ConstraintLayout>
 
 </FrameLayout>

@@ -113,8 +113,8 @@ interface LinearDataFactory<
             category: String,
             date: String,
         ): Float {
-            return priceByCategoryList.firstOrNull { it.category == category && it.date == date }?.price
-                ?: 0f
+            return priceByCategoryList.firstOrNull { it.category == category && it.date == date }?.price?.toFloat()
+                ?: 0.0f
         }
     }
 

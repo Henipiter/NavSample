@@ -83,8 +83,8 @@ class ImageImportFragment : Fragment() {
                     val store = Store(imageAnalyzer.valueNIP, imageAnalyzer.companyName, 0)
                     val receipt = Receipt(
                         -1,
-                        imageAnalyzer.valuePLN.toString().toFloat(),
-                        imageAnalyzer.valuePTU.toString().toFloat(),
+                        imageAnalyzer.valuePLN.toString().toDouble(),
+                        imageAnalyzer.valuePTU.toString().toDouble(),
                         imageAnalyzer.valueDate,
                         imageAnalyzer.valueTime
                     )

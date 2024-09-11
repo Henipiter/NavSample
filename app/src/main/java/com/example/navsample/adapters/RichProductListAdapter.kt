@@ -58,13 +58,13 @@ class RichProductListAdapter(
             }
         }
 
-        val floatQuantity = trim(productList[position].quantity.toString()).toDoubleOrNull()
+        val DoubleQuantity = trim(productList[position].quantity.toString()).toDoubleOrNull()
         val unitPrice = trim(productList[position].unitPrice.toString()).toDoubleOrNull()
         val subtotalPrice = trim(productList[position].subtotalPrice.toString()).toDoubleOrNull()
         val discount = trim(productList[position].discount.toString()).toDoubleOrNull()
         val finalPrice = trim(productList[position].finalPrice.toString()).toDoubleOrNull()
 
-        if (floatQuantity == null || unitPrice == null || subtotalPrice == null || (floatQuantity * unitPrice * 100.0).roundToInt() / 100.0 != subtotalPrice) {
+        if (DoubleQuantity == null || unitPrice == null || subtotalPrice == null || (DoubleQuantity * unitPrice * 100.0).roundToInt() / 100.0 != subtotalPrice) {
             holder.binding.subtotalPrice.setTextColor(Color.RED)
         }
         if (subtotalPrice == null || discount == null || finalPrice == null || subtotalPrice - discount != finalPrice) {

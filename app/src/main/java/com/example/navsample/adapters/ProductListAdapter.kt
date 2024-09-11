@@ -41,6 +41,8 @@ class ProductListAdapter(
         holder.binding.quantity.text = productList[position].quantity.toString()
         holder.binding.unitPrice.text = productList[position].unitPrice.toString()
         holder.binding.subtotalPrice.text = productList[position].subtotalPrice.toString()
+        holder.binding.finalPrice.text = productList[position].finalPrice.toString()
+        holder.binding.discountPrice.text = productList[position].discount.toString()
         holder.binding.storeName.text = productList[position].raw
         holder.binding.receiptDate.text = ""
         holder.binding.categoryName.text = category.name
@@ -53,11 +55,11 @@ class ProductListAdapter(
             onDelete.invoke(position)
             true
         }
-        val floatQuantity = trim(productList[position].quantity.toString()).toDoubleOrNull()
+        val DoubleQuantity = trim(productList[position].quantity.toString()).toDoubleOrNull()
         val unitPrice = trim(productList[position].unitPrice.toString()).toDoubleOrNull()
         val subtotalPrice = trim(productList[position].subtotalPrice.toString()).toDoubleOrNull()
 
-        if (floatQuantity == null || unitPrice == null || subtotalPrice == null || (floatQuantity * unitPrice * 100.0).roundToInt() / 100.0 != subtotalPrice) {
+        if (DoubleQuantity == null || unitPrice == null || subtotalPrice == null || (DoubleQuantity * unitPrice * 100.0).roundToInt() / 100.0 != subtotalPrice) {
             holder.binding.subtotalPrice.setTextColor(Color.RED)
         }
     }

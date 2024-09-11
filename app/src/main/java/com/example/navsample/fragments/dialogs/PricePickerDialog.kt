@@ -39,7 +39,7 @@ class PricePickerDialog(
             val higherPrice = binding.higherPriceInput.text.toString()
             if (higherPrice != "" && text.toString() != "") {
                 try {
-                    if (higherPrice.toFloat() < text.toString().toFloat()) {
+                    if (higherPrice.toDouble() < text.toString().toDouble()) {
                         binding.lowerPriceLayout.error = "Price too high"
                         binding.higherPriceLayout.error = null
                     } else {
@@ -47,7 +47,7 @@ class PricePickerDialog(
                         binding.higherPriceLayout.error = null
                     }
                 } catch (e: Exception) {
-                    binding.lowerPriceLayout.error = "Cannot convert to float"
+                    binding.lowerPriceLayout.error = "Cannot convert to Double"
                     binding.higherPriceLayout.error = null
                 }
             }
@@ -56,7 +56,7 @@ class PricePickerDialog(
             val lowerPrice = binding.lowerPriceInput.text.toString()
             if (lowerPrice != "" && text.toString() != "") {
                 try {
-                    if (lowerPrice.toFloat() > text.toString().toFloat()) {
+                    if (lowerPrice.toDouble() > text.toString().toDouble()) {
                         binding.higherPriceLayout.error = "Price too low"
                         binding.lowerPriceLayout.error = null
                     } else {
@@ -65,7 +65,7 @@ class PricePickerDialog(
                     }
                 } catch (e: Exception) {
                     binding.lowerPriceLayout.error = null
-                    binding.higherPriceLayout.error = "Cannot convert to float"
+                    binding.higherPriceLayout.error = "Cannot convert to Double"
                 }
             }
         }
@@ -97,7 +97,7 @@ class PricePickerDialog(
 
 
     private fun DialogFragment.setWidthPercent(percentage: Int) {
-        val percent = percentage.toFloat() / 100
+        val percent = percentage.toDouble() / 100
         val dm = Resources.getSystem().displayMetrics
         val rect = dm.run { Rect(0, 0, widthPixels, heightPixels) }
         val percentWidth = rect.width() * percent

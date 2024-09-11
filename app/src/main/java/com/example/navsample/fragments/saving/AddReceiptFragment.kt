@@ -138,11 +138,11 @@ class AddReceiptFragment : Fragment() {
         }
     }
 
-    private fun transformToFloat(value: String): Float {
+    private fun transformToDouble(value: String): Double {
         return try {
-            value.replace(",", ".").toFloat()
+            value.replace(",", ".").toDouble()
         } catch (t: Throwable) {
-            0.0f
+            0.0
         }
     }
 
@@ -187,21 +187,21 @@ class AddReceiptFragment : Fragment() {
             return
         }
         if (mode == DataMode.NEW) {
-            val receipt = Receipt(-1, -1F, -1F, "", "").apply {
+            val receipt = Receipt(-1, -1.0, -1.0, "", "").apply {
                 storeId = pickedStore!!.id!!
-                pln = transformToFloat(binding.receiptPLNInput.text.toString())
-                ptu = transformToFloat(binding.receiptPTUInput.text.toString())
+                pln = transformToDouble(binding.receiptPLNInput.text.toString())
+                ptu = transformToDouble(binding.receiptPTUInput.text.toString())
                 date = binding.receiptDateInput.text.toString()
                 time = binding.receiptTimeInput.text.toString()
             }
             receiptDataViewModel.insertReceipt(receipt)
         } else if (mode == DataMode.EDIT) {
             receiptDataViewModel.receipt.value?.let {
-                val receipt = Receipt(-1, -1F, -1F, "", "")
+                val receipt = Receipt(-1, -1.0, -1.0, "", "")
                 receipt.id = it.id
                 receipt.storeId = pickedStore!!.id!!
-                receipt.pln = transformToFloat(binding.receiptPLNInput.text.toString())
-                receipt.ptu = transformToFloat(binding.receiptPTUInput.text.toString())
+                receipt.pln = transformToDouble(binding.receiptPLNInput.text.toString())
+                receipt.ptu = transformToDouble(binding.receiptPTUInput.text.toString())
                 receipt.date = binding.receiptDateInput.text.toString()
                 receipt.time = binding.receiptTimeInput.text.toString()
                 receiptDataViewModel.updateReceipt(receipt)
@@ -213,8 +213,8 @@ class AddReceiptFragment : Fragment() {
         receiptDataViewModel.receipt.value?.let { receipt ->
             receiptDataViewModel.receipt.value = Receipt(
                 pickedStore?.id ?: throw NoStoreIdException(),
-                receipt.pln.toString().toFloat(),
-                receipt.ptu.toString().toFloat(),
+                receipt.pln.toString().toDouble(),
+                receipt.ptu.toString().toDouble(),
                 receipt.date,
                 receipt.time
             )

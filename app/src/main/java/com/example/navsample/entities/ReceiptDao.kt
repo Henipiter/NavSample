@@ -134,8 +134,8 @@ interface ReceiptDao {
         categoryName: String,
         dateFrom: String,
         dateTo: String,
-        lowerPrice: Float,
-        higherPrice: Float,
+        lowerPrice: Double,
+        higherPrice: Double,
     ): List<ProductRichData>
 
     @Transaction
@@ -152,7 +152,7 @@ interface ReceiptDao {
         categoryName: String,
         dateFrom: String,
         dateTo: String,
-        lowerPrice: Float,
+        lowerPrice: Double,
     ): List<ProductRichData>
 
     @Transaction

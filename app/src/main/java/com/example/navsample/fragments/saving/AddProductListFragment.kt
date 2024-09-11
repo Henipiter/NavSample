@@ -63,6 +63,7 @@ class AddProductListFragment : Fragment(), ItemClickListener {
             it?.let {
                 productListAdapter.productList = it
                 productListAdapter.notifyDataSetChanged()
+                recalculateSumOfPrices()
             }
 
         }
@@ -100,6 +101,15 @@ class AddProductListFragment : Fragment(), ItemClickListener {
         }
     }
 
+    private fun recalculateSumOfPrices() {
+        var sum = 0.0
+        productListAdapter.productList.forEach {
+            sum += it.finalPrice
+        }
+
+        binding.cartValueText.text = "%.2f".format(sum)
+    }
+
     @ExperimentalGetImage
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -126,6 +136,7 @@ class AddProductListFragment : Fragment(), ItemClickListener {
                     productListAdapter.productList =
                         receiptDataViewModel.product.value ?: arrayListOf()
                     productListAdapter.notifyDataSetChanged()
+                    recalculateSumOfPrices()
                 }.show(childFragmentManager, "TAG")
             }
         }
@@ -136,6 +147,7 @@ class AddProductListFragment : Fragment(), ItemClickListener {
             true
         }
         binding.storeDetails.text = receiptDataViewModel.store.value?.name
+        binding.receiptValueText.text = receiptDataViewModel.receipt.value?.pln.toString()
         recyclerViewEvent.adapter = productListAdapter
         recyclerViewEvent.layoutManager =
             LinearLayoutManager(requireContext(), LinearLayoutManager.VERTICAL, false)

@@ -18,14 +18,14 @@ class ReceiptParser(var receiptId: Int, var categoryId: Int) {
         val productList = ArrayList<Product>()
         for (data in sortedProductListOnRecipe) {
             val parsedProduct = parseStringToProduct(data)
-            if (parsedProduct.discount != 0f) {
+            if (parsedProduct.discount != 0.0) {
                 val lastProduct = productList.last()
                 lastProduct.discount = parsedProduct.discount
                 lastProduct.finalPrice = parsedProduct.finalPrice
                 continue
             }
 
-            if (parsedProduct.name != "" || parsedProduct.subtotalPrice != 0f) {
+            if (parsedProduct.name != "" || parsedProduct.subtotalPrice != 0.0) {
                 productList.add(parsedProduct)
             }
         }
@@ -46,9 +46,9 @@ class ReceiptParser(var receiptId: Int, var categoryId: Int) {
                 receiptId,
                 name.data.trim(),
                 categoryId,
-                0f,
-                0f,
-                0f,
+                0.0,
+                0.0,
+                0.0,
                 fixedUnitPrice,
                 fixedSubtotalPrice,
                 fixPtuType(ptuType.data),
@@ -65,7 +65,7 @@ class ReceiptParser(var receiptId: Int, var categoryId: Int) {
                 fixPrize(quantity.data),
                 fixedUnitPrice,
                 fixedSubtotalPrice,
-                0f,
+                0.0,
                 fixedSubtotalPrice,
                 fixPtuType(ptuType.data),
                 productInformation
@@ -76,7 +76,7 @@ class ReceiptParser(var receiptId: Int, var categoryId: Int) {
     }
 
 
-    private fun fixPrize(price: String): Float {
+    private fun fixPrize(price: String): Double {
         var newPrice = price.replace("\\s*".toRegex(), " ").trim()
         newPrice = newPrice.replace(",", ".")
         if (!newPrice.contains(".")) {
@@ -85,9 +85,9 @@ class ReceiptParser(var receiptId: Int, var categoryId: Int) {
         newPrice = newPrice.replace("\\s*".toRegex(), "").trim()
 
         return try {
-            newPrice.toFloat()
+            newPrice.toDouble()
         } catch (exception: Exception) {
-            0f
+            0.0
         }
 
 
