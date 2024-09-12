@@ -121,6 +121,10 @@ interface ReceiptDao {
     suspend fun getAllCategories(): List<Category>
 
     @Transaction
+    @Query("SELECT * FROM category where name like '%'||:name||'%' order by name")
+    suspend fun getAllCategories(name: String): List<Category>
+
+    @Transaction
     @Query("SELECT * FROM product WHERE receiptId=:receiptId")
     suspend fun getAllProducts(receiptId: Int): List<Product>
 

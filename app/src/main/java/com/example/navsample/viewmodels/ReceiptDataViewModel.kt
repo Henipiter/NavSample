@@ -6,6 +6,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.navsample.ApplicationContext
 import com.example.navsample.chart.ChartColors
+import com.example.navsample.dto.filter.FilterCategoryList
 import com.example.navsample.dto.filter.FilterProductList
 import com.example.navsample.dto.filter.FilterReceiptList
 import com.example.navsample.dto.filter.FilterStoreList
@@ -27,6 +28,7 @@ import kotlinx.coroutines.launch
 class ReceiptDataViewModel : ViewModel() {
     lateinit var uid: MutableLiveData<String>
 
+    lateinit var filterCategoryList: MutableLiveData<FilterCategoryList>
     lateinit var filterStoreList: MutableLiveData<FilterStoreList>
     lateinit var filterProductList: MutableLiveData<FilterProductList>
     lateinit var filterReceiptList: MutableLiveData<FilterReceiptList>
@@ -64,6 +66,7 @@ class ReceiptDataViewModel : ViewModel() {
 
 
     fun clearData() {
+        filterCategoryList = MutableLiveData<FilterCategoryList>(FilterCategoryList())
         filterStoreList = MutableLiveData<FilterStoreList>(FilterStoreList())
         filterProductList = MutableLiveData<FilterProductList>(FilterProductList())
         filterReceiptList = MutableLiveData<FilterReceiptList>(FilterReceiptList())
@@ -285,6 +288,15 @@ class ReceiptDataViewModel : ViewModel() {
         viewModelScope.launch {
             categoryList.postValue(
                 dao?.getAllCategories() as ArrayList<Category>
+            )
+        }
+    }
+
+    fun refreshCategoryList(categoryName: String) {
+        Log.i("Database", "refresh category list")
+        viewModelScope.launch {
+            categoryList.postValue(
+                dao?.getAllCategories(categoryName) as ArrayList<Category>
             )
         }
     }

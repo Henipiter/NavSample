@@ -5,6 +5,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import androidx.core.widget.doOnTextChanged
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.navigation.Navigation
@@ -36,7 +37,7 @@ class CategoryListFragment : Fragment(), ItemClickListener {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         initObserver()
-        receiptDataViewModel.refreshCategoryList()
+        refreshList()
         receiptDataViewModel.refreshProductList()
 
         recyclerViewEvent = binding.recyclerViewEventReceipts
@@ -66,6 +67,10 @@ class CategoryListFragment : Fragment(), ItemClickListener {
         recyclerViewEvent.layoutManager =
             LinearLayoutManager(requireContext(), LinearLayoutManager.VERTICAL, false)
 
+        binding.categoryNameInput.doOnTextChanged { text, _, _, _ ->
+            receiptDataViewModel.filterCategoryList.value?.category = text.toString()
+            refreshList()
+        }
         binding.newButton.setOnClickListener {
             val action = ListingFragmentDirections.actionListingFragmentToAddCategoryFragment()
             Navigation.findNavController(requireView()).navigate(action)
@@ -79,6 +84,24 @@ class CategoryListFragment : Fragment(), ItemClickListener {
                 categoryListAdapter.categoryList = it
                 categoryListAdapter.notifyDataSetChanged()
             }
+        }
+        receiptDataViewModel.filterCategoryList.observe(viewLifecycleOwner) {
+            refreshList()
+        }
+    }
+
+    private fun putFilterDefinitionIntoInputs() {
+        receiptDataViewModel.filterCategoryList.value?.let {
+            if (binding.categoryNameInput.text.toString() != it.category) {
+                binding.categoryNameInput.setText(it.category)
+            }
+        }
+    }
+
+    private fun refreshList() {
+        receiptDataViewModel.filterCategoryList.value?.let {
+            putFilterDefinitionIntoInputs()
+            receiptDataViewModel.refreshCategoryList(it.category)
         }
     }
 
