@@ -65,7 +65,14 @@ class StoreListFragment : Fragment(), ItemClickListener {
             receiptDataViewModel.filterStoreList.value?.nip = text.toString()
             refreshList()
         }
-
+        binding.storeNameLayout.setStartIconOnClickListener {
+            binding.storeNameInput.setText("")
+            receiptDataViewModel.filterStoreList.value?.store = ""
+        }
+        binding.storeNIPLayout.setStartIconOnClickListener {
+            binding.storeNIPInput.setText("")
+            receiptDataViewModel.filterStoreList.value?.nip = ""
+        }
         recyclerViewEvent.adapter = storeListAdapter
         recyclerViewEvent.layoutManager =
             LinearLayoutManager(requireContext(), LinearLayoutManager.VERTICAL, false)

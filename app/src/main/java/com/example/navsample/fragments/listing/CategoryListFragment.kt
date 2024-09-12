@@ -71,6 +71,10 @@ class CategoryListFragment : Fragment(), ItemClickListener {
             receiptDataViewModel.filterCategoryList.value?.category = text.toString()
             refreshList()
         }
+        binding.categoryNameLayout.setStartIconOnClickListener {
+            binding.categoryNameInput.setText("")
+            receiptDataViewModel.filterCategoryList.value?.category = ""
+        }
         binding.newButton.setOnClickListener {
             val action = ListingFragmentDirections.actionListingFragmentToAddCategoryFragment()
             Navigation.findNavController(requireView()).navigate(action)
