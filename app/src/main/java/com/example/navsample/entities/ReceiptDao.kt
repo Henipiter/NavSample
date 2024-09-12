@@ -101,6 +101,10 @@ interface ReceiptDao {
     suspend fun getAllStores(): List<Store>
 
     @Transaction
+    @Query("SELECT * FROM store where name LIKE '%' || :name || '%' and nip LIKE '%' || :nip || '%'")
+    suspend fun getAllStores(name: String, nip: String): List<Store>
+
+    @Transaction
     @Query("SELECT r.id as id, storeId, nip, s.name,s.defaultCategoryId, pln, ptu, date, time, count(p.id)  as productCount FROM receipt r, store s, product p WHERE s.id = r.storeId AND r.id = p.receiptId AND s.name LIKE '%' || :name || '%' GROUP BY r.id ORDER BY date DESC")
     suspend fun getReceiptWithStore(name: String): List<ReceiptWithStore>
 

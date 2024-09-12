@@ -55,7 +55,6 @@ class FilterProductListFragment : Fragment() {
         binding.storeLayout.setStartIconOnClickListener {
             binding.storeInput.setText("")
             receiptDataViewModel.filterProductList.value?.store = ""
-            receiptDataViewModel.refreshReceiptList("")
         }
 
         binding.storeInput.doOnTextChanged { text, _, _, _ ->
@@ -64,7 +63,6 @@ class FilterProductListFragment : Fragment() {
         binding.categoryNameLayout.setStartIconOnClickListener {
             binding.categoryNameInput.setText("")
             receiptDataViewModel.filterProductList.value?.category = ""
-            receiptDataViewModel.refreshReceiptList("")
         }
         binding.categoryNameInput.doOnTextChanged { text, _, _, _ ->
             receiptDataViewModel.filterProductList.value?.category = text.toString()

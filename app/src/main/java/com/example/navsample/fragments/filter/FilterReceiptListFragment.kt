@@ -48,7 +48,6 @@ class FilterReceiptListFragment : Fragment() {
         binding.storeLayout.setStartIconOnClickListener {
             binding.storeInput.setText("")
             receiptDataViewModel.filterReceiptList.value?.store = ""
-            receiptDataViewModel.refreshReceiptList("")
         }
 
         binding.storeInput.doOnTextChanged { text, _, _, _ ->

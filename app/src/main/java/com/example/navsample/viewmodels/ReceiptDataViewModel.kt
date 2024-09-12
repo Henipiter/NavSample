@@ -8,6 +8,7 @@ import com.example.navsample.ApplicationContext
 import com.example.navsample.chart.ChartColors
 import com.example.navsample.dto.filter.FilterProductList
 import com.example.navsample.dto.filter.FilterReceiptList
+import com.example.navsample.dto.filter.FilterStoreList
 import com.example.navsample.dto.sorting.AlgorithmItemAdapterArgument
 import com.example.navsample.dto.sorting.UserItemAdapterArgument
 import com.example.navsample.entities.Category
@@ -26,6 +27,7 @@ import kotlinx.coroutines.launch
 class ReceiptDataViewModel : ViewModel() {
     lateinit var uid: MutableLiveData<String>
 
+    lateinit var filterStoreList: MutableLiveData<FilterStoreList>
     lateinit var filterProductList: MutableLiveData<FilterProductList>
     lateinit var filterReceiptList: MutableLiveData<FilterReceiptList>
 
@@ -62,6 +64,7 @@ class ReceiptDataViewModel : ViewModel() {
 
 
     fun clearData() {
+        filterStoreList = MutableLiveData<FilterStoreList>(FilterStoreList())
         filterProductList = MutableLiveData<FilterProductList>(FilterProductList())
         filterReceiptList = MutableLiveData<FilterReceiptList>(FilterReceiptList())
 
@@ -265,13 +268,6 @@ class ReceiptDataViewModel : ViewModel() {
         store.value = newStore
     }
 
-    fun refreshReceiptList(name: String) {
-        Log.i("Database", "refresh receipt for store $name")
-        viewModelScope.launch {
-            receiptList.postValue(dao?.getReceiptWithStore(name)?.let { ArrayList(it) })
-        }
-    }
-
     fun refreshReceiptList(name: String, dateFrom: String, dateTo: String) {
         Log.i("Database", "refresh receipt for store $name")
         viewModelScope.launch {
@@ -297,6 +293,13 @@ class ReceiptDataViewModel : ViewModel() {
         Log.i("Database", "refresh store list")
         viewModelScope.launch {
             storeList.postValue(dao?.getAllStores()?.let { ArrayList(it) })
+        }
+    }
+
+    fun refreshStoreList(name: String, nip: String) {
+        Log.i("Database", "refresh store list")
+        viewModelScope.launch {
+            storeList.postValue(dao?.getAllStores(name, nip)?.let { ArrayList(it) })
         }
     }
 
