@@ -6,6 +6,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.navsample.ApplicationContext
 import com.example.navsample.chart.ChartColors
+import com.example.navsample.dto.filter.FilterProductList
 import com.example.navsample.dto.sorting.AlgorithmItemAdapterArgument
 import com.example.navsample.dto.sorting.UserItemAdapterArgument
 import com.example.navsample.entities.Category
@@ -23,6 +24,8 @@ import kotlinx.coroutines.launch
 
 class ReceiptDataViewModel : ViewModel() {
     lateinit var uid: MutableLiveData<String>
+
+    lateinit var filterProductList: MutableLiveData<FilterProductList>
 
     lateinit var store: MutableLiveData<Store>
     lateinit var receipt: MutableLiveData<Receipt>
@@ -55,7 +58,12 @@ class ReceiptDataViewModel : ViewModel() {
         clearData()
     }
 
+
     fun clearData() {
+
+
+        filterProductList = MutableLiveData<FilterProductList>(FilterProductList())
+
         uid = MutableLiveData<String>(null)
         reorderedProductTiles = MutableLiveData<Boolean>(false)
         store = MutableLiveData<Store>(null)
@@ -259,8 +267,7 @@ class ReceiptDataViewModel : ViewModel() {
     fun refreshReceiptList(name: String) {
         Log.i("Database", "refresh receipt for store $name")
         viewModelScope.launch {
-            receiptList.postValue(
-                dao?.getReceiptWithStore(name)?.let { ArrayList(it) })
+            receiptList.postValue(dao?.getReceiptWithStore(name)?.let { ArrayList(it) })
         }
     }
 
@@ -330,15 +337,14 @@ class ReceiptDataViewModel : ViewModel() {
     ) {
         Log.i("Database", "refresh product list limited")
         viewModelScope.launch {
-            productRichList.postValue(
-                dao?.getAllProducts(
-                    storeName,
-                    categoryName,
-                    dateFrom,
-                    dateTo,
-                    lowerPrice,
-                    higherPrice
-                )?.let { ArrayList(it) })
+            productRichList.postValue(dao?.getAllProducts(
+                storeName,
+                categoryName,
+                if (dateFrom == "") "0" else dateFrom,
+                if (dateTo == "") "9" else dateTo,
+                lowerPrice,
+                higherPrice
+            )?.let { ArrayList(it) })
         }
     }
 
@@ -359,9 +365,13 @@ class ReceiptDataViewModel : ViewModel() {
     ) {
         Log.i("Database", "refresh product list not limited")
         viewModelScope.launch {
-            productRichList.postValue(
-                dao?.getAllProducts(storeName, categoryName, dateFrom, dateTo, lowerPrice)
-                    ?.let { ArrayList(it) })
+            productRichList.postValue(dao?.getAllProducts(
+                storeName,
+                categoryName,
+                if (dateFrom == "") "0" else dateFrom,
+                if (dateTo == "") "9" else dateTo,
+                lowerPrice
+            )?.let { ArrayList(it) })
         }
     }
 
@@ -394,8 +404,7 @@ class ReceiptDataViewModel : ViewModel() {
             return Category("", ChartColors.DEFAULT_CATEGORY_COLOR_STRING)
         }
         return categoryList.value?.get(categoryIndex) ?: Category(
-            "",
-            ChartColors.DEFAULT_CATEGORY_COLOR_STRING
+            "", ChartColors.DEFAULT_CATEGORY_COLOR_STRING
         )
     }
 
@@ -409,9 +418,9 @@ class ReceiptDataViewModel : ViewModel() {
 
     fun getChartDataTimeline(dateFrom: String = "0", dateTo: String = "9") {
         viewModelScope.launch {
-            timelineChartData.postValue(
-                dao?.getPricesForCategoryComparisonWithDate(dateFrom, dateTo)
-                    ?.let { ArrayList(it) })
+            timelineChartData.postValue(dao?.getPricesForCategoryComparisonWithDate(
+                dateFrom, dateTo
+            )?.let { ArrayList(it) })
         }
     }
 
@@ -424,15 +433,13 @@ class ReceiptDataViewModel : ViewModel() {
 
     fun getTableCounts() {
         viewModelScope.launch {
-            tableCounts.postValue(
-                dao?.getTableCounts()?.let { ArrayList(it) })
+            tableCounts.postValue(dao?.getTableCounts()?.let { ArrayList(it) })
         }
     }
 
     fun getAllData() {
         viewModelScope.launch {
-            allData.postValue(
-                dao?.getAllData()?.let { ArrayList(it) })
+            allData.postValue(dao?.getAllData()?.let { ArrayList(it) })
         }
     }
 }
