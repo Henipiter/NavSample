@@ -7,6 +7,7 @@ import androidx.lifecycle.viewModelScope
 import com.example.navsample.ApplicationContext
 import com.example.navsample.chart.ChartColors
 import com.example.navsample.dto.filter.FilterProductList
+import com.example.navsample.dto.filter.FilterReceiptList
 import com.example.navsample.dto.sorting.AlgorithmItemAdapterArgument
 import com.example.navsample.dto.sorting.UserItemAdapterArgument
 import com.example.navsample.entities.Category
@@ -26,6 +27,7 @@ class ReceiptDataViewModel : ViewModel() {
     lateinit var uid: MutableLiveData<String>
 
     lateinit var filterProductList: MutableLiveData<FilterProductList>
+    lateinit var filterReceiptList: MutableLiveData<FilterReceiptList>
 
     lateinit var store: MutableLiveData<Store>
     lateinit var receipt: MutableLiveData<Receipt>
@@ -60,9 +62,8 @@ class ReceiptDataViewModel : ViewModel() {
 
 
     fun clearData() {
-
-
         filterProductList = MutableLiveData<FilterProductList>(FilterProductList())
+        filterReceiptList = MutableLiveData<FilterReceiptList>(FilterReceiptList())
 
         uid = MutableLiveData<String>(null)
         reorderedProductTiles = MutableLiveData<Boolean>(false)
@@ -275,7 +276,11 @@ class ReceiptDataViewModel : ViewModel() {
         Log.i("Database", "refresh receipt for store $name")
         viewModelScope.launch {
             receiptList.postValue(
-                dao?.getReceiptWithStore(name, dateFrom, dateTo)?.let { ArrayList(it) })
+                dao?.getReceiptWithStore(
+                    name,
+                    if (dateFrom == "") "0" else dateFrom,
+                    if (dateTo == "") "9" else dateTo,
+                )?.let { ArrayList(it) })
         }
     }
 
