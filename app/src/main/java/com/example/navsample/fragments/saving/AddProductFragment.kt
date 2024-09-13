@@ -21,7 +21,6 @@ import com.example.navsample.exception.NoStoreIdException
 import com.example.navsample.imageanalyzer.ReceiptParser
 import com.example.navsample.viewmodels.ReceiptDataViewModel
 import com.example.navsample.viewmodels.ReceiptImageViewModel
-import kotlin.math.round
 
 class AddProductFragment : Fragment() {
 
@@ -38,7 +37,6 @@ class AddProductFragment : Fragment() {
     private var productOriginalInput = ""
     private var chosenCategory = Category("", "")
     private var productId: Int? = null
-    private var receiptId: Int? = null
 
     companion object {
         private const val SUGGESTION_PREFIX = "Maybe "
@@ -84,11 +82,49 @@ class AddProductFragment : Fragment() {
         }
     }
 
-    private fun tryConvertToDouble(correctString: String): Double {
-        return try {
-            correctString.toDouble()
-        } catch (exc: Exception) {
-            -1.0
+    private fun tryConvertToDouble(correctString: String): Double? {
+        return correctString.toDoubleOrNull()
+
+    }
+
+    private fun roundDouble(double: Double): Double {
+        return "%.2f".format(double).toDouble()
+    }
+
+    private fun getSuggestionMessage(double: Double): String {
+        return "${SUGGESTION_PREFIX}${double}"
+    }
+
+    private fun validateFinalPrice() {
+        val subtotalPrice = tryConvertToDouble(binding.productSubtotalPriceInput.text.toString())
+        val discountPrice = tryConvertToDouble(binding.productDiscountInput.text.toString())
+        val finalPrice = tryConvertToDouble(binding.productFinalPriceInput.text.toString())
+        val checks = arrayOf(discountPrice, finalPrice).count { it != null }
+        if (subtotalPrice == -1.0) {
+            return
+        }
+        if (checks == 2) {
+            if ("%.2f".format(subtotalPrice!! + discountPrice!!).toDouble() == finalPrice!!) {
+                binding.productDiscountHelperText.text = ""
+                binding.productFinalPriceHelperText.text = ""
+            } else {
+                binding.productDiscountHelperText.text =
+                    getSuggestionMessage(roundDouble(finalPrice - subtotalPrice))
+                binding.productFinalPriceHelperText.text =
+                    getSuggestionMessage(roundDouble(subtotalPrice + discountPrice))
+            }
+        } else if (checks == 1) {
+            if (discountPrice == null) {
+                binding.productDiscountHelperText.text =
+                    getSuggestionMessage(roundDouble(finalPrice!! - subtotalPrice!!))
+            }
+            if (finalPrice == null) {
+                binding.productFinalPriceHelperText.text =
+                    getSuggestionMessage(roundDouble(subtotalPrice!! + discountPrice!!))
+            }
+        } else {
+            binding.productDiscountHelperText.text = ""
+            binding.productFinalPriceHelperText.text = ""
         }
     }
 
@@ -97,38 +133,37 @@ class AddProductFragment : Fragment() {
         val unitPrice = tryConvertToDouble(binding.productUnitPriceInput.text.toString())
         val quantity = tryConvertToDouble(binding.productQuantityInput.text.toString())
 
-        val checks = arrayOf(subtotalPrice, unitPrice, quantity).count { it >= 0 }
+        val checks = arrayOf(subtotalPrice, unitPrice, quantity).count { it != null }
         if (checks == 3) {
-            if (unitPrice * quantity == subtotalPrice) {
+            if ("%.2f".format(unitPrice!! * quantity!!).toDouble() == subtotalPrice) {
                 binding.productSubtotalPriceHelperText.text = ""
                 binding.productUnitPriceHelperText.text = ""
                 binding.productQuantityHelperText.text = ""
             } else {
                 binding.productSubtotalPriceHelperText.text =
-                    "${SUGGESTION_PREFIX}${round(unitPrice * quantity * 100) / 100}"
+                    getSuggestionMessage(roundDouble(unitPrice * quantity))
                 binding.productUnitPriceHelperText.text =
-                    "${SUGGESTION_PREFIX}${round(subtotalPrice / quantity * 100) / 100}"
+                    getSuggestionMessage(roundDouble(subtotalPrice!! / quantity))
                 binding.productQuantityHelperText.text =
-                    "${SUGGESTION_PREFIX}${round(subtotalPrice / unitPrice * 100) / 100}"
+                    getSuggestionMessage(roundDouble(subtotalPrice / unitPrice))
             }
         } else if (checks == 2) {
-            if (subtotalPrice < 0) {
+            if (subtotalPrice == null) {
                 binding.productSubtotalPriceHelperText.text =
-                    "${SUGGESTION_PREFIX}${round(unitPrice * quantity * 100) / 100}"
+                    getSuggestionMessage(roundDouble(unitPrice!! * quantity!!))
             }
-            if (unitPrice < 0) {
+            if (unitPrice == null) {
                 binding.productUnitPriceHelperText.text =
-                    "${SUGGESTION_PREFIX}${round(subtotalPrice / quantity * 100) / 100}"
+                    getSuggestionMessage(roundDouble(subtotalPrice!! / quantity!!))
             }
-            if (quantity < 0) {
+            if (quantity == null) {
                 binding.productQuantityHelperText.text =
-                    "${SUGGESTION_PREFIX}${round(subtotalPrice / unitPrice * 100) / 100}"
+                    getSuggestionMessage(roundDouble(subtotalPrice!! / unitPrice!!))
             }
         } else {
             binding.productSubtotalPriceHelperText.text = ""
             binding.productUnitPriceHelperText.text = ""
             binding.productQuantityHelperText.text = ""
-
         }
     }
 
@@ -149,6 +184,14 @@ class AddProductFragment : Fragment() {
         }
         if (binding.productQuantityInput.text.isNullOrEmpty()) {
             binding.productQuantityHelperText.text = "Empty"
+            succeedValidation = false
+        }
+        if (binding.productDiscountInput.text.isNullOrEmpty()) {
+            binding.productDiscountHelperText.text = "Empty"
+            succeedValidation = false
+        }
+        if (binding.productFinalPriceInput.text.isNullOrEmpty()) {
+            binding.productFinalPriceHelperText.text = "Empty"
             succeedValidation = false
         }
         return succeedValidation
@@ -179,7 +222,6 @@ class AddProductFragment : Fragment() {
             binding.ptuTypeInput.setAdapter(adapter)
         }
 
-        receiptId = receiptDataViewModel.receipt.value?.id
         if (args.productIndex != -1) {
             val productOriginal = receiptDataViewModel.product.value?.get(args.productIndex)
             productId = productOriginal?.id
@@ -205,6 +247,7 @@ class AddProductFragment : Fragment() {
                 productOriginalInput = product.raw
 
                 validatePrices()
+                validateFinalPrice()
             }
         } else {
             binding.productCategoryInput.setText(chosenCategory.name)
@@ -237,6 +280,7 @@ class AddProductFragment : Fragment() {
             if (!actual.isNullOrEmpty()) {
                 binding.productSubtotalPriceHelperText.text = ""
                 validatePrices()
+                validateFinalPrice()
             }
         }
         binding.productUnitPriceInput.doOnTextChanged { actual, _, _, _ ->
@@ -249,6 +293,18 @@ class AddProductFragment : Fragment() {
             if (!actual.isNullOrEmpty()) {
                 binding.productQuantityHelperText.text = ""
                 validatePrices()
+            }
+        }
+        binding.productDiscountInput.doOnTextChanged { actual, _, _, _ ->
+            if (!actual.isNullOrEmpty()) {
+                binding.productDiscountHelperText.text = ""
+                validateFinalPrice()
+            }
+        }
+        binding.productFinalPriceInput.doOnTextChanged { actual, _, _, _ ->
+            if (!actual.isNullOrEmpty()) {
+                binding.productFinalPriceHelperText.text = ""
+                validateFinalPrice()
             }
         }
         binding.productOriginalInput.doOnTextChanged { actual, _, _, _ ->
@@ -284,14 +340,14 @@ class AddProductFragment : Fragment() {
             }
 
             val product = Product(
-                receiptId ?: throw NoReceiptIdException(),
+                receiptDataViewModel.receipt.value?.id ?: throw NoReceiptIdException(),
                 binding.productNameInput.text.toString(),
                 chosenCategory.id ?: throw NoCategoryIdException(),
-                binding.productQuantityInput.text.toString().toFloat(),
-                binding.productUnitPriceInput.text.toString().toFloat(),
-                binding.productSubtotalPriceInput.text.toString().toFloat(),
-                binding.productDiscountInput.text.toString().toFloat(),
-                binding.productFinalPriceInput.text.toString().toFloat(),
+                binding.productQuantityInput.text.toString().toDouble(),
+                binding.productUnitPriceInput.text.toString().toDouble(),
+                binding.productSubtotalPriceInput.text.toString().toDouble(),
+                binding.productDiscountInput.text.toString().toDouble(),
+                binding.productFinalPriceInput.text.toString().toDouble(),
                 binding.ptuTypeInput.text.toString(),
                 binding.productOriginalInput.text.toString()
             )
@@ -330,6 +386,22 @@ class AddProductFragment : Fragment() {
             if (binding.productQuantityHelperText.text.toString().contains(SUGGESTION_PREFIX)) {
                 binding.productQuantityInput.setText(
                     convertSuggestionToValue(binding.productQuantityHelperText.text.toString())
+                )
+                validatePrices()
+            }
+        }
+        binding.productDiscountHelperText.setOnClickListener {
+            if (binding.productDiscountHelperText.text.toString().contains(SUGGESTION_PREFIX)) {
+                binding.productDiscountInput.setText(
+                    convertSuggestionToValue(binding.productDiscountHelperText.text.toString())
+                )
+                validatePrices()
+            }
+        }
+        binding.productFinalPriceHelperText.setOnClickListener {
+            if (binding.productFinalPriceHelperText.text.toString().contains(SUGGESTION_PREFIX)) {
+                binding.productFinalPriceInput.setText(
+                    convertSuggestionToValue(binding.productFinalPriceHelperText.text.toString())
                 )
                 validatePrices()
             }

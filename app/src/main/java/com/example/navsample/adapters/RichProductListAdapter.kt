@@ -12,6 +12,7 @@ import com.example.navsample.databinding.ProductRowBinding
 import com.example.navsample.entities.relations.ProductRichData
 import kotlin.math.roundToInt
 
+
 class RichProductListAdapter(
     var context: Context,
     var productList: ArrayList<ProductRichData>,
@@ -58,17 +59,27 @@ class RichProductListAdapter(
             }
         }
 
-        val floatQuantity = trim(productList[position].quantity.toString()).toDoubleOrNull()
+        validateParams(holder)
+    }
+
+    private fun validateParams(holder: MyViewHolder) {
+        val doubleQuantity = trim(productList[position].quantity.toString()).toDoubleOrNull()
         val unitPrice = trim(productList[position].unitPrice.toString()).toDoubleOrNull()
         val subtotalPrice = trim(productList[position].subtotalPrice.toString()).toDoubleOrNull()
         val discount = trim(productList[position].discount.toString()).toDoubleOrNull()
         val finalPrice = trim(productList[position].finalPrice.toString()).toDoubleOrNull()
 
-        if (floatQuantity == null || unitPrice == null || subtotalPrice == null || (floatQuantity * unitPrice * 100.0).roundToInt() / 100.0 != subtotalPrice) {
+        if (doubleQuantity == null || unitPrice == null || subtotalPrice == null || (doubleQuantity * unitPrice * 100.0).roundToInt() / 100.0 != subtotalPrice) {
             holder.binding.subtotalPrice.setTextColor(Color.RED)
+        } else {
+            holder.binding.subtotalPrice.setTextColor(context.resources.getColor(R.color.basic_text_grey))
         }
+
         if (subtotalPrice == null || discount == null || finalPrice == null || subtotalPrice - discount != finalPrice) {
             holder.binding.finalPrice.setTextColor(Color.RED)
+        } else {
+            holder.binding.finalPrice.setTextColor(context.resources.getColor(R.color.basic_text_grey))
+
         }
     }
 

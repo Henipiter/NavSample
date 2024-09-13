@@ -136,6 +136,12 @@
         <action
             android:id="@+id/action_listingFragment_to_addProductFragment"
             app:destination="@id/addProductFragment" />
+        <action
+            android:id="@+id/action_listingFragment_to_filterProductListFragment"
+            app:destination="@id/filterProductListFragment" />
+        <action
+            android:id="@+id/action_listingFragment_to_filterReceiptListFragment"
+            app:destination="@id/filterReceiptListFragment" />
     </fragment>
     <fragment
         android:id="@+id/addCategoryFragment"
@@ -146,4 +152,14 @@
         android:name="com.example.navsample.fragments.ExportDataFragment"
         android:label="fragment_export_data"
         tools:layout="@layout/fragment_export_data" />
+    <fragment
+        android:id="@+id/filterProductListFragment"
+        android:name="com.example.navsample.fragments.filter.FilterProductListFragment"
+        android:label="fragment_filter_product_list"
+        tools:layout="@layout/fragment_filter_product_list" />
+    <fragment
+        android:id="@+id/filterReceiptListFragment"
+        android:name="com.example.navsample.fragments.filter.FilterReceiptListFragment"
+        android:label="fragment_filter_receipt_list"
+        tools:layout="@layout/fragment_filter_receipt_list" />
 </navigation>

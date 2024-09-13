@@ -101,6 +101,10 @@ interface ReceiptDao {
     suspend fun getAllStores(): List<Store>
 
     @Transaction
+    @Query("SELECT * FROM store where name LIKE '%' || :name || '%' and nip LIKE '%' || :nip || '%'")
+    suspend fun getAllStores(name: String, nip: String): List<Store>
+
+    @Transaction
     @Query("SELECT r.id as id, storeId, nip, s.name,s.defaultCategoryId, pln, ptu, date, time, count(p.id)  as productCount FROM receipt r, store s, product p WHERE s.id = r.storeId AND r.id = p.receiptId AND s.name LIKE '%' || :name || '%' GROUP BY r.id ORDER BY date DESC")
     suspend fun getReceiptWithStore(name: String): List<ReceiptWithStore>
 
@@ -115,6 +119,10 @@ interface ReceiptDao {
     @Transaction
     @Query("SELECT * FROM category order by name")
     suspend fun getAllCategories(): List<Category>
+
+    @Transaction
+    @Query("SELECT * FROM category where name like '%'||:name||'%' order by name")
+    suspend fun getAllCategories(name: String): List<Category>
 
     @Transaction
     @Query("SELECT * FROM product WHERE receiptId=:receiptId")
@@ -134,8 +142,8 @@ interface ReceiptDao {
         categoryName: String,
         dateFrom: String,
         dateTo: String,
-        lowerPrice: Float,
-        higherPrice: Float,
+        lowerPrice: Double,
+        higherPrice: Double,
     ): List<ProductRichData>
 
     @Transaction
@@ -152,7 +160,7 @@ interface ReceiptDao {
         categoryName: String,
         dateFrom: String,
         dateTo: String,
-        lowerPrice: Float,
+        lowerPrice: Double,
     ): List<ProductRichData>
 
     @Transaction

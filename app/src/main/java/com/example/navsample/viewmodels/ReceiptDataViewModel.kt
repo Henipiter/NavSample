@@ -6,6 +6,10 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.navsample.ApplicationContext
 import com.example.navsample.chart.ChartColors
+import com.example.navsample.dto.filter.FilterCategoryList
+import com.example.navsample.dto.filter.FilterProductList
+import com.example.navsample.dto.filter.FilterReceiptList
+import com.example.navsample.dto.filter.FilterStoreList
 import com.example.navsample.dto.sorting.AlgorithmItemAdapterArgument
 import com.example.navsample.dto.sorting.UserItemAdapterArgument
 import com.example.navsample.entities.Category
@@ -23,6 +27,11 @@ import kotlinx.coroutines.launch
 
 class ReceiptDataViewModel : ViewModel() {
     lateinit var uid: MutableLiveData<String>
+
+    lateinit var filterCategoryList: MutableLiveData<FilterCategoryList>
+    lateinit var filterStoreList: MutableLiveData<FilterStoreList>
+    lateinit var filterProductList: MutableLiveData<FilterProductList>
+    lateinit var filterReceiptList: MutableLiveData<FilterReceiptList>
 
     lateinit var store: MutableLiveData<Store>
     lateinit var receipt: MutableLiveData<Receipt>
@@ -55,7 +64,13 @@ class ReceiptDataViewModel : ViewModel() {
         clearData()
     }
 
+
     fun clearData() {
+        filterCategoryList = MutableLiveData<FilterCategoryList>(FilterCategoryList())
+        filterStoreList = MutableLiveData<FilterStoreList>(FilterStoreList())
+        filterProductList = MutableLiveData<FilterProductList>(FilterProductList())
+        filterReceiptList = MutableLiveData<FilterReceiptList>(FilterReceiptList())
+
         uid = MutableLiveData<String>(null)
         reorderedProductTiles = MutableLiveData<Boolean>(false)
         store = MutableLiveData<Store>(null)
@@ -256,19 +271,15 @@ class ReceiptDataViewModel : ViewModel() {
         store.value = newStore
     }
 
-    fun refreshReceiptList(name: String) {
-        Log.i("Database", "refresh receipt for store $name")
-        viewModelScope.launch {
-            receiptList.postValue(
-                dao?.getReceiptWithStore(name)?.let { ArrayList(it) })
-        }
-    }
-
     fun refreshReceiptList(name: String, dateFrom: String, dateTo: String) {
         Log.i("Database", "refresh receipt for store $name")
         viewModelScope.launch {
             receiptList.postValue(
-                dao?.getReceiptWithStore(name, dateFrom, dateTo)?.let { ArrayList(it) })
+                dao?.getReceiptWithStore(
+                    name,
+                    if (dateFrom == "") "0" else dateFrom,
+                    if (dateTo == "") "9" else dateTo,
+                )?.let { ArrayList(it) })
         }
     }
 
@@ -281,10 +292,26 @@ class ReceiptDataViewModel : ViewModel() {
         }
     }
 
+    fun refreshCategoryList(categoryName: String) {
+        Log.i("Database", "refresh category list")
+        viewModelScope.launch {
+            categoryList.postValue(
+                dao?.getAllCategories(categoryName) as ArrayList<Category>
+            )
+        }
+    }
+
     fun refreshStoreList() {
         Log.i("Database", "refresh store list")
         viewModelScope.launch {
             storeList.postValue(dao?.getAllStores()?.let { ArrayList(it) })
+        }
+    }
+
+    fun refreshStoreList(name: String, nip: String) {
+        Log.i("Database", "refresh store list")
+        viewModelScope.launch {
+            storeList.postValue(dao?.getAllStores(name, nip)?.let { ArrayList(it) })
         }
     }
 
@@ -325,20 +352,19 @@ class ReceiptDataViewModel : ViewModel() {
         categoryName: String,
         dateFrom: String,
         dateTo: String,
-        lowerPrice: Float,
-        higherPrice: Float,
+        lowerPrice: Double,
+        higherPrice: Double,
     ) {
         Log.i("Database", "refresh product list limited")
         viewModelScope.launch {
-            productRichList.postValue(
-                dao?.getAllProducts(
-                    storeName,
-                    categoryName,
-                    dateFrom,
-                    dateTo,
-                    lowerPrice,
-                    higherPrice
-                )?.let { ArrayList(it) })
+            productRichList.postValue(dao?.getAllProducts(
+                storeName,
+                categoryName,
+                if (dateFrom == "") "0" else dateFrom,
+                if (dateTo == "") "9" else dateTo,
+                lowerPrice,
+                higherPrice
+            )?.let { ArrayList(it) })
         }
     }
 
@@ -346,7 +372,7 @@ class ReceiptDataViewModel : ViewModel() {
         Log.i("Database", "refresh product list all")
         viewModelScope.launch {
             productRichList.postValue(
-                dao?.getAllProducts("", "", "0", "9", 0F)?.let { ArrayList(it) })
+                dao?.getAllProducts("", "", "0", "9", 0.0)?.let { ArrayList(it) })
         }
     }
 
@@ -355,13 +381,17 @@ class ReceiptDataViewModel : ViewModel() {
         categoryName: String,
         dateFrom: String,
         dateTo: String,
-        lowerPrice: Float,
+        lowerPrice: Double,
     ) {
         Log.i("Database", "refresh product list not limited")
         viewModelScope.launch {
-            productRichList.postValue(
-                dao?.getAllProducts(storeName, categoryName, dateFrom, dateTo, lowerPrice)
-                    ?.let { ArrayList(it) })
+            productRichList.postValue(dao?.getAllProducts(
+                storeName,
+                categoryName,
+                if (dateFrom == "") "0" else dateFrom,
+                if (dateTo == "") "9" else dateTo,
+                lowerPrice
+            )?.let { ArrayList(it) })
         }
     }
 
@@ -394,24 +424,23 @@ class ReceiptDataViewModel : ViewModel() {
             return Category("", ChartColors.DEFAULT_CATEGORY_COLOR_STRING)
         }
         return categoryList.value?.get(categoryIndex) ?: Category(
-            "",
-            ChartColors.DEFAULT_CATEGORY_COLOR_STRING
+            "", ChartColors.DEFAULT_CATEGORY_COLOR_STRING
         )
     }
 
-    private fun transformToFloat(value: String): Float {
+    private fun transformToDouble(value: String): Double {
         return try {
-            value.replace(",", ".").toFloat()
+            value.replace(",", ".").toDouble()
         } catch (t: Throwable) {
-            0.0f
+            0.0
         }
     }
 
     fun getChartDataTimeline(dateFrom: String = "0", dateTo: String = "9") {
         viewModelScope.launch {
-            timelineChartData.postValue(
-                dao?.getPricesForCategoryComparisonWithDate(dateFrom, dateTo)
-                    ?.let { ArrayList(it) })
+            timelineChartData.postValue(dao?.getPricesForCategoryComparisonWithDate(
+                dateFrom, dateTo
+            )?.let { ArrayList(it) })
         }
     }
 
@@ -424,15 +453,13 @@ class ReceiptDataViewModel : ViewModel() {
 
     fun getTableCounts() {
         viewModelScope.launch {
-            tableCounts.postValue(
-                dao?.getTableCounts()?.let { ArrayList(it) })
+            tableCounts.postValue(dao?.getTableCounts()?.let { ArrayList(it) })
         }
     }
 
     fun getAllData() {
         viewModelScope.launch {
-            allData.postValue(
-                dao?.getAllData()?.let { ArrayList(it) })
+            allData.postValue(dao?.getAllData()?.let { ArrayList(it) })
         }
     }
 }

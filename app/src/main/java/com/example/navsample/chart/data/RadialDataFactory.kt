@@ -42,7 +42,7 @@ interface RadialDataFactory<
     fun createCategoryData(data: List<PriceByCategory>): List<ChartData> {
         val categoryData: MutableList<ChartData> = mutableListOf()
         data.forEach {
-            categoryData.add(ChartData(it.category, it.price))
+            categoryData.add(ChartData(it.category, it.price.toFloat()))
         }
         return categoryData
     }

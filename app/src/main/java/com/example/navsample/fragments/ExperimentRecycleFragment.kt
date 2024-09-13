@@ -2,6 +2,8 @@
 
 package com.example.navsample.fragments
 
+import android.animation.ArgbEvaluator
+import android.animation.ValueAnimator
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -9,6 +11,7 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.navigation.Navigation
+import com.example.navsample.R
 import com.example.navsample.adapters.sorting.AlgorithmItemListAdapter
 import com.example.navsample.adapters.sorting.SortingItemListAdapter
 import com.example.navsample.adapters.sorting.UserItemListAdapter
@@ -19,11 +22,14 @@ import com.example.navsample.dto.Type
 import com.example.navsample.dto.sorting.AlgorithmItemAdapterArgument
 import com.example.navsample.dto.sorting.ItemAdapterArgument
 import com.example.navsample.dto.sorting.UserItemAdapterArgument
+import com.example.navsample.exception.NoReceiptIdException
+import com.example.navsample.exception.NoStoreIdException
 import com.example.navsample.imageanalyzer.ReceiptParser
 import com.example.navsample.sorting.NonScrollableGridLayoutManager
 import com.example.navsample.sorting.operation.ElementOperationHelper
 import com.example.navsample.viewmodels.ReceiptDataViewModel
 import com.example.navsample.viewmodels.ReceiptImageViewModel
+
 
 open class ExperimentRecycleFragment : Fragment() {
     private var _binding: FragmentExperimentRecycleBinding? = null
@@ -49,6 +55,10 @@ open class ExperimentRecycleFragment : Fragment() {
     private var editingMode = false
     private var currentType = Type.NAME
 
+    private var activePriceColor = 0
+    private var activeNameColor = 0
+    private var inactiveColor = 0
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?,
     ): View {
@@ -58,12 +68,16 @@ open class ExperimentRecycleFragment : Fragment() {
 
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        activePriceColor = resources.getColor(R.color.blue_200, requireContext().theme)
+        activeNameColor = resources.getColor(R.color.green_200, requireContext().theme)
+        inactiveColor = resources.getColor(R.color.background_color, requireContext().theme)
+
         super.onViewCreated(view, savedInstanceState)
         initObserver()
         binding.editGrid.visibility = View.GONE
         receiptParser = ReceiptParser(
-            receiptDataViewModel.receipt.value?.id ?: -1,            //throw NoReceiptIdException(),
-            receiptDataViewModel.store.value?.defaultCategoryId ?: -1 // throw NoStoreIdException()
+            receiptDataViewModel.receipt.value?.id ?: throw NoReceiptIdException(),
+            receiptDataViewModel.store.value?.defaultCategoryId ?: throw NoStoreIdException()
         )
         binding.switchingButton.isChecked = true
         binding.priceModeColor.visibility = View.INVISIBLE
@@ -74,16 +88,17 @@ open class ExperimentRecycleFragment : Fragment() {
         binding.switchingButton.setOnClickListener {
             if (sortingMode == SortingElementMode.SWITCHING) {
                 changeCurrentType()
+                changeCurrentType(currentType, true)
             }
             sortingMode = SortingElementMode.SWITCHING
         }
         binding.nameOnlyButton.setOnClickListener {
             sortingMode = SortingElementMode.NAME_ONLY
-            changeCurrentType(Type.NAME)
+            changeCurrentType(Type.NAME, currentType != Type.NAME)
         }
         binding.priceOnlyButton.setOnClickListener {
             sortingMode = SortingElementMode.PRICE_ONLY
-            changeCurrentType(Type.PRICE)
+            changeCurrentType(Type.PRICE, currentType != Type.PRICE)
         }
 
         configureListAdapter()
@@ -153,18 +168,74 @@ open class ExperimentRecycleFragment : Fragment() {
         }
     }
 
-    private fun changeCurrentType(type: Type) {
+
+    private fun changeCurrentType(type: Type, animate: Boolean) {
+        val activateNameAnimation =
+            ValueAnimator.ofObject(ArgbEvaluator(), inactiveColor, activeNameColor)
+        val deactivateNameAnimation =
+            ValueAnimator.ofObject(ArgbEvaluator(), activeNameColor, inactiveColor)
+        val activatePriceAnimation =
+            ValueAnimator.ofObject(ArgbEvaluator(), inactiveColor, activePriceColor)
+        val deactivatePriceAnimation =
+            ValueAnimator.ofObject(ArgbEvaluator(), activePriceColor, inactiveColor)
+
+        activateNameAnimation.setDuration(250)
+        deactivateNameAnimation.setDuration(250)
+        activatePriceAnimation.setDuration(250)
+        deactivatePriceAnimation.setDuration(250)
+
+        activateNameAnimation.addUpdateListener { animator ->
+            binding.cardViewUserName.setCardBackgroundColor(
+                animator.animatedValue as Int
+            )
+        }
+        deactivateNameAnimation.addUpdateListener { animator ->
+            binding.cardViewUserName.setCardBackgroundColor(
+                animator.animatedValue as Int
+            )
+        }
+        activatePriceAnimation.addUpdateListener { animator ->
+            binding.cardViewUserPrice.setCardBackgroundColor(
+                animator.animatedValue as Int
+            )
+        }
+        deactivatePriceAnimation.addUpdateListener { animator ->
+            binding.cardViewUserPrice.setCardBackgroundColor(
+                animator.animatedValue as Int
+            )
+        }
+
         when (type) {
             Type.PRICE -> {
                 currentType = Type.PRICE
                 binding.priceModeColor.visibility = View.VISIBLE
                 binding.nameModeColor.visibility = View.INVISIBLE
+                if (animate) {
+                    activatePriceAnimation.start()
+                    deactivateNameAnimation.start()
+                }
             }
 
             Type.NAME -> {
                 currentType = Type.NAME
                 binding.priceModeColor.visibility = View.INVISIBLE
                 binding.nameModeColor.visibility = View.VISIBLE
+                binding.cardViewUserPrice.setCardBackgroundColor(
+                    resources.getColor(
+                        R.color.basic_grey,
+                        requireContext().theme
+                    )
+                )
+                binding.cardViewUserName.setCardBackgroundColor(
+                    resources.getColor(
+                        R.color.green_200,
+                        requireContext().theme
+                    )
+                )
+                if (animate) {
+                    activateNameAnimation.start()
+                    deactivatePriceAnimation.start()
+                }
             }
 
             else -> {}
@@ -175,14 +246,10 @@ open class ExperimentRecycleFragment : Fragment() {
         when (currentType) {
             Type.PRICE -> {
                 currentType = Type.NAME
-                binding.priceModeColor.visibility = View.INVISIBLE
-                binding.nameModeColor.visibility = View.VISIBLE
             }
 
             Type.NAME -> {
                 currentType = Type.PRICE
-                binding.priceModeColor.visibility = View.VISIBLE
-                binding.nameModeColor.visibility = View.INVISIBLE
             }
 
             else -> {}
@@ -197,7 +264,8 @@ open class ExperimentRecycleFragment : Fragment() {
                 algorithmOrderedPricesAdapter.notifyItemChanged(position)
             }, { position ->
                 editElement(position, recycleListAlgorithmPrices, algorithmOrderedPricesAdapter)
-            })
+            }, requireContext()
+        )
 
         //ALGORITHM     NAME
         algorithmOrderedNamesAdapter = AlgorithmItemListAdapter(recycleListAlgorithmNames,
@@ -206,7 +274,8 @@ open class ExperimentRecycleFragment : Fragment() {
                 algorithmOrderedNamesAdapter.notifyItemChanged(position)
             }, { position ->
                 editElement(position, recycleListAlgorithmNames, algorithmOrderedNamesAdapter)
-            })
+            }, requireContext()
+        )
 
         //USER     NAME
         userOrderedNamesAdapter = UserItemListAdapter(recycleListUserNames,
@@ -260,6 +329,7 @@ open class ExperimentRecycleFragment : Fragment() {
             elementOperationHelper.clickAlgorithmElement(item, currentType)
             if (sortingMode == SortingElementMode.SWITCHING) {
                 changeCurrentType()
+                changeCurrentType(currentType, true)
             }
         }
     }

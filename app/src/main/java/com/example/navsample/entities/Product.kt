@@ -8,11 +8,11 @@ data class Product(
     var receiptId: Int,
     var name: String,
     var categoryId: Int,
-    var quantity: Float,
-    var unitPrice: Float,
-    var subtotalPrice: Float,
-    var discount: Float,
-    var finalPrice: Float,
+    var quantity: Double,
+    var unitPrice: Double,
+    var subtotalPrice: Double,
+    var discount: Double,
+    var finalPrice: Double,
     var ptuType: String,
     var raw: String
 ){

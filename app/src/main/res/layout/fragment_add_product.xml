@@ -213,7 +213,6 @@
 
                 <com.google.android.material.textfield.TextInputLayout
                     android:id="@+id/product_unit_price_layout"
-                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
                     android:layout_width="0dp"
 
                     android:layout_height="wrap_content"

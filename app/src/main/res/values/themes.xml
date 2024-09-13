@@ -1,10 +1,15 @@
-<?xml version="1.0" encoding="utf-8"?>
 <resources>
-
-    <style name="Theme.NavSample" parent="android:Theme.Material.Light.NoActionBar" />
     <!-- Base application theme. -->
     <style name="Base.Theme.NavSample" parent="Theme.Material3.DayNight.NoActionBar">
-        <!-- Customize your light theme here. -->
-        <!-- <item name="colorPrimary">@color/my_light_primary</item> -->
+        <item name="colorPrimary">@color/orange_500</item>
+        <item name="colorPrimaryDark">@color/basic_text_grey</item>
+        <item name="android:buttonStyle">@style/ButtonOrangeLight</item>
+        <item name="cardBackgroundColor">@color/background_color</item>
     </style>
+
+    <color name="background_color">@color/mid_grey200</color>
+    <color name="background_tile_chosen">@color/orange_200</color>
+    <color name="background_tile_default">@color/basic_text_grey</color>
+    <color name="background_tile_blocked">@color/mid_grey</color>
+
 </resources>

@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.widget.doOnTextChanged
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.navigation.Navigation
@@ -22,7 +23,6 @@ class StoreListFragment : Fragment(), ItemClickListener {
     private val binding get() = _binding!!
     private val receiptDataViewModel: ReceiptDataViewModel by activityViewModels()
 
-
     private lateinit var recyclerViewEvent: RecyclerView
     private lateinit var storeListAdapter: StoreListAdapter
 
@@ -37,9 +37,7 @@ class StoreListFragment : Fragment(), ItemClickListener {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         initObserver()
-
-
-        receiptDataViewModel.refreshStoreList()
+        refreshList()
 
         recyclerViewEvent = binding.recyclerViewEventReceipts
         storeListAdapter = StoreListAdapter(
@@ -59,6 +57,22 @@ class StoreListFragment : Fragment(), ItemClickListener {
                 }.show(childFragmentManager, "TAG")
             }
         }
+        binding.storeNameInput.doOnTextChanged { text, _, _, _ ->
+            receiptDataViewModel.filterStoreList.value?.store = text.toString()
+            refreshList()
+        }
+        binding.storeNIPInput.doOnTextChanged { text, _, _, _ ->
+            receiptDataViewModel.filterStoreList.value?.nip = text.toString()
+            refreshList()
+        }
+        binding.storeNameLayout.setStartIconOnClickListener {
+            binding.storeNameInput.setText("")
+            receiptDataViewModel.filterStoreList.value?.store = ""
+        }
+        binding.storeNIPLayout.setStartIconOnClickListener {
+            binding.storeNIPInput.setText("")
+            receiptDataViewModel.filterStoreList.value?.nip = ""
+        }
         recyclerViewEvent.adapter = storeListAdapter
         recyclerViewEvent.layoutManager =
             LinearLayoutManager(requireContext(), LinearLayoutManager.VERTICAL, false)
@@ -72,11 +86,30 @@ class StoreListFragment : Fragment(), ItemClickListener {
 
     override fun onItemClick(index: Int) {
         val store = receiptDataViewModel.storeList.value!![index]
-        receiptDataViewModel.store.value = Store(store.name, store.nip, store.defaultCategoryId)
+        receiptDataViewModel.store.value = Store(store.nip, store.name, store.defaultCategoryId)
         val action =
             ListingFragmentDirections.actionListingFragmentToAddStoreFragment()
         Navigation.findNavController(requireView()).navigate(action)
 
+    }
+
+    private fun putFilterDefinitionIntoInputs() {
+        receiptDataViewModel.filterStoreList.value?.let {
+            if (binding.storeNameInput.text.toString() != it.store) {
+                binding.storeNameInput.setText(it.store)
+            }
+            if (binding.storeNIPInput.text.toString() != it.nip) {
+                binding.storeNIPInput.setText(it.nip)
+            }
+
+        }
+    }
+
+    private fun refreshList() {
+        receiptDataViewModel.filterStoreList.value?.let {
+            putFilterDefinitionIntoInputs()
+            receiptDataViewModel.refreshStoreList(it.store, it.nip)
+        }
     }
 
     private fun initObserver() {
@@ -85,6 +118,9 @@ class StoreListFragment : Fragment(), ItemClickListener {
                 storeListAdapter.storeList = it
                 storeListAdapter.notifyDataSetChanged()
             }
+        }
+        receiptDataViewModel.filterStoreList.observe(viewLifecycleOwner) {
+            refreshList()
         }
     }
 }

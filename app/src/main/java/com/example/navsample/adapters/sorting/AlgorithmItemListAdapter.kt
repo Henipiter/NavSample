@@ -1,7 +1,9 @@
 package com.example.navsample.adapters.sorting
 
+import android.content.Context
 import android.view.View
 import androidx.recyclerview.widget.DiffUtil
+import com.example.navsample.R
 import com.example.navsample.dto.SortingElementColor
 import com.example.navsample.dto.Status
 import com.example.navsample.dto.Type
@@ -12,8 +14,16 @@ class AlgorithmItemListAdapter(
     recycleList: ArrayList<AlgorithmItemAdapterArgument>,
     private var onClick: (Int) -> Unit,
     private var onLongClick: (Int) -> Unit,
+    context: Context
 ) : SortingItemListAdapter<AlgorithmItemAdapterArgument>(recycleList) {
 
+    private val blockedColor = getColor(context, R.color.background_tile_blocked)
+    private val defaultColor = getColor(context, R.color.background_tile_default)
+    private val chosenColor = getColor(context, R.color.background_tile_chosen)
+
+    private fun getColor(context: Context, property: Int): Int {
+        return context.resources.getColor(property, context.theme)
+    }
 
     override fun onBindViewHolder(holder: MyViewHolder, position: Int) {
         holder.binding.textView.text = recycleList[holder.adapterPosition].value
@@ -21,17 +31,17 @@ class AlgorithmItemListAdapter(
 
         when (recycleList[holder.adapterPosition].status) {
             Status.CHOSEN -> {
-                holder.binding.mainLayout.setBackgroundColor(SortingElementColor.CHOSEN)
+                holder.binding.mainLayout.setBackgroundColor(chosenColor)
                 holder.binding.counter.visibility = View.VISIBLE
             }
 
             Status.DEFAULT -> {
-                holder.binding.mainLayout.setBackgroundColor(SortingElementColor.DEFAULT)
+                holder.binding.mainLayout.setBackgroundColor(defaultColor)
                 holder.binding.counter.visibility = View.INVISIBLE
             }
 
             Status.BLOCKED -> {
-                holder.binding.mainLayout.setBackgroundColor(SortingElementColor.BLOCKED)
+                holder.binding.mainLayout.setBackgroundColor(blockedColor)
                 holder.binding.counter.visibility = View.INVISIBLE
             }
         }

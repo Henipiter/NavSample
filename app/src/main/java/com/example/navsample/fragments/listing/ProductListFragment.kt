@@ -5,25 +5,18 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.ArrayAdapter
-import androidx.core.util.Pair
-import androidx.core.widget.doOnTextChanged
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.navigation.Navigation
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.navsample.ItemClickListener
+import com.example.navsample.R
 import com.example.navsample.adapters.RichProductListAdapter
 import com.example.navsample.databinding.FragmentProductListBinding
 import com.example.navsample.entities.Product
 import com.example.navsample.fragments.dialogs.DeleteConfirmationDialog
-import com.example.navsample.fragments.dialogs.PricePickerDialog
 import com.example.navsample.viewmodels.ReceiptDataViewModel
-import com.google.android.material.datepicker.MaterialDatePicker
-import java.text.SimpleDateFormat
-import java.util.Calendar
-import java.util.Locale
 
 class ProductListFragment : Fragment(), ItemClickListener {
     private var _binding: FragmentProductListBinding? = null
@@ -32,16 +25,6 @@ class ProductListFragment : Fragment(), ItemClickListener {
 
     private lateinit var recyclerViewEvent: RecyclerView
     private lateinit var richProductListAdapter: RichProductListAdapter
-
-    private var lowerPrice = ""
-    private var higherPrice = ""
-
-    private var text = ""
-    private var dateFrom = ""
-    private var dateTo = ""
-
-    private var calendarDateFrom = Calendar.getInstance()
-    private var calendarDateTo = Calendar.getInstance()
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?,
     ): View {
@@ -52,8 +35,9 @@ class ProductListFragment : Fragment(), ItemClickListener {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         initObserver()
+        putFilterDefinitionIntoInputs()
 
-        binding.priceBetweenInput.setText("-")
+        refreshList()
 
         recyclerViewEvent = binding.recyclerViewEventProducts
         richProductListAdapter = RichProductListAdapter(
@@ -80,122 +64,12 @@ class ProductListFragment : Fragment(), ItemClickListener {
         recyclerViewEvent.layoutManager =
             LinearLayoutManager(requireContext(), LinearLayoutManager.VERTICAL, false)
 
-
-        refreshList()
+        binding.filterLayout.setOnClickListener {
+            Navigation.findNavController(binding.root)
+                .navigate(R.id.action_listingFragment_to_filterProductListFragment)
+        }
         receiptDataViewModel.refreshStoreList()
         receiptDataViewModel.refreshCategoryList()
-
-        binding.storeInput.doOnTextChanged { text, _, _, _ ->
-            this.text = text.toString()
-            refreshList()
-        }
-        binding.priceBetweenLayout.setEndIconOnClickListener {
-            showPricePicker()
-            refreshList()
-        }
-        binding.priceBetweenInput.setOnClickListener {
-            showPricePicker()
-            refreshList()
-        }
-        binding.dateBetweenLayout.setEndIconOnClickListener {
-            showDatePicker()
-            refreshList()
-        }
-        binding.dateBetweenInput.setOnClickListener {
-            showDatePicker()
-            refreshList()
-        }
-        binding.storeLayout.setStartIconOnClickListener {
-            binding.storeInput.setText("")
-            text = ""
-            refreshList()
-            receiptDataViewModel.refreshReceiptList("")
-        }
-        binding.categoryNameLayout.setStartIconOnClickListener {
-            binding.categoryNameInput.setText("")
-            text = ""
-            refreshList()
-            receiptDataViewModel.refreshReceiptList("")
-        }
-        binding.categoryNameInput.doOnTextChanged { _, _, _, _ ->
-            refreshList()
-        }
-        binding.dateBetweenLayout.setStartIconOnClickListener {
-            binding.dateBetweenInput.setText("")
-            dateTo = ""
-            dateFrom = ""
-            refreshList()
-        }
-        binding.priceBetweenLayout.setStartIconOnClickListener {
-            binding.priceBetweenInput.setText("-")
-            lowerPrice = ""
-            higherPrice = ""
-            refreshList()
-        }
-    }
-
-    private fun showPricePicker() {
-        val priceBoundaries =
-            binding.priceBetweenInput.text.toString().replace("\\s+".toRegex(), "").split("-")
-        PricePickerDialog(priceBoundaries[0], priceBoundaries[1]) { lower, higher ->
-            lowerPrice = lower
-            higherPrice = higher
-            binding.priceBetweenInput.setText(lower + " - " + higher)
-        }.show(childFragmentManager, "TAG")
-
-    }
-
-    private fun showDatePicker() {
-        val dateRangePicker =
-            MaterialDatePicker.Builder.dateRangePicker()
-                .setTitleText("Select dates")
-                .setSelection(
-                    Pair(
-                        calendarDateFrom.timeInMillis,
-                        calendarDateTo.timeInMillis,
-                    )
-                )
-                .build()
-        dateRangePicker.show(childFragmentManager, "Test")
-
-        dateRangePicker.addOnPositiveButtonClickListener {
-            calendarDateFrom.timeInMillis = it.first
-            calendarDateTo.timeInMillis = it.second
-            dateFrom = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
-                .format(calendarDateFrom.time)
-            dateTo = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
-                .format(calendarDateTo.time)
-            binding.dateBetweenInput.setText("$dateFrom - $dateTo")
-        }
-    }
-
-    private fun refreshList() {
-
-        val queryStoreName = binding.storeInput.text.toString()
-        val queryCategoryName = binding.categoryNameInput.text.toString()
-
-        val queryFromDate = if (dateFrom == "") "0" else dateFrom
-        val queryToDate = if (dateTo == "") "9" else dateTo
-        val queryLowerPrice = if (lowerPrice == "") 0F else lowerPrice.toFloat()
-
-        if (higherPrice != "") {
-            receiptDataViewModel.refreshProductList(
-                queryStoreName,
-                queryCategoryName,
-                queryFromDate,
-                queryToDate,
-                queryLowerPrice,
-                higherPrice.toFloat()
-            )
-        } else {
-            receiptDataViewModel.refreshProductList(
-                queryStoreName,
-                queryCategoryName,
-                queryFromDate,
-                queryToDate,
-                queryLowerPrice
-            )
-        }
     }
 
     private fun initObserver() {
@@ -205,30 +79,27 @@ class ProductListFragment : Fragment(), ItemClickListener {
                 richProductListAdapter.notifyDataSetChanged()
             }
         }
-        receiptDataViewModel.storeList.observe(viewLifecycleOwner) {
-            it?.let {
-                ArrayAdapter(
-                    requireContext(),
-                    android.R.layout.simple_list_item_1,
-                    it.map { it2 -> it2.name }
-                ).also { adapter ->
-                    binding.storeInput.setAdapter(adapter)
-                }
-            }
-        }
-        receiptDataViewModel.categoryList.observe(viewLifecycleOwner) {
-            it?.let {
-                ArrayAdapter(
-                    requireContext(),
-                    android.R.layout.simple_list_item_1,
-                    it.map { it2 -> it2.name }
-                ).also { adapter ->
-                    binding.categoryNameInput.setAdapter(adapter)
-                }
-            }
+        receiptDataViewModel.filterProductList.observe(viewLifecycleOwner) {
+            putFilterDefinitionIntoInputs()
         }
     }
 
+    private fun convertDoubleToText(double: Double): String {
+        if (double < 0.0) {
+            return ""
+        }
+        return double.toString()
+    }
+
+    private fun putFilterDefinitionIntoInputs() {
+        receiptDataViewModel.filterProductList.value?.let {
+            binding.filterStoreCard.text = if (it.store == "") "-" else it.store
+            binding.filterCategoryCard.text = if (it.category == "") "-" else it.category
+            binding.filterPriceCard.text =
+                "${convertDoubleToText(it.lowerPrice)} - ${convertDoubleToText(it.higherPrice)}"
+            binding.filterDateCard.text = "${it.dateFrom} - ${it.dateTo}"
+        }
+    }
 
     override fun onItemClick(index: Int) {
         receiptDataViewModel.productRichList.value?.get(index)?.let {
@@ -239,7 +110,7 @@ class ProductListFragment : Fragment(), ItemClickListener {
                 it.quantity,
                 it.unitPrice,
                 it.subtotalPrice,
-                0f,
+                0.0,
                 it.subtotalPrice,
                 it.ptuType,
                 it.raw
@@ -254,4 +125,27 @@ class ProductListFragment : Fragment(), ItemClickListener {
         Navigation.findNavController(requireView()).navigate(action)
     }
 
+    private fun refreshList() {
+        receiptDataViewModel.filterProductList.value?.let {
+            if (it.higherPrice != -1.0) {
+                receiptDataViewModel.refreshProductList(
+                    it.store,
+                    it.category,
+                    it.dateFrom,
+                    it.dateTo,
+                    it.lowerPrice,
+                    it.higherPrice
+                )
+            } else {
+                receiptDataViewModel.refreshProductList(
+                    it.store,
+                    it.category,
+                    it.dateFrom,
+                    it.dateTo,
+                    it.lowerPrice
+                )
+            }
+
+        }
+    }
 }

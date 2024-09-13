@@ -4,9 +4,6 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.ArrayAdapter
-import androidx.core.util.Pair
-import androidx.core.widget.doOnTextChanged
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.navigation.Navigation
@@ -19,10 +16,6 @@ import com.example.navsample.databinding.FragmentReceiptListBinding
 import com.example.navsample.entities.Receipt
 import com.example.navsample.fragments.dialogs.DeleteConfirmationDialog
 import com.example.navsample.viewmodels.ReceiptDataViewModel
-import com.google.android.material.datepicker.MaterialDatePicker
-import java.text.SimpleDateFormat
-import java.util.Calendar
-import java.util.Locale
 
 class ReceiptListFragment : Fragment(), ItemClickListener {
     private var _binding: FragmentReceiptListBinding? = null
@@ -32,14 +25,6 @@ class ReceiptListFragment : Fragment(), ItemClickListener {
 
     private lateinit var recyclerViewEvent: RecyclerView
     private lateinit var receiptListAdapter: ReceiptListAdapter
-
-    private var calendarDateFrom = Calendar.getInstance()
-    private var calendarDateTo = Calendar.getInstance()
-
-    var dateFrom = ""
-    var dateTo = ""
-    var text = ""
-
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?,
@@ -51,9 +36,14 @@ class ReceiptListFragment : Fragment(), ItemClickListener {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         initObserver()
+        putFilterDefinitionIntoInputs()
 
-        receiptDataViewModel.refreshReceiptList("")
-        receiptDataViewModel.refreshStoreList()
+        refreshList()
+
+        binding.filterLayout.setOnClickListener {
+            Navigation.findNavController(binding.root)
+                .navigate(R.id.action_listingFragment_to_filterReceiptListFragment)
+        }
 
         recyclerViewEvent = binding.recyclerViewEventReceipts
         receiptListAdapter = ReceiptListAdapter(
@@ -83,63 +73,13 @@ class ReceiptListFragment : Fragment(), ItemClickListener {
         recyclerViewEvent.adapter = receiptListAdapter
         recyclerViewEvent.layoutManager =
             LinearLayoutManager(requireContext(), LinearLayoutManager.VERTICAL, false)
-
-        binding.storeInput.doOnTextChanged { text, _, _, _ ->
-            this.text = text.toString()
-            refreshList()
-
-        }
-        binding.dateBetweenLayout.setEndIconOnClickListener {
-            showDatePicker()
-            refreshList()
-        }
-        binding.dateBetweenInput.setOnClickListener {
-            showDatePicker()
-            refreshList()
-        }
-        binding.storeLayout.setStartIconOnClickListener {
-            binding.storeInput.setText("")
-            text = ""
-            refreshList()
-            receiptDataViewModel.refreshReceiptList("")
-        }
-        binding.dateBetweenLayout.setStartIconOnClickListener {
-            binding.dateBetweenInput.setText("")
-            dateTo = ""
-            dateFrom = ""
-            refreshList()
-        }
     }
 
     private fun refreshList() {
-        if (dateTo == "" && dateFrom == "") {
-            receiptDataViewModel.refreshReceiptList(text)
-        } else {
-            receiptDataViewModel.refreshReceiptList(text, dateFrom, dateTo)
-        }
-    }
-
-    private fun showDatePicker() {
-        val dateRangePicker =
-            MaterialDatePicker.Builder.dateRangePicker()
-                .setTitleText("Select dates")
-                .setSelection(
-                    Pair(
-                        calendarDateFrom.timeInMillis,
-                        calendarDateTo.timeInMillis,
-                    )
-                )
-                .build()
-        dateRangePicker.show(childFragmentManager, "Test")
-
-        dateRangePicker.addOnPositiveButtonClickListener {
-            calendarDateFrom.timeInMillis = it.first
-            calendarDateTo.timeInMillis = it.second
-            dateFrom = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
-                .format(calendarDateFrom.time)
-            dateTo = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
-                .format(calendarDateTo.time)
-            binding.dateBetweenInput.setText("$dateFrom - $dateTo")
+        receiptDataViewModel.filterReceiptList.value?.let {
+            receiptDataViewModel.refreshReceiptList(
+                it.store, it.dateFrom, it.dateTo
+            )
         }
     }
 
@@ -150,27 +90,26 @@ class ReceiptListFragment : Fragment(), ItemClickListener {
                 receiptListAdapter.notifyDataSetChanged()
             }
         }
-        receiptDataViewModel.storeList.observe(viewLifecycleOwner) {
-            it?.let {
-                ArrayAdapter(
-                    requireContext(),
-                    android.R.layout.simple_list_item_1,
-                    it.map { it2 -> it2.name }
-                ).also { adapter ->
-                    binding.storeInput.setAdapter(adapter)
-                }
-            }
+
+        receiptDataViewModel.filterReceiptList.observe(viewLifecycleOwner) {
+            putFilterDefinitionIntoInputs()
         }
     }
 
+    private fun putFilterDefinitionIntoInputs() {
+        receiptDataViewModel.filterReceiptList.value?.let {
+            binding.filterStoreCard.text = if (it.store == "") "-" else it.store
+            binding.filterDateCard.text = "${it.dateFrom} - ${it.dateTo}"
+        }
+    }
 
     override fun onItemClick(index: Int) {
         receiptDataViewModel.receiptList.value?.get(index)?.let {
             receiptDataViewModel.getStoreById(it.storeId)
             val receipt = Receipt(
-                it.id,
-                it.pln.toString().toFloat(),
-                it.ptu.toString().toFloat(),
+                it.storeId,
+                it.pln.toString().toDouble(),
+                it.ptu.toString().toDouble(),
                 it.date,
                 it.time
             )
