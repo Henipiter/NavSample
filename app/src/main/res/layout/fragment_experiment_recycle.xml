@@ -46,7 +46,6 @@
                 android:layout_width="0dp"
                 android:layout_height="4dp"
                 android:layout_centerInParent="true"
-                android:background="@color/blue_800"
                 app:layout_constraintEnd_toEndOf="@id/radioGroup"
                 app:layout_constraintStart_toStartOf="@id/centerRadio"
                 app:layout_constraintTop_toTopOf="@+id/radioGroup" />
@@ -73,21 +72,18 @@
                 app:layout_constraintTop_toTopOf="parent">
 
                 <RadioButton
-                    style="@style/RadioButtonOrange"
                     android:id="@+id/name_only_button"
                     android:layout_width="wrap_content"
                     android:layout_height="match_parent"
                     android:text="Name only" />
 
                 <RadioButton
-                    style="@style/RadioButtonOrange"
                     android:id="@+id/switching_button"
                     android:layout_width="wrap_content"
                     android:layout_height="match_parent"
                     android:text="Switching" />
 
                 <RadioButton
-                    style="@style/RadioButtonOrange"
                     android:id="@+id/price_only_button"
                     android:layout_width="wrap_content"
                     android:layout_height="match_parent"
@@ -137,7 +133,6 @@
             android:layout_weight="1"
             android:layout_margin="3dp"
             android:padding="3dp"
-            app:cardBackgroundColor="@color/blue_200"
             app:cardCornerRadius="10dp">
 
             <androidx.recyclerview.widget.RecyclerView
@@ -357,7 +352,6 @@
 
 
             <Button
-                style="@style/ButtonOrange"
                 android:id="@+id/reset_button"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
@@ -367,7 +361,6 @@
                 android:text="Reset" />
 
             <Button
-                style="@style/ButtonOrange"
                 android:id="@+id/cancel_button"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
@@ -378,7 +371,6 @@
                 android:visibility="gone" />
 
             <Button
-                style="@style/ButtonOrange"
                 android:id="@+id/edit_button"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
@@ -388,7 +380,6 @@
                 android:text="Edit" />
 
             <Button
-                style="@style/ButtonOrange"
                 android:id="@+id/confirm_button"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"

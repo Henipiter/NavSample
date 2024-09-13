@@ -197,7 +197,6 @@
                 </com.google.android.material.textfield.TextInputLayout>
 
                 <Button
-                style="@style/ButtonOrange"
                     android:id="@+id/save_changes_button"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
@@ -209,7 +208,6 @@
                     app:layout_constraintTop_toBottomOf="@+id/cancel_changes_button" />
 
                 <Button
-                    style="@style/ButtonOrange"
                     android:id="@+id/cancel_changes_button"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
@@ -224,7 +222,6 @@
                     />
 
                 <Button
-                    style="@style/ButtonOrange"
                     android:id="@+id/edit_button"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
@@ -236,7 +233,6 @@
                     app:layout_constraintStart_toStartOf="parent" />
 
                 <Button
-                    style="@style/ButtonOrange"
                     android:id="@+id/add_products_button"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"

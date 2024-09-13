@@ -21,7 +21,6 @@
 
         <Button
             android:id="@+id/reorder_button"
-            style="@style/ButtonOrange"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginHorizontal="16dp"
@@ -31,7 +30,6 @@
 
         <Button
             android:id="@+id/add_new_button"
-            style="@style/ButtonOrange"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="10dp"
@@ -42,7 +40,6 @@
 
         <Button
             android:id="@+id/confirm_button"
-            style="@style/ButtonOrange"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginHorizontal="16dp"

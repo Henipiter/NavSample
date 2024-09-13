@@ -69,7 +69,6 @@
 
         <Button
             android:id="@+id/clear_filter_button"
-            style="@style/ButtonOrange"
             android:layout_marginTop="30dp"
             android:text="Clear"
             android:layout_width="wrap_content"
@@ -80,7 +79,6 @@
 
         <Button
             android:id="@+id/confirm_button"
-            style="@style/ButtonOrange"
             android:layout_marginTop="30dp"
             android:text="Confirm"
             android:layout_width="wrap_content"

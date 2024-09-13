@@ -13,7 +13,6 @@
         android:layout_height="match_parent">
 
         <Button
-                style="@style/ButtonOrange"
             android:id="@+id/add_receipt"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
@@ -25,7 +24,6 @@
             app:layout_constraintStart_toStartOf="parent" />
 
         <Button
-            style="@style/ButtonOrange"
             android:id="@+id/show_receipt"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
@@ -37,7 +35,6 @@
             app:layout_constraintStart_toStartOf="parent" />
 
         <Button
-            style="@style/ButtonOrange"
             android:id="@+id/export_data_button"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
@@ -50,7 +47,6 @@
 
 
         <Button
-            style="@style/ButtonOrange"
             android:id="@+id/diagram_view"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
@@ -62,7 +58,6 @@
             app:layout_constraintStart_toStartOf="parent" />
 
         <Button
-            style="@style/ButtonOrange"
             android:id="@+id/recycle_view_test"
             android:layout_width="0dp"
             android:layout_height="wrap_content"

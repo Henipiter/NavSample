@@ -20,7 +20,6 @@
             app:cropBorderCornerColor="@color/cardview_shadow_start_color"/>
 
         <Button
-                style="@style/ButtonOrange"
             android:id="@+id/camera_picture_button"
             android:layout_width="150dp"
             android:layout_height="100dp"
@@ -31,7 +30,6 @@
             app:layout_constraintEnd_toEndOf="parent"  />
 
         <Button
-            style="@style/ButtonOrange"
             android:id="@+id/storage_picture_button"
             android:text="storage"
             android:layout_width="150dp"

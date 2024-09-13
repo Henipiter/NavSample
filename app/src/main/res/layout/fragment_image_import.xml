@@ -11,7 +11,6 @@
         android:layout_height="match_parent">
 
         <Button
-                style="@style/ButtonOrange"
             android:id="@+id/load_image"
             android:layout_width="150dp"
             android:layout_height="wrap_content"
@@ -21,7 +20,6 @@
             app:layout_constraintTop_toBottomOf="@+id/relative_layout" />
 
         <Button
-            style="@style/ButtonOrange"
             android:id="@+id/manual_button"
             android:layout_width="160dp"
             android:layout_height="wrap_content"
@@ -62,7 +60,6 @@
 
 
         <Button
-            style="@style/ButtonOrange"
             android:id="@+id/analyze_button"
             android:layout_width="0dp"
             android:layout_height="70dp"
