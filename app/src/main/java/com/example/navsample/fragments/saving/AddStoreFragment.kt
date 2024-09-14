@@ -39,6 +39,9 @@ class AddStoreFragment : Fragment() {
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        binding.toolbar.inflateMenu(R.menu.top_menu_basic_add)
+        binding.toolbar.setNavigationIcon(R.drawable.back)
+        binding.toolbar.menu.findItem(R.id.edit).setVisible(false)
         super.onViewCreated(view, savedInstanceState)
         initObserver()
         receiptDataViewModel.refreshStoreList()
@@ -54,11 +57,8 @@ class AddStoreFragment : Fragment() {
             } catch (e: Exception) {
                 null
             }
-            if (category != null) {
-                chosenCategory = category
-            } else {
-                chosenCategory = receiptDataViewModel.categoryList.value?.get(0) ?: Category("", "")
-            }
+            chosenCategory =
+                category ?: (receiptDataViewModel.categoryList.value?.get(0) ?: Category("", ""))
 
             binding.storeNameInput.setText(store.name)
             binding.storeNIPInput.setText(store.nip)
@@ -68,13 +68,15 @@ class AddStoreFragment : Fragment() {
         receiptDataViewModel.store.value = null
 
 
-        if (receiptDataViewModel.store.value != null) {
-            changeViewToDisplayMode()
-        } else {
-            mode = DataMode.NEW
-            binding.saveChangesButton.visibility = View.VISIBLE
-            binding.cancelChangesButton.visibility = View.GONE
-            binding.editButton.visibility = View.GONE
+        receiptDataViewModel.savedStore.value?.let { store ->
+            if ((store.id ?: -1) >= 0) {
+                changeViewToDisplayMode()
+            } else {
+                mode = DataMode.NEW
+                binding.toolbar.menu.findItem(R.id.confirm).setVisible(true)
+                binding.toolbar.setNavigationIcon(R.drawable.back)
+                binding.toolbar.menu.findItem(R.id.edit).setVisible(false)
+            }
         }
 
         binding.storeNIPInput.doOnTextChanged { text, _, _, _ ->
@@ -96,26 +98,41 @@ class AddStoreFragment : Fragment() {
                 binding.storeNIPLayout.helperText = "Correct NIP"
             }
         }
+        binding.toolbar.setOnMenuItemClickListener {
+            when (it.itemId) {
+                R.id.edit -> {
+                    changeViewToEditMode()
+                    true
+                }
 
-        binding.editButton.setOnClickListener {
-            changeViewToEditMode()
-        }
-        binding.saveChangesButton.setOnClickListener {
-            if (binding.storeNIPLayout.error != null) {
-                Toast.makeText(requireContext(), "Change NIP!", Toast.LENGTH_SHORT).show()
+                R.id.confirm -> {
+                    if (binding.storeNIPLayout.error != null) {
+                        Toast.makeText(requireContext(), "Change NIP!", Toast.LENGTH_SHORT).show()
+                    }
+                    saveChangesToDatabase()
+                    changeViewToDisplayMode()
+                    receiptDataViewModel.store.value?.nip = binding.storeNIPInput.text.toString()
+                    receiptDataViewModel.store.value?.name = binding.storeNameInput.text.toString()
+                    receiptDataViewModel.refreshStoreList()
+                    Navigation.findNavController(requireView()).popBackStack()
+                }
+
+                else -> false
             }
-            saveChangesToDatabase()
-            changeViewToDisplayMode()
-            receiptDataViewModel.store.value?.nip = binding.storeNIPInput.text.toString()
-            receiptDataViewModel.store.value?.name = binding.storeNameInput.text.toString()
-            receiptDataViewModel.refreshStoreList()
-            Navigation.findNavController(it).popBackStack()
         }
-        binding.cancelChangesButton.setOnClickListener {
-            changeViewToDisplayMode()
-            binding.storeNIPInput.setText(receiptDataViewModel.store.value?.nip)
-            binding.storeNameInput.setText(receiptDataViewModel.store.value?.name)
+
+
+
+        binding.toolbar.setNavigationOnClickListener {
+            if (mode == DataMode.EDIT) {
+                changeViewToDisplayMode()
+                binding.storeNIPInput.setText(receiptDataViewModel.savedStore.value?.nip)
+                binding.storeNameInput.setText(receiptDataViewModel.savedStore.value?.name)
+            } else {
+                Navigation.findNavController(it).popBackStack()
+            }
         }
+
         binding.storeDefaultCategoryInput.setOnItemClickListener { adapter, _, i, _ ->
             chosenCategory = adapter.getItemAtPosition(i) as Category
             binding.storeDefaultCategoryInput.setText(chosenCategory.name)
@@ -132,7 +149,7 @@ class AddStoreFragment : Fragment() {
             receiptDataViewModel.insertStore(store)
         }
         if (mode == DataMode.EDIT) {
-            val store = receiptDataViewModel.store.value!!
+            val store = receiptDataViewModel.savedStore.value!!
             store.nip = binding.storeNIPInput.text.toString()
             store.name = binding.storeNameInput.text.toString()
             store.defaultCategoryId = chosenCategory.id ?: throw NoCategoryIdException()
@@ -145,9 +162,9 @@ class AddStoreFragment : Fragment() {
         binding.storeNameLayout.isEnabled = false
         binding.storeNIPLayout.isEnabled = false
         binding.storeDefaultCategoryLayout.isEnabled = false
-        binding.saveChangesButton.visibility = View.GONE
-        binding.cancelChangesButton.visibility = View.GONE
-        binding.editButton.visibility = View.VISIBLE
+        binding.toolbar.menu.findItem(R.id.confirm).setVisible(false)
+        binding.toolbar.setNavigationIcon(R.drawable.back)
+        binding.toolbar.menu.findItem(R.id.edit).setVisible(true)
     }
 
     private fun changeViewToEditMode() {
@@ -155,9 +172,9 @@ class AddStoreFragment : Fragment() {
         binding.storeNameLayout.isEnabled = true
         binding.storeNIPLayout.isEnabled = true
         binding.storeDefaultCategoryLayout.isEnabled = true
-        binding.saveChangesButton.visibility = View.VISIBLE
-        binding.cancelChangesButton.visibility = View.VISIBLE
-        binding.editButton.visibility = View.GONE
+        binding.toolbar.menu.findItem(R.id.confirm).setVisible(true)
+        binding.toolbar.setNavigationIcon(R.drawable.clear)
+        binding.toolbar.menu.findItem(R.id.edit).setVisible(false)
     }
 
     private fun isCorrectNIP(valueNIP: String?): Boolean {
