@@ -81,6 +81,7 @@ class ProductListFragment : Fragment(), ItemClickListener {
         }
         receiptDataViewModel.filterProductList.observe(viewLifecycleOwner) {
             putFilterDefinitionIntoInputs()
+            refreshList()
         }
     }
 

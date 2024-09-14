@@ -2,9 +2,7 @@
     <!-- Base application theme. -->
     <style name="Base.Theme.NavSample" parent="Theme.Material3.DayNight.NoActionBar">
         <item name="colorPrimary">@color/orange_500</item>
-        <item name="colorPrimaryDark">@color/basic_text_grey</item>
-        <item name="android:buttonStyle">@style/ButtonOrangeLight</item>
-        <item name="cardBackgroundColor">@color/background_color</item>
+        <item name="colorOnPrimary">@color/white</item>
     </style>
 
     <color name="background_color">@color/mid_grey200</color>

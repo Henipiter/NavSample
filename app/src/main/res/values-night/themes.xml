@@ -3,9 +3,7 @@
     <style name="Base.Theme.NavSample" parent="Theme.Material3.DayNight.NoActionBar">
         <!-- Customize your dark theme here. -->
         <item name="colorPrimary">@color/orange_800</item>
-        <item name="colorPrimaryDark">@color/orange_1000</item>
-        <item name="android:buttonStyle">@style/ButtonOrangeNight</item>
-        <item name="cardBackgroundColor">@color/background_color</item>
+        <item name="colorOnPrimary">@color/orange_1000</item>
     </style>
 
     <color name="background_color">@color/basic_grey</color>

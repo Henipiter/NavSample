@@ -93,6 +93,7 @@ class ReceiptListFragment : Fragment(), ItemClickListener {
 
         receiptDataViewModel.filterReceiptList.observe(viewLifecycleOwner) {
             putFilterDefinitionIntoInputs()
+            refreshList()
         }
     }
 
