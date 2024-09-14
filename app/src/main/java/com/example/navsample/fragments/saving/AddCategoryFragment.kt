@@ -11,6 +11,7 @@ import androidx.core.widget.doOnTextChanged
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.navigation.Navigation
+import com.example.navsample.R
 import com.example.navsample.chart.ChartColors
 import com.example.navsample.databinding.FragmentAddCategoryBinding
 import com.example.navsample.dto.DataMode
@@ -37,6 +38,9 @@ class AddCategoryFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        binding.toolbar.inflateMenu(R.menu.top_menu_basic_add)
+        binding.toolbar.setNavigationIcon(R.drawable.back)
+
 
         binding.colorSquare.setBackgroundColor(pickedColor)
         receiptDataViewModel.refreshCategoryList()
@@ -58,36 +62,54 @@ class AddCategoryFragment : Fragment() {
             changeViewToDisplayMode()
         } else {
             mode = DataMode.NEW
-            binding.saveChangesButton.visibility = View.VISIBLE
-            binding.cancelChangesButton.visibility = View.GONE
-            binding.editButton.visibility = View.GONE
+            binding.categoryNameInput.setText("")
+
+            binding.toolbar.menu.findItem(R.id.confirm).setVisible(true)
+            binding.toolbar.setNavigationIcon(R.drawable.back)
+            binding.toolbar.menu.findItem(R.id.edit).setVisible(false)
+
         }
-        binding.editButton.setOnClickListener {
-            changeViewToEditMode()
-        }
-        binding.saveChangesButton.setOnClickListener {
-            if (binding.categoryColorLayout.error != null || binding.categoryNameLayout.error != null) {
-                Toast.makeText(requireContext(), "Incorrect input values", Toast.LENGTH_SHORT)
-                    .show()
-                return@setOnClickListener
+
+
+        binding.toolbar.setOnMenuItemClickListener {
+            when (it.itemId) {
+                R.id.edit -> {
+                    changeViewToEditMode()
+                    true
+                }
+
+                R.id.confirm -> {
+                    if (binding.categoryColorLayout.error != null || binding.categoryNameLayout.error != null) {
+                        Toast.makeText(
+                            requireContext(),
+                            "Incorrect input values",
+                            Toast.LENGTH_SHORT
+                        ).show()
+                        return@setOnMenuItemClickListener true
+                    }
+                    saveChangesToDatabase()
+                    changeViewToDisplayMode()
+                    receiptDataViewModel.category.value = Category(
+                        binding.categoryNameInput.text.toString(),
+                        binding.categoryColorInput.text.toString()
+                    )
+                    receiptDataViewModel.refreshCategoryList()
+                    Navigation.findNavController(requireView()).popBackStack()
+                }
+
+                else -> false
             }
-            saveChangesToDatabase()
-            changeViewToDisplayMode()
-            receiptDataViewModel.category.value = Category(
-                binding.categoryNameInput.text.toString(),
-                binding.categoryColorInput.text.toString()
-            )
-            receiptDataViewModel.refreshCategoryList()
-            Navigation.findNavController(it).popBackStack()
-        }
-        binding.cancelChangesButton.setOnClickListener {
-            changeViewToDisplayMode()
-            binding.categoryNameInput.setText(receiptDataViewModel.savedCategory.value?.name)
-            binding.categoryColorInput.setText(receiptDataViewModel.savedCategory.value?.color)
         }
 
-
-
+        binding.toolbar.setNavigationOnClickListener {
+            if (mode == DataMode.EDIT) {
+                changeViewToDisplayMode()
+                binding.categoryNameInput.setText(receiptDataViewModel.savedCategory.value?.name)
+                binding.categoryColorInput.setText(receiptDataViewModel.savedCategory.value?.color)
+            } else {
+                Navigation.findNavController(it).popBackStack()
+            }
+        }
         binding.colorView.setOnClickListener { _ ->
             colorPicker()
         }
@@ -151,9 +173,9 @@ class AddCategoryFragment : Fragment() {
         binding.categoryNameLayout.isEnabled = false
         binding.categoryColorLayout.isEnabled = false
         binding.colorView.isEnabled = false
-        binding.saveChangesButton.visibility = View.GONE
-        binding.cancelChangesButton.visibility = View.GONE
-        binding.editButton.visibility = View.VISIBLE
+        binding.toolbar.menu.findItem(R.id.confirm).setVisible(false)
+        binding.toolbar.setNavigationIcon(R.drawable.back)
+        binding.toolbar.menu.findItem(R.id.edit).setVisible(true)
     }
 
     private fun changeViewToEditMode() {
@@ -161,8 +183,8 @@ class AddCategoryFragment : Fragment() {
         binding.categoryNameLayout.isEnabled = true
         binding.categoryColorLayout.isEnabled = true
         binding.colorView.isEnabled = true
-        binding.saveChangesButton.visibility = View.VISIBLE
-        binding.cancelChangesButton.visibility = View.VISIBLE
-        binding.editButton.visibility = View.GONE
+        binding.toolbar.menu.findItem(R.id.confirm).setVisible(true)
+        binding.toolbar.setNavigationIcon(R.drawable.clear)
+        binding.toolbar.menu.findItem(R.id.edit).setVisible(false)
     }
 }

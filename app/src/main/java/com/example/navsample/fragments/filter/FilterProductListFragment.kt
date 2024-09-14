@@ -38,7 +38,7 @@ class FilterProductListFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        binding.toolbar.inflateMenu(R.menu.top_menu_element_edit)
+        binding.toolbar.inflateMenu(R.menu.top_menu_filter)
         binding.toolbar.setNavigationIcon(R.drawable.back)
 
         initObserver()
@@ -102,7 +102,7 @@ class FilterProductListFragment : Fragment() {
 
                 R.id.confirm -> {
                     receiptDataViewModel.filterProductList.value = filterProductList
-                    Navigation.findNavController(view).popBackStack()
+                    Navigation.findNavController(requireView()).popBackStack()
                 }
 
                 else -> false

@@ -47,6 +47,9 @@ class AddReceiptFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        binding.toolbar.inflateMenu(R.menu.top_menu_extended_add)
+        binding.toolbar.setNavigationIcon(R.drawable.back)
+        binding.toolbar.menu.findItem(R.id.reorder).setVisible(false)
 
         initObserver()
 
@@ -71,7 +74,6 @@ class AddReceiptFragment : Fragment() {
             } else {
                 changeViewToNewMode()
             }
-
         }
         defineClickListeners()
 
@@ -147,10 +149,10 @@ class AddReceiptFragment : Fragment() {
     }
 
     private fun changeViewToNewMode() {
-        binding.saveChangesButton.visibility = View.VISIBLE
-        binding.cancelChangesButton.visibility = View.GONE
-        binding.editButton.visibility = View.GONE
-        binding.addProductsButton.visibility = View.GONE
+        binding.toolbar.menu.findItem(R.id.confirm).setVisible(true)
+        binding.toolbar.setNavigationIcon(R.drawable.back)
+        binding.toolbar.menu.findItem(R.id.edit).setVisible(false)
+        binding.toolbar.menu.findItem(R.id.add_new).setVisible(false)
     }
 
     private fun changeViewToDisplayMode() {
@@ -161,10 +163,11 @@ class AddReceiptFragment : Fragment() {
         binding.receiptPTUInput.isEnabled = false
         binding.receiptTimeLayout.isEnabled = false
         binding.receiptDateLayout.isEnabled = false
-        binding.saveChangesButton.visibility = View.GONE
-        binding.cancelChangesButton.visibility = View.GONE
-        binding.editButton.visibility = View.VISIBLE
-        binding.addProductsButton.visibility = View.VISIBLE
+
+        binding.toolbar.menu.findItem(R.id.confirm).setVisible(false)
+        binding.toolbar.setNavigationIcon(R.drawable.back)
+        binding.toolbar.menu.findItem(R.id.edit).setVisible(true)
+        binding.toolbar.menu.findItem(R.id.add_new).setVisible(true)
     }
 
     private fun changeViewToEditMode() {
@@ -175,10 +178,10 @@ class AddReceiptFragment : Fragment() {
         binding.receiptPTUInput.isEnabled = true
         binding.receiptTimeLayout.isEnabled = true
         binding.receiptDateLayout.isEnabled = true
-        binding.saveChangesButton.visibility = View.VISIBLE
-        binding.cancelChangesButton.visibility = View.VISIBLE
-        binding.editButton.visibility = View.GONE
-        binding.addProductsButton.visibility = View.GONE
+        binding.toolbar.menu.findItem(R.id.confirm).setVisible(true)
+        binding.toolbar.setNavigationIcon(R.drawable.clear)
+        binding.toolbar.menu.findItem(R.id.edit).setVisible(false)
+        binding.toolbar.menu.findItem(R.id.add_new).setVisible(false)
     }
 
     private fun saveChangesToDatabase() {
@@ -242,24 +245,49 @@ class AddReceiptFragment : Fragment() {
                 .navigate(R.id.action_addReceiptFragment_to_editStoreFragment)
         }
 
-        binding.editButton.setOnClickListener {
-            binding.storeNIPLayout.visibility = View.VISIBLE
+        binding.toolbar.setOnMenuItemClickListener {
+            when (it.itemId) {
+                R.id.edit -> {
+                    binding.storeNIPLayout.visibility = View.VISIBLE
+                    changeViewToEditMode()
+                    return@setOnMenuItemClickListener true
+                }
 
-            changeViewToEditMode()
+                R.id.confirm -> {
+                    saveChangesToDatabase()
+                    return@setOnMenuItemClickListener true
+                }
+
+                R.id.confirm -> {
+                    saveChangesToDatabase()
+                    return@setOnMenuItemClickListener true
+                }
+
+                R.id.add_new -> {
+                    receiptDataViewModel.receipt.value?.id?.let {
+                        receiptDataViewModel.refreshProductListForReceipt(it)
+                    }
+                    val action =
+                        AddReceiptFragmentDirections.actionAddReceiptFragmentToAddProductListFragment()
+                    Navigation.findNavController(requireView()).navigate(action)
+                    return@setOnMenuItemClickListener true
+                }
+
+                else -> false
+            }
         }
-        binding.saveChangesButton.setOnClickListener {
-            saveChangesToDatabase()
 
-
-        }
-        binding.cancelChangesButton.setOnClickListener {
-            changeViewToDisplayMode()
-
-            binding.storeNIPInput.setText(receiptDataViewModel.store.value?.nip)
-            binding.receiptPTUInput.setText(receiptDataViewModel.receipt.value?.ptu.toString())
-            binding.receiptPLNInput.setText(receiptDataViewModel.receipt.value?.pln.toString())
-            binding.receiptDateInput.setText(receiptDataViewModel.receipt.value?.date)
-            binding.receiptTimeInput.setText(receiptDataViewModel.receipt.value?.time)
+        binding.toolbar.setNavigationOnClickListener {
+            if (mode == DataMode.EDIT) {
+                changeViewToDisplayMode()
+                binding.storeNIPInput.setText(receiptDataViewModel.store.value?.nip)
+                binding.receiptPTUInput.setText(receiptDataViewModel.receipt.value?.ptu.toString())
+                binding.receiptPLNInput.setText(receiptDataViewModel.receipt.value?.pln.toString())
+                binding.receiptDateInput.setText(receiptDataViewModel.receipt.value?.date)
+                binding.receiptTimeInput.setText(receiptDataViewModel.receipt.value?.time)
+            } else {
+                Navigation.findNavController(it).popBackStack()
+            }
         }
 
         binding.storeNameLayout.setStartIconOnClickListener {
@@ -278,15 +306,7 @@ class AddReceiptFragment : Fragment() {
             binding.storeNameInput.isEnabled = false
 
         }
-        binding.addProductsButton.setOnClickListener {
-            receiptDataViewModel.receipt.value?.id?.let {
-                receiptDataViewModel.refreshProductListForReceipt(it)
-            }
 
-            val action =
-                AddReceiptFragmentDirections.actionAddReceiptFragmentToAddProductListFragment()
-            Navigation.findNavController(it).navigate(action)
-        }
         binding.storeNIPLayout.setStartIconOnClickListener {
             binding.storeNIPInput.text
             val index = receiptDataViewModel.storeList.value?.map { it.nip }
@@ -296,7 +316,8 @@ class AddReceiptFragment : Fragment() {
                 binding.storeNIPInput.setText(pickedStore?.nip ?: "")
                 binding.storeNameInput.setText(pickedStore?.name ?: "")
                 binding.storeNameInput.isEnabled = false
-                binding.saveChangesButton.isEnabled = true
+                binding.toolbar.menu.findItem(R.id.confirm).setVisible(true)
+                binding.toolbar.menu.findItem(R.id.edit).setVisible(false)
             }
 
         }

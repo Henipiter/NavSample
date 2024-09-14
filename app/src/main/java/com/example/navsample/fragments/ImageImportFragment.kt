@@ -58,7 +58,7 @@ class ImageImportFragment : Fragment() {
         imageAnalyzer.uid = receiptImageViewModel.uid.value ?: "temp"
         binding.loadImage.setOnClickListener {
             val action = ImageImportFragmentDirections.actionImageImportFragmentToCropFragment()
-            Navigation.findNavController(view).navigate(action)
+            Navigation.findNavController(requireView()).navigate(action)
         }
         binding.receiptImageBig.setOnLongClickListener {
             startCameraWithUri()
