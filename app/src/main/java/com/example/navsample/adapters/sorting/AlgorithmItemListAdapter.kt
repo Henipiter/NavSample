@@ -17,13 +17,9 @@ class AlgorithmItemListAdapter(
     context: Context
 ) : SortingItemListAdapter<AlgorithmItemAdapterArgument>(recycleList) {
 
-    private val blockedColor = getColor(context, R.color.background_tile_blocked)
-    private val defaultColor = getColor(context, R.color.background_tile_default)
+    private val blockedColor = getColor(context, R.color.background_color)
+    private val defaultColor = getColor(context, R.color.sortingCardView)
     private val chosenColor = getColor(context, R.color.background_tile_chosen)
-
-    private fun getColor(context: Context, property: Int): Int {
-        return context.resources.getColor(property, context.theme)
-    }
 
     override fun onBindViewHolder(holder: MyViewHolder, position: Int) {
         holder.binding.textView.text = recycleList[holder.adapterPosition].value
@@ -68,4 +64,9 @@ class AlgorithmItemListAdapter(
         recycleList.addAll(newData)
         diffResult.dispatchUpdatesTo(this)
     }
+
+    private fun getColor(context: Context, property: Int): Int {
+        return context.resources.getColor(property, context.theme)
+    }
+
 }

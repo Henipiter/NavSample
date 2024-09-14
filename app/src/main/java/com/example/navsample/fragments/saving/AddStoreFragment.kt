@@ -73,6 +73,7 @@ class AddStoreFragment : Fragment() {
                 changeViewToDisplayMode()
             } else {
                 mode = DataMode.NEW
+                binding.toolbar.title = "Add store"
                 binding.toolbar.menu.findItem(R.id.confirm).setVisible(true)
                 binding.toolbar.setNavigationIcon(R.drawable.back)
                 binding.toolbar.menu.findItem(R.id.edit).setVisible(false)
@@ -162,6 +163,7 @@ class AddStoreFragment : Fragment() {
         binding.storeNameLayout.isEnabled = false
         binding.storeNIPLayout.isEnabled = false
         binding.storeDefaultCategoryLayout.isEnabled = false
+        binding.toolbar.title = "Store"
         binding.toolbar.menu.findItem(R.id.confirm).setVisible(false)
         binding.toolbar.setNavigationIcon(R.drawable.back)
         binding.toolbar.menu.findItem(R.id.edit).setVisible(true)
@@ -172,6 +174,7 @@ class AddStoreFragment : Fragment() {
         binding.storeNameLayout.isEnabled = true
         binding.storeNIPLayout.isEnabled = true
         binding.storeDefaultCategoryLayout.isEnabled = true
+        binding.toolbar.title = "Edit store"
         binding.toolbar.menu.findItem(R.id.confirm).setVisible(true)
         binding.toolbar.setNavigationIcon(R.drawable.clear)
         binding.toolbar.menu.findItem(R.id.edit).setVisible(false)

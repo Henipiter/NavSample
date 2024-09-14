@@ -246,7 +246,7 @@
                         android:layout_width="48dp"
                         android:layout_height="48dp"
                         android:scaleType="fitCenter"
-                        android:src="@drawable/date" />
+                        android:src="@drawable/replace" />
 
                     <TextView
                         android:layout_width="wrap_content"
@@ -275,7 +275,7 @@
                         android:layout_width="48dp"
                         android:layout_height="48dp"
                         android:scaleType="fitCenter"
-                        android:src="@drawable/date" />
+                        android:src="@drawable/erase" />
 
                     <TextView
                         android:layout_width="wrap_content"
@@ -304,7 +304,7 @@
                         android:layout_width="48dp"
                         android:layout_height="48dp"
                         android:scaleType="fitCenter"
-                        android:src="@drawable/date" />
+                        android:src="@drawable/merge" />
 
                     <TextView
                         android:layout_width="wrap_content"
@@ -333,7 +333,7 @@
                         android:layout_width="48dp"
                         android:layout_height="48dp"
                         android:scaleType="fitCenter"
-                        android:src="@drawable/date" />
+                        android:src="@drawable/delete" />
 
                     <TextView
                         android:layout_width="wrap_content"

@@ -2,11 +2,14 @@
     <!-- Base application theme. -->
     <style name="Base.Theme.NavSample" parent="Theme.Material3.DayNight.NoActionBar">
         <!-- Customize your dark theme here. -->
-        <item name="colorPrimary">@color/orange_800</item>
-        <item name="colorOnPrimary">@color/orange_1000</item>
+        <item name="colorPrimary">@color/primaryColor</item>
+        <item name="colorOnPrimary">@color/colorOnPrimary</item>
     </style>
 
+    <color name="primaryColor">@color/orange_800</color>
+    <color name="colorOnPrimary">@color/orange_1000</color>
     <color name="background_color">@color/basic_grey</color>
+    <color name="sortingCardView">@color/mid_grey</color>
     <color name="background_tile_chosen">@color/orange_500</color>
     <color name="background_tile_default">@color/mid_grey</color>
     <color name="background_tile_blocked">@color/mid_grey200</color>

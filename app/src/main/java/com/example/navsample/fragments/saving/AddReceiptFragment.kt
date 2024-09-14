@@ -149,6 +149,7 @@ class AddReceiptFragment : Fragment() {
     }
 
     private fun changeViewToNewMode() {
+        binding.toolbar.title = "New receipt"
         binding.toolbar.menu.findItem(R.id.confirm).setVisible(true)
         binding.toolbar.setNavigationIcon(R.drawable.back)
         binding.toolbar.menu.findItem(R.id.edit).setVisible(false)
@@ -164,6 +165,7 @@ class AddReceiptFragment : Fragment() {
         binding.receiptTimeLayout.isEnabled = false
         binding.receiptDateLayout.isEnabled = false
 
+        binding.toolbar.title = "Receipt"
         binding.toolbar.menu.findItem(R.id.confirm).setVisible(false)
         binding.toolbar.setNavigationIcon(R.drawable.back)
         binding.toolbar.menu.findItem(R.id.edit).setVisible(true)
@@ -172,6 +174,7 @@ class AddReceiptFragment : Fragment() {
 
     private fun changeViewToEditMode() {
         mode = DataMode.EDIT
+        binding.toolbar.title = "Edit receipt"
         binding.storeNameLayout.isEnabled = true
         binding.receiptPLNLayout.isEnabled = true
         binding.receiptPTULayout.isEnabled = true
@@ -241,6 +244,7 @@ class AddReceiptFragment : Fragment() {
             }
         }
         binding.storeNIPLayout.setEndIconOnClickListener {
+            receiptDataViewModel.savedStore.value = null
             Navigation.findNavController(it)
                 .navigate(R.id.action_addReceiptFragment_to_editStoreFragment)
         }

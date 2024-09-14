@@ -6,6 +6,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:title="Reorder"
+        android:iconTint="@color/colorOnPrimary"
 
         android:icon="@drawable/reorder"
         app:showAsAction="ifRoom" />
@@ -14,6 +15,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:title="Add"
+        android:iconTint="@color/colorOnPrimary"
 
         android:icon="@drawable/add"
         app:showAsAction="ifRoom" />
@@ -22,6 +24,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:title="Edit"
+        android:iconTint="@color/colorOnPrimary"
 
         android:icon="@drawable/edit"
         app:showAsAction="ifRoom" />
@@ -30,6 +33,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:title="Confirm"
+        android:iconTint="@color/colorOnPrimary"
 
         android:icon="@drawable/confirm"
         app:showAsAction="ifRoom" />

@@ -64,6 +64,7 @@ class AddCategoryFragment : Fragment() {
             mode = DataMode.NEW
             binding.categoryNameInput.setText("")
 
+            binding.toolbar.title = "New category"
             binding.toolbar.menu.findItem(R.id.confirm).setVisible(true)
             binding.toolbar.setNavigationIcon(R.drawable.back)
             binding.toolbar.menu.findItem(R.id.edit).setVisible(false)
@@ -173,6 +174,7 @@ class AddCategoryFragment : Fragment() {
         binding.categoryNameLayout.isEnabled = false
         binding.categoryColorLayout.isEnabled = false
         binding.colorView.isEnabled = false
+        binding.toolbar.title = "Category"
         binding.toolbar.menu.findItem(R.id.confirm).setVisible(false)
         binding.toolbar.setNavigationIcon(R.drawable.back)
         binding.toolbar.menu.findItem(R.id.edit).setVisible(true)
@@ -180,6 +182,7 @@ class AddCategoryFragment : Fragment() {
 
     private fun changeViewToEditMode() {
         mode = DataMode.EDIT
+        binding.toolbar.title = "Edit category"
         binding.categoryNameLayout.isEnabled = true
         binding.categoryColorLayout.isEnabled = true
         binding.colorView.isEnabled = true

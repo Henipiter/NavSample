@@ -4,12 +4,17 @@
 <resources>
 
     <style name="MyToolbarStyle" parent="Widget.MaterialComponents.Toolbar">
-        <item name="android:textColor">@color/orange_1000</item>
-        <item name="android:background">@color/orange_800</item>
+        <item name="android:background">@color/primaryColor</item>
+        <item name="android:iconTint">@color/blue_200</item>
+
 
     </style>
 
     <style name="CardViewStyle" parent="CardView">
         <item name="cardBackgroundColor">@color/background_color</item>
+    </style>
+
+    <style name="SortingCardViewStyle" parent="CardView">
+        <item name="cardBackgroundColor">@color/sortingCardView</item>
     </style>
 </resources>
