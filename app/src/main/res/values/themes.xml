@@ -1,13 +1,14 @@
 <resources>
     <!-- Base application theme. -->
     <style name="Base.Theme.NavSample" parent="Theme.Material3.DayNight.NoActionBar">
-        <item name="colorPrimary">@color/orange_500</item>
-        <item name="colorPrimaryDark">@color/basic_text_grey</item>
-        <item name="android:buttonStyle">@style/ButtonOrangeLight</item>
-        <item name="cardBackgroundColor">@color/background_color</item>
+        <item name="colorPrimary">@color/primaryColor</item>
+        <item name="colorOnPrimary">@color/colorOnPrimary</item>
     </style>
 
+    <color name="primaryColor">@color/orange_500</color>
+    <color name="colorOnPrimary">@color/white</color>
     <color name="background_color">@color/mid_grey200</color>
+    <color name="sortingCardView">@color/white</color>
     <color name="background_tile_chosen">@color/orange_200</color>
     <color name="background_tile_default">@color/basic_text_grey</color>
     <color name="background_tile_blocked">@color/mid_grey</color>

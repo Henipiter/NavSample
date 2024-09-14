@@ -13,6 +13,8 @@
         tools:layout_editor_absoluteX="16dp">
 
         <androidx.cardview.widget.CardView
+            style="@style/CardViewStyle"
+            app:cardCornerRadius="10dp"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_marginHorizontal="4dp"

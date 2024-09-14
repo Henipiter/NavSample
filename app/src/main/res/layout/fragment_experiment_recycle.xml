@@ -106,6 +106,7 @@
         app:layout_constraintTop_toBottomOf="@+id/relative_layout">
 
         <androidx.cardview.widget.CardView
+            style="@style/CardViewStyle"
             android:id="@+id/card_view_user_name"
             android:layout_width="0dp"
             android:layout_height="match_parent"
@@ -127,6 +128,7 @@
         </androidx.cardview.widget.CardView>
 
         <androidx.cardview.widget.CardView
+            style="@style/CardViewStyle"
             android:id="@+id/card_view_user_price"
             android:layout_width="0dp"
             android:layout_height="match_parent"
@@ -168,6 +170,7 @@
         app:layout_constraintTop_toBottomOf="@+id/space">
 
         <androidx.cardview.widget.CardView
+            style="@style/CardViewStyle"
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="1"
@@ -187,6 +190,7 @@
         </androidx.cardview.widget.CardView>
 
         <androidx.cardview.widget.CardView
+            style="@style/CardViewStyle"
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="1"
@@ -242,7 +246,7 @@
                         android:layout_width="48dp"
                         android:layout_height="48dp"
                         android:scaleType="fitCenter"
-                        android:src="@drawable/date" />
+                        android:src="@drawable/replace" />
 
                     <TextView
                         android:layout_width="wrap_content"
@@ -271,7 +275,7 @@
                         android:layout_width="48dp"
                         android:layout_height="48dp"
                         android:scaleType="fitCenter"
-                        android:src="@drawable/date" />
+                        android:src="@drawable/erase" />
 
                     <TextView
                         android:layout_width="wrap_content"
@@ -300,7 +304,7 @@
                         android:layout_width="48dp"
                         android:layout_height="48dp"
                         android:scaleType="fitCenter"
-                        android:src="@drawable/date" />
+                        android:src="@drawable/merge" />
 
                     <TextView
                         android:layout_width="wrap_content"
@@ -329,7 +333,7 @@
                         android:layout_width="48dp"
                         android:layout_height="48dp"
                         android:scaleType="fitCenter"
-                        android:src="@drawable/date" />
+                        android:src="@drawable/delete" />
 
                     <TextView
                         android:layout_width="wrap_content"
@@ -349,7 +353,6 @@
             android:layout_height="wrap_content"
             android:orientation="horizontal"
             app:layout_constraintBottom_toBottomOf="parent">
-
 
             <Button
                 android:id="@+id/reset_button"

@@ -72,13 +72,23 @@ class RichProductListAdapter(
         if (doubleQuantity == null || unitPrice == null || subtotalPrice == null || (doubleQuantity * unitPrice * 100.0).roundToInt() / 100.0 != subtotalPrice) {
             holder.binding.subtotalPrice.setTextColor(Color.RED)
         } else {
-            holder.binding.subtotalPrice.setTextColor(context.resources.getColor(R.color.basic_text_grey))
+            holder.binding.subtotalPrice.setTextColor(
+                context.resources.getColor(
+                    R.color.basic_text_grey,
+                    context.theme
+                )
+            )
         }
 
         if (subtotalPrice == null || discount == null || finalPrice == null || subtotalPrice - discount != finalPrice) {
             holder.binding.finalPrice.setTextColor(Color.RED)
         } else {
-            holder.binding.finalPrice.setTextColor(context.resources.getColor(R.color.basic_text_grey))
+            holder.binding.finalPrice.setTextColor(
+                context.resources.getColor(
+                    R.color.basic_text_grey,
+                    context.theme
+                )
+            )
 
         }
     }

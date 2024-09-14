@@ -2,6 +2,7 @@ package com.example.navsample.fragments.saving
 
 
 import android.graphics.BitmapFactory
+import android.graphics.Color
 import android.net.Uri
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -108,11 +109,27 @@ class AddProductListFragment : Fragment(), ItemClickListener {
         }
 
         binding.cartValueText.text = "%.2f".format(sum)
+
+        val final = receiptDataViewModel.receipt.value?.pln
+        if (final != sum) {
+            binding.cartValueText.setTextColor(Color.RED)
+        } else {
+            binding.cartValueText.setTextColor(
+                resources.getColor(
+                    R.color.basic_text_grey,
+                    requireContext().theme
+                )
+            )
+        }
     }
 
     @ExperimentalGetImage
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        binding.toolbar.inflateMenu(R.menu.top_menu_extended_add)
+        binding.toolbar.setNavigationIcon(R.drawable.back)
+        binding.toolbar.menu.findItem(R.id.edit).setVisible(false)
+
         if (receiptImageViewModel.uriCropped.value == null) {
             startCameraWithUri()
         }
@@ -146,30 +163,47 @@ class AddProductListFragment : Fragment(), ItemClickListener {
             startCameraWithUri()
             true
         }
-        binding.storeDetails.text = receiptDataViewModel.store.value?.name
+        binding.toolbar.tooltipText = receiptDataViewModel.store.value?.name
         binding.receiptValueText.text = receiptDataViewModel.receipt.value?.pln.toString()
         recyclerViewEvent.adapter = productListAdapter
         recyclerViewEvent.layoutManager =
             LinearLayoutManager(requireContext(), LinearLayoutManager.VERTICAL, false)
 
 
-        binding.reorderButton.setOnClickListener {
-            reorderTilesWithProducts()
+        binding.toolbar.setNavigationOnClickListener {
+            Navigation.findNavController(it).popBackStack()
         }
 
-        binding.addNewButton.setOnClickListener {
-            val action =
-                AddProductListFragmentDirections.actionAddProductListFragmentToAddProductFragment(
-                    false, -1
-                )
-            Navigation.findNavController(requireView()).navigate(action)
+        binding.toolbar.setOnMenuItemClickListener {
+            when (it.itemId) {
+                R.id.reorder -> {
+                    reorderTilesWithProducts()
+                    true
+                }
+
+                R.id.add_new -> {
+                    val action =
+                        AddProductListFragmentDirections.actionAddProductListFragmentToAddProductFragment(
+                            false, -1
+                        )
+                    Navigation.findNavController(requireView()).navigate(action)
+                    true
+                }
+
+                R.id.confirm -> {
+                    receiptDataViewModel.insertProducts(
+                        receiptDataViewModel.product.value?.toList() ?: listOf()
+                    )
+                    Navigation.findNavController(binding.root)
+                        .popBackStack(R.id.menuFragment, false)
+
+                    true
+                }
+
+                else -> false
+            }
         }
-        binding.confirmButton.setOnClickListener {
-            receiptDataViewModel.insertProducts(
-                receiptDataViewModel.product.value?.toList() ?: listOf()
-            )
-            Navigation.findNavController(binding.root).popBackStack(R.id.menuFragment, false)
-        }
+
     }
 
 

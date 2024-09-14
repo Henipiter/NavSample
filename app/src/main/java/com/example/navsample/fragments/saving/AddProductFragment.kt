@@ -40,6 +40,7 @@ class AddProductFragment : Fragment() {
 
     companion object {
         private const val SUGGESTION_PREFIX = "Maybe "
+        private const val EMPTY_VALUE_TEXT = "Empty"
     }
 
     override fun onCreateView(
@@ -175,23 +176,23 @@ class AddProductFragment : Fragment() {
             succeedValidation = false
         }
         if (binding.productSubtotalPriceInput.text.isNullOrEmpty()) {
-            binding.productSubtotalPriceHelperText.text = "Empty"
+            binding.productSubtotalPriceHelperText.text = EMPTY_VALUE_TEXT
             succeedValidation = false
         }
         if (binding.productUnitPriceInput.text.isNullOrEmpty()) {
-            binding.productUnitPriceHelperText.text = "Empty"
+            binding.productUnitPriceHelperText.text = EMPTY_VALUE_TEXT
             succeedValidation = false
         }
         if (binding.productQuantityInput.text.isNullOrEmpty()) {
-            binding.productQuantityHelperText.text = "Empty"
+            binding.productQuantityHelperText.text = EMPTY_VALUE_TEXT
             succeedValidation = false
         }
         if (binding.productDiscountInput.text.isNullOrEmpty()) {
-            binding.productDiscountHelperText.text = "Empty"
+            binding.productDiscountHelperText.text = EMPTY_VALUE_TEXT
             succeedValidation = false
         }
         if (binding.productFinalPriceInput.text.isNullOrEmpty()) {
-            binding.productFinalPriceHelperText.text = "Empty"
+            binding.productFinalPriceHelperText.text = EMPTY_VALUE_TEXT
             succeedValidation = false
         }
         return succeedValidation
@@ -199,6 +200,9 @@ class AddProductFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        binding.toolbar.inflateMenu(R.menu.top_menu_extended_add)
+        binding.toolbar.setNavigationIcon(R.drawable.back)
+        binding.toolbar.menu.findItem(R.id.edit).setVisible(false)
 
         initObserver()
         receiptDataViewModel.refreshCategoryList()
@@ -329,39 +333,43 @@ class AddProductFragment : Fragment() {
             binding.productCategoryInput.setText(chosenCategory.name)
 
         }
-
-        binding.cancelAddProductButton.setOnClickListener {
+        binding.toolbar.setNavigationOnClickListener {
             Navigation.findNavController(it).popBackStack()
         }
+        binding.toolbar.setOnMenuItemClickListener {
+            when (it.itemId) {
+                R.id.confirm -> {
+                    if (!validateObligatoryFields()) {
+                        return@setOnMenuItemClickListener false
+                    }
 
-        binding.confirmAddProductButton.setOnClickListener {
-            if (!validateObligatoryFields()) {
-                return@setOnClickListener
-            }
+                    val product = Product(
+                        receiptDataViewModel.receipt.value?.id ?: throw NoReceiptIdException(),
+                        binding.productNameInput.text.toString(),
+                        chosenCategory.id ?: throw NoCategoryIdException(),
+                        binding.productQuantityInput.text.toString().toDouble(),
+                        binding.productUnitPriceInput.text.toString().toDouble(),
+                        binding.productSubtotalPriceInput.text.toString().toDouble(),
+                        binding.productDiscountInput.text.toString().toDouble(),
+                        binding.productFinalPriceInput.text.toString().toDouble(),
+                        binding.ptuTypeInput.text.toString(),
+                        binding.productOriginalInput.text.toString()
+                    )
+                    product.id = productId
 
-            val product = Product(
-                receiptDataViewModel.receipt.value?.id ?: throw NoReceiptIdException(),
-                binding.productNameInput.text.toString(),
-                chosenCategory.id ?: throw NoCategoryIdException(),
-                binding.productQuantityInput.text.toString().toDouble(),
-                binding.productUnitPriceInput.text.toString().toDouble(),
-                binding.productSubtotalPriceInput.text.toString().toDouble(),
-                binding.productDiscountInput.text.toString().toDouble(),
-                binding.productFinalPriceInput.text.toString().toDouble(),
-                binding.ptuTypeInput.text.toString(),
-                binding.productOriginalInput.text.toString()
-            )
-            product.id = productId
+                    if (args.productIndex != -1) {
+                        receiptDataViewModel.product.value!![args.productIndex] = product
+                    } else {
+                        receiptDataViewModel.product.value!!.add(product)
+                    }
+                    if (args.saveProduct) {
+                        receiptDataViewModel.insertProducts(listOf(product))
+                    }
+                    Navigation.findNavController(requireView()).popBackStack()
+                }
 
-            if (args.productIndex != -1) {
-                receiptDataViewModel.product.value!![args.productIndex] = product
-            } else {
-                receiptDataViewModel.product.value!!.add(product)
+                else -> false
             }
-            if (args.saveProduct) {
-                receiptDataViewModel.insertProducts(listOf(product))
-            }
-            Navigation.findNavController(requireView()).popBackStack()
         }
 
         binding.productSubtotalPriceHelperText.setOnClickListener {

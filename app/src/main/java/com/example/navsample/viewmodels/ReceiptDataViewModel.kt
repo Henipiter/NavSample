@@ -38,6 +38,7 @@ class ReceiptDataViewModel : ViewModel() {
     lateinit var product: MutableLiveData<ArrayList<Product>>
     lateinit var category: MutableLiveData<Category?>
 
+    lateinit var savedStore: MutableLiveData<Store>
     lateinit var savedCategory: MutableLiveData<Category>
 
     lateinit var productRichList: MutableLiveData<ArrayList<ProductRichData>>
@@ -78,6 +79,7 @@ class ReceiptDataViewModel : ViewModel() {
         product = MutableLiveData<ArrayList<Product>>(ArrayList())
         category = MutableLiveData<Category?>(null)
 
+        savedStore = MutableLiveData<Store>(null)
         savedCategory = MutableLiveData<Category>(null)
 
         productRichList = MutableLiveData<ArrayList<ProductRichData>>(null)
@@ -215,7 +217,7 @@ class ReceiptDataViewModel : ViewModel() {
             } catch (e: Exception) {
                 Log.e("Insert store to DB", e.message.toString())
             }
-            store.postValue(newStore)
+            savedStore.postValue(newStore)
             refreshStoreList()
         }
     }
@@ -268,7 +270,7 @@ class ReceiptDataViewModel : ViewModel() {
                 dao.updateStore(newStore)
             }
         }
-        store.value = newStore
+        savedStore.value = newStore
     }
 
     fun refreshReceiptList(name: String, dateFrom: String, dateTo: String) {

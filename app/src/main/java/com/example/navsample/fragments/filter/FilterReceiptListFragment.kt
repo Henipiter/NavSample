@@ -36,6 +36,11 @@ class FilterReceiptListFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+        binding.toolbar.inflateMenu(com.example.navsample.R.menu.top_menu_filter)
+        binding.toolbar.setNavigationIcon(com.example.navsample.R.drawable.back)
+        binding.toolbar.title = "Filter"
+
         initObserver()
         putFilterDefinitionIntoInputs()
 
@@ -61,15 +66,25 @@ class FilterReceiptListFragment : Fragment() {
             }
         }
 
-        binding.confirmButton.setOnClickListener {
-            receiptDataViewModel.filterReceiptList.value = filterReceiptList
+        binding.toolbar.setNavigationOnClickListener {
             Navigation.findNavController(it).popBackStack()
         }
-        binding.clearFilterButton.setOnClickListener {
-            binding.dateBetweenInput.setText("")
-            binding.storeInput.setText("")
-            receiptDataViewModel.filterReceiptList.value = FilterReceiptList()
-            Navigation.findNavController(it).popBackStack()
+        binding.toolbar.setOnMenuItemClickListener {
+            when (it.itemId) {
+                com.example.navsample.R.id.clear_filter -> {
+                    binding.dateBetweenInput.setText("")
+                    binding.storeInput.setText("")
+                    receiptDataViewModel.filterReceiptList.value = FilterReceiptList()
+                    true
+                }
+
+                com.example.navsample.R.id.confirm -> {
+                    receiptDataViewModel.filterReceiptList.value = filterReceiptList
+                    Navigation.findNavController(requireView()).popBackStack()
+                }
+
+                else -> false
+            }
         }
     }
 

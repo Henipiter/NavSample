@@ -10,8 +10,10 @@ import android.view.ViewGroup
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
+import androidx.navigation.Navigation
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.example.navsample.R
 import com.example.navsample.adapters.TableCountListAdapter
 import com.example.navsample.databinding.FragmentExportDataBinding
 import com.example.navsample.entities.relations.TableCounts
@@ -42,6 +44,10 @@ class ExportDataFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        binding.toolbar.inflateMenu(R.menu.top_menu_export)
+        binding.toolbar.setNavigationIcon(R.drawable.back)
+        binding.toolbar.title = "Export data"
+
         receiptDataViewModel.getTableCounts()
         receiptDataViewModel.getAllData()
 
@@ -52,10 +58,28 @@ class ExportDataFragment : Fragment() {
         recycleViewEvent.layoutManager = GridLayoutManager(requireContext(), 2)
         initObserver()
 
-        binding.exportDataButton.setOnClickListener {
-            val data = prepareFileContents()
-            saveCsvFile(data)
+        binding.toolbar.setNavigationOnClickListener {
+            Navigation.findNavController(it).popBackStack()
         }
+        binding.toolbar.setOnMenuItemClickListener {
+            when (it.itemId) {
+
+                R.id.export -> {
+                    if (isDataExist()) {
+                        Toast.makeText(requireContext(), "No data found", Toast.LENGTH_SHORT).show()
+                        return@setOnMenuItemClickListener true
+                    }
+                    saveCsvFile(prepareFileContents())
+                    true
+                }
+
+                else -> false
+            }
+        }
+    }
+
+    private fun isDataExist(): Boolean {
+        return receiptDataViewModel.allData.value?.isEmpty() ?: false
     }
 
     private fun prepareFileContents(): String {
@@ -129,11 +153,6 @@ class ExportDataFragment : Fragment() {
             it?.let {
                 listAdapter.recycleList = it
                 listAdapter.notifyDataSetChanged()
-            }
-        }
-        receiptDataViewModel.allData.observe(viewLifecycleOwner) {
-            it?.let {
-                binding.exportDataButton.isEnabled = true
             }
         }
     }

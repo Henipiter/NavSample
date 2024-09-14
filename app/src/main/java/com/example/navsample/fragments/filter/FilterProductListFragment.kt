@@ -1,6 +1,5 @@
 package com.example.navsample.fragments.filter
 
-import android.R
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -11,6 +10,7 @@ import androidx.core.widget.doOnTextChanged
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.navigation.Navigation
+import com.example.navsample.R
 import com.example.navsample.databinding.FragmentFilterProductListBinding
 import com.example.navsample.dto.filter.FilterProductList
 import com.example.navsample.fragments.dialogs.PricePickerDialog
@@ -37,6 +37,11 @@ class FilterProductListFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+        binding.toolbar.inflateMenu(R.menu.top_menu_filter)
+        binding.toolbar.setNavigationIcon(R.drawable.back)
+        binding.toolbar.title = "Filter"
+
         initObserver()
         putFilterDefinitionIntoInputs()
 
@@ -82,19 +87,28 @@ class FilterProductListFragment : Fragment() {
             }
         }
 
-        binding.confirmButton.setOnClickListener {
-            receiptDataViewModel.filterProductList.value = filterProductList
+        binding.toolbar.setNavigationOnClickListener {
             Navigation.findNavController(it).popBackStack()
         }
-        binding.clearFilterButton.setOnClickListener {
-            binding.dateBetweenInput.setText("")
-            binding.priceBetweenInput.setText("-")
-            binding.categoryNameInput.setText("")
-            binding.storeInput.setText("")
-            receiptDataViewModel.filterProductList.value = FilterProductList()
-            Navigation.findNavController(it).popBackStack()
-        }
+        binding.toolbar.setOnMenuItemClickListener {
+            when (it.itemId) {
+                R.id.clear_filter -> {
+                    binding.dateBetweenInput.setText("")
+                    binding.priceBetweenInput.setText("-")
+                    binding.categoryNameInput.setText("")
+                    binding.storeInput.setText("")
+                    receiptDataViewModel.filterProductList.value = FilterProductList()
+                    true
+                }
 
+                R.id.confirm -> {
+                    receiptDataViewModel.filterProductList.value = filterProductList
+                    Navigation.findNavController(requireView()).popBackStack()
+                }
+
+                else -> false
+            }
+        }
     }
 
     private fun convertTextToDouble(string: String): Double {
@@ -174,7 +188,7 @@ class FilterProductListFragment : Fragment() {
             it?.let {
                 ArrayAdapter(
                     requireContext(),
-                    R.layout.simple_list_item_1,
+                    android.R.layout.simple_list_item_1,
                     it.map { it2 -> it2.name }
                 ).also { adapter ->
                     binding.storeInput.setAdapter(adapter)
@@ -185,7 +199,7 @@ class FilterProductListFragment : Fragment() {
             it?.let {
                 ArrayAdapter(
                     requireContext(),
-                    R.layout.simple_list_item_1,
+                    android.R.layout.simple_list_item_1,
                     it.map { it2 -> it2.name }
                 ).also { adapter ->
                     binding.categoryNameInput.setAdapter(adapter)

@@ -22,8 +22,6 @@ import com.example.navsample.dto.Type
 import com.example.navsample.dto.sorting.AlgorithmItemAdapterArgument
 import com.example.navsample.dto.sorting.ItemAdapterArgument
 import com.example.navsample.dto.sorting.UserItemAdapterArgument
-import com.example.navsample.exception.NoReceiptIdException
-import com.example.navsample.exception.NoStoreIdException
 import com.example.navsample.imageanalyzer.ReceiptParser
 import com.example.navsample.sorting.NonScrollableGridLayoutManager
 import com.example.navsample.sorting.operation.ElementOperationHelper
@@ -76,8 +74,8 @@ open class ExperimentRecycleFragment : Fragment() {
         initObserver()
         binding.editGrid.visibility = View.GONE
         receiptParser = ReceiptParser(
-            receiptDataViewModel.receipt.value?.id ?: throw NoReceiptIdException(),
-            receiptDataViewModel.store.value?.defaultCategoryId ?: throw NoStoreIdException()
+            receiptDataViewModel.receipt.value?.id ?: -1,            //throw NoReceiptIdException(),
+            receiptDataViewModel.store.value?.defaultCategoryId ?: -1 // throw NoStoreIdException()
         )
         binding.switchingButton.isChecked = true
         binding.priceModeColor.visibility = View.INVISIBLE

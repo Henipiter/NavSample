@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <item
+        android:id="@+id/reorder"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:title="Reorder"
+        android:iconTint="@color/colorOnPrimary"
+
+        android:icon="@drawable/reorder"
+        app:showAsAction="ifRoom" />
+    <item
+        android:id="@+id/add_new"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:title="Add"
+        android:iconTint="@color/colorOnPrimary"
+
+        android:icon="@drawable/add"
+        app:showAsAction="ifRoom" />
+    <item
+        android:id="@+id/edit"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:title="Edit"
+        android:iconTint="@color/colorOnPrimary"
+
+        android:icon="@drawable/edit"
+        app:showAsAction="ifRoom" />
+    <item
+        android:id="@+id/confirm"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:title="Confirm"
+        android:iconTint="@color/colorOnPrimary"
+
+        android:icon="@drawable/confirm"
+        app:showAsAction="ifRoom" />
+</menu>
