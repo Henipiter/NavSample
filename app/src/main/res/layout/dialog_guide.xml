@@ -5,7 +5,11 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    android:background="@drawable/text_relative"
+    android:padding="16dp"
+
     tools:context=".guide.dialog.GuideDialog">
+
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
@@ -42,10 +46,10 @@
             app:layout_constraintTop_toTopOf="@+id/previous_button" />
 
         <Button
-            android:layout_marginTop="32dp"
             android:id="@+id/previous_button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginTop="32dp"
             android:text="Previous"
             app:layout_constraintEnd_toEndOf="@id/center"
             app:layout_constraintStart_toStartOf="parent"
