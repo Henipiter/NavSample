@@ -51,9 +51,9 @@ class ImageImportGuideFragment : Fragment(), Guide {
             }
         )
         texts = listOf(
-            "1",
-            "2",
-            "3"
+            "Load image",
+            "Image loaded",
+            ""
         )
     }
 

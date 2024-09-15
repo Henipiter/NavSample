@@ -43,13 +43,35 @@ class AddReceiptGuideFragment : Fragment(), Guide {
         loadImage("crop_receipt.png")
         instructions = listOf(
             { Navigation.findNavController(requireView()).popBackStack() },
-            { loadImage("crop_receipt.png") },
+            { clearInputs(); loadImage("crop_receipt.png") },
+            { fillInputs() },
             { Toast.makeText(requireContext(), "NOT IMPLEMENTED", Toast.LENGTH_SHORT).show() }
         )
         texts = listOf(
-            "1",
-            "2"
+            "View with receipt data. Will be provided automatically",
+            "Data provided!",
+            ""
         )
+    }
+
+    private fun clearInputs() {
+        binding.storeNameInput.setText("")
+        binding.storeNIPInput.setText("")
+        binding.receiptPLNInput.setText("")
+        binding.receiptPLNInput.setText("")
+        binding.receiptPTUInput.setText("")
+        binding.receiptDateInput.setText("")
+        binding.receiptTimeInput.setText("")
+    }
+
+    private fun fillInputs() {
+        binding.storeNameInput.setText("CARREFOUR")
+        binding.storeNIPInput.setText("9370008168")
+        binding.receiptPLNInput.setText("6.79")
+        binding.receiptPLNInput.setText("0.09")
+        binding.receiptPTUInput.setText("0.09")
+        binding.receiptDateInput.setText("2024-03-16")
+        binding.receiptTimeInput.setText("18:40")
     }
 
     override fun loadImage(imageName: String) {

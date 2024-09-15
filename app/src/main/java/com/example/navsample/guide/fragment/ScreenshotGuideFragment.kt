@@ -48,16 +48,15 @@ class ScreenshotGuideFragment : Fragment(), Guide {
             { loadImage(imagesToShow[1]) },
             { loadImage(imagesToShow[2]) },
             {
-//                this.iterator = 1
                 Navigation.findNavController(requireView())
                     .navigate(R.id.action_screenshotGuideFragment_to_addReceiptGuideFragment)
             }
         )
         texts = listOf(
-            "1",
-            "2",
-            "3",
-            "4"
+            "Have to cut",
+            "Cut to receipt",
+            "Cut to products",
+            ""
         )
     }
 
