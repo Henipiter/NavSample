@@ -18,6 +18,7 @@ class ScreenshotGuideFragment : Fragment(), Guide {
 
     override var iterator: Int = 1
     override lateinit var instructions: List<() -> Unit>
+    override lateinit var texts: List<String>
 
     private val imagesToShow = arrayListOf(
         "original_receipt_cropping.jpg",
@@ -36,7 +37,6 @@ class ScreenshotGuideFragment : Fragment(), Guide {
         super.onViewCreated(view, savedInstanceState)
 
         prepare()
-        doStuff()
         configureDialog().show(childFragmentManager, "TAG")
     }
 
@@ -48,10 +48,16 @@ class ScreenshotGuideFragment : Fragment(), Guide {
             { loadImage(imagesToShow[1]) },
             { loadImage(imagesToShow[2]) },
             {
-                this.iterator = 1
+//                this.iterator = 1
                 Navigation.findNavController(requireView())
                     .navigate(R.id.action_screenshotGuideFragment_to_addReceiptGuideFragment)
             }
+        )
+        texts = listOf(
+            "1",
+            "2",
+            "3",
+            "4"
         )
     }
 

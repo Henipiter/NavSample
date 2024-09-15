@@ -19,6 +19,8 @@ class AddReceiptGuideFragment : Fragment(), Guide {
 
     override var iterator: Int = 1
     override lateinit var instructions: List<() -> Unit>
+    override lateinit var texts: List<String>
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?,
     ): View {
@@ -30,7 +32,6 @@ class AddReceiptGuideFragment : Fragment(), Guide {
         super.onViewCreated(view, savedInstanceState)
 
         prepare()
-        doStuff()
         configureDialog().show(childFragmentManager, "TAG")
     }
 
@@ -39,10 +40,15 @@ class AddReceiptGuideFragment : Fragment(), Guide {
         binding.toolbar.setNavigationIcon(R.drawable.back)
         binding.toolbar.menu.findItem(R.id.reorder).setVisible(false)
 
+        loadImage("crop_receipt.png")
         instructions = listOf(
             { Navigation.findNavController(requireView()).popBackStack() },
             { loadImage("crop_receipt.png") },
             { Toast.makeText(requireContext(), "NOT IMPLEMENTED", Toast.LENGTH_SHORT).show() }
+        )
+        texts = listOf(
+            "1",
+            "2"
         )
     }
 

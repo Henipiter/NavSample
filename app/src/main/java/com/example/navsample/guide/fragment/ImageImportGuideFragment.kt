@@ -19,6 +19,7 @@ class ImageImportGuideFragment : Fragment(), Guide {
 
     override var iterator: Int = 1
     override lateinit var instructions: List<() -> Unit>
+    override lateinit var texts: List<String>
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
@@ -31,22 +32,28 @@ class ImageImportGuideFragment : Fragment(), Guide {
         super.onViewCreated(view, savedInstanceState)
 
         prepare()
-        doStuff()
-        configureDialog().show(childFragmentManager, "TAG")
+        val dialog = configureDialog()
+
+        dialog.show(childFragmentManager, "TAG")
     }
 
     override fun prepare() {
         binding.indeterminateBar.visibility = View.GONE
+        binding.receiptImageBig.setImageBitmap(null)
 
         instructions = listOf(
             { Navigation.findNavController(requireView()).popBackStack() },
             { binding.receiptImageBig.setImageBitmap(null) },
             { loadImage("original_receipt.jpg") },
             {
-                this.iterator = 1
                 Navigation.findNavController(requireView())
                     .navigate(R.id.action_imageImportGuideFragment_to_screenshotGuideFragment)
             }
+        )
+        texts = listOf(
+            "1",
+            "2",
+            "3"
         )
     }
 
