@@ -16,8 +16,11 @@ class GuideDialog() : DialogFragment() {
     private val binding get() = _binding!!
 
     private var iterator: Int = 0
+    private var textIndex: Int = 0
     private lateinit var texts: List<String>
     private lateinit var instructions: List<() -> Unit>
+
+    private var isLastMoveForward = true
 
     constructor(iterator: Int, texts: List<String>, instructions: List<() -> Unit>) : this() {
 
@@ -44,20 +47,33 @@ class GuideDialog() : DialogFragment() {
     }
 
     private fun setOnClickListeners() {
-        binding.textInput.text = texts[iterator]
+        binding.textInput.text = texts[0]
         instructions[1].invoke()
 
 
         binding.previousButton.setOnClickListener {
+            if (isLastMoveForward) {
+                iterator = Integer.max(iterator - 1, 0)
+                isLastMoveForward = false
+            }
             instructions[iterator].invoke()
             iterator = Integer.max(iterator - 1, 0)
-            binding.textInput.text = texts[iterator]
+
+            textIndex = Integer.max(textIndex - 1, 0)
+            binding.textInput.text = texts[textIndex]
 
         }
         binding.nextButton.setOnClickListener {
+            if (!isLastMoveForward) {
+                iterator = Integer.min(iterator + 1, texts.size - 1)
+                isLastMoveForward = true
+            }
+            isLastMoveForward = true
             instructions[iterator + 1].invoke()
             iterator = Integer.min(iterator + 1, texts.size - 1)
-            binding.textInput.text = texts[iterator]
+
+            textIndex = Integer.min(textIndex + 1, texts.size - 1)
+            binding.textInput.text = texts[textIndex]
         }
     }
 
