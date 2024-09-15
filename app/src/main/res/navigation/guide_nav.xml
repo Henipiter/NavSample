@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/nav"
+    app:startDestination="@id/guideFragment">
+
+    <fragment
+        android:id="@+id/guideFragment"
+        android:name="com.example.navsample.fragments.GuideFragment"
+        android:label="fragment_guide"
+        tools:layout="@layout/fragment_guide_menu">
+        <action
+            android:id="@+id/action_guideFragment_to_imageImportGuideFragment"
+            app:destination="@id/imageImportGuideFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/imageImportGuideFragment"
+        android:name="com.example.navsample.guide.fragment.ImageImportGuideFragment"
+        android:label="ImageImportFragment">
+        <action
+            android:id="@+id/action_imageImportGuideFragment_to_screenshotGuideFragment"
+            app:destination="@id/screenshotGuideFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/addReceiptGuideFragment"
+        android:name="com.example.navsample.guide.fragment.AddReceiptGuideFragment"
+        android:label="AddReceiptGuideFragment" />
+    <fragment
+        android:id="@+id/screenshotGuideFragment"
+        android:name="com.example.navsample.guide.fragment.ScreenshotGuideFragment"
+        android:label="fragment_guide_screenshot"
+        tools:layout="@layout/fragment_guide_screenshot">
+        <action
+            android:id="@+id/action_screenshotGuideFragment_to_addReceiptGuideFragment"
+            app:destination="@id/addReceiptGuideFragment" />
+    </fragment>
+</navigation>
