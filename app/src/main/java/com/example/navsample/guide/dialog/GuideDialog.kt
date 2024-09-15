@@ -54,8 +54,8 @@ class GuideDialog() : DialogFragment() {
         binding.previousButton.setOnClickListener {
             if (isLastMoveForward) {
                 iterator = Integer.max(iterator - 1, 0)
-                isLastMoveForward = false
             }
+            isLastMoveForward = false
             instructions[iterator].invoke()
             iterator = Integer.max(iterator - 1, 0)
 
@@ -66,7 +66,6 @@ class GuideDialog() : DialogFragment() {
         binding.nextButton.setOnClickListener {
             if (!isLastMoveForward) {
                 iterator = Integer.min(iterator + 1, texts.size - 1)
-                isLastMoveForward = true
             }
             isLastMoveForward = true
             instructions[iterator + 1].invoke()
