@@ -4,7 +4,6 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.camera.core.ExperimentalGetImage
 import androidx.fragment.app.Fragment
 import androidx.navigation.Navigation
 import com.example.navsample.R
@@ -12,8 +11,6 @@ import com.example.navsample.databinding.FragmentGuideScreenshotBinding
 import com.example.navsample.guide.Guide
 import com.github.chrisbanes.photoview.PhotoView
 
-
-@ExperimentalGetImage
 class ScreenshotGuideFragment : Fragment(), Guide {
 
     private var _binding: FragmentGuideScreenshotBinding? = null
@@ -51,6 +48,7 @@ class ScreenshotGuideFragment : Fragment(), Guide {
             { loadImage(imagesToShow[1]) },
             { loadImage(imagesToShow[2]) },
             {
+                this.iterator = 1
                 Navigation.findNavController(requireView())
                     .navigate(R.id.action_screenshotGuideFragment_to_addReceiptGuideFragment)
             }

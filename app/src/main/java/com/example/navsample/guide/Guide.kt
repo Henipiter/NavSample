@@ -4,6 +4,8 @@ import android.content.Context
 import android.graphics.BitmapFactory
 import com.example.navsample.guide.dialog.GuideDialog
 import com.github.chrisbanes.photoview.PhotoView
+import java.lang.Integer.max
+import java.lang.Integer.min
 
 interface Guide {
 
@@ -12,12 +14,12 @@ interface Guide {
     fun prepare()
 
     fun previous() {
-        iterator -= 1
+        iterator = max(iterator - 1, 0)
         doStuff()
     }
 
     fun next() {
-        iterator += 1
+        iterator = min(iterator + 1, instructions.size - 1)
         doStuff()
     }
 
