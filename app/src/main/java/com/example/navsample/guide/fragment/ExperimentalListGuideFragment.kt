@@ -7,14 +7,13 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.navigation.Navigation
 import com.example.navsample.R
-import com.example.navsample.databinding.FragmentImageImportBinding
+import com.example.navsample.databinding.FragmentExperimentRecycleBinding
 import com.example.navsample.guide.Guide
 import com.github.chrisbanes.photoview.PhotoView
 
 
-class ImageImportGuideFragment : Fragment(), Guide {
-
-    private var _binding: FragmentImageImportBinding? = null
+class ExperimentalListGuideFragment : Fragment(), Guide {
+    private var _binding: FragmentExperimentRecycleBinding? = null
     private val binding get() = _binding!!
 
     override var iterator: Int = 1
@@ -23,9 +22,9 @@ class ImageImportGuideFragment : Fragment(), Guide {
     override lateinit var verticalLevel: List<Int>
 
     override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
+        inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?,
     ): View {
-        _binding = FragmentImageImportBinding.inflate(inflater, container, false)
+        _binding = FragmentExperimentRecycleBinding.inflate(inflater, container, false)
         return binding.root
     }
 
@@ -33,27 +32,21 @@ class ImageImportGuideFragment : Fragment(), Guide {
         super.onViewCreated(view, savedInstanceState)
 
         prepare()
-        val dialog = configureDialog()
-
-        dialog.show(childFragmentManager, "TAG")
+        configureDialog().show(childFragmentManager, "TAG")
     }
 
     override fun prepare() {
-        binding.indeterminateBar.visibility = View.GONE
-        binding.receiptImageBig.setImageBitmap(null)
-
+        loadImage("short_crop_receipt.png")
         instructions = listOf(
             { Navigation.findNavController(requireView()).popBackStack() },
-            { binding.receiptImageBig.setImageBitmap(null) },
-            { loadImage("original_receipt.jpg") },
+            { loadImage("short_crop_receipt.png") },
             {
                 Navigation.findNavController(requireView())
-                    .navigate(R.id.action_imageImportGuideFragment_to_cropReceiptGuideFragment)
+                    .navigate(R.id.action_experimentalListGuideFragment_to_addProductListGuideFragment)
             }
         )
         texts = listOf(
-            "Load image",
-            "Image loaded",
+            "Text",
             ""
         )
         verticalLevel = listOf(
@@ -61,10 +54,10 @@ class ImageImportGuideFragment : Fragment(), Guide {
         )
     }
 
+
     override fun loadImage(imageName: String) {
         loadImage(imageName, requireContext())
     }
-
 
     override fun getPhotoView(): PhotoView {
         return binding.receiptImageBig

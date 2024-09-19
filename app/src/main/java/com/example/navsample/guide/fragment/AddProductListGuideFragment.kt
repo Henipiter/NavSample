@@ -4,17 +4,17 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.navigation.Navigation
 import com.example.navsample.R
-import com.example.navsample.databinding.FragmentImageImportBinding
+import com.example.navsample.databinding.FragmentAddProductListBinding
 import com.example.navsample.guide.Guide
 import com.github.chrisbanes.photoview.PhotoView
 
 
-class ImageImportGuideFragment : Fragment(), Guide {
-
-    private var _binding: FragmentImageImportBinding? = null
+class AddProductListGuideFragment : Fragment(), Guide {
+    private var _binding: FragmentAddProductListBinding? = null
     private val binding get() = _binding!!
 
     override var iterator: Int = 1
@@ -23,9 +23,9 @@ class ImageImportGuideFragment : Fragment(), Guide {
     override lateinit var verticalLevel: List<Int>
 
     override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
+        inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?,
     ): View {
-        _binding = FragmentImageImportBinding.inflate(inflater, container, false)
+        _binding = FragmentAddProductListBinding.inflate(inflater, container, false)
         return binding.root
     }
 
@@ -33,27 +33,22 @@ class ImageImportGuideFragment : Fragment(), Guide {
         super.onViewCreated(view, savedInstanceState)
 
         prepare()
-        val dialog = configureDialog()
-
-        dialog.show(childFragmentManager, "TAG")
+        configureDialog().show(childFragmentManager, "TAG")
     }
 
     override fun prepare() {
-        binding.indeterminateBar.visibility = View.GONE
-        binding.receiptImageBig.setImageBitmap(null)
+        binding.toolbar.inflateMenu(R.menu.top_menu_extended_add)
+        binding.toolbar.setNavigationIcon(R.drawable.back)
+        binding.toolbar.menu.findItem(R.id.reorder).setVisible(false)
 
+        loadImage("short_crop_receipt.png")
         instructions = listOf(
             { Navigation.findNavController(requireView()).popBackStack() },
-            { binding.receiptImageBig.setImageBitmap(null) },
-            { loadImage("original_receipt.jpg") },
-            {
-                Navigation.findNavController(requireView())
-                    .navigate(R.id.action_imageImportGuideFragment_to_cropReceiptGuideFragment)
-            }
+            { loadImage("short_crop_receipt.png") },
+            { Toast.makeText(requireContext(), "NOT IMPLEMENTED", Toast.LENGTH_SHORT).show() }
         )
         texts = listOf(
-            "Load image",
-            "Image loaded",
+            "Text",
             ""
         )
         verticalLevel = listOf(
@@ -61,10 +56,10 @@ class ImageImportGuideFragment : Fragment(), Guide {
         )
     }
 
+
     override fun loadImage(imageName: String) {
         loadImage(imageName, requireContext())
     }
-
 
     override fun getPhotoView(): PhotoView {
         return binding.receiptImageBig

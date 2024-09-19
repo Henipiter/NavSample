@@ -4,7 +4,6 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.navigation.Navigation
 import com.example.navsample.R
@@ -46,7 +45,10 @@ class AddReceiptGuideFragment : Fragment(), Guide {
             { Navigation.findNavController(requireView()).popBackStack() },
             { clearInputs(); loadImage("crop_receipt.png") },
             { fillInputs() },
-            { Toast.makeText(requireContext(), "NOT IMPLEMENTED", Toast.LENGTH_SHORT).show() }
+            {
+                Navigation.findNavController(requireView())
+                    .navigate(R.id.action_addReceiptGuideFragment_to_cropProductGuideFragment)
+            }
         )
         texts = listOf(
             "View with receipt data. Will be provided automatically",
@@ -54,7 +56,7 @@ class AddReceiptGuideFragment : Fragment(), Guide {
             ""
         )
         verticalLevel = listOf(
-            100, 200, 300
+            100, 100, 100
         )
     }
 
