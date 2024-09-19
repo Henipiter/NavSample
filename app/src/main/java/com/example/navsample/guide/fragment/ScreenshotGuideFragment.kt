@@ -19,6 +19,7 @@ class ScreenshotGuideFragment : Fragment(), Guide {
     override var iterator: Int = 1
     override lateinit var instructions: List<() -> Unit>
     override lateinit var texts: List<String>
+    override lateinit var verticalLevel: List<Int>
 
     private val imagesToShow = arrayListOf(
         "original_receipt_cropping.jpg",
@@ -57,6 +58,10 @@ class ScreenshotGuideFragment : Fragment(), Guide {
             "Cut to receipt",
             "Cut to products",
             ""
+        )
+
+        verticalLevel = listOf(
+            100, 200, 300, 400
         )
     }
 

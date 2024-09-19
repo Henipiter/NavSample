@@ -20,6 +20,7 @@ class AddReceiptGuideFragment : Fragment(), Guide {
     override var iterator: Int = 1
     override lateinit var instructions: List<() -> Unit>
     override lateinit var texts: List<String>
+    override lateinit var verticalLevel: List<Int>
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?,
@@ -51,6 +52,9 @@ class AddReceiptGuideFragment : Fragment(), Guide {
             "View with receipt data. Will be provided automatically",
             "Data provided!",
             ""
+        )
+        verticalLevel = listOf(
+            100, 200, 300
         )
     }
 

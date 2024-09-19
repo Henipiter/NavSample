@@ -10,10 +10,11 @@ interface Guide {
     var iterator: Int
     var texts: List<String>
     var instructions: List<() -> Unit>
+    var verticalLevel: List<Int>
     fun prepare()
     fun configureDialog(): GuideDialog {
         val guideDialog = GuideDialog(
-            iterator, texts, instructions
+            iterator, texts, instructions, verticalLevel
         )
         guideDialog.isCancelable = false
         return guideDialog

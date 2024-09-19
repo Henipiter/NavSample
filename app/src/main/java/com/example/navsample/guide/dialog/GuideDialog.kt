@@ -17,12 +17,18 @@ class GuideDialog() : DialogFragment() {
 
     private var iterator: Int = 0
     private var textIndex: Int = 0
+    private lateinit var verticalLevel: List<Int>
     private lateinit var texts: List<String>
     private lateinit var instructions: List<() -> Unit>
 
     private var isLastMoveForward = true
 
-    constructor(iterator: Int, texts: List<String>, instructions: List<() -> Unit>) : this() {
+    constructor(
+        iterator: Int,
+        texts: List<String>,
+        instructions: List<() -> Unit>,
+        verticalLevel: List<Int>
+    ) : this() {
 
         if (texts.size + 1 != instructions.size) {
             throw IllegalArgumentException("Text size: ${texts.size}, Instructions size ${instructions.size}")
@@ -30,6 +36,7 @@ class GuideDialog() : DialogFragment() {
         this.iterator = iterator
         this.texts = texts
         this.instructions = instructions
+        this.verticalLevel = verticalLevel
     }
 
     override fun onCreateView(
@@ -49,6 +56,7 @@ class GuideDialog() : DialogFragment() {
     private fun setOnClickListeners() {
         binding.textInput.text = texts[0]
         instructions[1].invoke()
+        editVerticalLevelOfDialog(verticalLevel[0])
 
 
         binding.previousButton.setOnClickListener {
@@ -57,10 +65,14 @@ class GuideDialog() : DialogFragment() {
             }
             isLastMoveForward = false
             instructions[iterator].invoke()
+            if (iterator == 0) {
+                dismiss()
+            }
             iterator = Integer.max(iterator - 1, 0)
 
             textIndex = Integer.max(textIndex - 1, 0)
             binding.textInput.text = texts[textIndex]
+            editVerticalLevelOfDialog(verticalLevel[textIndex])
 
         }
         binding.nextButton.setOnClickListener {
@@ -69,11 +81,24 @@ class GuideDialog() : DialogFragment() {
             }
             isLastMoveForward = true
             instructions[iterator + 1].invoke()
+            if (iterator + 1 == instructions.lastIndex) {
+                dismiss()
+            }
             iterator = Integer.min(iterator + 1, texts.size - 1)
 
             textIndex = Integer.min(textIndex + 1, texts.size - 1)
             binding.textInput.text = texts[textIndex]
+            editVerticalLevelOfDialog(verticalLevel[textIndex])
+
+
         }
+    }
+
+    private fun editVerticalLevelOfDialog(level: Int) {
+        val window = dialog?.window
+        val layoutParams = window?.attributes
+        layoutParams?.y = level
+        window?.attributes = layoutParams
     }
 
     override fun onStart() {
