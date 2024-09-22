@@ -10,38 +10,60 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
-        <Button
-            android:id="@+id/capture_image"
-            android:layout_width="150dp"
+        <LinearLayout
+            android:id="@+id/linearLayout"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Capture image"
-            app:layout_constraintEnd_toStartOf="@+id/indeterminate_bar"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/relative_layout" />
-
-        <Button
-            android:id="@+id/load_image"
-            android:layout_width="150dp"
-            android:layout_height="wrap_content"
-            android:text="Load image"
+            android:layout_marginBottom="32dp"
+            app:layout_constraintBottom_toTopOf="@+id/analyze_button"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toEndOf="@+id/indeterminate_bar"
-            app:layout_constraintTop_toBottomOf="@+id/relative_layout" />
+            app:layout_constraintStart_toStartOf="parent">
 
-        <Button
-            android:id="@+id/manual_button"
-            android:layout_width="160dp"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="20dp"
-            android:text="Manual"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/load_image" />
+            <Button
+                android:id="@+id/capture_image"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:layout_marginHorizontal="5dp"
+                android:layout_weight="1"
+                android:drawableTop="@drawable/camera"
+                android:drawableTint="@color/colorOnPrimary"
+                android:gravity="center"
+                android:text="Camera" />
+
+            <Button
+                android:id="@+id/load_image"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:layout_marginHorizontal="5dp"
+                android:layout_weight="1"
+                android:drawableTop="@drawable/gallery"
+                android:drawableTint="@color/colorOnPrimary"
+                android:gravity="center"
+                android:text="Storage" />
+
+            <Button
+                android:id="@+id/manual_button"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:layout_marginHorizontal="5dp"
+                android:layout_weight="1"
+                android:drawableTop="@drawable/edit"
+                android:drawableTint="@color/colorOnPrimary"
+                android:gravity="center"
+                android:text="Manual" />
+
+        </LinearLayout>
+
 
         <RelativeLayout
             android:id="@+id/relative_layout"
             android:layout_width="match_parent"
-            android:layout_height="500dp"
+            android:layout_height="0dp"
+            android:layout_marginBottom="32dp"
+            app:layout_constraintBottom_toTopOf="@+id/linearLayout"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent">
