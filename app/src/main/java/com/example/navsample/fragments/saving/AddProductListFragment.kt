@@ -121,6 +121,7 @@ class AddProductListFragment : Fragment(), ItemClickListener {
                 )
             )
         }
+        binding.countText.text = productListAdapter.productList.size.toString()
     }
 
     @ExperimentalGetImage

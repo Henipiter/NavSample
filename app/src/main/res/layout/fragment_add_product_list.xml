@@ -71,65 +71,68 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent">
 
-            <androidx.constraintlayout.widget.ConstraintLayout
+            <TableLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content">
 
-                <Space
-                    android:id="@+id/centerSummaryLayout"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="parent" />
+                <TableRow>
 
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Cart value"
-                    android:textSize="10sp"
-                    android:textAlignment="center"
-                    app:layout_constraintBottom_toTopOf="@+id/cartValueText"
-                    app:layout_constraintEnd_toStartOf="@+id/centerSummaryLayout"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="parent" />
+                    <TextView
+                        android:text="Products"
+                        android:textSize="10sp"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:gravity="center" />
 
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Receipt value"
-                    android:textSize="10sp"
-                    android:textAlignment="center"
-                    app:layout_constraintBottom_toTopOf="@+id/receiptValueText"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintStart_toEndOf="@+id/centerSummaryLayout"
-                    app:layout_constraintTop_toTopOf="parent" />
+                    <TextView
+                        android:text="Cart value"
+                        android:textSize="10sp"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:gravity="center" />
 
+                    <TextView
+                        android:text="Receipt value"
+                        android:textSize="10sp"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:gravity="center" />
+                </TableRow>
 
-                <TextView
-                    android:id="@+id/cartValueText"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="100"
-                    android:textSize="20sp"
-                    android:textAlignment="center"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintEnd_toStartOf="@+id/centerSummaryLayout"
-                    app:layout_constraintStart_toStartOf="parent" />
+                <TableRow>
 
-                <TextView
-                    android:id="@+id/receiptValueText"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="1000"
-                    android:textSize="20sp"
-                    android:textAlignment="center"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintStart_toStartOf="@+id/centerSummaryLayout" />
+                    <TextView
+                        android:id="@+id/countText"
+                        android:text="0"
+                        android:textSize="20sp"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:gravity="center" />
 
-            </androidx.constraintlayout.widget.ConstraintLayout>
+                    <TextView
+                        android:id="@+id/cartValueText"
+                        android:text="0"
+                        android:textSize="20sp"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:gravity="center" />
+
+                    <TextView
+                        android:id="@+id/receiptValueText"
+                        android:text="0"
+                        android:textSize="20sp"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:gravity="center" />
+                </TableRow>
+
+            </TableLayout>
 
         </androidx.cardview.widget.CardView>
     </androidx.constraintlayout.widget.ConstraintLayout>
