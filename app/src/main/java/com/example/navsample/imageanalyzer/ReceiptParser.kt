@@ -10,11 +10,9 @@ class ReceiptParser(var receiptId: Int, var categoryId: Int) {
 
     data class ReceiptElement(val data: String, val startIndex: Int, val endIndex: Int)
 
-
     fun parseToProducts(
         sortedProductListOnRecipe: List<String>,
     ): ArrayList<Product> {
-        //SORTOWANIE LISTY PRODUKTOW PO Y
         val productList = ArrayList<Product>()
         for (data in sortedProductListOnRecipe) {
             val parsedProduct = parseStringToProduct(data)
@@ -24,14 +22,12 @@ class ReceiptParser(var receiptId: Int, var categoryId: Int) {
                 lastProduct.finalPrice = parsedProduct.finalPrice
                 continue
             }
-
             if (parsedProduct.name != "" || parsedProduct.subtotalPrice != 0.0) {
                 productList.add(parsedProduct)
             }
         }
         return productList
     }
-
 
     fun parseStringToProduct(productInformation: String): Product {
         val ptuType = findPtuType(productInformation)
@@ -54,7 +50,6 @@ class ReceiptParser(var receiptId: Int, var categoryId: Int) {
                 fixPtuType(ptuType.data),
                 productInformation
             )
-
         } else {
             val quantity = findQuantity(productInformation, unitPrice.startIndex)
             name = findName(productInformation, quantity.startIndex)
@@ -71,10 +66,7 @@ class ReceiptParser(var receiptId: Int, var categoryId: Int) {
                 productInformation
             )
         }
-
-
     }
-
 
     private fun fixPrize(price: String): Double {
         var newPrice = price.replace("\\s*".toRegex(), " ").trim()
@@ -89,8 +81,6 @@ class ReceiptParser(var receiptId: Int, var categoryId: Int) {
         } catch (exception: Exception) {
             0.0
         }
-
-
     }
 
     private fun fixPtuType(ptuType: String): String {
@@ -162,7 +152,6 @@ class ReceiptParser(var receiptId: Int, var categoryId: Int) {
         } catch (ex: StringIndexOutOfBoundsException) {
             return ReceiptElement("", -1, -1)
         }
-
     }
 
     fun findSubtotalPrice(productInfo: String): ReceiptElement {

@@ -1,5 +1,6 @@
 package com.example.navsample.imageanalyzer
 
+import android.util.Log
 import kotlin.math.abs
 import kotlin.math.max
 import kotlin.math.min
@@ -72,25 +73,13 @@ class ImageProductAnalyzer {
     }
 
     private fun joinNameAndPrice() {
-        val items = min(columnCell.leftColumnCells.size, columnCell.rightColumnCells.size)
+        receiptNameLines.addAll(nameList)
+        receiptPriceLines.addAll(pricesList)
+        val items = min(nameList.size, pricesList.size)
         for (i in 0..<items) {
-            val name = getCellContent(columnCell.leftColumnCells[i])
-            val price = getCellContent(columnCell.rightColumnCells[i])
-            productList.add(name + " " + price)
-            receiptNameLines.add(name)
-            receiptPriceLines.add(price)
-        }
-
-    }
-
-    private fun getCellContent(cell: Cell): String {
-        return try {
-            cell.content
-        } catch (e: Exception) {
-            ""
+            productList.add(nameList[i] + " " + pricesList[i])
         }
     }
-
 
     private fun getIndexesCells(
         columnCell: ColumnCell,
@@ -125,27 +114,19 @@ class ImageProductAnalyzer {
         var rightListIndexValue = 1
 
         for (i in 0..leftColumnSpaces.lastIndex) {
-            if (leftColumnSpaces[i]) {
-                leftListIterator += 2
-            } else {
-                leftListIterator += 1
-            }
+            leftListIterator += if (leftColumnSpaces[i]) 2 else 1
             leftList[leftListIterator] = leftListIndexValue.toString()
             leftListIndexValue += 1
         }
         for (i in 0..rightColumnSpaces.lastIndex) {
-            if (rightColumnSpaces[i]) {
-                rightListIterator += 2
-            } else {
-                rightListIterator += 1
-            }
+            rightListIterator += if (rightColumnSpaces[i]) 2 else 1
             rightList[rightListIterator] = rightListIndexValue.toString()
             rightListIndexValue += 1
         }
 
-        println("Left  $leftList")
-        println("Right $rightList")
-        println("Common $commonsList")
+        Log.i("ImageProductAnalyzer", "Left  $leftList")
+        Log.i("ImageProductAnalyzer", "Right $rightList")
+        Log.i("ImageProductAnalyzer", "Common $commonsList")
 
         listReduction(leftList, rightList, commonsList)
         leftList.forEach {
@@ -156,22 +137,22 @@ class ImageProductAnalyzer {
             if (it == "" || it == "-") {
                 pricesList.add("")
             } else {
-                val indexes = it.split("+").map {
-                    it.toInt()
+                val indexes = it.split("+").map { element ->
+                    element.toInt()
                 }
                 var prices = ""
-                indexes.forEach {
-                    prices += " " + columnCell.rightColumnCells[it].content.trim()
+                indexes.forEach { index ->
+                    prices += " " + columnCell.rightColumnCells[index].content.trim()
                 }
                 pricesList.add(prices)
             }
         }
-        println("Result:")
+        Log.i("ImageProductAnalyzer", "Result:")
         for (i in 0..nameList.lastIndex) {
-            println("PRODUCT" + i.toString() + ";" + nameList[i])
+            Log.i("ImageProductAnalyzer", "PRODUCT" + i.toString() + ";" + nameList[i])
         }
         for (i in 0..pricesList.lastIndex) {
-            println("PRICE" + i.toString() + ";" + pricesList[i])
+            Log.i("ImageProductAnalyzer", "PRICE" + i.toString() + ";" + pricesList[i])
         }
     }
 
