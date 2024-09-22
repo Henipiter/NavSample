@@ -7,8 +7,6 @@ import kotlin.math.min
 
 class ImageProductAnalyzer {
     private var columnCell = ColumnCell()
-    private var nameList = ArrayList<String>()
-    private var pricesList = ArrayList<String>()
 
     var productList = ArrayList<String>()
     var receiptNameLines = ArrayList<String>()
@@ -73,11 +71,9 @@ class ImageProductAnalyzer {
     }
 
     private fun joinNameAndPrice() {
-        receiptNameLines.addAll(nameList)
-        receiptPriceLines.addAll(pricesList)
-        val items = min(nameList.size, pricesList.size)
+        val items = min(receiptNameLines.size, receiptPriceLines.size)
         for (i in 0..<items) {
-            productList.add(nameList[i] + " " + pricesList[i])
+            productList.add(receiptNameLines[i] + " " + receiptPriceLines[i])
         }
     }
 
@@ -131,11 +127,11 @@ class ImageProductAnalyzer {
         listReduction(leftList, rightList, commonsList)
         leftList.forEach {
             val index = it.toInt()
-            nameList.add(columnCell.leftColumnCells[index].content.trim())
+            receiptNameLines.add(columnCell.leftColumnCells[index].content.trim())
         }
         rightList.forEach {
             if (it == "" || it == "-") {
-                pricesList.add("")
+                receiptPriceLines.add("")
             } else {
                 val indexes = it.split("+").map { element ->
                     element.toInt()
@@ -144,15 +140,15 @@ class ImageProductAnalyzer {
                 indexes.forEach { index ->
                     prices += " " + columnCell.rightColumnCells[index].content.trim()
                 }
-                pricesList.add(prices)
+                receiptPriceLines.add(prices)
             }
         }
         Log.i("ImageProductAnalyzer", "Result:")
-        for (i in 0..nameList.lastIndex) {
-            Log.i("ImageProductAnalyzer", "PRODUCT" + i.toString() + ";" + nameList[i])
+        for (i in 0..receiptNameLines.lastIndex) {
+            Log.i("ImageProductAnalyzer", "PRODUCT" + i.toString() + ";" + receiptNameLines[i])
         }
-        for (i in 0..pricesList.lastIndex) {
-            Log.i("ImageProductAnalyzer", "PRICE" + i.toString() + ";" + pricesList[i])
+        for (i in 0..receiptPriceLines.lastIndex) {
+            Log.i("ImageProductAnalyzer", "PRICE" + i.toString() + ";" + receiptPriceLines[i])
         }
     }
 
