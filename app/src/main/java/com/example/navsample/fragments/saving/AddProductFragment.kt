@@ -203,8 +203,12 @@ class AddProductFragment : Fragment() {
         binding.toolbar.inflateMenu(R.menu.top_menu_extended_add)
         binding.toolbar.setNavigationIcon(R.drawable.back)
         binding.toolbar.menu.findItem(R.id.edit).setVisible(false)
+        binding.toolbar.menu.findItem(R.id.reorder).setVisible(false)
+        binding.toolbar.menu.findItem(R.id.add_new).setVisible(false)
 
         initObserver()
+
+        binding.toolbar.title = receiptDataViewModel.store.value?.name
         receiptDataViewModel.refreshCategoryList()
         receiptDataViewModel.categoryList.value?.let {
             if (chosenCategory.name == "") {

@@ -107,8 +107,8 @@ class AddProductListFragment : Fragment(), ItemClickListener {
         productListAdapter.productList.forEach {
             sum += it.finalPrice
         }
-
-        binding.cartValueText.text = "%.2f".format(sum)
+        sum = "%.2f".format(sum).toDouble()
+        binding.cartValueText.text = sum.toString()
 
         val final = receiptDataViewModel.receipt.value?.pln
         if (final != sum) {
@@ -163,7 +163,7 @@ class AddProductListFragment : Fragment(), ItemClickListener {
             startCameraWithUri()
             true
         }
-        binding.toolbar.tooltipText = receiptDataViewModel.store.value?.name
+        binding.toolbar.title = receiptDataViewModel.store.value?.name
         binding.receiptValueText.text = receiptDataViewModel.receipt.value?.pln.toString()
         recyclerViewEvent.adapter = productListAdapter
         recyclerViewEvent.layoutManager =
