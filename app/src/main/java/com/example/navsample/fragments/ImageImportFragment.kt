@@ -71,7 +71,7 @@ class ImageImportFragment : Fragment() {
             goNext = true
             startCameraWithoutUri(includeCamera = false, includeGallery = true)
         }
-        binding.receiptImageBig.setOnLongClickListener {
+        binding.receiptImage.setOnLongClickListener {
             goNext = true
             startCameraWithUri()
             true
@@ -122,9 +122,12 @@ class ImageImportFragment : Fragment() {
     private fun initObserver() {
 
         receiptImageViewModel.bitmap.observe(viewLifecycleOwner) {
-            it?.let {
-                binding.receiptImageBig.setImageBitmap(it)
+            if (it != null) {
+                binding.receiptImage.visibility = View.VISIBLE
+                binding.receiptImage.setImageBitmap(it)
                 analyzeImage()
+            } else {
+                binding.receiptImage.visibility = View.GONE
             }
         }
         receiptDataViewModel.receipt.observe(viewLifecycleOwner) {

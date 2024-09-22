@@ -57,7 +57,7 @@ class AddReceiptFragment : Fragment() {
 
         receiptDataViewModel.refreshStoreList()
         receiptImageViewModel.bitmap.value?.let {
-            binding.receiptImageMarked.setImageBitmap(it)
+            binding.receiptImage.setImageBitmap(it)
         }
 
 
@@ -93,10 +93,11 @@ class AddReceiptFragment : Fragment() {
 
     private fun initObserver() {
         receiptImageViewModel.bitmap.observe(viewLifecycleOwner) {
-            it?.let {
-                if (receiptImageViewModel.bitmap.value != null) {
-                    binding.receiptImageMarked.setImageBitmap(receiptImageViewModel.bitmap.value)
-                }
+            if (it != null) {
+                binding.receiptImage.visibility = View.VISIBLE
+                binding.receiptImage.setImageBitmap(receiptImageViewModel.bitmap.value)
+            } else {
+                binding.receiptImage.visibility = View.GONE
             }
         }
         receiptDataViewModel.storeList.observe(viewLifecycleOwner) { storeList ->

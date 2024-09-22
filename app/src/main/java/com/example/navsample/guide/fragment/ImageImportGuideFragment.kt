@@ -39,11 +39,15 @@ class ImageImportGuideFragment : Fragment(), Guide {
     }
 
     override fun prepare() {
-        binding.receiptImageBig.setImageBitmap(null)
+        binding.receiptImage.setImageBitmap(null)
+        binding.receiptImage.visibility = View.GONE
 
         instructions = listOf(
             { Navigation.findNavController(requireView()).popBackStack() },
-            { binding.receiptImageBig.setImageBitmap(null) },
+            {
+                binding.receiptImage.visibility = View.VISIBLE
+                binding.receiptImage.setImageBitmap(null)
+            },
             { loadImage("original_receipt.jpg") },
             {
                 Navigation.findNavController(requireView())
@@ -66,6 +70,6 @@ class ImageImportGuideFragment : Fragment(), Guide {
 
 
     override fun getPhotoView(): PhotoView {
-        return binding.receiptImageBig
+        return binding.receiptImage
     }
 }

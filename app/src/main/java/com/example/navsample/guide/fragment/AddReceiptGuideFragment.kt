@@ -85,6 +85,6 @@ class AddReceiptGuideFragment : Fragment(), Guide {
     }
 
     override fun getPhotoView(): PhotoView {
-        return binding.receiptImageMarked
+        return binding.receiptImage
     }
 }

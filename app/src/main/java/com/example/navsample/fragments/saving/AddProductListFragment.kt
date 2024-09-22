@@ -54,10 +54,13 @@ class AddProductListFragment : Fragment(), ItemClickListener {
 
     private fun initObserver() {
         receiptImageViewModel.bitmapCropped.observe(viewLifecycleOwner) {
-            it?.let {
-                if (receiptImageViewModel.bitmapCropped.value != null) {
-                    binding.receiptImageBig.setImageBitmap(receiptImageViewModel.bitmapCropped.value)
-                }
+            if (it != null) {
+                binding.receiptImage.visibility = View.VISIBLE
+                binding.receiptImage.setImageBitmap(receiptImageViewModel.bitmapCropped.value)
+                binding.toolbar.menu.findItem(R.id.reorder).setVisible(false)
+            } else {
+                binding.receiptImage.visibility = View.GONE
+                binding.toolbar.menu.findItem(R.id.reorder).setVisible(false)
             }
         }
         receiptDataViewModel.product.observe(viewLifecycleOwner) {
@@ -160,7 +163,7 @@ class AddProductListFragment : Fragment(), ItemClickListener {
         }
 
 
-        binding.receiptImageBig.setOnLongClickListener {
+        binding.receiptImage.setOnLongClickListener {
             startCameraWithUri()
             true
         }
