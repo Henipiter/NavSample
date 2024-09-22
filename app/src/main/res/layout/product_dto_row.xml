@@ -100,11 +100,21 @@
                         app:layout_constraintBottom_toTopOf="@+id/discount_price" />
 
                     <TextView
+                        android:id="@+id/minus_sign"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginHorizontal="1dp"
+                        android:text="-"
+                        android:textSize="14sp"
+                        app:layout_constraintBottom_toBottomOf="@+id/discount_price"
+                        app:layout_constraintEnd_toStartOf="@+id/discount_price" />
+
+                    <TextView
                         android:id="@+id/discount_price"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginHorizontal="4dp"
-                        android:text="-2.99"
+                        android:text="2.99"
                         android:textSize="14sp"
                         app:layout_constraintBottom_toTopOf="@+id/final_price"
                         app:layout_constraintEnd_toEndOf="parent" />

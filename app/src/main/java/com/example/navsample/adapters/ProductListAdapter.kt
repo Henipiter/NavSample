@@ -38,9 +38,11 @@ class ProductListAdapter(
         }
         if (roundDouble(productList[position].discount) != 0.0) {
             holder.binding.discountPrice.visibility = View.VISIBLE
+            holder.binding.minusSign.visibility = View.VISIBLE
             holder.binding.discountPrice.text = productList[position].discount.toString()
         } else {
             holder.binding.discountPrice.visibility = View.GONE
+            holder.binding.minusSign.visibility = View.GONE
         }
         holder.binding.ptuType.text = productList[position].ptuType
         holder.binding.quantity.text = productList[position].quantity.toString()
@@ -57,7 +59,7 @@ class ProductListAdapter(
             true
         }
         if (roundDouble(productList[position].quantity * productList[position].unitPrice) != productList[position].subtotalPrice ||
-            roundDouble(productList[position].subtotalPrice + productList[position].discount) != productList[position].finalPrice
+            roundDouble(productList[position].subtotalPrice - productList[position].discount) != productList[position].finalPrice
         ) {
             holder.binding.finalPrice.setTextColor(Color.RED)
         }

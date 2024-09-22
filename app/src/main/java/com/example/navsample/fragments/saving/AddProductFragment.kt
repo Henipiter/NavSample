@@ -105,23 +105,23 @@ class AddProductFragment : Fragment() {
             return
         }
         if (checks == 2) {
-            if ("%.2f".format(subtotalPrice!! + discountPrice!!).toDouble() == finalPrice!!) {
+            if ("%.2f".format(subtotalPrice!! - discountPrice!!).toDouble() == finalPrice!!) {
                 binding.productDiscountHelperText.text = ""
                 binding.productFinalPriceHelperText.text = ""
             } else {
                 binding.productDiscountHelperText.text =
-                    getSuggestionMessage(roundDouble(finalPrice - subtotalPrice))
+                    getSuggestionMessage(roundDouble(subtotalPrice - finalPrice))
                 binding.productFinalPriceHelperText.text =
-                    getSuggestionMessage(roundDouble(subtotalPrice + discountPrice))
+                    getSuggestionMessage(roundDouble(subtotalPrice - discountPrice))
             }
         } else if (checks == 1) {
             if (discountPrice == null) {
                 binding.productDiscountHelperText.text =
-                    getSuggestionMessage(roundDouble(finalPrice!! - subtotalPrice!!))
+                    getSuggestionMessage(roundDouble(subtotalPrice!! - finalPrice!!))
             }
             if (finalPrice == null) {
                 binding.productFinalPriceHelperText.text =
-                    getSuggestionMessage(roundDouble(subtotalPrice!! + discountPrice!!))
+                    getSuggestionMessage(roundDouble(subtotalPrice!! - discountPrice!!))
             }
         } else {
             binding.productDiscountHelperText.text = ""

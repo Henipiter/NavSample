@@ -45,7 +45,7 @@ class ReceiptParser(var receiptId: Int, var categoryId: Int) {
                 0.0,
                 0.0,
                 0.0,
-                fixedUnitPrice,
+                -fixedUnitPrice,
                 fixedSubtotalPrice,
                 fixPtuType(ptuType.data),
                 productInformation
