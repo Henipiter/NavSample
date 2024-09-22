@@ -39,7 +39,6 @@ class ImageImportGuideFragment : Fragment(), Guide {
     }
 
     override fun prepare() {
-        binding.indeterminateBar.visibility = View.GONE
         binding.receiptImageBig.setImageBitmap(null)
 
         instructions = listOf(

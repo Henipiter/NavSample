@@ -11,12 +11,21 @@
         android:layout_height="match_parent">
 
         <Button
+            android:id="@+id/capture_image"
+            android:layout_width="150dp"
+            android:layout_height="wrap_content"
+            android:text="Capture image"
+            app:layout_constraintEnd_toStartOf="@+id/indeterminate_bar"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/relative_layout" />
+
+        <Button
             android:id="@+id/load_image"
             android:layout_width="150dp"
             android:layout_height="wrap_content"
             android:text="Load image"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintStart_toEndOf="@+id/indeterminate_bar"
             app:layout_constraintTop_toBottomOf="@+id/relative_layout" />
 
         <Button
@@ -44,21 +53,6 @@
                 android:src="@android:drawable/ic_menu_gallery" />
         </RelativeLayout>
 
-        <androidx.cardview.widget.CardView
-            android:id="@+id/indeterminate_bar"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent">
-
-            <ProgressBar
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content" />
-        </androidx.cardview.widget.CardView>
-
-
         <Button
             android:id="@+id/analyze_button"
             android:layout_width="0dp"
@@ -69,11 +63,8 @@
             android:text="Analyze"
             android:textSize="20dp"
             app:layout_constraintBottom_toBottomOf="parent"
-
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent" />
-
-
     </androidx.constraintlayout.widget.ConstraintLayout>
 
 </FrameLayout>
