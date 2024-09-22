@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/nav"
+    app:startDestination="@id/guideFragment">
+
+    <fragment
+        android:id="@+id/guideFragment"
+        android:name="com.example.navsample.fragments.GuideFragment"
+        android:label="fragment_guide"
+        tools:layout="@layout/fragment_guide_menu">
+        <action
+            android:id="@+id/action_guideFragment_to_imageImportGuideFragment"
+            app:destination="@id/imageImportGuideFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/imageImportGuideFragment"
+        android:name="com.example.navsample.guide.fragment.ImageImportGuideFragment"
+        android:label="ImageImportFragment">
+        <action
+            android:id="@+id/action_imageImportGuideFragment_to_cropReceiptGuideFragment"
+            app:destination="@id/cropReceiptGuideFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/addReceiptGuideFragment"
+        android:name="com.example.navsample.guide.fragment.AddReceiptGuideFragment"
+        android:label="AddReceiptGuideFragment">
+        <action
+            android:id="@+id/action_addReceiptGuideFragment_to_cropProductGuideFragment"
+            app:destination="@id/cropProductGuideFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/cropReceiptGuideFragment"
+        android:name="com.example.navsample.guide.fragment.CropReceiptGuideFragment"
+        android:label="CropReceiptGuideFragment">
+        <action
+            android:id="@+id/action_cropReceiptGuideFragment_to_addReceiptGuideFragment"
+            app:destination="@id/addReceiptGuideFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/cropProductGuideFragment"
+        android:name="com.example.navsample.guide.fragment.CropProductGuideFragment"
+        android:label="CropProductGuideFragment">
+        <action
+            android:id="@+id/action_cropProductGuideFragment_to_experimentalListGuideFragment"
+            app:destination="@id/experimentalListGuideFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/experimentalListGuideFragment"
+        android:name="com.example.navsample.guide.fragment.ExperimentalListGuideFragment"
+        android:label="ExperimentalListGuideFragment">
+        <action
+            android:id="@+id/action_experimentalListGuideFragment_to_addProductListGuideFragment"
+            app:destination="@id/addProductListGuideFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/addProductListGuideFragment"
+        android:name="com.example.navsample.guide.fragment.AddProductListGuideFragment"
+        android:label="AddProductListGuideFragment" />
+</navigation>

@@ -1,5 +1,6 @@
 package com.example.navsample.fragments
 
+import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -8,6 +9,7 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.navigation.Navigation
 import com.example.navsample.R
+import com.example.navsample.activity.GuideActivity
 import com.example.navsample.databinding.FragmentMenuBinding
 import com.example.navsample.viewmodels.ReceiptDataViewModel
 import com.example.navsample.viewmodels.ReceiptImageViewModel
@@ -51,6 +53,10 @@ class MenuFragment : Fragment() {
         binding.diagramView.setOnClickListener {
             Navigation.findNavController(it)
                 .navigate(R.id.action_menuFragment_to_diagramFragment)
+        }
+        binding.guideTest.setOnClickListener {
+            val intent = Intent(requireContext(), GuideActivity::class.java)
+            startActivity(intent)
         }
 
         val myUuid = UUID.randomUUID()
