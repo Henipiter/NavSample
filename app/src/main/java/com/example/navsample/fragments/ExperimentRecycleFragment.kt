@@ -78,8 +78,6 @@ open class ExperimentRecycleFragment : Fragment() {
             receiptDataViewModel.store.value?.defaultCategoryId ?: -1 // throw NoStoreIdException()
         )
         binding.switchingButton.isChecked = true
-        binding.priceModeColor.visibility = View.INVISIBLE
-        binding.nameModeColor.visibility = View.VISIBLE
         readList()
 
 
@@ -207,8 +205,6 @@ open class ExperimentRecycleFragment : Fragment() {
         when (type) {
             Type.PRICE -> {
                 currentType = Type.PRICE
-                binding.priceModeColor.visibility = View.VISIBLE
-                binding.nameModeColor.visibility = View.INVISIBLE
                 if (animate) {
                     activatePriceAnimation.start()
                     deactivateNameAnimation.start()
@@ -217,8 +213,6 @@ open class ExperimentRecycleFragment : Fragment() {
 
             Type.NAME -> {
                 currentType = Type.NAME
-                binding.priceModeColor.visibility = View.INVISIBLE
-                binding.nameModeColor.visibility = View.VISIBLE
                 binding.cardViewUserPrice.setCardBackgroundColor(
                     resources.getColor(
                         R.color.basic_grey,
