@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.core.widget.doOnTextChanged
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
@@ -11,6 +12,7 @@ import androidx.navigation.Navigation
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.navsample.ItemClickListener
+import com.example.navsample.R
 import com.example.navsample.adapters.StoreListAdapter
 import com.example.navsample.databinding.FragmentStoreListBinding
 import com.example.navsample.fragments.dialogs.DeleteConfirmationDialog
@@ -37,7 +39,18 @@ class StoreListFragment : Fragment(), ItemClickListener {
         super.onViewCreated(view, savedInstanceState)
         initObserver()
         refreshList()
+        binding.toolbar.inflateMenu(R.menu.top_menu_list_filter)
+        binding.toolbar.menu.findItem(R.id.filter).setVisible(false)
+        binding.toolbar.setOnMenuItemClickListener {
+            when (it.itemId) {
+                R.id.sort -> {
+                    Toast.makeText(requireContext(), "sort", Toast.LENGTH_SHORT).show()
+                    true
+                }
 
+                else -> false
+            }
+        }
         recyclerViewEvent = binding.recyclerViewEventReceipts
         storeListAdapter = StoreListAdapter(
             requireContext(),

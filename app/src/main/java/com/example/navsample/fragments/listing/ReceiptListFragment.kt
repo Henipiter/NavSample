@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.navigation.Navigation
@@ -36,13 +37,24 @@ class ReceiptListFragment : Fragment(), ItemClickListener {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         initObserver()
-        putFilterDefinitionIntoInputs()
-
         refreshList()
 
-        binding.filterLayout.setOnClickListener {
-            Navigation.findNavController(binding.root)
-                .navigate(R.id.action_listingFragment_to_filterReceiptListFragment)
+        binding.toolbar.inflateMenu(R.menu.top_menu_list_filter)
+        binding.toolbar.setOnMenuItemClickListener {
+            when (it.itemId) {
+                R.id.filter -> {
+                    Navigation.findNavController(binding.root)
+                        .navigate(R.id.action_listingFragment_to_filterReceiptListFragment)
+                    true
+                }
+
+                R.id.sort -> {
+                    Toast.makeText(requireContext(), "sort", Toast.LENGTH_SHORT).show()
+                    true
+                }
+
+                else -> false
+            }
         }
 
         recyclerViewEvent = binding.recyclerViewEventReceipts
@@ -92,15 +104,7 @@ class ReceiptListFragment : Fragment(), ItemClickListener {
         }
 
         receiptDataViewModel.filterReceiptList.observe(viewLifecycleOwner) {
-            putFilterDefinitionIntoInputs()
             refreshList()
-        }
-    }
-
-    private fun putFilterDefinitionIntoInputs() {
-        receiptDataViewModel.filterReceiptList.value?.let {
-            binding.filterStoreCard.text = if (it.store == "") "-" else it.store
-            binding.filterDateCard.text = "${it.dateFrom} - ${it.dateTo}"
         }
     }
 

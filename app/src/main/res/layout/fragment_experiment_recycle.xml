@@ -218,7 +218,8 @@
                         android:layout_width="48dp"
                         android:layout_height="48dp"
                         android:scaleType="fitCenter"
-                        android:src="@drawable/replace" />
+                        android:src="@drawable/replace"
+                        app:tint="@color/background_tile_blocked" />
 
                     <TextView
                         android:layout_width="wrap_content"
@@ -247,7 +248,8 @@
                         android:layout_width="48dp"
                         android:layout_height="48dp"
                         android:scaleType="fitCenter"
-                        android:src="@drawable/erase" />
+                        android:src="@drawable/erase"
+                        app:tint="@color/background_tile_blocked" />
 
                     <TextView
                         android:layout_width="wrap_content"
@@ -276,7 +278,8 @@
                         android:layout_width="48dp"
                         android:layout_height="48dp"
                         android:scaleType="fitCenter"
-                        android:src="@drawable/merge" />
+                        android:src="@drawable/merge"
+                        app:tint="@color/background_tile_blocked" />
 
                     <TextView
                         android:layout_width="wrap_content"
@@ -305,7 +308,8 @@
                         android:layout_width="48dp"
                         android:layout_height="48dp"
                         android:scaleType="fitCenter"
-                        android:src="@drawable/delete" />
+                        android:src="@drawable/delete"
+                        app:tint="@color/background_tile_blocked" />
 
                     <TextView
                         android:layout_width="wrap_content"

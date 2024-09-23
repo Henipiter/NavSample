@@ -3,17 +3,19 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <item
-        android:id="@+id/edit"
+        android:id="@+id/filter"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:title="Edit"
-        android:icon="@drawable/edit"
+        android:title="Filter"
+        android:iconTint="@color/colorOnPrimary"
+        android:icon="@drawable/setting"
         app:showAsAction="ifRoom" />
     <item
-        android:id="@+id/confirm"
+        android:id="@+id/sort"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:title="Confirm"
-        android:icon="@drawable/confirm"
+        android:title="Sort"
+        android:iconTint="@color/colorOnPrimary"
+        android:icon="@drawable/sorting"
         app:showAsAction="ifRoom" />
 </menu>

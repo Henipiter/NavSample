@@ -5,6 +5,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.navigation.Navigation
@@ -35,10 +36,25 @@ class ProductListFragment : Fragment(), ItemClickListener {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         initObserver()
-        putFilterDefinitionIntoInputs()
 
         refreshList()
+        binding.toolbar.inflateMenu(R.menu.top_menu_list_filter)
+        binding.toolbar.setOnMenuItemClickListener {
+            when (it.itemId) {
+                R.id.filter -> {
+                    Navigation.findNavController(binding.root)
+                        .navigate(R.id.action_listingFragment_to_filterProductListFragment)
+                    true
+                }
 
+                R.id.sort -> {
+                    Toast.makeText(requireContext(), "sort", Toast.LENGTH_SHORT).show()
+                    true
+                }
+
+                else -> false
+            }
+        }
         recyclerViewEvent = binding.recyclerViewEventProducts
         richProductListAdapter = RichProductListAdapter(
             requireContext(),
@@ -64,10 +80,6 @@ class ProductListFragment : Fragment(), ItemClickListener {
         recyclerViewEvent.layoutManager =
             LinearLayoutManager(requireContext(), LinearLayoutManager.VERTICAL, false)
 
-        binding.filterLayout.setOnClickListener {
-            Navigation.findNavController(binding.root)
-                .navigate(R.id.action_listingFragment_to_filterProductListFragment)
-        }
         receiptDataViewModel.refreshStoreList()
         receiptDataViewModel.refreshCategoryList()
     }
@@ -80,7 +92,6 @@ class ProductListFragment : Fragment(), ItemClickListener {
             }
         }
         receiptDataViewModel.filterProductList.observe(viewLifecycleOwner) {
-            putFilterDefinitionIntoInputs()
             refreshList()
         }
     }
@@ -90,16 +101,6 @@ class ProductListFragment : Fragment(), ItemClickListener {
             return ""
         }
         return double.toString()
-    }
-
-    private fun putFilterDefinitionIntoInputs() {
-        receiptDataViewModel.filterProductList.value?.let {
-            binding.filterStoreCard.text = if (it.store == "") "-" else it.store
-            binding.filterCategoryCard.text = if (it.category == "") "-" else it.category
-            binding.filterPriceCard.text =
-                "${convertDoubleToText(it.lowerPrice)} - ${convertDoubleToText(it.higherPrice)}"
-            binding.filterDateCard.text = "${it.dateFrom} - ${it.dateTo}"
-        }
     }
 
     override fun onItemClick(index: Int) {
