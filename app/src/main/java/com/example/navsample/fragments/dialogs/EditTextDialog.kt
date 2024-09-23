@@ -9,12 +9,26 @@ import com.example.navsample.databinding.DialogEditTextBinding
 
 class EditTextDialog(
     var text: String,
-    var onStartClick: () -> Unit,
-    var onEndClick: () -> Unit,
-    var returnChange: (String) -> Unit
+    private var onStartClick: () -> Unit,
+    private var onEndClick: () -> Unit,
+    private var returnChange: (String) -> Unit,
+    private var showSideButtons: Boolean
 ) : DialogFragment() {
 
-    constructor(text: String, returnChange: (String) -> Unit) : this(text, {}, {}, returnChange)
+    constructor(text: String, returnChange: (String) -> Unit) : this(
+        text,
+        {},
+        {},
+        returnChange,
+        false
+    )
+
+    constructor(
+        text: String,
+        onStartClick: () -> Unit,
+        onEndClick: () -> Unit,
+        returnChange: (String) -> Unit
+    ) : this(text, onStartClick, onEndClick, returnChange, true)
 
     private var _binding: DialogEditTextBinding? = null
 
@@ -28,17 +42,24 @@ class EditTextDialog(
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        if (!showSideButtons) {
+            binding.addRowAtBottomButton.visibility = View.GONE
+            binding.addRowAtTopButton.visibility = View.GONE
+        } else {
+            binding.addRowAtBottomButton.visibility = View.VISIBLE
+            binding.addRowAtTopButton.visibility = View.VISIBLE
 
+            binding.addRowAtTopButton.setOnClickListener {
+                onStartClick.invoke()
+                dismiss()
+            }
+            binding.addRowAtBottomButton.setOnClickListener {
+                onEndClick.invoke()
+                dismiss()
+            }
+
+        }
         binding.textInput.setText(text)
-
-        binding.addRowAtTopButton.setOnClickListener {
-            onStartClick.invoke()
-            dismiss()
-        }
-        binding.addRowAtBottomButton.setOnClickListener {
-            onEndClick.invoke()
-            dismiss()
-        }
 
         binding.textLayout.setStartIconOnClickListener {
             binding.textInput.setText(text)
