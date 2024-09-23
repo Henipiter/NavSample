@@ -40,6 +40,8 @@ class ReceiptListFragment : Fragment(), ItemClickListener {
         refreshList()
 
         binding.toolbar.inflateMenu(R.menu.top_menu_list_filter)
+        binding.toolbar.menu.findItem(R.id.collapse).setVisible(false)
+        binding.toolbar.menu.findItem(R.id.expand).setVisible(false)
         binding.toolbar.setOnMenuItemClickListener {
             when (it.itemId) {
                 R.id.filter -> {

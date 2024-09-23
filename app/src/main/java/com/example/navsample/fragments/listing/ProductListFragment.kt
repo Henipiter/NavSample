@@ -41,6 +41,16 @@ class ProductListFragment : Fragment(), ItemClickListener {
         binding.toolbar.inflateMenu(R.menu.top_menu_list_filter)
         binding.toolbar.setOnMenuItemClickListener {
             when (it.itemId) {
+                R.id.collapse -> {
+                    Toast.makeText(requireContext(), "sort", Toast.LENGTH_SHORT).show()
+                    true
+                }
+
+                R.id.expand -> {
+                    Toast.makeText(requireContext(), "sort", Toast.LENGTH_SHORT).show()
+                    true
+                }
+
                 R.id.filter -> {
                     Navigation.findNavController(binding.root)
                         .navigate(R.id.action_listingFragment_to_filterProductListFragment)
