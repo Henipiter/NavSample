@@ -42,12 +42,22 @@ class ProductListFragment : Fragment(), ItemClickListener {
         binding.toolbar.setOnMenuItemClickListener {
             when (it.itemId) {
                 R.id.collapse -> {
-                    Toast.makeText(requireContext(), "sort", Toast.LENGTH_SHORT).show()
+                    for (i in 0..richProductListAdapter.productList.lastIndex) {
+                        if (!richProductListAdapter.productList[i].collapse) {
+                            richProductListAdapter.productList[i].collapse = true
+                            richProductListAdapter.notifyItemChanged(i)
+                        }
+                    }
                     true
                 }
 
                 R.id.expand -> {
-                    Toast.makeText(requireContext(), "sort", Toast.LENGTH_SHORT).show()
+                    for (i in 0..richProductListAdapter.productList.lastIndex) {
+                        if (richProductListAdapter.productList[i].collapse) {
+                            richProductListAdapter.productList[i].collapse = false
+                            richProductListAdapter.notifyItemChanged(i)
+                        }
+                    }
                     true
                 }
 

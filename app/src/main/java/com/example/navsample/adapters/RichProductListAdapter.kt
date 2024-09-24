@@ -42,6 +42,7 @@ class RichProductListAdapter(
         holder.binding.discountPrice.text = productList[position].discount.toString()
         holder.binding.finalPrice.text = productList[position].finalPrice.toString()
         holder.binding.productName.text = trimDescription(productList[position].name)
+        setCollapseOrExpand(holder, position)
         holder.binding.mainLayout.setOnClickListener {
             itemClickListener.onItemClick(position)
         }
@@ -49,17 +50,32 @@ class RichProductListAdapter(
             onDelete.invoke(position)
             true
         }
-        holder.binding.boundary.setOnClickListener {
-            if (holder.binding.additional.visibility == View.GONE) {
-                holder.binding.additional.visibility = View.VISIBLE
-                holder.binding.boundary.setBackgroundResource(R.drawable.arrow_drop_up)
-            } else {
-                holder.binding.additional.visibility = View.GONE
-                holder.binding.boundary.setBackgroundResource(R.drawable.arrow_drop_down)
-            }
+        holder.binding.boundaryButton.setOnClickListener {
+            val isCollapse = productList[position].collapse
+            productList[position].collapse = !isCollapse
+            setCollapseOrExpand(holder, position)
+            this.notifyItemChanged(position)
         }
-
         validateParams(holder)
+    }
+
+    private fun setCollapseOrExpand(holder: MyViewHolder, position: Int) {
+        if (productList[position].collapse) {
+            collapse(holder)
+        } else {
+            expand(holder)
+        }
+    }
+
+    private fun collapse(holder: MyViewHolder) {
+        holder.binding.additional.visibility = View.GONE
+        holder.binding.boundary.setBackgroundResource(R.drawable.arrow_drop_down)
+    }
+
+    private fun expand(holder: MyViewHolder) {
+        holder.binding.additional.visibility = View.VISIBLE
+        holder.binding.boundary.setBackgroundResource(R.drawable.arrow_drop_up)
+
     }
 
     private fun validateParams(holder: MyViewHolder) {
