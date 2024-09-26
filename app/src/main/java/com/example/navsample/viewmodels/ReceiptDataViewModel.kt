@@ -15,6 +15,7 @@ import com.example.navsample.dto.sorting.UserItemAdapterArgument
 import com.example.navsample.entities.Category
 import com.example.navsample.entities.Product
 import com.example.navsample.entities.Receipt
+import com.example.navsample.entities.ReceiptDaoHelper
 import com.example.navsample.entities.ReceiptDatabase
 import com.example.navsample.entities.Store
 import com.example.navsample.entities.relations.AllData
@@ -313,7 +314,8 @@ class ReceiptDataViewModel : ViewModel() {
     fun refreshStoreList(name: String, nip: String) {
         Log.i("Database", "refresh store list")
         viewModelScope.launch {
-            storeList.postValue(dao?.getAllStores(name, nip)?.let { ArrayList(it) })
+            val list = ReceiptDaoHelper.getAllStoresOrdered(dao, name, nip, "name", "asc")
+            storeList.postValue(list?.let { ArrayList(it) })
         }
     }
 
