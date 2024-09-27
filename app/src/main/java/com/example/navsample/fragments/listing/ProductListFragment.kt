@@ -123,13 +123,6 @@ class ProductListFragment : Fragment(), ItemClickListener {
         }
     }
 
-    private fun convertDoubleToText(double: Double): String {
-        if (double < 0.0) {
-            return ""
-        }
-        return double.toString()
-    }
-
     override fun onItemClick(index: Int) {
         receiptDataViewModel.productRichList.value?.get(index)?.let {
             val chosenProduct = Product(

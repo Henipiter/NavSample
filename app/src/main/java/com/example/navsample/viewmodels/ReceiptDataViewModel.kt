@@ -413,49 +413,32 @@ class ReceiptDataViewModel : ViewModel() {
         lowerPrice: Double,
         higherPrice: Double,
     ) {
-        if (higherPrice == -1.0) {
-            refreshProductList(storeName, categoryName, dateFrom, dateTo, lowerPrice)
-            return
-        }
 
         Log.i("Database", "refresh product list limited")
         viewModelScope.launch {
-            productRichList.postValue(
-                dao?.getAllProducts(
-                    storeName,
-                    categoryName,
-                    if (dateFrom == "") "0" else dateFrom,
-                    if (dateTo == "") "9" else dateTo,
-                    lowerPrice,
-                    higherPrice
-                )?.let { ArrayList(it) })
+            val list = ReceiptDaoHelper.getAllProductsOrdered(
+                dao,
+                storeName,
+                categoryName,
+                if (dateFrom == "") "0" else dateFrom,
+                if (dateTo == "") "9" else dateTo,
+                lowerPrice,
+                higherPrice,
+                richProductSort.value ?: defaultRichProductSort
+            )
+            productRichList.postValue(list?.let { ArrayList(it) })
         }
     }
 
     fun refreshProductList() {
         Log.i("Database", "refresh product list all")
         viewModelScope.launch {
-            productRichList.postValue(
-                dao?.getAllProducts("", "", "0", "9", 0.0)?.let { ArrayList(it) })
-        }
-    }
-
-    fun refreshProductList(
-        storeName: String,
-        categoryName: String,
-        dateFrom: String,
-        dateTo: String,
-        lowerPrice: Double,
-    ) {
-        Log.i("Database", "refresh product list not limited")
-        viewModelScope.launch {
-            productRichList.postValue(dao?.getAllProducts(
-                storeName,
-                categoryName,
-                if (dateFrom == "") "0" else dateFrom,
-                if (dateTo == "") "9" else dateTo,
-                lowerPrice
-            )?.let { ArrayList(it) })
+            val list = ReceiptDaoHelper.getAllProductsOrdered(
+                dao,
+                "", "", "0", "9", 0.0, -1.0,
+                richProductSort.value ?: defaultRichProductSort
+            )
+            productRichList.postValue(list?.let { ArrayList(it) })
         }
     }
 
