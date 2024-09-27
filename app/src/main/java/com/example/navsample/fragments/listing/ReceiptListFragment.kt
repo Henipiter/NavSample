@@ -14,6 +14,9 @@ import com.example.navsample.ItemClickListener
 import com.example.navsample.R
 import com.example.navsample.adapters.ReceiptListAdapter
 import com.example.navsample.databinding.FragmentReceiptListBinding
+import com.example.navsample.dto.sort.Direction
+import com.example.navsample.dto.sort.ReceiptWithStoreSort
+import com.example.navsample.dto.sort.SortProperty
 import com.example.navsample.entities.Receipt
 import com.example.navsample.fragments.dialogs.DeleteConfirmationDialog
 import com.example.navsample.viewmodels.ReceiptDataViewModel
@@ -40,8 +43,8 @@ class ReceiptListFragment : Fragment(), ItemClickListener {
         refreshList()
 
         binding.toolbar.inflateMenu(R.menu.top_menu_list_filter)
-        binding.toolbar.menu.findItem(R.id.collapse).setVisible(false)
-        binding.toolbar.menu.findItem(R.id.expand).setVisible(false)
+        binding.toolbar.menu.findItem(R.id.collapse).isVisible = false
+        binding.toolbar.menu.findItem(R.id.expand).isVisible = false
         binding.toolbar.setOnMenuItemClickListener {
             when (it.itemId) {
                 R.id.filter -> {
@@ -51,6 +54,11 @@ class ReceiptListFragment : Fragment(), ItemClickListener {
                 }
 
                 R.id.sort -> {
+                    //TODO Connect Dialog with DB
+                    val appliedSort = SortProperty(ReceiptWithStoreSort.DATE, Direction.ASCENDING)
+                    receiptDataViewModel.receiptWithStoreSort.value = appliedSort
+                    receiptDataViewModel.updateSorting(appliedSort)
+
                     Toast.makeText(requireContext(), "sort", Toast.LENGTH_SHORT).show()
                     true
                 }
@@ -89,7 +97,7 @@ class ReceiptListFragment : Fragment(), ItemClickListener {
             LinearLayoutManager(requireContext(), LinearLayoutManager.VERTICAL, false)
     }
 
-    private fun refreshList() {
+    private fun refreshList() { //TODO move to viewModel
         receiptDataViewModel.filterReceiptList.value?.let {
             receiptDataViewModel.refreshReceiptList(
                 it.store, it.dateFrom, it.dateTo

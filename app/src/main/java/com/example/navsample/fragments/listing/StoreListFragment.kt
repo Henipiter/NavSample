@@ -15,6 +15,9 @@ import com.example.navsample.ItemClickListener
 import com.example.navsample.R
 import com.example.navsample.adapters.StoreListAdapter
 import com.example.navsample.databinding.FragmentStoreListBinding
+import com.example.navsample.dto.sort.Direction
+import com.example.navsample.dto.sort.SortProperty
+import com.example.navsample.dto.sort.StoreSort
 import com.example.navsample.fragments.dialogs.DeleteConfirmationDialog
 import com.example.navsample.viewmodels.ReceiptDataViewModel
 
@@ -40,12 +43,16 @@ class StoreListFragment : Fragment(), ItemClickListener {
         initObserver()
         refreshList()
         binding.toolbar.inflateMenu(R.menu.top_menu_list_filter)
-        binding.toolbar.menu.findItem(R.id.filter).setVisible(false)
-        binding.toolbar.menu.findItem(R.id.collapse).setVisible(false)
-        binding.toolbar.menu.findItem(R.id.expand).setVisible(false)
+        binding.toolbar.menu.findItem(R.id.filter).isVisible = false
+        binding.toolbar.menu.findItem(R.id.collapse).isVisible = false
+        binding.toolbar.menu.findItem(R.id.expand).isVisible = false
         binding.toolbar.setOnMenuItemClickListener {
             when (it.itemId) {
                 R.id.sort -> {
+                    //TODO Connect Dialog with DB
+                    val appliedSort = SortProperty(StoreSort.NAME, Direction.DESCENDING)
+                    receiptDataViewModel.storeSort.value = appliedSort
+                    receiptDataViewModel.updateSorting(appliedSort)
                     Toast.makeText(requireContext(), "sort", Toast.LENGTH_SHORT).show()
                     true
                 }
@@ -121,7 +128,7 @@ class StoreListFragment : Fragment(), ItemClickListener {
         }
     }
 
-    private fun refreshList() {
+    private fun refreshList() { //TODO move to viewModel
         receiptDataViewModel.filterStoreList.value?.let {
             putFilterDefinitionIntoInputs()
             receiptDataViewModel.refreshStoreList(it.store, it.nip)

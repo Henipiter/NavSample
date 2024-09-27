@@ -57,10 +57,10 @@ class AddProductListFragment : Fragment(), ItemClickListener {
             if (it != null) {
                 binding.receiptImage.visibility = View.VISIBLE
                 binding.receiptImage.setImageBitmap(receiptImageViewModel.bitmapCropped.value)
-                binding.toolbar.menu.findItem(R.id.reorder).setVisible(false)
+                binding.toolbar.menu.findItem(R.id.reorder).isVisible = false
             } else {
                 binding.receiptImage.visibility = View.GONE
-                binding.toolbar.menu.findItem(R.id.reorder).setVisible(false)
+                binding.toolbar.menu.findItem(R.id.reorder).isVisible = false
             }
         }
         receiptDataViewModel.product.observe(viewLifecycleOwner) {
@@ -132,7 +132,7 @@ class AddProductListFragment : Fragment(), ItemClickListener {
         super.onViewCreated(view, savedInstanceState)
         binding.toolbar.inflateMenu(R.menu.top_menu_extended_add)
         binding.toolbar.setNavigationIcon(R.drawable.back)
-        binding.toolbar.menu.findItem(R.id.edit).setVisible(false)
+        binding.toolbar.menu.findItem(R.id.edit).isVisible = false
 
         if (receiptImageViewModel.uriCropped.value == null) {
             startCameraWithUri()

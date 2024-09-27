@@ -11,6 +11,7 @@ import com.example.navsample.dto.filter.FilterProductList
 import com.example.navsample.dto.filter.FilterReceiptList
 import com.example.navsample.dto.filter.FilterStoreList
 import com.example.navsample.dto.sort.Direction
+import com.example.navsample.dto.sort.ParentSort
 import com.example.navsample.dto.sort.ReceiptWithStoreSort
 import com.example.navsample.dto.sort.RichProductSort
 import com.example.navsample.dto.sort.SortProperty
@@ -80,6 +81,34 @@ class ReceiptDataViewModel : ViewModel() {
         clearData()
     }
 
+    fun <Sort : ParentSort> updateSorting(sort: SortProperty<Sort>) {
+        when (sort.sort) {
+            is StoreSort -> {
+                filterStoreList.value?.let {
+                    refreshStoreList(it.store, it.nip)
+                }
+            }
+
+            is ReceiptWithStoreSort -> {
+                filterReceiptList.value?.let {
+                    refreshReceiptList(it.store, it.dateFrom, it.dateTo)
+                }
+            }
+
+            is RichProductSort -> {
+                filterProductList.value?.let {
+                    refreshProductList(
+                        it.store,
+                        it.category,
+                        it.dateFrom,
+                        it.dateTo,
+                        it.lowerPrice,
+                        it.higherPrice
+                    )
+                }
+            }
+        }
+    }
 
     fun clearData() {
         storeSort = MutableLiveData<SortProperty<StoreSort>>(defaultStoreSort)
@@ -383,15 +412,21 @@ class ReceiptDataViewModel : ViewModel() {
         lowerPrice: Double,
         higherPrice: Double,
     ) {
+        if (higherPrice == -1.0) {
+            refreshProductList(storeName, categoryName, dateFrom, dateTo, lowerPrice)
+            return
+        }
+
         Log.i("Database", "refresh product list limited")
         viewModelScope.launch {
-            productRichList.postValue(dao?.getAllProducts(
-                storeName,
-                categoryName,
-                if (dateFrom == "") "0" else dateFrom,
-                if (dateTo == "") "9" else dateTo,
-                lowerPrice,
-                higherPrice
+            productRichList.postValue(
+                dao?.getAllProducts(
+                    storeName,
+                    categoryName,
+                    if (dateFrom == "") "0" else dateFrom,
+                    if (dateTo == "") "9" else dateTo,
+                    lowerPrice,
+                    higherPrice
             )?.let { ArrayList(it) })
         }
     }

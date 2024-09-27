@@ -38,7 +38,7 @@ class AddReceiptGuideFragment : Fragment(), Guide {
     override fun prepare() {
         binding.toolbar.inflateMenu(R.menu.top_menu_extended_add)
         binding.toolbar.setNavigationIcon(R.drawable.back)
-        binding.toolbar.menu.findItem(R.id.reorder).setVisible(false)
+        binding.toolbar.menu.findItem(R.id.reorder).isVisible = false
 
         loadImage("crop_receipt.png")
         instructions = listOf(

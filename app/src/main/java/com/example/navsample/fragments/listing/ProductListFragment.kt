@@ -15,6 +15,9 @@ import com.example.navsample.ItemClickListener
 import com.example.navsample.R
 import com.example.navsample.adapters.RichProductListAdapter
 import com.example.navsample.databinding.FragmentProductListBinding
+import com.example.navsample.dto.sort.Direction
+import com.example.navsample.dto.sort.RichProductSort
+import com.example.navsample.dto.sort.SortProperty
 import com.example.navsample.entities.Product
 import com.example.navsample.fragments.dialogs.DeleteConfirmationDialog
 import com.example.navsample.viewmodels.ReceiptDataViewModel
@@ -68,6 +71,10 @@ class ProductListFragment : Fragment(), ItemClickListener {
                 }
 
                 R.id.sort -> {
+                    //TODO Connect Dialog with DB
+                    val appliedSort = SortProperty(RichProductSort.DATE, Direction.ASCENDING)
+                    receiptDataViewModel.richProductSort.value = appliedSort
+                    receiptDataViewModel.updateSorting(appliedSort)
                     Toast.makeText(requireContext(), "sort", Toast.LENGTH_SHORT).show()
                     true
                 }
@@ -147,27 +154,16 @@ class ProductListFragment : Fragment(), ItemClickListener {
         Navigation.findNavController(requireView()).navigate(action)
     }
 
-    private fun refreshList() {
+    private fun refreshList() { //TODO move to viewModel
         receiptDataViewModel.filterProductList.value?.let {
-            if (it.higherPrice != -1.0) {
-                receiptDataViewModel.refreshProductList(
-                    it.store,
-                    it.category,
-                    it.dateFrom,
-                    it.dateTo,
-                    it.lowerPrice,
-                    it.higherPrice
-                )
-            } else {
-                receiptDataViewModel.refreshProductList(
-                    it.store,
-                    it.category,
-                    it.dateFrom,
-                    it.dateTo,
-                    it.lowerPrice
-                )
-            }
-
+            receiptDataViewModel.refreshProductList(
+                it.store,
+                it.category,
+                it.dateFrom,
+                it.dateTo,
+                it.lowerPrice,
+                it.higherPrice
+            )
         }
     }
 }
