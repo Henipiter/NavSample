@@ -324,12 +324,14 @@ class ReceiptDataViewModel : ViewModel() {
     fun refreshReceiptList(name: String, dateFrom: String, dateTo: String) {
         Log.i("Database", "refresh receipt for store $name")
         viewModelScope.launch {
-            receiptList.postValue(
-                dao?.getReceiptWithStore(
-                    name,
-                    if (dateFrom == "") "0" else dateFrom,
-                    if (dateTo == "") "9" else dateTo,
-                )?.let { ArrayList(it) })
+            val list = ReceiptDaoHelper.getReceiptWithStore(
+                dao, name,
+                if (dateFrom == "") "0" else dateFrom,
+                if (dateTo == "") "9" else dateTo,
+                receiptWithStoreSort.value ?: defaultReceiptWithStoreSort
+            )
+            receiptList.postValue(//
+                list?.let { ArrayList(it) })
         }
     }
 
@@ -361,13 +363,12 @@ class ReceiptDataViewModel : ViewModel() {
     fun refreshStoreList(name: String, nip: String) {
         Log.i("Database", "refresh store list")
         viewModelScope.launch {
-            val list =
-                ReceiptDaoHelper.getAllStoresOrdered(
-                    dao,
-                    name,
-                    nip,
-                    storeSort.value ?: defaultStoreSort
-                )
+            val list = ReceiptDaoHelper.getAllStoresOrdered(
+                dao,
+                name,
+                nip,
+                storeSort.value ?: defaultStoreSort
+            )
             storeList.postValue(list?.let { ArrayList(it) })
         }
     }
@@ -427,7 +428,7 @@ class ReceiptDataViewModel : ViewModel() {
                     if (dateTo == "") "9" else dateTo,
                     lowerPrice,
                     higherPrice
-            )?.let { ArrayList(it) })
+                )?.let { ArrayList(it) })
         }
     }
 
