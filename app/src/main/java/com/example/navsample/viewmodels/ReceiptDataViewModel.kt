@@ -10,6 +10,11 @@ import com.example.navsample.dto.filter.FilterCategoryList
 import com.example.navsample.dto.filter.FilterProductList
 import com.example.navsample.dto.filter.FilterReceiptList
 import com.example.navsample.dto.filter.FilterStoreList
+import com.example.navsample.dto.sort.Direction
+import com.example.navsample.dto.sort.ReceiptWithStoreSort
+import com.example.navsample.dto.sort.RichProductSort
+import com.example.navsample.dto.sort.SortProperty
+import com.example.navsample.dto.sort.StoreSort
 import com.example.navsample.dto.sorting.AlgorithmItemAdapterArgument
 import com.example.navsample.dto.sorting.UserItemAdapterArgument
 import com.example.navsample.entities.Category
@@ -27,7 +32,16 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 class ReceiptDataViewModel : ViewModel() {
+    private val defaultStoreSort = SortProperty(StoreSort.NAME, Direction.ASCENDING)
+    private val defaultRichProductSort = SortProperty(RichProductSort.DATE, Direction.DESCENDING)
+    private val defaultReceiptWithStoreSort =
+        SortProperty(ReceiptWithStoreSort.DATE, Direction.DESCENDING)
+
     lateinit var uid: MutableLiveData<String>
+
+    lateinit var storeSort: MutableLiveData<SortProperty<StoreSort>>
+    lateinit var receiptWithStoreSort: MutableLiveData<SortProperty<ReceiptWithStoreSort>>
+    lateinit var richProductSort: MutableLiveData<SortProperty<RichProductSort>>
 
     lateinit var filterCategoryList: MutableLiveData<FilterCategoryList>
     lateinit var filterStoreList: MutableLiveData<FilterStoreList>
@@ -68,6 +82,10 @@ class ReceiptDataViewModel : ViewModel() {
 
 
     fun clearData() {
+        storeSort = MutableLiveData<SortProperty<StoreSort>>(defaultStoreSort)
+        receiptWithStoreSort =
+            MutableLiveData<SortProperty<ReceiptWithStoreSort>>(defaultReceiptWithStoreSort)
+        richProductSort = MutableLiveData<SortProperty<RichProductSort>>(defaultRichProductSort)
         filterCategoryList = MutableLiveData<FilterCategoryList>(FilterCategoryList())
         filterStoreList = MutableLiveData<FilterStoreList>(FilterStoreList())
         filterProductList = MutableLiveData<FilterProductList>(FilterProductList())
@@ -314,7 +332,13 @@ class ReceiptDataViewModel : ViewModel() {
     fun refreshStoreList(name: String, nip: String) {
         Log.i("Database", "refresh store list")
         viewModelScope.launch {
-            val list = ReceiptDaoHelper.getAllStoresOrdered(dao, name, nip, "name", "asc")
+            val list =
+                ReceiptDaoHelper.getAllStoresOrdered(
+                    dao,
+                    name,
+                    nip,
+                    storeSort.value ?: defaultStoreSort
+                )
             storeList.postValue(list?.let { ArrayList(it) })
         }
     }
