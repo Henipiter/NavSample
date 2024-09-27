@@ -11,32 +11,20 @@ import com.example.navsample.entities.relations.ReceiptWithStore
 
 class ReceiptDaoHelper {
     companion object {
-
-        private const val STORE_FROM = "FROM store "
-        private const val STORE_SELECT = "SELECT * "
-
-        private const val RECEIPT_SELECT =
-            "SELECT r.id as id, storeId, nip, s.name, s.defaultCategoryId, pln, ptu, date, time, count(p.id)  as productCount "
-        private const val RECEIPT_FROM = "FROM receipt r, store s, product p "
-
-        private const val PRODUCT_SELECT =
-            "SELECT s.id as storeId, s.name as storeName, r.date, c.name as categoryName, c.color as categoryColor, p.* "
-        private const val PRODUCT_FROM = "FROM product p, receipt r, store s, category c "
-
-        private const val ORDER_BY_PATTERN = "ORDER BY %s %s"
-
         suspend fun getAllStoresOrdered(
             dao: ReceiptDao?,
             name: String,
             nip: String,
             orderBy: SortProperty<StoreSort>
         ): List<Store>? {
-            val pattern = STORE_SELECT + STORE_FROM +
-                    "WHERE name LIKE '%%%s%%' " +
-                    "AND nip LIKE '%%%s%%' " +
-                    ORDER_BY_PATTERN
-            val sql =
-                String.format(pattern, name, nip, orderBy.sort.fieldName, orderBy.direction.value)
+            val sql = StringBuilder()
+                .append("SELECT * ")
+                .append("FROM store ")
+                .append("WHERE name LIKE '%${name}%' ")
+                .append("AND nip LIKE '%${nip}%' ")
+                .append("ORDER BY $orderBy")
+                .toString()
+
             val query: SupportSQLiteQuery = SimpleSQLiteQuery(sql)
             return dao?.getAllStoresOrdered(query)
         }
@@ -48,23 +36,18 @@ class ReceiptDaoHelper {
             dateTo: String,
             orderBy: SortProperty<ReceiptWithStoreSort>
         ): List<ReceiptWithStore>? {
-            val pattern = RECEIPT_SELECT +
-                    RECEIPT_FROM +
-                    "WHERE s.id = r.storeId " +
-                    "AND r.id = p.receiptId " +
-                    "AND s.name LIKE '%%%s%%' " +
-                    "AND r.date >= %s " +
-                    "AND r.date <= %s " +
-                    "GROUP BY r.id " +
-                    ORDER_BY_PATTERN
-            val sql = String.format(
-                pattern,
-                name,
-                dateFrom,
-                dateTo,
-                orderBy.sort.fieldName,
-                orderBy.direction.value
-            )
+
+            val sql = StringBuilder()
+                .append("SELECT r.id as id, storeId, nip, s.name, s.defaultCategoryId, pln, ptu, date, time, count(p.id)  as productCount ")
+                .append("FROM receipt r, store s, product p ")
+                .append("WHERE s.id = r.storeId ")
+                .append("AND r.id = p.receiptId ")
+                .append("AND s.name LIKE '%${name}%' ")
+                .append("AND r.date >= $dateFrom ")
+                .append("AND r.date <= $dateTo ")
+                .append("GROUP BY r.id ")
+                .append("ORDER BY $orderBy")
+                .toString()
             val query: SupportSQLiteQuery = SimpleSQLiteQuery(sql)
             return dao?.getReceiptWithStoreOrdered(query)
         }
@@ -79,31 +62,20 @@ class ReceiptDaoHelper {
             higherPrice: Double,
             orderBy: SortProperty<RichProductSort>
         ): List<ProductRichData>? {
-            var sql = ""
-            var pattern = PRODUCT_SELECT +
-                    PRODUCT_FROM +
-                    "WHERE p.receiptId = r.id AND s.id = r.storeId AND p.categoryId = c.id " +
-                    "AND s.name LIKE '%%%s%%' " +
-                    "AND c.name LIKE '%%%s%%' " +
-                    "AND r.date >= %s " +
-                    "AND r.date <= %s " +
-                    "AND p.subtotalPrice >= %s "
+            val sql = StringBuilder()
+                .append("SELECT s.id as storeId, s.name as storeName, r.date, c.name as categoryName, c.color as categoryColor, p.* ")
+                .append("FROM product p, receipt r, store s, category c ")
+                .append("WHERE p.receiptId = r.id AND s.id = r.storeId AND p.categoryId = c.id ")
+                .append("AND s.name LIKE '%${storeName}%' ")
+                .append("AND c.name LIKE '%${categoryName}%' ")
+                .append("AND r.date >= $dateFrom ")
+                .append("AND r.date <= $dateTo ")
+                .append("AND p.subtotalPrice >= $lowerPrice ")
             if (higherPrice != -1.0) {
-                pattern += "AND p.subtotalPrice <= %s "
-                pattern += ORDER_BY_PATTERN
-                sql = String.format(
-                    pattern, storeName, categoryName, dateFrom, dateTo,
-                    lowerPrice, higherPrice, orderBy.sort.fieldName, orderBy.direction.value
-                )
-            } else {
-                pattern += ORDER_BY_PATTERN
-                sql = String.format(
-                    pattern, storeName, categoryName, dateFrom,
-                    dateTo, lowerPrice, orderBy.sort.fieldName, orderBy.direction.value
-                )
+                sql.append("AND p.subtotalPrice <= $higherPrice ")
             }
-
-            val query: SupportSQLiteQuery = SimpleSQLiteQuery(sql)
+            sql.append("ORDER BY $orderBy")
+            val query: SupportSQLiteQuery = SimpleSQLiteQuery(sql.toString())
             return dao?.getAllProductsOrderedWithHigherPrice(query)
 
         }
