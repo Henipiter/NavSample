@@ -5,6 +5,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.navigation.Navigation
@@ -14,6 +15,9 @@ import com.example.navsample.ItemClickListener
 import com.example.navsample.R
 import com.example.navsample.adapters.RichProductListAdapter
 import com.example.navsample.databinding.FragmentProductListBinding
+import com.example.navsample.dto.sort.Direction
+import com.example.navsample.dto.sort.RichProductSort
+import com.example.navsample.dto.sort.SortProperty
 import com.example.navsample.entities.Product
 import com.example.navsample.fragments.dialogs.DeleteConfirmationDialog
 import com.example.navsample.viewmodels.ReceiptDataViewModel
@@ -35,10 +39,49 @@ class ProductListFragment : Fragment(), ItemClickListener {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         initObserver()
-        putFilterDefinitionIntoInputs()
 
         refreshList()
+        binding.toolbar.inflateMenu(R.menu.top_menu_list_filter)
+        binding.toolbar.setOnMenuItemClickListener {
+            when (it.itemId) {
+                R.id.collapse -> {
+                    for (i in 0..richProductListAdapter.productList.lastIndex) {
+                        if (!richProductListAdapter.productList[i].collapse) {
+                            richProductListAdapter.productList[i].collapse = true
+                            richProductListAdapter.notifyItemChanged(i)
+                        }
+                    }
+                    true
+                }
 
+                R.id.expand -> {
+                    for (i in 0..richProductListAdapter.productList.lastIndex) {
+                        if (richProductListAdapter.productList[i].collapse) {
+                            richProductListAdapter.productList[i].collapse = false
+                            richProductListAdapter.notifyItemChanged(i)
+                        }
+                    }
+                    true
+                }
+
+                R.id.filter -> {
+                    Navigation.findNavController(binding.root)
+                        .navigate(R.id.action_listingFragment_to_filterProductListFragment)
+                    true
+                }
+
+                R.id.sort -> {
+                    //TODO Connect Dialog with DB
+                    val appliedSort = SortProperty(RichProductSort.DATE, Direction.ASCENDING)
+                    receiptDataViewModel.richProductSort.value = appliedSort
+                    receiptDataViewModel.updateSorting(appliedSort)
+                    Toast.makeText(requireContext(), "sort", Toast.LENGTH_SHORT).show()
+                    true
+                }
+
+                else -> false
+            }
+        }
         recyclerViewEvent = binding.recyclerViewEventProducts
         richProductListAdapter = RichProductListAdapter(
             requireContext(),
@@ -64,10 +107,6 @@ class ProductListFragment : Fragment(), ItemClickListener {
         recyclerViewEvent.layoutManager =
             LinearLayoutManager(requireContext(), LinearLayoutManager.VERTICAL, false)
 
-        binding.filterLayout.setOnClickListener {
-            Navigation.findNavController(binding.root)
-                .navigate(R.id.action_listingFragment_to_filterProductListFragment)
-        }
         receiptDataViewModel.refreshStoreList()
         receiptDataViewModel.refreshCategoryList()
     }
@@ -80,25 +119,7 @@ class ProductListFragment : Fragment(), ItemClickListener {
             }
         }
         receiptDataViewModel.filterProductList.observe(viewLifecycleOwner) {
-            putFilterDefinitionIntoInputs()
             refreshList()
-        }
-    }
-
-    private fun convertDoubleToText(double: Double): String {
-        if (double < 0.0) {
-            return ""
-        }
-        return double.toString()
-    }
-
-    private fun putFilterDefinitionIntoInputs() {
-        receiptDataViewModel.filterProductList.value?.let {
-            binding.filterStoreCard.text = if (it.store == "") "-" else it.store
-            binding.filterCategoryCard.text = if (it.category == "") "-" else it.category
-            binding.filterPriceCard.text =
-                "${convertDoubleToText(it.lowerPrice)} - ${convertDoubleToText(it.higherPrice)}"
-            binding.filterDateCard.text = "${it.dateFrom} - ${it.dateTo}"
         }
     }
 
@@ -126,27 +147,16 @@ class ProductListFragment : Fragment(), ItemClickListener {
         Navigation.findNavController(requireView()).navigate(action)
     }
 
-    private fun refreshList() {
+    private fun refreshList() { //TODO move to viewModel
         receiptDataViewModel.filterProductList.value?.let {
-            if (it.higherPrice != -1.0) {
-                receiptDataViewModel.refreshProductList(
-                    it.store,
-                    it.category,
-                    it.dateFrom,
-                    it.dateTo,
-                    it.lowerPrice,
-                    it.higherPrice
-                )
-            } else {
-                receiptDataViewModel.refreshProductList(
-                    it.store,
-                    it.category,
-                    it.dateFrom,
-                    it.dateTo,
-                    it.lowerPrice
-                )
-            }
-
+            receiptDataViewModel.refreshProductList(
+                it.store,
+                it.category,
+                it.dateFrom,
+                it.dateTo,
+                it.lowerPrice,
+                it.higherPrice
+            )
         }
     }
 }

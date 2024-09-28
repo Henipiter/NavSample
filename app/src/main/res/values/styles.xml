@@ -4,8 +4,9 @@
 <resources>
 
     <style name="MyToolbarStyle" parent="Widget.MaterialComponents.Toolbar">
-        <item name="android:background">@color/primaryColor</item>
-        <item name="android:iconTint">@color/blue_200</item>
+        <!--        <item name="android:background">@color/background_tile_blocked</item>-->
+        <!--        <item name="titleTextColor">@color/blue_200</item>-->
+        <!--        app:titleTextColor="@color/primaryColor"-->
 
 
     </style>

@@ -39,15 +39,6 @@
             app:destination="@id/experimentRecycleFragment" />
     </fragment>
     <fragment
-        android:id="@+id/cameraFragment"
-        android:name="com.example.navsample.fragments.CameraFragment"
-        android:label="fragment_camera"
-        tools:layout="@layout/fragment_camera">
-        <action
-            android:id="@+id/action_cameraFragment_to_imageImportFragment"
-            app:destination="@id/imageImportFragment" />
-    </fragment>
-    <fragment
         android:id="@+id/addProductFragment"
         android:name="com.example.navsample.fragments.saving.AddProductFragment"
         android:label="fragment_add_product"
@@ -81,23 +72,8 @@
         android:label="fragment_image_import"
         tools:layout="@layout/fragment_image_import">
         <action
-            android:id="@+id/action_imageImportFragment_to_cameraFragment"
-            app:destination="@id/cameraFragment" />
-        <action
             android:id="@+id/action_imageImportFragment_to_addReceiptFragment"
             app:destination="@id/addReceiptFragment" />
-        <action
-            android:id="@+id/action_imageImportFragment_to_cropFragment"
-            app:destination="@id/cropFragment" />
-    </fragment>
-    <fragment
-        android:id="@+id/cropFragment"
-        android:name="com.example.navsample.fragments.CropFragment"
-        android:label="fragment_crop"
-        tools:layout="@layout/fragment_crop">
-        <action
-            android:id="@+id/action_cropFragment_to_imageImportFragment"
-            app:destination="@id/imageImportFragment" />
     </fragment>
     <fragment
         android:id="@+id/experimentRecycleFragment"

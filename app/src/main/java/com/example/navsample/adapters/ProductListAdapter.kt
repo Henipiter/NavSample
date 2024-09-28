@@ -3,13 +3,13 @@ package com.example.navsample.adapters
 import android.content.Context
 import android.graphics.Color
 import android.view.LayoutInflater
+import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.example.navsample.ItemClickListener
 import com.example.navsample.databinding.ProductDtoRowBinding
 import com.example.navsample.entities.Category
 import com.example.navsample.entities.Product
-import kotlin.math.roundToInt
 
 class ProductListAdapter(
     var context: Context,
@@ -33,18 +33,21 @@ class ProductListAdapter(
         this.position = position
         val category = try {
             categoryList.first { it.id == productList[position].categoryId }
-        } catch (e: Exception) {
+        } catch (exception: Exception) {
             categoryList[0]
         }
-
+        if (roundDouble(productList[position].discount) != 0.0) {
+            holder.binding.discountPrice.visibility = View.VISIBLE
+            holder.binding.minusSign.visibility = View.VISIBLE
+            holder.binding.discountPrice.text = productList[position].discount.toString()
+        } else {
+            holder.binding.discountPrice.visibility = View.GONE
+            holder.binding.minusSign.visibility = View.GONE
+        }
         holder.binding.ptuType.text = productList[position].ptuType
         holder.binding.quantity.text = productList[position].quantity.toString()
-        holder.binding.unitPrice.text = productList[position].unitPrice.toString()
-        holder.binding.subtotalPrice.text = productList[position].subtotalPrice.toString()
+        holder.binding.unitPrice.text = doubleToString(productList[position].unitPrice)
         holder.binding.finalPrice.text = productList[position].finalPrice.toString()
-        holder.binding.discountPrice.text = productList[position].discount.toString()
-        holder.binding.storeName.text = productList[position].raw
-        holder.binding.receiptDate.text = ""
         holder.binding.categoryName.text = category.name
         holder.binding.categoryColor.setBackgroundColor(Color.parseColor(category.color))
         holder.binding.productName.text = trimDescription(productList[position].name)
@@ -55,33 +58,24 @@ class ProductListAdapter(
             onDelete.invoke(position)
             true
         }
-        val DoubleQuantity = trim(productList[position].quantity.toString()).toDoubleOrNull()
-        val unitPrice = trim(productList[position].unitPrice.toString()).toDoubleOrNull()
-        val subtotalPrice = trim(productList[position].subtotalPrice.toString()).toDoubleOrNull()
-
-        if (DoubleQuantity == null || unitPrice == null || subtotalPrice == null || (DoubleQuantity * unitPrice * 100.0).roundToInt() / 100.0 != subtotalPrice) {
-            holder.binding.subtotalPrice.setTextColor(Color.RED)
+        if (roundDouble(productList[position].quantity * productList[position].unitPrice) != productList[position].subtotalPrice ||
+            roundDouble(productList[position].subtotalPrice - productList[position].discount) != productList[position].finalPrice
+        ) {
+            holder.binding.finalPrice.setTextColor(Color.RED)
         }
     }
 
-    private fun trim(x: String): String {
-        var delimiter = false
-        var newString = ""
-        for (i in x) {
-            if (i != '.' && !i.isDigit()) {
-                return newString
-            }
-            if (delimiter && !i.isDigit()) {
-                return newString
-            }
-
-            if (!delimiter && i == '.') {
-                delimiter = true
-
-            }
-            newString += i
+    fun doubleToString(value: Double): String {
+        return if (value % 1.0 == 0.0) {
+            value.toLong()
+                .toString() // Dla liczb całkowitych konwertujemy do Long i zwracamy bez części dziesiętnej
+        } else {
+            value.toString() // Dla liczb niecałkowitych zwracamy normalnie jako String
         }
-        return newString
+    }
+
+    private fun roundDouble(double: Double): Double {
+        return "%.2f".format(double).toDouble()
     }
 
     private fun trimDescription(description: String): String {

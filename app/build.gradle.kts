@@ -28,7 +28,9 @@ android {
             useSupportLibrary = true
         }
     }
-
+    buildFeatures {
+        buildConfig = true
+    }
     buildTypes {
         release {
             isMinifyEnabled = false
@@ -36,6 +38,20 @@ android {
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
+        }
+    }
+
+    flavorDimensions += "environment"
+    productFlavors {
+        create("dev") {
+            dimension = "environment"
+            applicationIdSuffix = ".dev"
+            versionNameSuffix = "-dev"
+            buildConfigField("Boolean", "DEVELOPER", "true")
+        }
+        create("prod") {
+            dimension = "environment"
+            buildConfigField("Boolean", "DEVELOPER", "false")
         }
     }
     compileOptions {
@@ -94,20 +110,11 @@ dependencies {
     testImplementation("junit:junit:4.13.2")
     androidTestImplementation("androidx.test.espresso:espresso-core:3.5.1")
 
-//    testImplementation ("androidx.test.ext:junit-ktx:1.1.5")
-//    testImplementation ("androidx.test:core-ktx:1.5.0")
-//    testImplementation ("org.robolectric:robolectric:4.11.1")
-//    androidTestImplementation ("org.robolectric:robolectric:4.11.1")
-//    androidTestImplementation ("androidx.test.ext:junit-ktx:1.1.5")
-//    androidTestImplementation ("androidx.test:core-ktx:1.5.0")
-    // (Required) Writing and executing Unit Tests on the JUnit Platform
     testImplementation("org.junit.jupiter:junit-jupiter-api:5.9.3")
     testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.9.3")
 
-    // (Optional) If you need "Parameterized Tests"
     testImplementation("org.junit.jupiter:junit-jupiter-params:5.9.3")
 
-    // (Optional) If you also have JUnit 4-based tests
     testRuntimeOnly("org.junit.vintage:junit-vintage-engine:5.9.3")
 
     androidTestImplementation("junit:junit:4.13.2")

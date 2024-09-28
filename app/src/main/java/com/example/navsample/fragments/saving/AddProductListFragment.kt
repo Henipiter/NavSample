@@ -1,6 +1,7 @@
 package com.example.navsample.fragments.saving
 
 
+import android.content.SharedPreferences
 import android.graphics.BitmapFactory
 import android.graphics.Color
 import android.net.Uri
@@ -8,6 +9,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.appcompat.app.AppCompatActivity
 import androidx.camera.core.ExperimentalGetImage
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
@@ -38,6 +40,7 @@ class AddProductListFragment : Fragment(), ItemClickListener {
     private var _binding: FragmentAddProductListBinding? = null
     private val binding get() = _binding!!
 
+    private lateinit var myPref: SharedPreferences
     private val receiptImageViewModel: ReceiptImageViewModel by activityViewModels()
     private val receiptDataViewModel: ReceiptDataViewModel by activityViewModels()
 
@@ -54,10 +57,13 @@ class AddProductListFragment : Fragment(), ItemClickListener {
 
     private fun initObserver() {
         receiptImageViewModel.bitmapCropped.observe(viewLifecycleOwner) {
-            it?.let {
-                if (receiptImageViewModel.bitmapCropped.value != null) {
-                    binding.receiptImageBig.setImageBitmap(receiptImageViewModel.bitmapCropped.value)
-                }
+            if (it != null) {
+                binding.receiptImage.visibility = View.VISIBLE
+                binding.receiptImage.setImageBitmap(receiptImageViewModel.bitmapCropped.value)
+                binding.toolbar.menu.findItem(R.id.reorder).isVisible = true
+            } else {
+                binding.receiptImage.visibility = View.GONE
+                binding.toolbar.menu.findItem(R.id.reorder).isVisible = false
             }
         }
         receiptDataViewModel.product.observe(viewLifecycleOwner) {
@@ -66,11 +72,10 @@ class AddProductListFragment : Fragment(), ItemClickListener {
                 productListAdapter.notifyDataSetChanged()
                 recalculateSumOfPrices()
             }
-
         }
 
         receiptDataViewModel.reorderedProductTiles.observe(viewLifecycleOwner) {
-            if (it == true) {
+            if (myPref.getBoolean(OPEN_REORDER_FRAGMENT, false) && it == true) {
                 receiptDataViewModel.reorderedProductTiles.value = false
                 reorderTilesWithProducts()
             }
@@ -107,8 +112,8 @@ class AddProductListFragment : Fragment(), ItemClickListener {
         productListAdapter.productList.forEach {
             sum += it.finalPrice
         }
-
-        binding.cartValueText.text = "%.2f".format(sum)
+        sum = "%.2f".format(sum).toDouble()
+        binding.cartValueText.text = sum.toString()
 
         val final = receiptDataViewModel.receipt.value?.pln
         if (final != sum) {
@@ -121,6 +126,7 @@ class AddProductListFragment : Fragment(), ItemClickListener {
                 )
             )
         }
+        binding.countText.text = productListAdapter.productList.size.toString()
     }
 
     @ExperimentalGetImage
@@ -128,7 +134,10 @@ class AddProductListFragment : Fragment(), ItemClickListener {
         super.onViewCreated(view, savedInstanceState)
         binding.toolbar.inflateMenu(R.menu.top_menu_extended_add)
         binding.toolbar.setNavigationIcon(R.drawable.back)
-        binding.toolbar.menu.findItem(R.id.edit).setVisible(false)
+        binding.toolbar.menu.findItem(R.id.edit).isVisible = false
+
+        myPref =
+            requireContext().getSharedPreferences("preferences", AppCompatActivity.MODE_PRIVATE)
 
         if (receiptImageViewModel.uriCropped.value == null) {
             startCameraWithUri()
@@ -159,11 +168,11 @@ class AddProductListFragment : Fragment(), ItemClickListener {
         }
 
 
-        binding.receiptImageBig.setOnLongClickListener {
+        binding.receiptImage.setOnLongClickListener {
             startCameraWithUri()
             true
         }
-        binding.toolbar.tooltipText = receiptDataViewModel.store.value?.name
+        binding.toolbar.title = receiptDataViewModel.store.value?.name
         binding.receiptValueText.text = receiptDataViewModel.receipt.value?.pln.toString()
         recyclerViewEvent.adapter = productListAdapter
         recyclerViewEvent.layoutManager =
@@ -249,6 +258,11 @@ class AddProductListFragment : Fragment(), ItemClickListener {
             )
         Navigation.findNavController(requireView()).navigate(action)
 
+    }
+
+    companion object {
+
+        private const val OPEN_REORDER_FRAGMENT = "openReorderFragment"
     }
 
 }

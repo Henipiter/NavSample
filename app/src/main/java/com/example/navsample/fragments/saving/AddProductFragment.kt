@@ -52,10 +52,11 @@ class AddProductFragment : Fragment() {
 
     private fun initObserver() {
         receiptImageViewModel.bitmapCropped.observe(viewLifecycleOwner) {
-            it?.let {
-                if (receiptImageViewModel.bitmapCropped.value != null) {
-                    binding.receiptImageBig.setImageBitmap(receiptImageViewModel.bitmapCropped.value)
-                }
+            if (it != null) {
+                binding.receiptImage.visibility = View.VISIBLE
+                binding.receiptImage.setImageBitmap(receiptImageViewModel.bitmapCropped.value)
+            } else {
+                binding.receiptImage.visibility = View.GONE
             }
         }
         receiptDataViewModel.categoryList.observe(viewLifecycleOwner) {
@@ -105,23 +106,23 @@ class AddProductFragment : Fragment() {
             return
         }
         if (checks == 2) {
-            if ("%.2f".format(subtotalPrice!! + discountPrice!!).toDouble() == finalPrice!!) {
+            if ("%.2f".format(subtotalPrice!! - discountPrice!!).toDouble() == finalPrice!!) {
                 binding.productDiscountHelperText.text = ""
                 binding.productFinalPriceHelperText.text = ""
             } else {
                 binding.productDiscountHelperText.text =
-                    getSuggestionMessage(roundDouble(finalPrice - subtotalPrice))
+                    getSuggestionMessage(roundDouble(subtotalPrice - finalPrice))
                 binding.productFinalPriceHelperText.text =
-                    getSuggestionMessage(roundDouble(subtotalPrice + discountPrice))
+                    getSuggestionMessage(roundDouble(subtotalPrice - discountPrice))
             }
         } else if (checks == 1) {
             if (discountPrice == null) {
                 binding.productDiscountHelperText.text =
-                    getSuggestionMessage(roundDouble(finalPrice!! - subtotalPrice!!))
+                    getSuggestionMessage(roundDouble(subtotalPrice!! - finalPrice!!))
             }
             if (finalPrice == null) {
                 binding.productFinalPriceHelperText.text =
-                    getSuggestionMessage(roundDouble(subtotalPrice!! + discountPrice!!))
+                    getSuggestionMessage(roundDouble(subtotalPrice!! - discountPrice!!))
             }
         } else {
             binding.productDiscountHelperText.text = ""
@@ -202,9 +203,13 @@ class AddProductFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         binding.toolbar.inflateMenu(R.menu.top_menu_extended_add)
         binding.toolbar.setNavigationIcon(R.drawable.back)
-        binding.toolbar.menu.findItem(R.id.edit).setVisible(false)
+        binding.toolbar.menu.findItem(R.id.edit).isVisible = false
+        binding.toolbar.menu.findItem(R.id.reorder).isVisible = false
+        binding.toolbar.menu.findItem(R.id.add_new).isVisible = false
 
         initObserver()
+
+        binding.toolbar.title = receiptDataViewModel.store.value?.name
         receiptDataViewModel.refreshCategoryList()
         receiptDataViewModel.categoryList.value?.let {
             if (chosenCategory.name == "") {

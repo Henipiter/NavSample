@@ -65,9 +65,9 @@ class AddCategoryFragment : Fragment() {
             binding.categoryNameInput.setText("")
 
             binding.toolbar.title = "New category"
-            binding.toolbar.menu.findItem(R.id.confirm).setVisible(true)
+            binding.toolbar.menu.findItem(R.id.confirm).isVisible = true
             binding.toolbar.setNavigationIcon(R.drawable.back)
-            binding.toolbar.menu.findItem(R.id.edit).setVisible(false)
+            binding.toolbar.menu.findItem(R.id.edit).isVisible = false
 
         }
 
@@ -175,9 +175,9 @@ class AddCategoryFragment : Fragment() {
         binding.categoryColorLayout.isEnabled = false
         binding.colorView.isEnabled = false
         binding.toolbar.title = "Category"
-        binding.toolbar.menu.findItem(R.id.confirm).setVisible(false)
+        binding.toolbar.menu.findItem(R.id.confirm).isVisible = false
         binding.toolbar.setNavigationIcon(R.drawable.back)
-        binding.toolbar.menu.findItem(R.id.edit).setVisible(true)
+        binding.toolbar.menu.findItem(R.id.edit).isVisible = true
     }
 
     private fun changeViewToEditMode() {
@@ -186,8 +186,8 @@ class AddCategoryFragment : Fragment() {
         binding.categoryNameLayout.isEnabled = true
         binding.categoryColorLayout.isEnabled = true
         binding.colorView.isEnabled = true
-        binding.toolbar.menu.findItem(R.id.confirm).setVisible(true)
+        binding.toolbar.menu.findItem(R.id.confirm).isVisible = true
         binding.toolbar.setNavigationIcon(R.drawable.clear)
-        binding.toolbar.menu.findItem(R.id.edit).setVisible(false)
+        binding.toolbar.menu.findItem(R.id.edit).isVisible = false
     }
 }

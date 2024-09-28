@@ -88,39 +88,69 @@ class ElementOperationHelper(
         item.status = Status.BLOCKED
     }
 
-    fun editSingleElement(
+    fun <E : ItemAdapterArgument> editSingleElement(
         position: Int,
         item: ItemAdapterArgument,
-        adapter: SortingItemListAdapter<*>,
+        adapter: SortingItemListAdapter<E>,
         editTextDialog: (EditTextDialog) -> Unit
     ) {
         if (position < 0) {
             return
         }
-        if (item is AlgorithmItemAdapterArgument) {
-            adapter as AlgorithmItemListAdapter
-            if (item.status != Status.BLOCKED) {
-                editTextDialog.invoke(EditTextDialog(item.value) { text ->
-                    item.value = text
-                    adapter.notifyItemChanged(position)
-                })
-            }
-        } else if (item is UserItemAdapterArgument) {
-            adapter as UserItemListAdapter
-
+        if (item is AlgorithmItemAdapterArgument && item.status != Status.BLOCKED) {
             editTextDialog.invoke(
-                EditTextDialog(
-                    item.value,
-                ) { text ->
-                    item.value = text
-                    item.algorithmItem.value = text
-                    refreshAlgPosition(item.algorithmItem)
-                    adapter.notifyItemChanged(position)
-                }
+                prepareEditDialogForArgument(
+                    position,
+                    item,
+                    adapter as AlgorithmItemListAdapter
+                )
+            )
+        } else if (item is UserItemAdapterArgument) {
+            editTextDialog.invoke(
+                prepareEditDialogForUser(
+                    position,
+                    item,
+                    adapter as UserItemListAdapter
+                )
             )
         }
     }
 
+    private fun prepareEditDialogForUser(
+        position: Int,
+        item: UserItemAdapterArgument,
+        adapter: UserItemListAdapter,
+    ): EditTextDialog {
+        return EditTextDialog(
+            item.value,
+        ) { text ->
+            item.value = text
+            item.algorithmItem.value = text
+            refreshAlgPosition(item.algorithmItem)
+            adapter.notifyItemChanged(position)
+        }
+    }
+
+    private fun prepareEditDialogForArgument(
+        position: Int,
+        item: AlgorithmItemAdapterArgument,
+        adapter: AlgorithmItemListAdapter,
+    ): EditTextDialog {
+        return EditTextDialog(item.value,
+            {
+                adapter.recycleList.add(position, AlgorithmItemAdapterArgument())
+                adapter.notifyItemInserted(position)
+            },
+            {
+                adapter.recycleList.add(position + 1, AlgorithmItemAdapterArgument())
+                adapter.notifyItemInserted(position + 1)
+            },
+            { text ->
+                item.value = text
+                adapter.notifyItemChanged(position)
+            }
+        )
+    }
 
     fun checkAndUncheckSingleElement(item: AlgorithmItemAdapterArgument) {
         if (item.status == Status.DEFAULT) {

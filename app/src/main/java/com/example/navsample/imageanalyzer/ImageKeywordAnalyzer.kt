@@ -1,12 +1,28 @@
 package com.example.navsample.imageanalyzer
 
+import android.util.Log
 import kotlin.math.max
 
 class ImageKeywordAnalyzer {
+
+    companion object {
+        private const val REGEX_TIME = """(\d|0\d|1\d|2[0-3])\s*:\s*[0-5]\d"""
+        private const val REGEX_PRICE = """\d+\s*[,.]\s*\d\s*\d"""
+        private const val REGEX_NIP_FIRST = """NIP(\.?:?)\s*(\d{10}|\d{3}-\d{2}-\d{2}-\d{3})"""
+        private const val REGEX_NIP_SECOND =
+            """(.IP|N.P|NI.)(\.?:?)\s*(\d{10}|\d{3}-\d{2}-\d{2}-\d{3})"""
+        private const val REGEX_PLN_FIRST = """(SUMA|.UMA|S.MA|SU.A|SUM.)\s*:?\s*(PLN)\s*"""
+        private const val REGEX_PLN_SECOND =
+            """(SUMA|.UMA|S.MA|SU.A|SUM.)\s*:?\s*(.LN|P.N|PL.)\s*"""
+        private const val REGEX_PLN_THIRD = """(SUMA|.UMA|S.MA|SU.A|SUM.)\s*"""
+        private const val REGEX_PLN_FOURTH = """(SUMA|.UMA|S.MA|SU.A|SUM.)([.,:])\s*"""
+        private const val REGEX_DATE =
+            """(([0-2]\d|3[0-1])-(0\d|1[0-2])-20(\d\d))|(([0-2]\d|3[0-1])\.(0\d|1[0-2])\.20(\d\d))|(20(\d\d)\.(0\d|1[0-2])\.([0-2]\d|3[0-1]))|(20(\d\d)-(0\d|1[0-2])-([0-2]\d|3[0-1]))"""
+    }
+
     private var topBoundary = 0
     private var bottomBoundary = 0
     private var leftBoundary = 0
-
 
     private var indexOfCellWithSumPrice = -1
     private var indexOfCellWithDate = -1
@@ -21,29 +37,9 @@ class ImageKeywordAnalyzer {
     var valueNIP: String = ""
 
 
-    private val regexNIPfirst = """NIP(\.?:?)\s*(\d{10}|\d{3}-\d{2}-\d{2}-\d{3})"""
-    private val regexNIPsecond = """(.IP|N.P|NI.)(\.?:?)\s*(\d{10}|\d{3}-\d{2}-\d{2}-\d{3})"""
-
-    private val regexPLNfirst =
-        """(SUMA|.UMA|S.MA|SU.A|SUM.)\s*:?\s*(PLN)\s*"""
-    private val regexPLNsecond =
-        """(SUMA|.UMA|S.MA|SU.A|SUM.)\s*:?\s*(.LN|P.N|PL.)\s*"""
-    val regexPLNthird =
-        """(SUMA|.UMA|S.MA|SU.A|SUM.)\s*"""
-    val regexPLNfourth =
-        """(SUMA|.UMA|S.MA|SU.A|SUM.)([.,:])\s*"""
-    private val regexDate =
-        """(([0-2]\d|3[0-1])-(0\d|1[0-2])-20(\d\d))|(([0-2]\d|3[0-1])\.(0\d|1[0-2])\.20(\d\d))|(20(\d\d)\.(0\d|1[0-2])\.([0-2]\d|3[0-1]))|(20(\d\d)-(0\d|1[0-2])-([0-2]\d|3[0-1]))"""
-
-    private val regexTime = """(\d|0\d|1\d|2[0-3])\s*:\s*[0-5]\d"""
-
-    private val regexPrice = """\d+\s*[,.]\s*\d\s*\d"""
-
-
-    fun findSumKeyword(data: List<Cell>) {
-
+    private fun findSumKeyword(data: List<Cell>) {
         if (indexOfCellWithSumPrice == -1) {
-            println("not found 'SUMA PLN'")
+            Log.i("ImageKeywordAnalyzer", "not found 'SUMA PLN'")
             return
         }
         val priceCell = data[indexOfCellWithSumPrice]
@@ -69,12 +65,12 @@ class ImageKeywordAnalyzer {
         cellsInBounds.sortByDescending { it.getMaxY() }
         val prices = ArrayList<Double>()
         cellsInBounds.forEach {
-            val foundPrice = Regex(regexPrice).find(it.content)?.value
+            val foundPrice = Regex(REGEX_PRICE).find(it.content)?.value
             if (foundPrice != null) {
                 prices.add(foundPrice.replace(",", ".").replace("\\s".toRegex(), "").toDouble())
             }
         }
-        println("prices $prices")
+        Log.i("ImageKeywordAnalyzer", "prices $prices")
         return prices
 
     }
@@ -88,33 +84,33 @@ class ImageKeywordAnalyzer {
     fun findKeywordsValues(data: List<Cell>) {
         findSumKeyword(data)
         if (indexOfCellWithDate == -1) {
-            println("not found 'date'")
+            Log.i("ImageKeywordAnalyzer", "not found 'date'")
         } else {
-            valueDate = Regex(regexDate).find(data[indexOfCellWithDate].content)?.value?.replace(
+            valueDate = Regex(REGEX_DATE).find(data[indexOfCellWithDate].content)?.value?.replace(
                 "\\s".toRegex(),
                 ""
             ) ?: ""
         }
         if (indexOfCellWithTime == -1) {
-            println("not found 'time'")
+            Log.i("ImageKeywordAnalyzer", "not found 'time'")
         } else {
-            valueTime = Regex(regexTime).find(data[indexOfCellWithTime].content)?.value?.replace(
+            valueTime = Regex(REGEX_TIME).find(data[indexOfCellWithTime].content)?.value?.replace(
                 "\\s".toRegex(),
                 ""
             ) ?: ""
         }
         if (indexOfCellWithNip == -1) {
-            println("not found 'nip'")
+            Log.i("ImageKeywordAnalyzer", "not found 'nip'")
         } else {
             val nip = data[indexOfCellWithNip].content
             valueNIP = Regex("""\d""").findAll(nip).take(10).joinToString("") { it.value }
         }
 
-        println("PLN;$valueTotalSum")
-        println("PTU;$valueTaxSum")
-        println("DATE;$valueDate")
-        println("TIME;$valueTime")
-        println("NIP;$valueNIP")
+        Log.i("ImageKeywordAnalyzer", "PLN;$valueTotalSum")
+        Log.i("ImageKeywordAnalyzer", "PTU;$valueTaxSum")
+        Log.i("ImageKeywordAnalyzer", "DATE;$valueDate")
+        Log.i("ImageKeywordAnalyzer", "TIME;$valueTime")
+        Log.i("ImageKeywordAnalyzer", "NIP;$valueNIP")
     }
 
     fun findKeywordsIndexes(data: List<Cell>) {
@@ -139,20 +135,20 @@ class ImageKeywordAnalyzer {
     }
 
     private fun isContainsSumPrice(cell: Cell): Boolean {
-        return Regex(regexPLNfirst).matches(cell.content) || Regex(regexPLNsecond).matches(cell.content) ||
-                Regex(regexPLNthird).matches(cell.content) || Regex(regexPLNfourth).matches(cell.content)
+        return Regex(REGEX_PLN_FIRST).matches(cell.content) || Regex(REGEX_PLN_SECOND).matches(cell.content) ||
+                Regex(REGEX_PLN_THIRD).matches(cell.content) || Regex(REGEX_PLN_FOURTH).matches(cell.content)
     }
 
     private fun isContainsDate(cell: Cell): Boolean {
-        return Regex(regexDate).containsMatchIn(cell.content)
+        return Regex(REGEX_DATE).containsMatchIn(cell.content)
     }
 
     private fun isContainsTime(cell: Cell): Boolean {
-        return Regex(regexTime).containsMatchIn(cell.content)
+        return Regex(REGEX_TIME).containsMatchIn(cell.content)
     }
 
     private fun isContainsNip(cell: Cell): Boolean {
-        return Regex(regexNIPfirst).containsMatchIn(cell.content) ||
-                Regex(regexNIPsecond).containsMatchIn(cell.content)
+        return Regex(REGEX_NIP_FIRST).containsMatchIn(cell.content) ||
+                Regex(REGEX_NIP_SECOND).containsMatchIn(cell.content)
     }
 }

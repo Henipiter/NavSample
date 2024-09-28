@@ -49,7 +49,7 @@ class AddReceiptFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         binding.toolbar.inflateMenu(R.menu.top_menu_extended_add)
         binding.toolbar.setNavigationIcon(R.drawable.back)
-        binding.toolbar.menu.findItem(R.id.reorder).setVisible(false)
+        binding.toolbar.menu.findItem(R.id.reorder).isVisible = false
 
         initObserver()
 
@@ -57,7 +57,7 @@ class AddReceiptFragment : Fragment() {
 
         receiptDataViewModel.refreshStoreList()
         receiptImageViewModel.bitmap.value?.let {
-            binding.receiptImageMarked.setImageBitmap(it)
+            binding.receiptImage.setImageBitmap(it)
         }
 
 
@@ -93,10 +93,11 @@ class AddReceiptFragment : Fragment() {
 
     private fun initObserver() {
         receiptImageViewModel.bitmap.observe(viewLifecycleOwner) {
-            it?.let {
-                if (receiptImageViewModel.bitmap.value != null) {
-                    binding.receiptImageMarked.setImageBitmap(receiptImageViewModel.bitmap.value)
-                }
+            if (it != null) {
+                binding.receiptImage.visibility = View.VISIBLE
+                binding.receiptImage.setImageBitmap(receiptImageViewModel.bitmap.value)
+            } else {
+                binding.receiptImage.visibility = View.GONE
             }
         }
         receiptDataViewModel.storeList.observe(viewLifecycleOwner) { storeList ->
@@ -150,10 +151,10 @@ class AddReceiptFragment : Fragment() {
 
     private fun changeViewToNewMode() {
         binding.toolbar.title = "New receipt"
-        binding.toolbar.menu.findItem(R.id.confirm).setVisible(true)
+        binding.toolbar.menu.findItem(R.id.confirm).isVisible = true
         binding.toolbar.setNavigationIcon(R.drawable.back)
-        binding.toolbar.menu.findItem(R.id.edit).setVisible(false)
-        binding.toolbar.menu.findItem(R.id.add_new).setVisible(false)
+        binding.toolbar.menu.findItem(R.id.edit).isVisible = false
+        binding.toolbar.menu.findItem(R.id.add_new).isVisible = false
     }
 
     private fun changeViewToDisplayMode() {
@@ -166,10 +167,10 @@ class AddReceiptFragment : Fragment() {
         binding.receiptDateLayout.isEnabled = false
 
         binding.toolbar.title = "Receipt"
-        binding.toolbar.menu.findItem(R.id.confirm).setVisible(false)
+        binding.toolbar.menu.findItem(R.id.confirm).isVisible = false
         binding.toolbar.setNavigationIcon(R.drawable.back)
-        binding.toolbar.menu.findItem(R.id.edit).setVisible(true)
-        binding.toolbar.menu.findItem(R.id.add_new).setVisible(true)
+        binding.toolbar.menu.findItem(R.id.edit).isVisible = true
+        binding.toolbar.menu.findItem(R.id.add_new).isVisible = true
     }
 
     private fun changeViewToEditMode() {
@@ -181,10 +182,10 @@ class AddReceiptFragment : Fragment() {
         binding.receiptPTUInput.isEnabled = true
         binding.receiptTimeLayout.isEnabled = true
         binding.receiptDateLayout.isEnabled = true
-        binding.toolbar.menu.findItem(R.id.confirm).setVisible(true)
+        binding.toolbar.menu.findItem(R.id.confirm).isVisible = true
         binding.toolbar.setNavigationIcon(R.drawable.clear)
-        binding.toolbar.menu.findItem(R.id.edit).setVisible(false)
-        binding.toolbar.menu.findItem(R.id.add_new).setVisible(false)
+        binding.toolbar.menu.findItem(R.id.edit).isVisible = false
+        binding.toolbar.menu.findItem(R.id.add_new).isVisible = false
     }
 
     private fun saveChangesToDatabase() {
@@ -320,8 +321,8 @@ class AddReceiptFragment : Fragment() {
                 binding.storeNIPInput.setText(pickedStore?.nip ?: "")
                 binding.storeNameInput.setText(pickedStore?.name ?: "")
                 binding.storeNameInput.isEnabled = false
-                binding.toolbar.menu.findItem(R.id.confirm).setVisible(true)
-                binding.toolbar.menu.findItem(R.id.edit).setVisible(false)
+                binding.toolbar.menu.findItem(R.id.confirm).isVisible = true
+                binding.toolbar.menu.findItem(R.id.edit).isVisible = false
             }
 
         }

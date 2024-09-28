@@ -41,13 +41,13 @@ class AddStoreFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         binding.toolbar.inflateMenu(R.menu.top_menu_basic_add)
         binding.toolbar.setNavigationIcon(R.drawable.back)
-        binding.toolbar.menu.findItem(R.id.edit).setVisible(false)
+        binding.toolbar.menu.findItem(R.id.edit).isVisible = false
         super.onViewCreated(view, savedInstanceState)
         initObserver()
         receiptDataViewModel.refreshStoreList()
         receiptDataViewModel.refreshCategoryList()
         receiptImageViewModel.bitmap.value?.let {
-            binding.receiptImageBig.setImageBitmap(it)
+            binding.receiptImage.setImageBitmap(it)
         }
         var actualNIP = ""
 
@@ -74,9 +74,9 @@ class AddStoreFragment : Fragment() {
             } else {
                 mode = DataMode.NEW
                 binding.toolbar.title = "Add store"
-                binding.toolbar.menu.findItem(R.id.confirm).setVisible(true)
+                binding.toolbar.menu.findItem(R.id.confirm).isVisible = true
                 binding.toolbar.setNavigationIcon(R.drawable.back)
-                binding.toolbar.menu.findItem(R.id.edit).setVisible(false)
+                binding.toolbar.menu.findItem(R.id.edit).isVisible = false
             }
         }
 
@@ -164,9 +164,9 @@ class AddStoreFragment : Fragment() {
         binding.storeNIPLayout.isEnabled = false
         binding.storeDefaultCategoryLayout.isEnabled = false
         binding.toolbar.title = "Store"
-        binding.toolbar.menu.findItem(R.id.confirm).setVisible(false)
+        binding.toolbar.menu.findItem(R.id.confirm).isVisible = false
         binding.toolbar.setNavigationIcon(R.drawable.back)
-        binding.toolbar.menu.findItem(R.id.edit).setVisible(true)
+        binding.toolbar.menu.findItem(R.id.edit).isVisible = true
     }
 
     private fun changeViewToEditMode() {
@@ -175,9 +175,9 @@ class AddStoreFragment : Fragment() {
         binding.storeNIPLayout.isEnabled = true
         binding.storeDefaultCategoryLayout.isEnabled = true
         binding.toolbar.title = "Edit store"
-        binding.toolbar.menu.findItem(R.id.confirm).setVisible(true)
+        binding.toolbar.menu.findItem(R.id.confirm).isVisible = true
         binding.toolbar.setNavigationIcon(R.drawable.clear)
-        binding.toolbar.menu.findItem(R.id.edit).setVisible(false)
+        binding.toolbar.menu.findItem(R.id.edit).isVisible = false
     }
 
     private fun isCorrectNIP(valueNIP: String?): Boolean {
@@ -195,10 +195,11 @@ class AddStoreFragment : Fragment() {
     private fun initObserver() {
 
         receiptImageViewModel.bitmapCropped.observe(viewLifecycleOwner) {
-            it?.let {
-                if (receiptImageViewModel.bitmapCropped.value != null) {
-                    binding.receiptImageBig.setImageBitmap(receiptImageViewModel.bitmapCropped.value)
-                }
+            if (it != null) {
+                binding.receiptImage.visibility = View.VISIBLE
+                binding.receiptImage.setImageBitmap(receiptImageViewModel.bitmapCropped.value)
+            } else {
+                binding.receiptImage.visibility = View.GONE
             }
         }
 

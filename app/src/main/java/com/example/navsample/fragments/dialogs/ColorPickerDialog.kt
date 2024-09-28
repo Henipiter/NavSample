@@ -28,7 +28,7 @@ class ColorPickerDialog(
         super.onViewCreated(view, savedInstanceState)
         binding.colorPicker.setInitialColor(color);
 
-        binding.colorPicker.subscribe { color, fromUser, shouldPropagate ->
+        binding.colorPicker.subscribe { color, _, _ ->
             pickerColor = color
             binding.colorPreview.setBackgroundColor(color)
         };

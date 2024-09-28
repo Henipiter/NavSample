@@ -19,14 +19,12 @@ class ImageAnalyzer {
     private val recognizer = TextRecognition.getClient(TextRecognizerOptions.DEFAULT_OPTIONS)
     private var imageWidth = 0
 
-
     var valuePLN: Double = 0.0
     var valuePTU: Double = 0.0
     var valueDate: String = ""
     var valueTime: String = ""
     var valueNIP: String = ""
     var companyName: String = ""
-
 
     var receiptNameLines: ArrayList<String> = ArrayList()
     var receiptPriceLines: ArrayList<String> = ArrayList()
@@ -84,7 +82,6 @@ class ImageAnalyzer {
                 imageKeywordAnalyzer.findKeywordsValues(cells)
 
                 companyName = imageKeywordAnalyzer.companyName
-
                 valuePLN = imageKeywordAnalyzer.valueTotalSum
                 valuePTU = imageKeywordAnalyzer.valueTaxSum
                 valueDate = imageKeywordAnalyzer.valueDate
@@ -93,8 +90,6 @@ class ImageAnalyzer {
 
                 onFinish.invoke()
             }
-
-
     }
 
     private fun blocksToLog(blocks: List<Text.TextBlock>, prefix: String) {
@@ -128,6 +123,4 @@ class ImageAnalyzer {
         lineStreamWriter.close()
         lineOutputStream.close()
     }
-
 }
-

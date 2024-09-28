@@ -1,23 +1,30 @@
 package com.example.navsample.fragments
 
+import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.Canvas
 import android.graphics.Paint
 import android.net.Uri
+import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.camera.core.ExperimentalGetImage
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
+import androidx.lifecycle.MutableLiveData
 import androidx.navigation.Navigation
 import com.canhub.cropper.CropImage
 import com.canhub.cropper.CropImageContract
 import com.canhub.cropper.CropImageContractOptions
 import com.canhub.cropper.CropImageOptions
+import com.example.navsample.R
 import com.example.navsample.databinding.FragmentImageImportBinding
 import com.example.navsample.entities.Receipt
 import com.example.navsample.entities.Store
@@ -36,7 +43,6 @@ class ImageImportFragment : Fragment() {
     private val receiptImageViewModel: ReceiptImageViewModel by activityViewModels()
     private val receiptDataViewModel: ReceiptDataViewModel by activityViewModels()
 
-    private var analyzedImage: InputImage? = null
     private lateinit var imageAnalyzer: ImageAnalyzer
     private var goNext = false
 
@@ -50,77 +56,85 @@ class ImageImportFragment : Fragment() {
     @ExperimentalGetImage
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        binding.indeterminateBar.visibility = View.GONE
-
         initObserver()
 
         imageAnalyzer = ImageAnalyzer()
         imageAnalyzer.uid = receiptImageViewModel.uid.value ?: "temp"
-        binding.loadImage.setOnClickListener {
-            val action = ImageImportFragmentDirections.actionImageImportFragmentToCropFragment()
-            Navigation.findNavController(requireView()).navigate(action)
+        binding.captureImage.setOnClickListener {
+            if (allPermissionsGranted()) {
+                startCameraWithoutUri(includeCamera = true, includeGallery = false)
+            } else {
+                requestPermissions()
+            }
         }
-        binding.receiptImageBig.setOnLongClickListener {
+        binding.loadImage.setOnClickListener {
+            goNext = true
+            startCameraWithoutUri(includeCamera = false, includeGallery = true)
+        }
+        binding.receiptImage.setOnLongClickListener {
+            goNext = true
             startCameraWithUri()
             true
         }
         binding.manualButton.setOnClickListener {
-            val action =
-                ImageImportFragmentDirections.actionImageImportFragmentToAddReceiptFragment()
-            Navigation.findNavController(it).navigate(action)
+            receiptDataViewModel.store = MutableLiveData<Store>(null)
+            receiptDataViewModel.receipt = MutableLiveData<Receipt>(null)
+            receiptImageViewModel.clearData()
+            Navigation.findNavController(requireView())
+                .navigate(R.id.action_imageImportFragment_to_addReceiptFragment)
         }
 
         binding.analyzeButton.setOnClickListener {
             goNext = true
-            binding.indeterminateBar.visibility = View.VISIBLE
-
-            analyzedImage?.let { it1 ->
-                imageAnalyzer.analyzeReceipt(
-                    it1
-                ) {
-//                    drawRectangles()
-
-                    val store = Store(imageAnalyzer.valueNIP, imageAnalyzer.companyName, 0)
-                    val receipt = Receipt(
-                        -1,
-                        imageAnalyzer.valuePLN.toString().toDouble(),
-                        imageAnalyzer.valuePTU.toString().toDouble(),
-                        imageAnalyzer.valueDate,
-                        imageAnalyzer.valueTime
-                    )
-                    Log.i("ImageProcess", "valueNIP ${imageAnalyzer.valueNIP}")
-                    Log.i("ImageProcess", "companyName ${imageAnalyzer.companyName}")
-                    Log.i("ImageProcess", "valuePTU ${imageAnalyzer.valuePTU}")
-                    Log.i("ImageProcess", "valuePLN ${imageAnalyzer.valuePLN}")
-                    Log.i("ImageProcess", "valueDate ${imageAnalyzer.valueDate}")
-                    Log.i("ImageProcess", "valueTime ${imageAnalyzer.valueTime}")
-                    receiptDataViewModel.store.value = store
-                    receiptDataViewModel.receipt.value = receipt
-                }
-            }
+            analyzeImage()
         }
 
     }
 
+    private fun analyzeImage() {
+        receiptImageViewModel.bitmap.value?.let { it1 ->
+            val analyzedImage = InputImage.fromBitmap(it1, 0)
+            imageAnalyzer.analyzeReceipt(
+                analyzedImage
+            ) {
+                //drawRectangles()
+
+                val store = Store(imageAnalyzer.valueNIP, imageAnalyzer.companyName, 0)
+                val receipt = Receipt(
+                    -1,
+                    imageAnalyzer.valuePLN.toString().toDouble(),
+                    imageAnalyzer.valuePTU.toString().toDouble(),
+                    imageAnalyzer.valueDate,
+                    imageAnalyzer.valueTime
+                )
+                Log.i("ImageProcess", "valueNIP ${imageAnalyzer.valueNIP}")
+                Log.i("ImageProcess", "companyName ${imageAnalyzer.companyName}")
+                Log.i("ImageProcess", "valuePTU ${imageAnalyzer.valuePTU}")
+                Log.i("ImageProcess", "valuePLN ${imageAnalyzer.valuePLN}")
+                Log.i("ImageProcess", "valueDate ${imageAnalyzer.valueDate}")
+                Log.i("ImageProcess", "valueTime ${imageAnalyzer.valueTime}")
+                receiptDataViewModel.store.value = store
+                receiptDataViewModel.receipt.value = receipt
+            }
+        }
+    }
+
     private fun initObserver() {
+
         receiptImageViewModel.bitmap.observe(viewLifecycleOwner) {
-            it?.let {
-                if (receiptImageViewModel.bitmap.value != null) {
-                    binding.receiptImageBig.setImageBitmap(receiptImageViewModel.bitmap.value)
-                    analyzedImage = InputImage.fromBitmap(receiptImageViewModel.bitmap.value!!, 0)
-                }
+            if (it != null) {
+                binding.receiptImage.visibility = View.VISIBLE
+                binding.receiptImage.setImageBitmap(it)
+                analyzeImage()
+            } else {
+                binding.receiptImage.visibility = View.GONE
             }
         }
         receiptDataViewModel.receipt.observe(viewLifecycleOwner) {
-            it?.let {
-
-                binding.indeterminateBar.visibility = View.GONE
-                if (goNext == true) {
-                    goNext = false
-                    val action =
-                        ImageImportFragmentDirections.actionImageImportFragmentToAddReceiptFragment()
-                    Navigation.findNavController(requireView()).navigate(action)
-                }
+            if (goNext && it != null) {
+                goNext = false
+                Navigation.findNavController(requireView())
+                    .navigate(R.id.action_imageImportFragment_to_addReceiptFragment)
             }
         }
     }
@@ -186,5 +200,49 @@ class ImageImportFragment : Fragment() {
         })
         receiptImageViewModel.bitmap.value = bitmap
         receiptImageViewModel.setImageUriOriginal()
+    }
+
+    private fun startCameraWithoutUri(includeCamera: Boolean, includeGallery: Boolean) {
+        customCropImage.launch(
+            CropImageContractOptions(
+                uri = null,
+                cropImageOptions = CropImageOptions(
+                    imageSourceIncludeCamera = includeCamera,
+                    imageSourceIncludeGallery = includeGallery,
+                ),
+            ),
+        )
+    }
+
+    private fun requestPermissions() {
+        activityResultLauncher.launch(REQUIRED_PERMISSIONS)
+    }
+
+    private val activityResultLauncher = registerForActivityResult(
+        ActivityResultContracts.RequestMultiplePermissions()
+    ) { permissions ->
+        var permissionGranted = true
+        permissions.entries.forEach {
+            if (it.key in REQUIRED_PERMISSIONS && !it.value) permissionGranted = false
+        }
+        if (!permissionGranted) {
+            Toast.makeText(
+                requireContext(), "Permission request denied", Toast.LENGTH_SHORT
+            ).show()
+        } else {
+            startCameraWithoutUri(includeCamera = true, includeGallery = false)
+        }
+    }
+
+    private fun allPermissionsGranted() = REQUIRED_PERMISSIONS.all {
+        ContextCompat.checkSelfPermission(requireContext(), it) == PackageManager.PERMISSION_GRANTED
+    }
+
+    companion object {
+        private val REQUIRED_PERMISSIONS = mutableListOf(android.Manifest.permission.CAMERA).apply {
+            if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.P) {
+                add(android.Manifest.permission.WRITE_EXTERNAL_STORAGE)
+            }
+        }.toTypedArray()
     }
 }

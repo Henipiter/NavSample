@@ -9,6 +9,7 @@ data class AlgorithmItemAdapterArgument(
     var number: Int,
     var status: Status
 ) : ItemAdapterArgument(value, type) {
+    constructor() : this("")
     constructor(value: String) : this(value, Type.UNDEFINED, -1, Status.DEFAULT)
 
     constructor(argument: AlgorithmItemAdapterArgument) : this(

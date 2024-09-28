@@ -1,3 +1,3 @@
 package com.example.navsample.exception
 
-class NoStoreIdException : Exception()
+class NoStoreIdException : NoIdException("Store id is not set")

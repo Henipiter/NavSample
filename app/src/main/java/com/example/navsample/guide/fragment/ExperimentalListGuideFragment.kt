@@ -60,6 +60,6 @@ class ExperimentalListGuideFragment : Fragment(), Guide {
     }
 
     override fun getPhotoView(): PhotoView {
-        return binding.receiptImageBig
+        return binding.receiptImage
     }
 }

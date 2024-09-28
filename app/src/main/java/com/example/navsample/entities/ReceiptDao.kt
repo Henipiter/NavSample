@@ -5,8 +5,10 @@ import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
+import androidx.room.RawQuery
 import androidx.room.Transaction
 import androidx.room.Update
+import androidx.sqlite.db.SupportSQLiteQuery
 import com.example.navsample.entities.relations.AllData
 import com.example.navsample.entities.relations.PriceByCategory
 import com.example.navsample.entities.relations.ProductRichData
@@ -101,20 +103,12 @@ interface ReceiptDao {
     suspend fun getAllStores(): List<Store>
 
     @Transaction
-    @Query("SELECT * FROM store where name LIKE '%' || :name || '%' and nip LIKE '%' || :nip || '%'")
-    suspend fun getAllStores(name: String, nip: String): List<Store>
+    @RawQuery
+    suspend fun getAllStoresOrdered(query: SupportSQLiteQuery): List<Store>
 
     @Transaction
-    @Query("SELECT r.id as id, storeId, nip, s.name,s.defaultCategoryId, pln, ptu, date, time, count(p.id)  as productCount FROM receipt r, store s, product p WHERE s.id = r.storeId AND r.id = p.receiptId AND s.name LIKE '%' || :name || '%' GROUP BY r.id ORDER BY date DESC")
-    suspend fun getReceiptWithStore(name: String): List<ReceiptWithStore>
-
-    @Transaction
-    @Query("SELECT r.id as id, storeId, nip, s.name, s.defaultCategoryId, pln, ptu, date, time, count(p.id)  as productCount FROM receipt r, store s, product p WHERE s.id = r.storeId AND r.id = p.receiptId AND s.name LIKE '%' || :name || '%' and r.date >= :dateFrom and r.date <= :dateTo GROUP BY r.id ORDER BY date DESC")
-    suspend fun getReceiptWithStore(
-        name: String,
-        dateFrom: String,
-        dateTo: String,
-    ): List<ReceiptWithStore>
+    @RawQuery
+    suspend fun getReceiptWithStoreOrdered(query: SupportSQLiteQuery): List<ReceiptWithStore>
 
     @Transaction
     @Query("SELECT * FROM category order by name")
@@ -129,39 +123,8 @@ interface ReceiptDao {
     suspend fun getAllProducts(receiptId: Int): List<Product>
 
     @Transaction
-    @Query(
-        "select s.id as storeId, s.name as storeName, r.date, c.name as categoryName, c.color as categoryColor, p.* from product p, receipt r, store s, category c " +
-                "where p.receiptId = r.id and s.id =r.storeId " +
-                "and s.name like '%'||:storeName||'%' " +
-                "and c.name like '%'||:categoryName||'%' " +
-                "and r.date >= :dateFrom and r.date <= :dateTo " +
-                "and p.subtotalPrice >= :lowerPrice and p.subtotalPrice <=:higherPrice"
-    )
-    suspend fun getAllProducts(
-        storeName: String,
-        categoryName: String,
-        dateFrom: String,
-        dateTo: String,
-        lowerPrice: Double,
-        higherPrice: Double,
-    ): List<ProductRichData>
-
-    @Transaction
-    @Query(
-        "select s.id as storeId, s.name as storeName, r.date, c.name as categoryName, c.color as categoryColor, p.* from product p, receipt r, store s, category c " +
-                "where p.receiptId = r.id and s.id =r.storeId and p.categoryId = c.id " +
-                "and s.name like '%'||:storeName||'%' " +
-                "and c.name like '%'||:categoryName||'%' " +
-                "and r.date >= :dateFrom and r.date <= :dateTo " +
-                "and p.subtotalPrice >= :lowerPrice"
-    )
-    suspend fun getAllProducts(
-        storeName: String,
-        categoryName: String,
-        dateFrom: String,
-        dateTo: String,
-        lowerPrice: Double,
-    ): List<ProductRichData>
+    @RawQuery
+    suspend fun getAllProductsOrderedWithHigherPrice(query: SupportSQLiteQuery): List<ProductRichData>
 
     @Transaction
     @Query(
