@@ -1,3 +1,3 @@
 package com.example.navsample.exception
 
-class NoReceiptIdException : Exception()
+class NoReceiptIdException : NoIdException("Receipt id is not set")

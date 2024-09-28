@@ -5,12 +5,15 @@ package com.example.navsample.fragments
 import android.animation.ArgbEvaluator
 import android.animation.ValueAnimator
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.navigation.Navigation
+import com.example.navsample.BuildConfig
 import com.example.navsample.R
 import com.example.navsample.adapters.sorting.AlgorithmItemListAdapter
 import com.example.navsample.adapters.sorting.SortingItemListAdapter
@@ -22,6 +25,9 @@ import com.example.navsample.dto.Type
 import com.example.navsample.dto.sorting.AlgorithmItemAdapterArgument
 import com.example.navsample.dto.sorting.ItemAdapterArgument
 import com.example.navsample.dto.sorting.UserItemAdapterArgument
+import com.example.navsample.exception.NoIdException
+import com.example.navsample.exception.NoReceiptIdException
+import com.example.navsample.exception.NoStoreIdException
 import com.example.navsample.imageanalyzer.ReceiptParser
 import com.example.navsample.sorting.NonScrollableGridLayoutManager
 import com.example.navsample.sorting.operation.ElementOperationHelper
@@ -64,6 +70,20 @@ open class ExperimentRecycleFragment : Fragment() {
         return binding.root
     }
 
+    private fun configureReceiptParser() {
+        try {
+            receiptParser = ReceiptParser(
+                receiptDataViewModel.receipt.value?.id ?: throw NoReceiptIdException(),
+                receiptDataViewModel.store.value?.defaultCategoryId ?: throw NoStoreIdException()
+            )
+        } catch (exception: NoIdException) {
+            Log.e("ExperimentRecycleFragment", exception.message ?: "NoIdException")
+            Toast.makeText(requireContext(), exception.message, Toast.LENGTH_SHORT).show()
+            if (!BuildConfig.DEVELOPER) {
+                Navigation.findNavController(requireView()).popBackStack()
+            }
+        }
+    }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         activePriceColor = resources.getColor(R.color.blue_200, requireContext().theme)
@@ -73,10 +93,8 @@ open class ExperimentRecycleFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         initObserver()
         binding.editGrid.visibility = View.GONE
-        receiptParser = ReceiptParser(
-            receiptDataViewModel.receipt.value?.id ?: -1,            //throw NoReceiptIdException(),
-            receiptDataViewModel.store.value?.defaultCategoryId ?: -1 // throw NoStoreIdException()
-        )
+
+        configureReceiptParser()
         binding.switchingButton.isChecked = true
         readList()
 
