@@ -1,6 +1,7 @@
 package com.example.navsample.fragments.saving
 
 
+import android.content.SharedPreferences
 import android.graphics.BitmapFactory
 import android.graphics.Color
 import android.net.Uri
@@ -8,6 +9,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.appcompat.app.AppCompatActivity
 import androidx.camera.core.ExperimentalGetImage
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
@@ -38,6 +40,7 @@ class AddProductListFragment : Fragment(), ItemClickListener {
     private var _binding: FragmentAddProductListBinding? = null
     private val binding get() = _binding!!
 
+    private lateinit var myPref: SharedPreferences
     private val receiptImageViewModel: ReceiptImageViewModel by activityViewModels()
     private val receiptDataViewModel: ReceiptDataViewModel by activityViewModels()
 
@@ -57,7 +60,7 @@ class AddProductListFragment : Fragment(), ItemClickListener {
             if (it != null) {
                 binding.receiptImage.visibility = View.VISIBLE
                 binding.receiptImage.setImageBitmap(receiptImageViewModel.bitmapCropped.value)
-                binding.toolbar.menu.findItem(R.id.reorder).isVisible = false
+                binding.toolbar.menu.findItem(R.id.reorder).isVisible = true
             } else {
                 binding.receiptImage.visibility = View.GONE
                 binding.toolbar.menu.findItem(R.id.reorder).isVisible = false
@@ -69,11 +72,10 @@ class AddProductListFragment : Fragment(), ItemClickListener {
                 productListAdapter.notifyDataSetChanged()
                 recalculateSumOfPrices()
             }
-
         }
 
         receiptDataViewModel.reorderedProductTiles.observe(viewLifecycleOwner) {
-            if (it == true) {
+            if (myPref.getBoolean(OPEN_REORDER_FRAGMENT, false) && it == true) {
                 receiptDataViewModel.reorderedProductTiles.value = false
                 reorderTilesWithProducts()
             }
@@ -133,6 +135,9 @@ class AddProductListFragment : Fragment(), ItemClickListener {
         binding.toolbar.inflateMenu(R.menu.top_menu_extended_add)
         binding.toolbar.setNavigationIcon(R.drawable.back)
         binding.toolbar.menu.findItem(R.id.edit).isVisible = false
+
+        myPref =
+            requireContext().getSharedPreferences("preferences", AppCompatActivity.MODE_PRIVATE)
 
         if (receiptImageViewModel.uriCropped.value == null) {
             startCameraWithUri()
@@ -253,6 +258,11 @@ class AddProductListFragment : Fragment(), ItemClickListener {
             )
         Navigation.findNavController(requireView()).navigate(action)
 
+    }
+
+    companion object {
+
+        private const val OPEN_REORDER_FRAGMENT = "openReorderFragment"
     }
 
 }
