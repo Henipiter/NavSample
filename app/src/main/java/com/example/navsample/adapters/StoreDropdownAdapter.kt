@@ -64,10 +64,16 @@ class StoreDropdownAdapter(
             }
 
             override fun publishResults(constraint: CharSequence?, results: FilterResults?) {
-                filteredList = results?.values as? ArrayList<Store> ?: arrayListOf()
+                val values = results?.values
+                if (values is ArrayList<*>) {
+                    filteredList = values.map { it as Store } as ArrayList
+                } else {
+                    filteredList = arrayListOf()
+                }
                 notifyDataSetChanged()
             }
         }
+
     }
 
 }
