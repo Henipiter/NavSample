@@ -19,6 +19,9 @@ import com.example.navsample.entities.relations.TableCounts
 interface ReceiptDao {
 
     @Insert(onConflict = OnConflictStrategy.IGNORE)
+    suspend fun insertUser(user: User): Long
+
+    @Insert(onConflict = OnConflictStrategy.IGNORE)
     suspend fun insertProduct(product: Product): Long
 
     @Insert(onConflict = OnConflictStrategy.IGNORE)
@@ -28,6 +31,9 @@ interface ReceiptDao {
     suspend fun updateReceipt(receipt: Receipt)
 
     @Update
+    suspend fun updateUser(user: User)
+
+    @Update
     suspend fun updateProduct(product: Product)
 
     @Insert(onConflict = OnConflictStrategy.IGNORE)
@@ -35,6 +41,9 @@ interface ReceiptDao {
 
     @Update
     suspend fun updateCategory(category: Category)
+
+    @Delete
+    suspend fun deleteUser(user: User)
 
     @Delete
     suspend fun deleteStore(store: Store)
@@ -77,6 +86,14 @@ interface ReceiptDao {
     @Transaction
     @Query("SELECT * FROM receipt WHERE id = :id")
     suspend fun getReceipt(id: Int): Receipt
+
+    @Transaction
+    @Query("SELECT uuid FROM user WHERE id = 0")
+    suspend fun getUserUuid(): String?
+
+    @Transaction
+    @Query("SELECT id FROM product WHERE rowId = :rowId")
+    suspend fun getProductId(rowId: Long): Int
 
     @Transaction
     @Query("SELECT id FROM receipt WHERE rowId = :rowId")

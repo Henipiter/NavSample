@@ -24,15 +24,18 @@ import com.example.navsample.entities.Receipt
 import com.example.navsample.entities.ReceiptDaoHelper
 import com.example.navsample.entities.ReceiptDatabase
 import com.example.navsample.entities.Store
+import com.example.navsample.entities.User
 import com.example.navsample.entities.relations.AllData
 import com.example.navsample.entities.relations.PriceByCategory
 import com.example.navsample.entities.relations.ProductRichData
 import com.example.navsample.entities.relations.ReceiptWithStore
 import com.example.navsample.entities.relations.TableCounts
 import com.google.firebase.Firebase
+import com.google.firebase.firestore.DocumentReference
 import com.google.firebase.firestore.firestore
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import java.util.UUID
 
 class ReceiptDataViewModel : ViewModel() {
 
@@ -48,7 +51,7 @@ class ReceiptDataViewModel : ViewModel() {
     private val defaultReceiptWithStoreSort =
         SortProperty(ReceiptWithStoreSort.DATE, Direction.DESCENDING)
 
-    lateinit var uid: MutableLiveData<String>
+    lateinit var imageUuid: MutableLiveData<String>
 
     lateinit var storeSort: MutableLiveData<SortProperty<StoreSort>>
     lateinit var receiptWithStoreSort: MutableLiveData<SortProperty<ReceiptWithStoreSort>>
@@ -85,11 +88,17 @@ class ReceiptDataViewModel : ViewModel() {
     lateinit var tableCounts: MutableLiveData<ArrayList<TableCounts>>
     lateinit var reorderedProductTiles: MutableLiveData<Boolean>
 
+    lateinit var userUuid: MutableLiveData<String?>
+
     private val dao = ApplicationContext.context?.let { ReceiptDatabase.getInstance(it).receiptDao }
     private val firestore = Firebase.firestore
 
     init {
         clearData()
+    }
+
+    private fun createFullPath(path: String): String {
+        return path
     }
 
     fun <Sort : ParentSort> updateSorting(sort: SortProperty<Sort>) {
@@ -109,12 +118,7 @@ class ReceiptDataViewModel : ViewModel() {
             is RichProductSort -> {
                 filterProductList.value?.let {
                     refreshProductList(
-                        it.store,
-                        it.category,
-                        it.dateFrom,
-                        it.dateTo,
-                        it.lowerPrice,
-                        it.higherPrice
+                        it.store, it.category, it.dateFrom, it.dateTo, it.lowerPrice, it.higherPrice
                     )
                 }
             }
@@ -131,7 +135,7 @@ class ReceiptDataViewModel : ViewModel() {
         filterProductList = MutableLiveData<FilterProductList>(FilterProductList())
         filterReceiptList = MutableLiveData<FilterReceiptList>(FilterReceiptList())
 
-        uid = MutableLiveData<String>(null)
+        imageUuid = MutableLiveData<String>(null)
         reorderedProductTiles = MutableLiveData<Boolean>(false)
         store = MutableLiveData<Store>(null)
         receipt = MutableLiveData<Receipt>(null)
@@ -150,6 +154,8 @@ class ReceiptDataViewModel : ViewModel() {
         categoryChartData = MutableLiveData<List<PriceByCategory>>(null)
         tableCounts = MutableLiveData<ArrayList<TableCounts>>(null)
         allData = MutableLiveData<ArrayList<AllData>>(null)
+
+        userUuid = MutableLiveData<String?>(null)
 
 
         refreshCategoryList()
@@ -213,16 +219,15 @@ class ReceiptDataViewModel : ViewModel() {
                 products.forEach { product ->
                     if (product.id == null) {
                         Log.i("Database", "insert product: ${product.name}")
-                        dao.insertProduct(product)
-                        addFirestore(PRODUCT_FIRESTORE_PATH, product.id.toString(), product)
+                        val rowId = dao.insertProduct(product)
+                        product.id = dao.getProductId(rowId)
+                        val path = createFullPath(PRODUCT_FIRESTORE_PATH)
+                        addFirestore(path, product.id.toString(), product)
                     } else {
                         Log.i("Database", "update product: ${product.name}")
                         dao.updateProduct(product)
-                        updateFirestore(
-                            PRODUCT_FIRESTORE_PATH,
-                            product.id.toString(),
-                            product.toMap()
-                        )
+                        val path = createFullPath(PRODUCT_FIRESTORE_PATH)
+                        updateFirestore(path, product.id.toString(), product.toMap())
                     }
                 }
             }
@@ -240,7 +245,8 @@ class ReceiptDataViewModel : ViewModel() {
             }
             Log.i("Database", "inserted receipt with id ${newReceipt.id}")
             receipt.value = newReceipt
-            addFirestore(RECEIPT_FIRESTORE_PATH, newReceipt.id.toString(), newReceipt)
+            val path = createFullPath(RECEIPT_FIRESTORE_PATH)
+            addFirestore(path, newReceipt.id.toString(), newReceipt)
         }
     }
 
@@ -253,7 +259,8 @@ class ReceiptDataViewModel : ViewModel() {
             }
             Log.i("Database", "inserted category with id ${newCategory.id}")
             savedCategory.value = newCategory
-            addFirestore(CATEGORY_FIRESTORE_PATH, newCategory.id.toString(), newCategory)
+            val path = createFullPath(CATEGORY_FIRESTORE_PATH)
+            addFirestore(path, newCategory.id.toString(), newCategory)
         }
     }
 
@@ -271,6 +278,37 @@ class ReceiptDataViewModel : ViewModel() {
         }
     }
 
+    private fun insertUser() {
+        val uuid = UUID.randomUUID().toString()
+        val user = User(uuid)
+        userUuid.value = user.uuid
+        user.id = 0
+        Log.i("Database", "insert user, uuid: ${user.uuid}")
+        viewModelScope.launch {
+            try {
+                dao?.let {
+                    dao.insertUser(user)
+                }
+                //addFirestore(STORE_FIRESTORE_PATH, newStore.id.toString(), newStore)
+            } catch (e: Exception) {
+                Log.e("Insert user to DB", e.message.toString())
+            }
+        }
+    }
+
+    fun setUserUuid() {
+        viewModelScope.launch {
+            dao?.let {
+                val uuid = dao.getUserUuid()
+                if (uuid == null || uuid == "") {
+                    insertUser()
+                } else {
+                    userUuid.postValue(uuid)
+                }
+            }
+        }
+    }
+
     fun insertStore(newStore: Store) {
         Log.i("Database", "insert store ${newStore.name}")
         viewModelScope.launch {
@@ -280,7 +318,8 @@ class ReceiptDataViewModel : ViewModel() {
                     newStore.id = dao.getStoreId(rowId)
                 }
                 Log.i("Database", "inserted receipt with id ${newStore.id}")
-                addFirestore(STORE_FIRESTORE_PATH, newStore.id.toString(), newStore)
+                val path = createFullPath(STORE_FIRESTORE_PATH)
+                addFirestore(path, newStore.id.toString(), newStore)
             } catch (e: Exception) {
                 Log.e("Insert store to DB", e.message.toString())
             }
@@ -299,7 +338,8 @@ class ReceiptDataViewModel : ViewModel() {
                 dao.updateReceipt(newReceipt)
             }
             receipt.postValue(newReceipt)
-            updateFirestore(RECEIPT_FIRESTORE_PATH, newReceipt.id.toString(), newReceipt.toMap())
+            val path = createFullPath(RECEIPT_FIRESTORE_PATH)
+            updateFirestore(path, newReceipt.id.toString(), newReceipt.toMap())
         }
     }
 
@@ -310,7 +350,8 @@ class ReceiptDataViewModel : ViewModel() {
                 dao.updateCategory(newCategory)
             }
             savedCategory.postValue(newCategory)
-            updateFirestore(CATEGORY_FIRESTORE_PATH, newCategory.id.toString(), newCategory.toMap())
+            val path = createFullPath(CATEGORY_FIRESTORE_PATH)
+            updateFirestore(path, newCategory.id.toString(), newCategory.toMap())
         }
     }
 
@@ -340,17 +381,23 @@ class ReceiptDataViewModel : ViewModel() {
             }
         }
         savedStore.value = newStore
-        updateFirestore(STORE_FIRESTORE_PATH, newStore.id.toString(), newStore.toMap())
+        val path = createFullPath(STORE_FIRESTORE_PATH)
+        updateFirestore(path, newStore.id.toString(), newStore.toMap())
 
     }
 
+    private fun getFirestoreCollection(path: String, id: String): DocumentReference {
+        return firestore.collection("user").document(userUuid.value.toString()).collection(path)
+            .document(id)
+    }
+
     private fun addFirestore(path: String, id: String, obj: Any) {
-        firestore.collection(path).document(id).set(obj)
+        getFirestoreCollection(path, id).set(obj)
 
     }
 
     private fun updateFirestore(path: String, id: String, map: Map<String, Any?>) {
-        firestore.collection(path).document(id).update(map)
+        getFirestoreCollection(path, id).update(map)
 
     }
 
@@ -358,7 +405,8 @@ class ReceiptDataViewModel : ViewModel() {
         Log.i("Database", "refresh receipt for store $name")
         viewModelScope.launch {
             val list = ReceiptDaoHelper.getReceiptWithStore(
-                dao, name,
+                dao,
+                name,
                 if (dateFrom == "") "0" else dateFrom,
                 if (dateTo == "") "9" else dateTo,
                 receiptWithStoreSort.value ?: defaultReceiptWithStoreSort
@@ -397,10 +445,7 @@ class ReceiptDataViewModel : ViewModel() {
         Log.i("Database", "refresh store list")
         viewModelScope.launch {
             val list = ReceiptDaoHelper.getAllStoresOrdered(
-                dao,
-                name,
-                nip,
-                storeSort.value ?: defaultStoreSort
+                dao, name, nip, storeSort.value ?: defaultStoreSort
             )
             storeList.postValue(list?.let { ArrayList(it) })
         }
@@ -467,9 +512,7 @@ class ReceiptDataViewModel : ViewModel() {
         Log.i("Database", "refresh product list all")
         viewModelScope.launch {
             val list = ReceiptDaoHelper.getAllProductsOrdered(
-                dao,
-                "", "", "0", "9", 0.0, -1.0,
-                richProductSort.value ?: defaultRichProductSort
+                dao, "", "", "0", "9", 0.0, -1.0, richProductSort.value ?: defaultRichProductSort
             )
             productRichList.postValue(list?.let { ArrayList(it) })
         }
@@ -526,8 +569,8 @@ class ReceiptDataViewModel : ViewModel() {
 
     fun getChartDataCategory(dateFrom: String = "0", dateTo: String = "9") {
         viewModelScope.launch {
-            categoryChartData.postValue(
-                dao?.getPricesForCategoryComparison(dateFrom, dateTo)?.let { ArrayList(it) })
+            categoryChartData.postValue(dao?.getPricesForCategoryComparison(dateFrom, dateTo)
+                ?.let { ArrayList(it) })
         }
     }
 
