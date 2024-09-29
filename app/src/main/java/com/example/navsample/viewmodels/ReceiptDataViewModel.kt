@@ -5,7 +5,6 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.navsample.ApplicationContext
-import com.example.navsample.chart.ChartColors
 import com.example.navsample.dto.filter.FilterCategoryList
 import com.example.navsample.dto.filter.FilterProductList
 import com.example.navsample.dto.filter.FilterReceiptList
@@ -24,6 +23,7 @@ import com.example.navsample.entities.Receipt
 import com.example.navsample.entities.ReceiptDaoHelper
 import com.example.navsample.entities.ReceiptDatabase
 import com.example.navsample.entities.Store
+import com.example.navsample.entities.TranslateEntity
 import com.example.navsample.entities.User
 import com.example.navsample.entities.relations.AllData
 import com.example.navsample.entities.relations.PriceByCategory
@@ -31,7 +31,7 @@ import com.example.navsample.entities.relations.ProductRichData
 import com.example.navsample.entities.relations.ReceiptWithStore
 import com.example.navsample.entities.relations.TableCounts
 import com.google.firebase.Firebase
-import com.google.firebase.firestore.DocumentReference
+import com.google.firebase.firestore.CollectionReference
 import com.google.firebase.firestore.firestore
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -88,17 +88,13 @@ class ReceiptDataViewModel : ViewModel() {
     lateinit var tableCounts: MutableLiveData<ArrayList<TableCounts>>
     lateinit var reorderedProductTiles: MutableLiveData<Boolean>
 
-    lateinit var userUuid: MutableLiveData<String?>
+    var userUuid = MutableLiveData<String?>(null)
 
     private val dao = ApplicationContext.context?.let { ReceiptDatabase.getInstance(it).receiptDao }
     private val firestore = Firebase.firestore
 
     init {
         clearData()
-    }
-
-    private fun createFullPath(path: String): String {
-        return path
     }
 
     fun <Sort : ParentSort> updateSorting(sort: SortProperty<Sort>) {
@@ -155,7 +151,6 @@ class ReceiptDataViewModel : ViewModel() {
         tableCounts = MutableLiveData<ArrayList<TableCounts>>(null)
         allData = MutableLiveData<ArrayList<AllData>>(null)
 
-        userUuid = MutableLiveData<String?>(null)
 
 
         refreshCategoryList()
@@ -221,13 +216,11 @@ class ReceiptDataViewModel : ViewModel() {
                         Log.i("Database", "insert product: ${product.name}")
                         val rowId = dao.insertProduct(product)
                         product.id = dao.getProductId(rowId)
-                        val path = createFullPath(PRODUCT_FIRESTORE_PATH)
-                        addFirestore(path, product.id.toString(), product)
+                        addFirestore(product)
                     } else {
                         Log.i("Database", "update product: ${product.name}")
                         dao.updateProduct(product)
-                        val path = createFullPath(PRODUCT_FIRESTORE_PATH)
-                        updateFirestore(path, product.id.toString(), product.toMap())
+                        updateFirestore(product)
                     }
                 }
             }
@@ -245,8 +238,7 @@ class ReceiptDataViewModel : ViewModel() {
             }
             Log.i("Database", "inserted receipt with id ${newReceipt.id}")
             receipt.value = newReceipt
-            val path = createFullPath(RECEIPT_FIRESTORE_PATH)
-            addFirestore(path, newReceipt.id.toString(), newReceipt)
+            addFirestore(newReceipt)
         }
     }
 
@@ -259,8 +251,7 @@ class ReceiptDataViewModel : ViewModel() {
             }
             Log.i("Database", "inserted category with id ${newCategory.id}")
             savedCategory.value = newCategory
-            val path = createFullPath(CATEGORY_FIRESTORE_PATH)
-            addFirestore(path, newCategory.id.toString(), newCategory)
+            addFirestore(newCategory)
         }
     }
 
@@ -318,8 +309,7 @@ class ReceiptDataViewModel : ViewModel() {
                     newStore.id = dao.getStoreId(rowId)
                 }
                 Log.i("Database", "inserted receipt with id ${newStore.id}")
-                val path = createFullPath(STORE_FIRESTORE_PATH)
-                addFirestore(path, newStore.id.toString(), newStore)
+                addFirestore(newStore)
             } catch (e: Exception) {
                 Log.e("Insert store to DB", e.message.toString())
             }
@@ -338,8 +328,7 @@ class ReceiptDataViewModel : ViewModel() {
                 dao.updateReceipt(newReceipt)
             }
             receipt.postValue(newReceipt)
-            val path = createFullPath(RECEIPT_FIRESTORE_PATH)
-            updateFirestore(path, newReceipt.id.toString(), newReceipt.toMap())
+            updateFirestore(newReceipt)
         }
     }
 
@@ -350,8 +339,7 @@ class ReceiptDataViewModel : ViewModel() {
                 dao.updateCategory(newCategory)
             }
             savedCategory.postValue(newCategory)
-            val path = createFullPath(CATEGORY_FIRESTORE_PATH)
-            updateFirestore(path, newCategory.id.toString(), newCategory.toMap())
+            updateFirestore(newCategory)
         }
     }
 
@@ -381,23 +369,48 @@ class ReceiptDataViewModel : ViewModel() {
             }
         }
         savedStore.value = newStore
-        val path = createFullPath(STORE_FIRESTORE_PATH)
-        updateFirestore(path, newStore.id.toString(), newStore.toMap())
+        updateFirestore(newStore)
 
     }
 
-    private fun getFirestoreCollection(path: String, id: String): DocumentReference {
+    private fun getPath(obj: Any): String {
+        when (obj) {
+            is Store -> {
+                return STORE_FIRESTORE_PATH
+            }
+
+            is Category -> {
+                return CATEGORY_FIRESTORE_PATH
+            }
+
+            is Receipt -> {
+                return RECEIPT_FIRESTORE_PATH
+            }
+
+            is Product -> {
+                return PRODUCT_FIRESTORE_PATH
+            }
+        }
+        return "null"
+
+    }
+
+    private fun getFirestoreUserPath(path: String): CollectionReference {
         return firestore.collection("user").document(userUuid.value.toString()).collection(path)
-            .document(id)
-    }
-
-    private fun addFirestore(path: String, id: String, obj: Any) {
-        getFirestoreCollection(path, id).set(obj)
 
     }
 
-    private fun updateFirestore(path: String, id: String, map: Map<String, Any?>) {
-        getFirestoreCollection(path, id).update(map)
+    private fun <T : TranslateEntity> addFirestore(obj: T) {
+        getFirestoreUserPath(getPath(obj))
+            .document(obj.getDescriptiveId())
+            .set(obj)
+
+    }
+
+    private fun <T : TranslateEntity> updateFirestore(obj: T) {
+        getFirestoreUserPath(getPath(obj))
+            .document(obj.getDescriptiveId())
+            .update(obj.toMap())
 
     }
 
@@ -528,34 +541,6 @@ class ReceiptDataViewModel : ViewModel() {
         Log.i("Database", "insert category ${category.name} - id ${category.id}")
         viewModelScope.launch {
             dao?.insertCategory(category)
-        }
-    }
-
-    private fun getCategoryId(name: String): Int {
-        val categoryNames = categoryList.value?.map { it.name } ?: listOf()
-        var categoryIndex = categoryNames.indexOf(name)
-        if (categoryIndex == -1) {
-            categoryIndex = categoryNames.indexOf("INNE")
-        }
-        return categoryList.value?.get(categoryIndex)?.id ?: 0
-    }
-
-    private fun getCategory(id: Int): Category {
-        val categoryNames = categoryList.value?.map { it.id } ?: listOf()
-        val categoryIndex = categoryNames.indexOf(id)
-        if (categoryIndex == -1) {
-            return Category("", ChartColors.DEFAULT_CATEGORY_COLOR_STRING)
-        }
-        return categoryList.value?.get(categoryIndex) ?: Category(
-            "", ChartColors.DEFAULT_CATEGORY_COLOR_STRING
-        )
-    }
-
-    private fun transformToDouble(value: String): Double {
-        return try {
-            value.replace(",", ".").toDouble()
-        } catch (t: Throwable) {
-            0.0
         }
     }
 

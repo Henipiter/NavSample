@@ -10,11 +10,11 @@ data class Receipt(
     var ptu: Double,
     var date: String,
     var time: String
-){
+) : TranslateEntity {
     @PrimaryKey(autoGenerate = true)
     var id: Int? = null
 
-    fun toMap(): HashMap<String, Any?> {
+    override fun toMap(): HashMap<String, Any?> {
         return hashMapOf(
             "id" to this.id,
             "storeId" to this.storeId,
@@ -23,5 +23,9 @@ data class Receipt(
             "date" to this.date,
             "time" to this.time
         )
+    }
+
+    override fun getDescriptiveId(): String {
+        return "$id $date $time"
     }
 }

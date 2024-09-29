@@ -15,8 +15,11 @@ data class Product(
     var finalPrice: Double,
     var ptuType: String,
     var raw: String
-){
-    fun toMap(): HashMap<String, Any?> {
+) : TranslateEntity {
+    @PrimaryKey(autoGenerate = true)
+    var id: Int? = null
+
+    override fun toMap(): HashMap<String, Any?> {
         return hashMapOf(
             "receiptId" to this.receiptId,
             "name" to this.name,
@@ -31,6 +34,7 @@ data class Product(
         )
     }
 
-    @PrimaryKey(autoGenerate = true)
-    var id: Int? = null
+    override fun getDescriptiveId(): String {
+        return "$id $name"
+    }
 }
