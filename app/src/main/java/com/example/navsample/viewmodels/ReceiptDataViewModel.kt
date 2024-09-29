@@ -29,10 +29,20 @@ import com.example.navsample.entities.relations.PriceByCategory
 import com.example.navsample.entities.relations.ProductRichData
 import com.example.navsample.entities.relations.ReceiptWithStore
 import com.example.navsample.entities.relations.TableCounts
+import com.google.firebase.Firebase
+import com.google.firebase.firestore.firestore
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 class ReceiptDataViewModel : ViewModel() {
+
+    companion object {
+        private const val PRODUCT_FIRESTORE_PATH = "products"
+        private const val RECEIPT_FIRESTORE_PATH = "receipts"
+        private const val STORE_FIRESTORE_PATH = "stores"
+        private const val CATEGORY_FIRESTORE_PATH = "categories"
+    }
+
     private val defaultStoreSort = SortProperty(StoreSort.NAME, Direction.ASCENDING)
     private val defaultRichProductSort = SortProperty(RichProductSort.DATE, Direction.DESCENDING)
     private val defaultReceiptWithStoreSort =
@@ -76,6 +86,7 @@ class ReceiptDataViewModel : ViewModel() {
     lateinit var reorderedProductTiles: MutableLiveData<Boolean>
 
     private val dao = ApplicationContext.context?.let { ReceiptDatabase.getInstance(it).receiptDao }
+    private val firestore = Firebase.firestore
 
     init {
         clearData()
@@ -195,7 +206,6 @@ class ReceiptDataViewModel : ViewModel() {
 
     }
 
-
     fun insertProducts(products: List<Product>) {
         Log.i("Database", "insert products. Size: ${products.size}")
         viewModelScope.launch {
@@ -204,9 +214,15 @@ class ReceiptDataViewModel : ViewModel() {
                     if (product.id == null) {
                         Log.i("Database", "insert product: ${product.name}")
                         dao.insertProduct(product)
+                        addFirestore(PRODUCT_FIRESTORE_PATH, product.id.toString(), product)
                     } else {
                         Log.i("Database", "update product: ${product.name}")
                         dao.updateProduct(product)
+                        updateFirestore(
+                            PRODUCT_FIRESTORE_PATH,
+                            product.id.toString(),
+                            product.toMap()
+                        )
                     }
                 }
             }
@@ -224,6 +240,7 @@ class ReceiptDataViewModel : ViewModel() {
             }
             Log.i("Database", "inserted receipt with id ${newReceipt.id}")
             receipt.value = newReceipt
+            addFirestore(RECEIPT_FIRESTORE_PATH, newReceipt.id.toString(), newReceipt)
         }
     }
 
@@ -236,6 +253,7 @@ class ReceiptDataViewModel : ViewModel() {
             }
             Log.i("Database", "inserted category with id ${newCategory.id}")
             savedCategory.value = newCategory
+            addFirestore(CATEGORY_FIRESTORE_PATH, newCategory.id.toString(), newCategory)
         }
     }
 
@@ -262,6 +280,7 @@ class ReceiptDataViewModel : ViewModel() {
                     newStore.id = dao.getStoreId(rowId)
                 }
                 Log.i("Database", "inserted receipt with id ${newStore.id}")
+                addFirestore(STORE_FIRESTORE_PATH, newStore.id.toString(), newStore)
             } catch (e: Exception) {
                 Log.e("Insert store to DB", e.message.toString())
             }
@@ -280,6 +299,7 @@ class ReceiptDataViewModel : ViewModel() {
                 dao.updateReceipt(newReceipt)
             }
             receipt.postValue(newReceipt)
+            updateFirestore(RECEIPT_FIRESTORE_PATH, newReceipt.id.toString(), newReceipt.toMap())
         }
     }
 
@@ -290,6 +310,7 @@ class ReceiptDataViewModel : ViewModel() {
                 dao.updateCategory(newCategory)
             }
             savedCategory.postValue(newCategory)
+            updateFirestore(CATEGORY_FIRESTORE_PATH, newCategory.id.toString(), newCategory.toMap())
         }
     }
 
@@ -319,6 +340,18 @@ class ReceiptDataViewModel : ViewModel() {
             }
         }
         savedStore.value = newStore
+        updateFirestore(STORE_FIRESTORE_PATH, newStore.id.toString(), newStore.toMap())
+
+    }
+
+    private fun addFirestore(path: String, id: String, obj: Any) {
+        firestore.collection(path).document(id).set(obj)
+
+    }
+
+    private fun updateFirestore(path: String, id: String, map: Map<String, Any?>) {
+        firestore.collection(path).document(id).update(map)
+
     }
 
     fun refreshReceiptList(name: String, dateFrom: String, dateTo: String) {

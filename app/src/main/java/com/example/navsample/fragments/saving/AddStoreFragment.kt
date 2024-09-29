@@ -26,7 +26,7 @@ class AddStoreFragment : Fragment() {
     private val receiptImageViewModel: ReceiptImageViewModel by activityViewModels()
     private val receiptDataViewModel: ReceiptDataViewModel by activityViewModels()
 
-    private var mode = DataMode.DISPLAY
+    private var mode = DataMode.NEW
     private var chosenCategory = Category("", "")
 
 

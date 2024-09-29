@@ -11,4 +11,12 @@ data class Category(
 ) {
     @PrimaryKey(autoGenerate = true)
     var id: Int? = null
+
+    fun toMap(): HashMap<String, Any?> {
+        return hashMapOf(
+            "id" to this.id,
+            "name" to this.name,
+            "color" to this.color
+        )
+    }
 }
