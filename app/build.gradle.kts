@@ -28,6 +28,9 @@ android {
         vectorDrawables {
             useSupportLibrary = true
         }
+        val apiToken: String = project.findProperty("GEMINI_API_KEY") as String? ?: ""
+        buildConfigField("String", "GEMINI_API_KEY", apiToken)
+
     }
     buildFeatures {
         buildConfig = true
@@ -76,6 +79,7 @@ dependencies {
     implementation(platform("com.google.firebase:firebase-bom:33.3.0"))
     implementation("com.google.firebase:firebase-analytics")
     implementation("com.google.firebase:firebase-firestore")
+    implementation("com.google.ai.client.generativeai:generativeai:0.9.0")
     androidTestImplementation("androidx.test:runner:1.5.2")
     androidTestImplementation("androidx.test:rules:1.5.0")
 
