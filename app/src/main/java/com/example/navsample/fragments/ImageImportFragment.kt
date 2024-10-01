@@ -28,7 +28,7 @@ import com.example.navsample.R
 import com.example.navsample.databinding.FragmentImageImportBinding
 import com.example.navsample.entities.Receipt
 import com.example.navsample.entities.Store
-import com.example.navsample.imageanalyzer.ImageAnalyzer
+import com.example.navsample.viewmodels.ImageAnalyzerViewModel
 import com.example.navsample.viewmodels.ReceiptDataViewModel
 import com.example.navsample.viewmodels.ReceiptImageViewModel
 import com.google.mlkit.vision.common.InputImage
@@ -40,10 +40,10 @@ class ImageImportFragment : Fragment() {
     private var _binding: FragmentImageImportBinding? = null
     private val binding get() = _binding!!
 
+    private val imageAnalyzerViewModel: ImageAnalyzerViewModel by activityViewModels()
     private val receiptImageViewModel: ReceiptImageViewModel by activityViewModels()
     private val receiptDataViewModel: ReceiptDataViewModel by activityViewModels()
 
-    private lateinit var imageAnalyzer: ImageAnalyzer
     private var goNext = false
 
     override fun onCreateView(
@@ -58,8 +58,7 @@ class ImageImportFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         initObserver()
 
-        imageAnalyzer = ImageAnalyzer()
-        imageAnalyzer.uid = receiptImageViewModel.uid.value ?: "temp"
+        imageAnalyzerViewModel.uid = receiptImageViewModel.uid.value ?: "temp"
         binding.captureImage.setOnClickListener {
             if (allPermissionsGranted()) {
                 startCameraWithoutUri(includeCamera = true, includeGallery = false)
@@ -94,28 +93,8 @@ class ImageImportFragment : Fragment() {
     private fun analyzeImage() {
         receiptImageViewModel.bitmap.value?.let { it1 ->
             val analyzedImage = InputImage.fromBitmap(it1, 0)
-            imageAnalyzer.analyzeReceipt(
-                analyzedImage
-            ) {
-                //drawRectangles()
 
-                val store = Store(imageAnalyzer.valueNIP, imageAnalyzer.companyName, 0)
-                val receipt = Receipt(
-                    -1,
-                    imageAnalyzer.valuePLN.toString().toDouble(),
-                    imageAnalyzer.valuePTU.toString().toDouble(),
-                    imageAnalyzer.valueDate,
-                    imageAnalyzer.valueTime
-                )
-                Log.i("ImageProcess", "valueNIP ${imageAnalyzer.valueNIP}")
-                Log.i("ImageProcess", "companyName ${imageAnalyzer.companyName}")
-                Log.i("ImageProcess", "valuePTU ${imageAnalyzer.valuePTU}")
-                Log.i("ImageProcess", "valuePLN ${imageAnalyzer.valuePLN}")
-                Log.i("ImageProcess", "valueDate ${imageAnalyzer.valueDate}")
-                Log.i("ImageProcess", "valueTime ${imageAnalyzer.valueTime}")
-                receiptDataViewModel.store.value = store
-                receiptDataViewModel.receipt.value = receipt
-            }
+            imageAnalyzerViewModel.analyzeReceipt(analyzedImage)
         }
     }
 
@@ -130,12 +109,36 @@ class ImageImportFragment : Fragment() {
                 binding.receiptImage.visibility = View.GONE
             }
         }
-        receiptDataViewModel.receipt.observe(viewLifecycleOwner) {
-            if (goNext && it != null) {
+
+
+        imageAnalyzerViewModel.receiptAnalyzed.observe(viewLifecycleOwner) {
+
+            if (it == null) {
+                return@observe
+            }
+            val store = Store(it.valueNIP, it.companyName, 0)
+            val receipt = Receipt(
+                -1,
+                it.valuePLN.toString().toDouble(),
+                it.valuePTU.toString().toDouble(),
+                it.valueDate,
+                it.valueTime
+            )
+            Log.i("ImageProcess", "valueNIP ${it.valueNIP}")
+            Log.i("ImageProcess", "companyName ${it.companyName}")
+            Log.i("ImageProcess", "valuePTU ${it.valuePTU}")
+            Log.i("ImageProcess", "valuePLN ${it.valuePLN}")
+            Log.i("ImageProcess", "valueDate ${it.valueDate}")
+            Log.i("ImageProcess", "valueTime ${it.valueTime}")
+            receiptDataViewModel.store.value = store
+            receiptDataViewModel.receipt.value = receipt
+
+            if (goNext) {
                 goNext = false
                 Navigation.findNavController(requireView())
                     .navigate(R.id.action_imageImportFragment_to_addReceiptFragment)
             }
+
         }
     }
 
