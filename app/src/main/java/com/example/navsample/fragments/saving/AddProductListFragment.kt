@@ -104,7 +104,12 @@ class AddProductListFragment : Fragment(), ItemClickListener {
 
         imageAnalyzerViewModel.uid = receiptImageViewModel.uid.value ?: "temp"
         receiptImageViewModel.bitmapCropped.value?.let { bitmap ->
-            imageAnalyzerViewModel.analyzeProductList(bitmap, receiptId, categoryId)
+            imageAnalyzerViewModel.analyzeProductList(
+                bitmap,
+                receiptId,
+                categoryId,
+                receiptDataViewModel.categoryList.value
+            )
         }
     }
 
