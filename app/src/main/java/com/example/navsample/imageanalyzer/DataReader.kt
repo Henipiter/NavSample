@@ -62,11 +62,10 @@ class DataReader {
             point: Point, angle: Float
         ): Point {
             val theta = Math.toRadians(abs(angle).toDouble())
-            val point1 = Point(
+            return Point(
                 (point.x * cos(theta) - point.y * sin(theta)).toInt(),
                 (point.x * sin(theta) + point.y * cos(theta)).toInt()
             )
-            return point1
 
         }
 

@@ -1,11 +1,8 @@
 package com.example.navsample.imageanalyzer
 
 data class ColumnCell(
-    val commonColumnCells: ArrayList<Cell>,
-    val leftColumnCells: ArrayList<Cell>,
-    val rightColumnCells: ArrayList<Cell>,
-    val otherCells: ArrayList<Cell>
-) {
-    constructor() : this(ArrayList<Cell>(), ArrayList<Cell>(), ArrayList<Cell>(), ArrayList<Cell>())
-
-}
+    val commonColumnCells: ArrayList<Cell> = ArrayList(),
+    val leftColumnCells: ArrayList<Cell> = ArrayList(),
+    val rightColumnCells: ArrayList<Cell> = ArrayList(),
+    val otherCells: ArrayList<Cell> = ArrayList()
+)
