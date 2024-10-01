@@ -162,12 +162,13 @@ open class ExperimentRecycleFragment : Fragment() {
         }
 
         binding.confirmButton.setOnClickListener {
-            val namePricePairs = elementOperationHelper.convertUserElementsToLines()
+            val names = elementOperationHelper.userNames.map { it.value }
+            val prices = elementOperationHelper.userPrices.map { it.value }
             receiptDataViewModel.algorithmOrderedNames.value =
                 createAlgorithmElementsFromUserElements(recycleListUserNames)
             receiptDataViewModel.algorithmOrderedPrices.value =
                 createAlgorithmElementsFromUserElements(recycleListUserPrices)
-            receiptDataViewModel.product.value = receiptParser.parseToProducts(namePricePairs)
+            receiptDataViewModel.product.value = receiptParser.parseToProducts(names, prices)
             Navigation.findNavController(binding.root).popBackStack()
         }
     }

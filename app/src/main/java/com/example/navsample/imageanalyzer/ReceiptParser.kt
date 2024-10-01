@@ -1,6 +1,7 @@
 package com.example.navsample.imageanalyzer
 
 import com.example.navsample.entities.Product
+import kotlin.math.min
 
 class ReceiptParser(var receiptId: Int, var categoryId: Int) {
     companion object {
@@ -10,12 +11,27 @@ class ReceiptParser(var receiptId: Int, var categoryId: Int) {
 
     data class ReceiptElement(val data: String, val startIndex: Int, val endIndex: Int)
 
+    private fun joinNameAndPrice(names: List<String>, prices: List<String>): ArrayList<String> {
+        val sortedProductListOnRecipe = ArrayList<String>()
+        val items = min(names.size, prices.size)
+        for (i in 0..<items) {
+            sortedProductListOnRecipe.add(names[i] + " " + prices[i])
+        }
+        return sortedProductListOnRecipe
+    }
+
     fun parseToProducts(
-        sortedProductListOnRecipe: List<String>,
+        names: List<String>,
+        prices: List<String>
     ): ArrayList<Product> {
         val productList = ArrayList<Product>()
-        for (data in sortedProductListOnRecipe) {
-            val parsedProduct = parseStringToProduct(data)
+        val sortedProductListOnRecipe = joinNameAndPrice(names, prices)
+        for (i in 0..sortedProductListOnRecipe.lastIndex) {
+
+            val parsedProduct = parseStringToProduct(sortedProductListOnRecipe[i])
+            if (parsedProduct.name == "") {
+                parsedProduct.name = names[i]
+            }
             if (parsedProduct.discount != 0.0) {
                 val lastProduct = productList.last()
                 lastProduct.discount = parsedProduct.discount

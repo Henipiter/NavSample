@@ -40,7 +40,10 @@ class ImageAnalyzer(var uid: String) {
 
             onFinish.invoke(
                 AnalyzedProductsData(
-                    productList = receiptParser.parseToProducts(imageProductAnalyzer.productList),
+                    productList = receiptParser.parseToProducts(
+                        imageProductAnalyzer.receiptNameLines,
+                        imageProductAnalyzer.receiptPriceLines
+                    ),
                     receiptPriceLines = imageProductAnalyzer.receiptPriceLines,
                     receiptNameLines = imageProductAnalyzer.receiptNameLines
                 )

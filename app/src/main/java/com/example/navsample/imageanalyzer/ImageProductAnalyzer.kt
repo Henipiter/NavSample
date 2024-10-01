@@ -8,7 +8,6 @@ import kotlin.math.min
 class ImageProductAnalyzer {
     private var columnCell = ColumnCell()
 
-    var productList = ArrayList<String>()
     var receiptNameLines = ArrayList<String>()
     var receiptPriceLines = ArrayList<String>()
     fun orderLinesByColumnContinuously(imageWidth: Int, data: List<Cell>) {
@@ -67,14 +66,6 @@ class ImageProductAnalyzer {
         val leftColumnSpaces = calculateSpacesBetweenRows(columnCell.leftColumnCells)
         val rightColumnSpaces = calculateSpacesBetweenRows(columnCell.rightColumnCells)
         getIndexesCells(columnCell, leftColumnSpaces, rightColumnSpaces)
-        joinNameAndPrice()
-    }
-
-    private fun joinNameAndPrice() {
-        val items = min(receiptNameLines.size, receiptPriceLines.size)
-        for (i in 0..<items) {
-            productList.add(receiptNameLines[i] + " " + receiptPriceLines[i])
-        }
     }
 
     private fun getIndexesCells(

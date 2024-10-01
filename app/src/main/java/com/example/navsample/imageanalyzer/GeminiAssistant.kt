@@ -48,8 +48,8 @@ class GeminiAssistant {
                 text(
                     """
                 Bedziesz starał się naprawiać błedy przy odczytywaniu tesktu OCR. 
-                W pierwszej linii otrzymasz kategorię, w kojelnych liniach dostaniesz kolejne produty.
-                Ignoruj przedrostki np: "D_" lub "MC_", ignoruj "luz". 
+                W pierwszej linii otrzymasz kategorie, w kolejnych liniach dostaniesz kolejne produty.
+                Ignoruj przedrostki np: "D_" lub "MC_". 
                 Np jeśli podam "Chust Delikat x150" masz odpowiedzieć "Chusteczki 
                 delikatne x150", bez zadnego komentarza. 
                 Po nazwie podaj też przypisanie do jednej z kategorii. 
