@@ -1,6 +1,7 @@
 package com.example.navsample.viewmodels
 
 import android.graphics.Bitmap
+import android.util.Log
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -28,7 +29,8 @@ class ImageAnalyzerViewModel : ViewModel() {
     ) {
 
         val categoriesPrompt = categories?.joinToString(separator = ",") { it.name } ?: "INNE"
-        val productNamesPrompt = productList.joinToString(separator = "\n") { it.name }
+        val productNamesPrompt =
+            productList.joinToString(separator = "\n") { if (it.name == "") "-" else it.name }
         viewModelScope.launch {
             val geminiAssistant = GeminiAssistant()
 
@@ -51,11 +53,19 @@ class ImageAnalyzerViewModel : ViewModel() {
         val responseList = response.split("\n")
         val size = min(productList.size, responseList.size)
         for (i in 0..<size) {
+            Log.i("Gemini", "Product: ${productList[i]}")
+            Log.i("Gemini", "Response: ${responseList[i]}")
             val split = responseList[i].split("|")
             if (split.size == 2) {
-                productList[i].name = split[0]
-                categories?.find { it.name == split[1] }?.let {
-                    productList[i].categoryId = it.id ?: 0
+
+                Log.i("Gemini", "Name: '${split[0].trim()}'")
+                Log.i("Gemini", "Category: '${split[1].trim()}'")
+                productList[i].name = split[0].trim()
+                categories?.find { it.name == split[1].trim() }?.let {
+                    if (it.id != null) {
+                        Log.i("Gemini", "Name: '${it.id}'")
+                        productList[i].categoryId = it.id ?: 0
+                    }
                 }
             }
         }
@@ -76,6 +86,8 @@ class ImageAnalyzerViewModel : ViewModel() {
                 receiptId,
                 categoryId
             ) { analyzedProducts ->
+                productAnalyzed.value = analyzedProducts
+
                 aiProductCorrection(analyzedProducts.productList, categories)
                 {
                     analyzedProducts.productList = it
