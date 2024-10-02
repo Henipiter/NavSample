@@ -1,5 +1,6 @@
 package com.example.navsample.fragments.listing
 
+import android.annotation.SuppressLint
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -15,10 +16,10 @@ import com.example.navsample.ItemClickListener
 import com.example.navsample.R
 import com.example.navsample.adapters.StoreListAdapter
 import com.example.navsample.databinding.FragmentStoreListBinding
-import com.example.navsample.dto.sort.Direction
 import com.example.navsample.dto.sort.SortProperty
 import com.example.navsample.dto.sort.StoreSort
 import com.example.navsample.fragments.dialogs.DeleteConfirmationDialog
+import com.example.navsample.fragments.dialogs.SortingDialog
 import com.example.navsample.viewmodels.ReceiptDataViewModel
 
 
@@ -50,10 +51,13 @@ class StoreListFragment : Fragment(), ItemClickListener {
             when (it.itemId) {
                 R.id.sort -> {
                     //TODO Connect Dialog with DB
-                    val appliedSort = SortProperty(StoreSort.NAME, Direction.DESCENDING)
-                    receiptDataViewModel.storeSort.value = appliedSort
-                    receiptDataViewModel.updateSorting(appliedSort)
-                    Toast.makeText(requireContext(), "sort", Toast.LENGTH_SHORT).show()
+
+                    SortingDialog(StoreSort.entries.map { it.friendlyNameKey }) { name, dir ->
+                        val appliedSort = SortProperty(StoreSort::class, name, dir)
+                        receiptDataViewModel.storeSort.value = appliedSort
+                        receiptDataViewModel.updateSorting(appliedSort)
+                        Toast.makeText(requireContext(), "$appliedSort", Toast.LENGTH_SHORT).show()
+                    }.show(childFragmentManager, "Test")
                     true
                 }
 
@@ -135,6 +139,7 @@ class StoreListFragment : Fragment(), ItemClickListener {
         }
     }
 
+    @SuppressLint("NotifyDataSetChanged")
     private fun initObserver() {
         receiptDataViewModel.storeList.observe(viewLifecycleOwner) {
             it?.let {

@@ -19,6 +19,10 @@
         <item name="cardBackgroundColor">@color/sortingCardView</item>
     </style>
 
+    <style name="PopupCardViewStyle" parent="CardView">
+        <item name="cardBackgroundColor">@color/popupCardView</item>
+    </style>
+
     <style name="CustomDialogStyle" parent="Theme.AppCompat.Light.Dialog">
         <item name="android:windowBackground">@android:color/transparent</item>
         <item name="android:windowIsFloating">true</item>

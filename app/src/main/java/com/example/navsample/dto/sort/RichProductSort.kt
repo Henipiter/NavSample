@@ -1,22 +1,15 @@
 package com.example.navsample.dto.sort
 
-enum class RichProductSort(override val fieldName: String) : ParentSort {
+enum class RichProductSort(
+    override val friendlyNameKey: String,
+    override val databaseName: String
+) : ParentSort {
     STORE_NAME("storeName"),
-    PRODUCT_NAME("name"),
+    PRODUCT_NAME("name", "p.name"),
     DATE("date"),
     CATEGORY_NAME("categoryName"),
     DISCOUNT("discount"),
     FINAL_PRICE("finalPrice");
 
-    override fun getByName(fieldName: String): ParentSort {
-        val enumValues = RichProductSort.values()
-        for (enum in enumValues) {
-            if (enum.fieldName == fieldName) {
-                return enum
-            }
-        }
-        return enumValues.first()
-    }
-
-
+    constructor(databaseName: String) : this(databaseName, databaseName)
 }
