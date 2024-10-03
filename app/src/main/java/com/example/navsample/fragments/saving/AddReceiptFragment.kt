@@ -202,6 +202,9 @@ class AddReceiptFragment : Fragment() {
                 time = binding.receiptTimeInput.text.toString()
             }
             receiptDataViewModel.insertReceipt(receipt)
+            val action =
+                AddReceiptFragmentDirections.actionAddReceiptFragmentToAddProductListFragment()
+            Navigation.findNavController(requireView()).navigate(action)
         } else if (mode == DataMode.EDIT) {
             receiptDataViewModel.receipt.value?.let {
                 val receipt = Receipt(-1, -1.0, -1.0, "", "")
@@ -255,11 +258,6 @@ class AddReceiptFragment : Fragment() {
                 R.id.edit -> {
                     binding.storeNIPLayout.visibility = View.VISIBLE
                     changeViewToEditMode()
-                    return@setOnMenuItemClickListener true
-                }
-
-                R.id.confirm -> {
-                    saveChangesToDatabase()
                     return@setOnMenuItemClickListener true
                 }
 

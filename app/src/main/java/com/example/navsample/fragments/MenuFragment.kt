@@ -79,6 +79,8 @@ class MenuFragment : Fragment() {
         if (myPref.getString(FILLED_DB, "false") == "false") {
             initDatabase()
             myPref.edit().putString(FILLED_DB, "true").apply()
+        } else {
+            receiptDataViewModel.setUserUuid()
         }
     }
 

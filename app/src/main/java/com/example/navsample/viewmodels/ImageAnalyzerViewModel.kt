@@ -57,7 +57,7 @@ class ImageAnalyzerViewModel : ViewModel() {
         if (response == null) {
             return productList
         }
-        val responseList = response.split("\n")
+        val responseList = response.replace("\"", "").split("\n")
         val size = min(productList.size, responseList.size)
         for (i in 0..<size) {
             Log.i("Gemini", "Product: ${productList[i]}")
