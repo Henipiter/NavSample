@@ -106,9 +106,15 @@ class ImageProductAnalyzer {
             leftListIndexValue += 1
         }
         for (i in 0..rightColumnSpaces.lastIndex) {
-            rightListIterator += if (rightColumnSpaces[i]) 2 else 1
-            rightList[rightListIterator] = rightListIndexValue.toString()
-            rightListIndexValue += 1
+            try {
+                rightListIterator += if (rightColumnSpaces[i]) 2 else 1
+                rightList[rightListIterator] = rightListIndexValue.toString()
+                rightListIndexValue += 1
+            } catch (e: Exception) {
+                val message =
+                    "${rightColumnSpaces.lastIndex};${rightColumnSpaces};$rightListIterator;$rightList"
+                Log.e(message, e.message, e)
+            }
         }
 
         Log.i("ImageProductAnalyzer", "Left  $leftList")

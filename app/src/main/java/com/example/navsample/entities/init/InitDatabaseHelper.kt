@@ -68,11 +68,12 @@ class InitDatabaseHelper {
                 Category("ZDROWIE", ChartColors.COLORS[2]),
                 Category("KULTURA", ChartColors.COLORS[3]),
                 Category("OPŁATY", ChartColors.COLORS[4]),
-                Category("KOSTMETYKI", ChartColors.COLORS[5]),
+                Category("KOSMETYKI", ChartColors.COLORS[5]),
                 Category("SPORT", ChartColors.COLORS[6]),
                 Category("MOTORYZACJA", ChartColors.COLORS[7]),
                 Category("UBRANIA", ChartColors.COLORS[8]),
-                Category("PALIWO", ChartColors.COLORS[9])
+                Category("PALIWO", ChartColors.COLORS[9]),
+                Category("ALKOHOL", ChartColors.COLORS[10])
             )
         }
 

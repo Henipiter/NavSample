@@ -21,11 +21,13 @@ class ImageAnalyzerViewModel : ViewModel() {
 
     val productAnalyzed = MutableLiveData<AnalyzedProductsData?>(null)
     val receiptAnalyzed = MutableLiveData<AnalyzedReceiptData?>(null)
+    val geminiResponse = MutableLiveData<String?>(null)
+    val isGeminiWorking = MutableLiveData(false)
 
     private fun aiProductCorrection(
         productList: ArrayList<Product>,
         categories: ArrayList<Category>?,
-        onFinish: (ArrayList<Product>) -> Unit
+        onFinish: (ArrayList<Product>, String) -> Unit
     ) {
 
         val categoriesPrompt = categories?.joinToString(separator = ",") { it.name } ?: "INNE"
@@ -35,8 +37,13 @@ class ImageAnalyzerViewModel : ViewModel() {
             val geminiAssistant = GeminiAssistant()
 
             val response = geminiAssistant.sendRequest(categoriesPrompt + "\n" + productNamesPrompt)
-            val correctedProducts = parseGeminiResponse(productList, categories, response)
-            onFinish.invoke(correctedProducts)
+            try {
+                val correctedProducts = parseGeminiResponse(productList, categories, response)
+                onFinish.invoke(correctedProducts, response ?: "EMPTY")
+            } catch (e: Exception) {
+                Log.e("Gemini", e.message, e)
+                onFinish.invoke(productList, response ?: "EMPTY")
+            }
         }
 
     }
@@ -87,11 +94,13 @@ class ImageAnalyzerViewModel : ViewModel() {
                 categoryId
             ) { analyzedProducts ->
                 productAnalyzed.value = analyzedProducts
-
+                isGeminiWorking.value = true
                 aiProductCorrection(analyzedProducts.productList, categories)
-                {
-                    analyzedProducts.productList = it
+                { list, response ->
+                    analyzedProducts.productList = list
                     productAnalyzed.value = analyzedProducts
+                    geminiResponse.value = response
+                    isGeminiWorking.value = false
                 }
 
             }

@@ -41,7 +41,7 @@ class ReceiptListFragment : Fragment(), ItemClickListener {
         super.onViewCreated(view, savedInstanceState)
         initObserver()
         refreshList()
-
+        receiptDataViewModel.refreshCategoryList()
         binding.toolbar.inflateMenu(R.menu.top_menu_list_filter)
         binding.toolbar.menu.findItem(R.id.collapse).isVisible = false
         binding.toolbar.menu.findItem(R.id.expand).isVisible = false

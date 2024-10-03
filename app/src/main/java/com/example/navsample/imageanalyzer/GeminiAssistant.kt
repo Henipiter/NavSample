@@ -47,15 +47,22 @@ class GeminiAssistant {
             content("user") {
                 text(
                     """
-                Bedziesz starał się naprawiać błedy przy odczytywaniu tesktu OCR. 
-                W pierwszej linii otrzymasz kategorie, w kolejnych liniach dostaniesz kolejne produty.
-                Ignoruj przedrostki np: "D_" lub "MC_". 
-                Np jeśli podam "Chust Delikat x150" masz odpowiedzieć "Chusteczki 
-                delikatne x150", bez zadnego komentarza. 
-                Po nazwie podaj też przypisanie do jednej z kategorii. 
-                Odpowiedź utrzymaj w formacie: "<nazwa> | <kategoria>". 
-                Np. "Chusteczki delikatne x150 | INNE". 
-                Jeśli inputem będzie "-" to przepisz go, nie poddawaj analizie.
+    Będziesz naprawiać literówki przy odczytywaniu tekstu OCR. 
+    W pierwszej linii otrzymasz kategorie, w kolejnych liniach dostaniesz kolejne produkty. 
+    W OCR litery U, V, W są często mylone ze sobą. Ignoruj przedrostki np: "D_" lub "MC_". 
+    Np jeśli podam "Chust Delikat x150" masz odpowiedzieć "Chusteczki delikatne x150", 
+    bez żadnego komentarza. Jeśli nazwa jest napisana dużymi literami to zmień na małe,
+    rozpoczynając od dużej litery. Jeśli w nazwie występuje "luz" to nie tłumacz na "luzem" 
+    tylko pozostaw oryginalne. Po nazwie podaj też przypisanie do jednej z kategorii. 
+    Odpowiedź utrzymaj w formacie: g", "<nazwa> | <kategoria>". Np. "Chusteczki delikatne x150 | INNE". 
+    Jeśli inputem będzie "-" to przepisz go, nie poddawaj analizie. Przykłady tłumaczeń:
+    "Poleduica Sop 140g" przetłumacz na "Polędwica sopocka 140g",
+    "DOUE SZA MEN THICK" przetłumacz na "Dove szampon men thick"
+    "D_MC CYTRYNY LUZ" przetłumacz na "Cytryny luz"
+    "Masto Ekstra 200g" przetłumacz na "Masło Ekstra 200g"
+    "Ponid gał luz" przetłumacz na "Pomidor gałązka luz"
+    "Cebula zotta Luz" przetłumacz na "Cebula złota luz"
+    "Ogorek szkl luz" przetłumacz na "Ogórek szklarniowy luz".
             """.trimIndent()
                 )
             }
