@@ -10,7 +10,8 @@ import androidx.room.RoomDatabase
         Category::class,
         Product::class,
         Receipt::class,
-        Store::class
+        Store::class,
+        User::class
     ],
     version = 1
 )

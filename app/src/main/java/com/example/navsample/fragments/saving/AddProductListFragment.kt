@@ -9,6 +9,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.camera.core.ExperimentalGetImage
 import androidx.fragment.app.Fragment
@@ -28,10 +29,9 @@ import com.example.navsample.dto.sorting.AlgorithmItemAdapterArgument
 import com.example.navsample.exception.NoReceiptIdException
 import com.example.navsample.exception.NoStoreIdException
 import com.example.navsample.fragments.dialogs.DeleteConfirmationDialog
-import com.example.navsample.imageanalyzer.ImageAnalyzer
+import com.example.navsample.viewmodels.ImageAnalyzerViewModel
 import com.example.navsample.viewmodels.ReceiptDataViewModel
 import com.example.navsample.viewmodels.ReceiptImageViewModel
-import com.google.mlkit.vision.common.InputImage
 
 
 @ExperimentalGetImage
@@ -41,6 +41,7 @@ class AddProductListFragment : Fragment(), ItemClickListener {
     private val binding get() = _binding!!
 
     private lateinit var myPref: SharedPreferences
+    private val imageAnalyzerViewModel: ImageAnalyzerViewModel by activityViewModels()
     private val receiptImageViewModel: ReceiptImageViewModel by activityViewModels()
     private val receiptDataViewModel: ReceiptDataViewModel by activityViewModels()
 
@@ -81,6 +82,32 @@ class AddProductListFragment : Fragment(), ItemClickListener {
             }
         }
 
+        imageAnalyzerViewModel.isGeminiWorking.observe(viewLifecycleOwner) {
+            if (it) {
+                binding.geminiWorkingView.visibility = View.VISIBLE
+            } else {
+                binding.geminiWorkingView.visibility = View.INVISIBLE
+            }
+        }
+
+        imageAnalyzerViewModel.geminiResponse.observe(viewLifecycleOwner) {
+            Toast.makeText(requireContext(), "'$it'", Toast.LENGTH_SHORT).show()
+            binding.geminiResponse.text = it
+        }
+
+        imageAnalyzerViewModel.productAnalyzed.observe(viewLifecycleOwner) { it ->
+            if (it == null) {
+                return@observe
+            }
+            receiptDataViewModel.product.value = it.productList
+            receiptDataViewModel.algorithmOrderedNames.value =
+                it.receiptNameLines.map { AlgorithmItemAdapterArgument(it) } as ArrayList<AlgorithmItemAdapterArgument>
+            receiptDataViewModel.algorithmOrderedPrices.value =
+                it.receiptPriceLines.map { AlgorithmItemAdapterArgument(it) } as ArrayList<AlgorithmItemAdapterArgument>
+
+            receiptDataViewModel.reorderedProductTiles.value = true
+
+        }
     }
 
     @ExperimentalGetImage
@@ -88,22 +115,15 @@ class AddProductListFragment : Fragment(), ItemClickListener {
         val receiptId = receiptDataViewModel.receipt.value?.id ?: throw NoReceiptIdException()
         val categoryId =
             receiptDataViewModel.store.value?.defaultCategoryId ?: throw NoStoreIdException()
-        val imageAnalyzer = ImageAnalyzer()
-        imageAnalyzer.uid = receiptImageViewModel.uid.value ?: "temp"
-        receiptImageViewModel.bitmapCropped.value?.let { bitmap ->
-            imageAnalyzer.analyzeProductList(
-                InputImage.fromBitmap(bitmap, 0),
-                receiptId,
-                categoryId
-            ) {
-                receiptDataViewModel.product.value = imageAnalyzer.productList
 
-                receiptDataViewModel.algorithmOrderedNames.value =
-                    imageAnalyzer.receiptNameLines.map { AlgorithmItemAdapterArgument(it) } as ArrayList<AlgorithmItemAdapterArgument>
-                receiptDataViewModel.algorithmOrderedPrices.value =
-                    imageAnalyzer.receiptPriceLines.map { AlgorithmItemAdapterArgument(it) } as ArrayList<AlgorithmItemAdapterArgument>
-                receiptDataViewModel.reorderedProductTiles.value = true
-            }
+        imageAnalyzerViewModel.uid = receiptImageViewModel.uid.value ?: "temp"
+        receiptImageViewModel.bitmapCropped.value?.let { bitmap ->
+            imageAnalyzerViewModel.analyzeProductList(
+                bitmap,
+                receiptId,
+                categoryId,
+                receiptDataViewModel.categoryList.value
+            )
         }
     }
 
@@ -121,8 +141,7 @@ class AddProductListFragment : Fragment(), ItemClickListener {
         } else {
             binding.cartValueText.setTextColor(
                 resources.getColor(
-                    R.color.basic_text_grey,
-                    requireContext().theme
+                    R.color.basic_text_grey, requireContext().theme
                 )
             )
         }
@@ -152,8 +171,7 @@ class AddProductListFragment : Fragment(), ItemClickListener {
         ) { i: Int ->
             receiptDataViewModel.product.value?.get(i)?.let {
                 DeleteConfirmationDialog(
-                    "Are you sure you want to delete the product??\n\n"
-                            + "Name: " + it.name + "\nPLN: " + it.subtotalPrice
+                    "Are you sure you want to delete the product??\n\n" + "Name: " + it.name + "\nPLN: " + it.subtotalPrice
                 ) {
                     if (it.id != null && it.id!! >= 0) {
                         receiptDataViewModel.deleteProduct(it.id!!)

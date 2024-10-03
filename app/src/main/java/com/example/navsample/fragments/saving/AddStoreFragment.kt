@@ -26,7 +26,7 @@ class AddStoreFragment : Fragment() {
     private val receiptImageViewModel: ReceiptImageViewModel by activityViewModels()
     private val receiptDataViewModel: ReceiptDataViewModel by activityViewModels()
 
-    private var mode = DataMode.DISPLAY
+    private var mode = DataMode.NEW
     private var chosenCategory = Category("", "")
 
 
@@ -39,10 +39,10 @@ class AddStoreFragment : Fragment() {
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
         binding.toolbar.inflateMenu(R.menu.top_menu_basic_add)
         binding.toolbar.setNavigationIcon(R.drawable.back)
         binding.toolbar.menu.findItem(R.id.edit).isVisible = false
-        super.onViewCreated(view, savedInstanceState)
         initObserver()
         receiptDataViewModel.refreshStoreList()
         receiptDataViewModel.refreshCategoryList()
@@ -193,11 +193,10 @@ class AddStoreFragment : Fragment() {
     }
 
     private fun initObserver() {
-
-        receiptImageViewModel.bitmapCropped.observe(viewLifecycleOwner) {
+        receiptImageViewModel.bitmap.observe(viewLifecycleOwner) {
             if (it != null) {
                 binding.receiptImage.visibility = View.VISIBLE
-                binding.receiptImage.setImageBitmap(receiptImageViewModel.bitmapCropped.value)
+                binding.receiptImage.setImageBitmap(receiptImageViewModel.bitmap.value)
             } else {
                 binding.receiptImage.visibility = View.GONE
             }

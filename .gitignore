@@ -15,3 +15,5 @@
 .idea
 gradle
 local.properties
+/app/google-services.json
+/app/gradle.properties

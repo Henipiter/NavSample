@@ -17,8 +17,8 @@ class ElementOperationHelper(
     private val algorithmNames: ArrayList<AlgorithmItemAdapterArgument>,
     private val algorithmNamesAdapter: AlgorithmItemListAdapter,
     private val algorithmPricesAdapter: AlgorithmItemListAdapter,
-    private val userPrices: ArrayList<UserItemAdapterArgument>,
-    private val userNames: ArrayList<UserItemAdapterArgument>,
+    val userPrices: ArrayList<UserItemAdapterArgument>,
+    val userNames: ArrayList<UserItemAdapterArgument>,
     private val userNamesAdapter: UserItemListAdapter,
     private val userPricesAdapter: UserItemListAdapter
 ) {
