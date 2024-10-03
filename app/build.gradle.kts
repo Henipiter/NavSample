@@ -2,6 +2,7 @@ plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
     id("com.google.gms.google-services")
+    id("com.google.firebase.crashlytics")
     id("androidx.navigation.safeargs.kotlin")
     id("kotlin-parcelize")
     id("de.mannodermaus.android-junit5") version "1.9.3.0"
@@ -76,8 +77,9 @@ android {
 }
 
 dependencies {
-    implementation(platform("com.google.firebase:firebase-bom:33.3.0"))
+    implementation(platform("com.google.firebase:firebase-bom:33.4.0"))
     implementation("com.google.firebase:firebase-analytics")
+    implementation("com.google.firebase:firebase-crashlytics")
     implementation("com.google.firebase:firebase-firestore")
     implementation("com.google.ai.client.generativeai:generativeai:0.9.0")
     androidTestImplementation("androidx.test:runner:1.5.2")
