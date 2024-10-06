@@ -22,6 +22,7 @@ import com.example.navsample.databinding.FragmentExperimentRecycleBinding
 import com.example.navsample.dto.SortingElementAction
 import com.example.navsample.dto.SortingElementMode
 import com.example.navsample.dto.Type
+import com.example.navsample.dto.analyzer.AnalyzedProductsData
 import com.example.navsample.dto.sorting.AlgorithmItemAdapterArgument
 import com.example.navsample.dto.sorting.ItemAdapterArgument
 import com.example.navsample.dto.sorting.UserItemAdapterArgument
@@ -31,6 +32,7 @@ import com.example.navsample.exception.NoStoreIdException
 import com.example.navsample.imageanalyzer.ReceiptParser
 import com.example.navsample.sorting.NonScrollableGridLayoutManager
 import com.example.navsample.sorting.operation.ElementOperationHelper
+import com.example.navsample.viewmodels.ImageAnalyzerViewModel
 import com.example.navsample.viewmodels.ReceiptDataViewModel
 import com.example.navsample.viewmodels.ReceiptImageViewModel
 
@@ -42,6 +44,7 @@ open class ExperimentRecycleFragment : Fragment() {
 
     private val receiptImageViewModel: ReceiptImageViewModel by activityViewModels()
     private val receiptDataViewModel: ReceiptDataViewModel by activityViewModels()
+    private val imageAnalyzerViewModel: ImageAnalyzerViewModel by activityViewModels()
 
     private lateinit var algorithmOrderedPricesAdapter: AlgorithmItemListAdapter
     private lateinit var algorithmOrderedNamesAdapter: AlgorithmItemListAdapter
@@ -169,6 +172,16 @@ open class ExperimentRecycleFragment : Fragment() {
             receiptDataViewModel.algorithmOrderedPrices.value =
                 createAlgorithmElementsFromUserElements(recycleListUserPrices)
             receiptDataViewModel.product.value = receiptParser.parseToProducts(names, prices)
+
+
+            val productsData =
+                AnalyzedProductsData(
+                    ArrayList(names),
+                    ArrayList(prices),
+                    receiptParser.parseToProducts(names, prices)
+                )
+            imageAnalyzerViewModel.aiAnalyze(productsData, receiptDataViewModel.categoryList.value)
+
             Navigation.findNavController(binding.root).popBackStack()
         }
     }

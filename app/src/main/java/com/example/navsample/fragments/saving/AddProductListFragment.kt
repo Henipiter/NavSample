@@ -207,6 +207,7 @@ class AddProductListFragment : Fragment(), ItemClickListener {
         binding.toolbar.setOnMenuItemClickListener {
             when (it.itemId) {
                 R.id.reorder -> {
+                    imageAnalyzerViewModel.productAnalyzed.value = null
                     reorderTilesWithProducts()
                     true
                 }
