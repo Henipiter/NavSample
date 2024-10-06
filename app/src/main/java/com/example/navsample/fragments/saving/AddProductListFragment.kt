@@ -75,6 +75,10 @@ class AddProductListFragment : Fragment(), ItemClickListener {
             }
         }
 
+        receiptDataViewModel.receipt.observe(viewLifecycleOwner) {
+            binding.receiptValueText.text = receiptDataViewModel.receipt.value?.pln.toString()
+        }
+
         receiptDataViewModel.reorderedProductTiles.observe(viewLifecycleOwner) {
             if (myPref.getBoolean(OPEN_REORDER_FRAGMENT, false) && it == true) {
                 receiptDataViewModel.reorderedProductTiles.value = false
@@ -191,7 +195,6 @@ class AddProductListFragment : Fragment(), ItemClickListener {
             true
         }
         binding.toolbar.title = receiptDataViewModel.store.value?.name
-        binding.receiptValueText.text = receiptDataViewModel.receipt.value?.pln.toString()
         recyclerViewEvent.adapter = productListAdapter
         recyclerViewEvent.layoutManager =
             LinearLayoutManager(requireContext(), LinearLayoutManager.VERTICAL, false)

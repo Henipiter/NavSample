@@ -134,6 +134,13 @@ class AddReceiptFragment : Fragment() {
             }
             pickedStore = it
         }
+        //TODO Reduce duplicated observed (methods above and under)
+        receiptDataViewModel.savedStore.observe(viewLifecycleOwner) {
+            it?.let {
+                setStoreDataToInputs(it)
+            }
+            pickedStore = it
+        }
         receiptDataViewModel.receipt.observe(viewLifecycleOwner) {
             it?.let {
                 setReceiptDataToInputs(it)
