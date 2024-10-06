@@ -138,6 +138,12 @@ class AddStoreFragment : Fragment() {
             chosenCategory = adapter.getItemAtPosition(i) as Category
             binding.storeDefaultCategoryInput.setText(chosenCategory.name)
         }
+
+        binding.storeDefaultCategoryLayout.setStartIconOnClickListener {
+            receiptDataViewModel.category.value = null
+            Navigation.findNavController(it)
+                .navigate(R.id.action_addStoreFragment_to_addCategoryFragment)
+        }
     }
 
 

@@ -89,6 +89,9 @@
             android:name="storeIndex"
             android:defaultValue="-1"
             app:argType="integer" />
+        <action
+            android:id="@+id/action_addStoreFragment_to_addCategoryFragment"
+            app:destination="@id/addCategoryFragment" />
     </fragment>
     <fragment
         android:id="@+id/diagramFragment"
