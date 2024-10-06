@@ -68,6 +68,12 @@ class ReceiptListFragment : Fragment(), ItemClickListener {
             }
         }
 
+
+        binding.newButton.setOnClickListener {
+            val action =
+                ListingFragmentDirections.actionListingFragmentToImageImportFragment()
+            Navigation.findNavController(requireView()).navigate(action)
+        }
         recyclerViewEvent = binding.recyclerViewEventReceipts
         receiptListAdapter = ReceiptListAdapter(
             requireContext(),

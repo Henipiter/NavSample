@@ -121,6 +121,9 @@
         <action
             android:id="@+id/action_listingFragment_to_filterReceiptListFragment"
             app:destination="@id/filterReceiptListFragment" />
+        <action
+            android:id="@+id/action_listingFragment_to_imageImportFragment"
+            app:destination="@id/imageImportFragment" />
     </fragment>
     <fragment
         android:id="@+id/addCategoryFragment"
