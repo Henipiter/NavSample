@@ -1,7 +1,7 @@
 package com.example.navsample.dto.sort
 
 interface ParentSort {
-    val fieldName: String
+    val friendlyNameKey: String
+    val databaseName: String
 
-    fun getByName(fieldName: String): ParentSort
 }

@@ -15,11 +15,11 @@ import com.example.navsample.ItemClickListener
 import com.example.navsample.R
 import com.example.navsample.adapters.RichProductListAdapter
 import com.example.navsample.databinding.FragmentProductListBinding
-import com.example.navsample.dto.sort.Direction
 import com.example.navsample.dto.sort.RichProductSort
 import com.example.navsample.dto.sort.SortProperty
 import com.example.navsample.entities.Product
 import com.example.navsample.fragments.dialogs.DeleteConfirmationDialog
+import com.example.navsample.fragments.dialogs.SortingDialog
 import com.example.navsample.viewmodels.ReceiptDataViewModel
 
 class ProductListFragment : Fragment(), ItemClickListener {
@@ -72,10 +72,12 @@ class ProductListFragment : Fragment(), ItemClickListener {
 
                 R.id.sort -> {
                     //TODO Connect Dialog with DB
-                    val appliedSort = SortProperty(RichProductSort.DATE, Direction.ASCENDING)
-                    receiptDataViewModel.richProductSort.value = appliedSort
-                    receiptDataViewModel.updateSorting(appliedSort)
-                    Toast.makeText(requireContext(), "sort", Toast.LENGTH_SHORT).show()
+                    SortingDialog(RichProductSort.entries.map { it.friendlyNameKey }) { name, dir ->
+                        val appliedSort = SortProperty(RichProductSort::class, name, dir)
+                        receiptDataViewModel.richProductSort.value = appliedSort
+                        receiptDataViewModel.updateSorting(appliedSort)
+                        Toast.makeText(requireContext(), "$appliedSort", Toast.LENGTH_SHORT).show()
+                    }.show(childFragmentManager, "Test")
                     true
                 }
 

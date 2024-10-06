@@ -10,6 +10,7 @@
     <color name="colorOnPrimary">@color/white</color>
     <color name="background_color">@color/mid_grey200</color>
     <color name="sortingCardView">@color/white</color>
+    <color name="popupCardView">@color/background_color</color>
     <color name="background_tile_chosen">@color/orange_200</color>
     <color name="background_tile_default">@color/basic_text_grey</color>
     <color name="background_tile_blocked">@color/mid_grey</color>

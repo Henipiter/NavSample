@@ -46,10 +46,11 @@ class ReceiptDataViewModel : ViewModel() {
         private const val CATEGORY_FIRESTORE_PATH = "categories"
     }
 
-    private val defaultStoreSort = SortProperty(StoreSort.NAME, Direction.ASCENDING)
-    private val defaultRichProductSort = SortProperty(RichProductSort.DATE, Direction.DESCENDING)
+    private val defaultStoreSort = SortProperty<StoreSort>(StoreSort.NAME, Direction.ASCENDING)
+    private val defaultRichProductSort =
+        SortProperty<RichProductSort>(RichProductSort.DATE, Direction.DESCENDING)
     private val defaultReceiptWithStoreSort =
-        SortProperty(ReceiptWithStoreSort.DATE, Direction.DESCENDING)
+        SortProperty<ReceiptWithStoreSort>(ReceiptWithStoreSort.DATE, Direction.DESCENDING)
 
     lateinit var imageUuid: MutableLiveData<String>
 

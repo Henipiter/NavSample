@@ -14,11 +14,11 @@ import com.example.navsample.ItemClickListener
 import com.example.navsample.R
 import com.example.navsample.adapters.ReceiptListAdapter
 import com.example.navsample.databinding.FragmentReceiptListBinding
-import com.example.navsample.dto.sort.Direction
 import com.example.navsample.dto.sort.ReceiptWithStoreSort
 import com.example.navsample.dto.sort.SortProperty
 import com.example.navsample.entities.Receipt
 import com.example.navsample.fragments.dialogs.DeleteConfirmationDialog
+import com.example.navsample.fragments.dialogs.SortingDialog
 import com.example.navsample.viewmodels.ReceiptDataViewModel
 
 class ReceiptListFragment : Fragment(), ItemClickListener {
@@ -55,11 +55,12 @@ class ReceiptListFragment : Fragment(), ItemClickListener {
 
                 R.id.sort -> {
                     //TODO Connect Dialog with DB
-                    val appliedSort = SortProperty(ReceiptWithStoreSort.DATE, Direction.ASCENDING)
-                    receiptDataViewModel.receiptWithStoreSort.value = appliedSort
-                    receiptDataViewModel.updateSorting(appliedSort)
-
-                    Toast.makeText(requireContext(), "sort", Toast.LENGTH_SHORT).show()
+                    SortingDialog(ReceiptWithStoreSort.entries.map { it.friendlyNameKey }) { name, dir ->
+                        val appliedSort = SortProperty(ReceiptWithStoreSort::class, name, dir)
+                        receiptDataViewModel.receiptWithStoreSort.value = appliedSort
+                        receiptDataViewModel.updateSorting(appliedSort)
+                        Toast.makeText(requireContext(), "$appliedSort", Toast.LENGTH_SHORT).show()
+                    }.show(childFragmentManager, "Test")
                     true
                 }
 
