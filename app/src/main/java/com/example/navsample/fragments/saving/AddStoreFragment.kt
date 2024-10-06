@@ -28,6 +28,7 @@ class AddStoreFragment : Fragment() {
 
     private var mode = DataMode.NEW
     private var chosenCategory = Category("", "")
+    private var currentStoreId = -1
 
 
     override fun onCreateView(
@@ -84,7 +85,7 @@ class AddStoreFragment : Fragment() {
             val index =
                 receiptDataViewModel.storeList.value?.map { it.nip }?.indexOf(text.toString()) ?: -1
 
-            if (text.toString() != actualNIP && index >= 0) {
+            if (text.toString() != actualNIP && index >= 0 && currentStoreId >= 0 && currentStoreId != index) {
                 binding.storeNIPLayout.error =
                     "NIP exist in store " + (receiptDataViewModel.storeList.value?.get(index)?.name
                         ?: "")
