@@ -85,7 +85,7 @@ class ReceiptListFragment : Fragment(), ItemClickListener {
         ) { i: Int ->
             receiptDataViewModel.receiptList.value?.get(i)?.let {
                 DeleteConfirmationDialog(
-                    "Are you sure you want to delete the receipt with dependent products??\n\n" +
+                    "$i Are you sure you want to delete the receipt with dependent products??\n\n" +
                             "Store: " + it.name
                             + "\nPLN: " + it.pln
                             + "\nPTU: " + it.ptu
@@ -94,10 +94,13 @@ class ReceiptListFragment : Fragment(), ItemClickListener {
                 ) {
 
                     receiptDataViewModel.deleteReceipt(it.id)
-                    receiptDataViewModel.receiptList.value?.removeAt(i)
                     receiptListAdapter.receiptList =
                         receiptDataViewModel.receiptList.value ?: arrayListOf()
                     receiptListAdapter.notifyItemRemoved(i)
+                    receiptListAdapter.notifyItemRangeChanged(
+                        i, receiptListAdapter.receiptList.size
+                    )
+
 
                 }.show(childFragmentManager, "TAG")
             }

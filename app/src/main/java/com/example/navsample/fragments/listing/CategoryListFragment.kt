@@ -56,9 +56,11 @@ class CategoryListFragment : Fragment(), ItemClickListener {
                     } else {
                         receiptDataViewModel.deleteCategory(it)
                         receiptDataViewModel.categoryList.value?.removeAt(i)
-                        categoryListAdapter.categoryList =
-                            receiptDataViewModel.categoryList.value ?: arrayListOf()
                         categoryListAdapter.notifyItemRemoved(i)
+                        categoryListAdapter.notifyItemRangeChanged(
+                            i, categoryListAdapter.categoryList.size
+                        )
+
                     }
                 }.show(childFragmentManager, "TAG")
             }

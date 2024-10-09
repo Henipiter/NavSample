@@ -103,9 +103,11 @@ class ProductListFragment : Fragment(), ItemClickListener {
                         receiptDataViewModel.deleteProduct(it.id)
                     }
                     receiptDataViewModel.productRichList.value?.removeAt(i)
-                    richProductListAdapter.productList =
-                        receiptDataViewModel.productRichList.value ?: arrayListOf()
-                    richProductListAdapter.notifyDataSetChanged()
+                    richProductListAdapter.notifyItemRemoved(i)
+                    richProductListAdapter.notifyItemRangeChanged(
+                        i, richProductListAdapter.productList.size
+                    )
+
                 }.show(childFragmentManager, "TAG")
             }
         }

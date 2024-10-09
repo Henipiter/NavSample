@@ -75,17 +75,21 @@ class StoreListFragment : Fragment(), ItemClickListener {
         ) { i: Int ->
             receiptDataViewModel.storeList.value?.get(i)?.let {
                 DeleteConfirmationDialog(
-                    "Are you sure you want to delete the store with dependent receipts and" +
+                    "$i Are you sure you want to delete the store with dependent receipts and" +
                             " products??\n\n" + "Name: " + it.name + "\nNIP: " + it.nip
                 ) {
                     receiptDataViewModel.deleteStore(it)
                     receiptDataViewModel.storeList.value?.removeAt(i)
-                    storeListAdapter.storeList =
-                        receiptDataViewModel.storeList.value ?: arrayListOf()
                     storeListAdapter.notifyItemRemoved(i)
+                    storeListAdapter.notifyItemRangeChanged(i, storeListAdapter.storeList.size)
+
                 }.show(childFragmentManager, "TAG")
             }
         }
+        recyclerViewEvent.adapter = storeListAdapter
+        recyclerViewEvent.layoutManager =
+            LinearLayoutManager(requireContext(), LinearLayoutManager.VERTICAL, false)
+
         binding.storeNameInput.doOnTextChanged { text, _, _, _ ->
             receiptDataViewModel.filterStoreList.value?.store = text.toString()
             refreshList()
@@ -102,9 +106,6 @@ class StoreListFragment : Fragment(), ItemClickListener {
             binding.storeNIPInput.setText("")
             receiptDataViewModel.filterStoreList.value?.nip = ""
         }
-        recyclerViewEvent.adapter = storeListAdapter
-        recyclerViewEvent.layoutManager =
-            LinearLayoutManager(requireContext(), LinearLayoutManager.VERTICAL, false)
 
         binding.newButton.setOnClickListener {
             receiptDataViewModel.savedStore.value = null
@@ -115,12 +116,15 @@ class StoreListFragment : Fragment(), ItemClickListener {
     }
 
     override fun onItemClick(index: Int) {
-        val store = receiptDataViewModel.storeList.value!![index]
-        receiptDataViewModel.savedStore.value = store
-        receiptDataViewModel.store.value = store
-        val action =
-            ListingFragmentDirections.actionListingFragmentToAddStoreFragment()
-        Navigation.findNavController(requireView()).navigate(action)
+        receiptDataViewModel.storeList.value?.let { storeList ->
+            val store = storeList[index]
+            receiptDataViewModel.savedStore.value = store
+            receiptDataViewModel.store.value = store
+            val action =
+                ListingFragmentDirections.actionListingFragmentToAddStoreFragment()
+            Navigation.findNavController(requireView()).navigate(action)
+        }
+
 
     }
 
