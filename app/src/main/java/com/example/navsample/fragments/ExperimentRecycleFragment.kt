@@ -13,6 +13,7 @@ import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.navigation.Navigation
+import androidx.navigation.fragment.navArgs
 import com.example.navsample.BuildConfig
 import com.example.navsample.R
 import com.example.navsample.adapters.sorting.AlgorithmItemListAdapter
@@ -45,7 +46,7 @@ open class ExperimentRecycleFragment : Fragment() {
     private val receiptImageViewModel: ReceiptImageViewModel by activityViewModels()
     private val receiptDataViewModel: ReceiptDataViewModel by activityViewModels()
     private val imageAnalyzerViewModel: ImageAnalyzerViewModel by activityViewModels()
-
+    val args: ExperimentRecycleFragmentArgs by navArgs()
     private lateinit var algorithmOrderedPricesAdapter: AlgorithmItemListAdapter
     private lateinit var algorithmOrderedNamesAdapter: AlgorithmItemListAdapter
     private lateinit var userOrderedPricesAdapter: UserItemListAdapter
@@ -165,6 +166,11 @@ open class ExperimentRecycleFragment : Fragment() {
         }
 
         binding.confirmButton.setOnClickListener {
+            if (args.developerMode) {
+                Navigation.findNavController(binding.root).popBackStack()
+                return@setOnClickListener
+            }
+
             val names = elementOperationHelper.userNames.map { it.value }
             val prices = elementOperationHelper.userPrices.map { it.value }
             receiptDataViewModel.algorithmOrderedNames.value =

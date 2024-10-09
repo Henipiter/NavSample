@@ -225,6 +225,7 @@ class AddProductListFragment : Fragment(), ItemClickListener {
                     receiptDataViewModel.insertProducts(
                         receiptDataViewModel.product.value?.toList() ?: listOf()
                     )
+                    imageAnalyzerViewModel.clearData()
                     Navigation.findNavController(binding.root)
                         .popBackStack(R.id.menuFragment, false)
 

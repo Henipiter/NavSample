@@ -15,7 +15,11 @@
             app:destination="@id/imageImportFragment" />
         <action
             android:id="@+id/action_menuFragment_to_experimentRecycleFragment"
-            app:destination="@id/experimentRecycleFragment" />
+            app:destination="@id/experimentRecycleFragment">
+            <argument
+                android:name="developerMode"
+                android:defaultValue="true" />
+        </action>
         <action
             android:id="@+id/action_menuFragment_to_diagramFragment"
             app:destination="@id/diagramFragment" />
@@ -79,7 +83,12 @@
         android:id="@+id/experimentRecycleFragment"
         android:name="com.example.navsample.fragments.ExperimentRecycleFragment"
         android:label="fragment_experiment_recycle"
-        tools:layout="@layout/fragment_experiment_recycle" />
+        tools:layout="@layout/fragment_experiment_recycle">
+        <argument
+            android:name="developerMode"
+            app:argType="boolean"
+            android:defaultValue="false" />
+    </fragment>
     <fragment
         android:id="@+id/addStoreFragment"
         android:name="com.example.navsample.fragments.saving.AddStoreFragment"

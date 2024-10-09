@@ -90,7 +90,7 @@ class ProductListFragment : Fragment(), ItemClickListener {
             receiptDataViewModel.productRichList.value ?: arrayListOf(), this
 
         ) { i ->
-            receiptDataViewModel.product.value?.get(i)?.let {
+            receiptDataViewModel.productRichList.value?.get(i)?.let {
                 DeleteConfirmationDialog(
                     "Are you sure you want to delete the product??\n\nName: " + it.name +
                             "\nPLN: " + it.subtotalPrice
