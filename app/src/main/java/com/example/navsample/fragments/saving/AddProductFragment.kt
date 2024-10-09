@@ -4,7 +4,6 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.ArrayAdapter
 import androidx.core.widget.doOnTextChanged
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
@@ -12,6 +11,7 @@ import androidx.navigation.Navigation
 import androidx.navigation.fragment.navArgs
 import com.example.navsample.R
 import com.example.navsample.adapters.CategoryDropdownAdapter
+import com.example.navsample.adapters.PtuTypeDropdownAdapter
 import com.example.navsample.databinding.FragmentAddProductBinding
 import com.example.navsample.dto.Utils.Companion.doubleToString
 import com.example.navsample.dto.Utils.Companion.quantityToString
@@ -32,7 +32,7 @@ class AddProductFragment : Fragment() {
 
     private val args: AddProductFragmentArgs by navArgs()
 
-    private var ptuTypeList = arrayOf("A", "B", "C", "D", "E", "F", "G")
+    private var ptuTypeList = arrayListOf("A", "B", "C", "D", "E", "F", "G")
 
     private val receiptImageViewModel: ReceiptImageViewModel by activityViewModels()
     private val receiptDataViewModel: ReceiptDataViewModel by activityViewModels()
@@ -62,16 +62,17 @@ class AddProductFragment : Fragment() {
                 binding.receiptImage.visibility = View.GONE
             }
         }
-        receiptDataViewModel.categoryList.observe(viewLifecycleOwner) {
-            it?.let {
+        receiptDataViewModel.categoryList.observe(viewLifecycleOwner) { categoryList ->
+            categoryList?.let {
                 CategoryDropdownAdapter(
-                    requireContext(), R.layout.array_adapter_row, it
+                    requireContext(), R.layout.array_adapter_row, categoryList
                 ).also { adapter ->
                     binding.productCategoryInput.setAdapter(adapter)
+                    binding.productCategoryInput.keyListener = null
                 }
             }
             if (chosenCategory.name == "") {
-                chosenCategory = it[0]
+                chosenCategory = categoryList[0]
             }
         }
         receiptDataViewModel.store.observe(viewLifecycleOwner) { store ->
@@ -228,15 +229,14 @@ class AddProductFragment : Fragment() {
             }
         }
 
-        ArrayAdapter(
-            requireContext(), android.R.layout.simple_list_item_1, ptuTypeList
+        PtuTypeDropdownAdapter(
+            requireContext(), R.layout.array_adapter_row
         ).also { adapter ->
             binding.ptuTypeInput.setAdapter(adapter)
+//            binding.ptuTypeInput.keyListener = null
+
         }
-        binding.ptuTypeInput.keyListener = null;
-        binding.ptuTypeInput.setOnClickListener {
-            binding.ptuTypeInput.showDropDown()
-        }
+
         if (args.productIndex != -1) {
             val productOriginal = receiptDataViewModel.product.value?.get(args.productIndex)
             productId = productOriginal?.id
@@ -274,6 +274,10 @@ class AddProductFragment : Fragment() {
         binding.productCategoryInput.setOnItemClickListener { adapter, _, i, _ ->
             chosenCategory = adapter.getItemAtPosition(i) as Category
             binding.productCategoryInput.setText(chosenCategory.name)
+        }
+        binding.ptuTypeInput.setOnItemClickListener { adapter, _, i, _ ->
+            val x = adapter.getItemAtPosition(i) as String
+            binding.ptuTypeInput.setText(x)
         }
 
         binding.productCategoryLayout.setStartIconOnClickListener {

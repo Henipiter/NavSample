@@ -187,6 +187,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
                         android:inputType="numberDecimal"
+                        android:focusable="false"
                         android:padding="13dp"
                         android:text="A"
                         tools:ignore="LabelFor" />
@@ -263,7 +264,6 @@
                     android:layout_marginHorizontal="32dp"
                     android:layout_marginTop="20dp"
                     android:hint="Category"
-                    app:helperTextEnabled="true"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toBottomOf="@+id/product_discount_layout"
@@ -273,7 +273,8 @@
                         android:id="@+id/product_category_input"
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
-                        android:inputType="textCapCharacters"
+                        android:inputType="textNoSuggestions"
+                        android:padding="13dp"
                         tools:ignore="LabelFor" />
                 </com.google.android.material.textfield.TextInputLayout>
 
