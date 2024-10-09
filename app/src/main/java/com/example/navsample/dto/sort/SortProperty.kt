@@ -20,14 +20,21 @@ data class SortProperty<Sort : ParentSort>(
     companion object {
         private fun <Sort : ParentSort> a(className: KClass<Sort>, name: String): ParentSort {
 
-            if (className == StoreSort::class) {
-                return getByName(StoreSort.entries.toTypedArray(), name)
-            } else if (className == ReceiptWithStoreSort::class) {
-                return getByName(ReceiptWithStoreSort.entries.toTypedArray(), name)
-            } else if (className == RichProductSort::class) {
-                return getByName(RichProductSort.entries.toTypedArray(), name)
+            return when (className) {
+                StoreSort::class -> {
+                    getByName(StoreSort.entries.toTypedArray(), name)
+                }
+
+                ReceiptWithStoreSort::class -> {
+                    getByName(ReceiptWithStoreSort.entries.toTypedArray(), name)
+                }
+
+                RichProductSort::class -> {
+                    getByName(RichProductSort.entries.toTypedArray(), name)
+                }
+
+                else -> throw Exception("CAN'T FIND CLASS")
             }
-            throw Exception("CAN'T FIND CLASS")
         }
 
         private fun <Sort : ParentSort> getByName(entries: Array<Sort>, fieldName: String): Sort {

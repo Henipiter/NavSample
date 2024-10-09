@@ -51,8 +51,12 @@ class StoreListFragment : Fragment(), ItemClickListener {
             when (it.itemId) {
                 R.id.sort -> {
                     //TODO Connect Dialog with DB
+                    val selected = receiptDataViewModel.storeSort.value
+                        ?: receiptDataViewModel.defaultStoreSort
 
-                    SortingDialog(StoreSort.entries.map { it.friendlyNameKey }) { name, dir ->
+                    SortingDialog(
+                        selected,
+                        StoreSort.entries.map { it.friendlyNameKey }) { name, dir ->
                         val appliedSort = SortProperty(StoreSort::class, name, dir)
                         receiptDataViewModel.storeSort.value = appliedSort
                         receiptDataViewModel.updateSorting(appliedSort)

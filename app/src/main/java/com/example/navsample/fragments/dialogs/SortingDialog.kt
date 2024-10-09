@@ -9,9 +9,12 @@ import android.widget.Toast
 import androidx.fragment.app.DialogFragment
 import com.example.navsample.databinding.DialogSortingBinding
 import com.example.navsample.dto.sort.Direction
+import com.example.navsample.dto.sort.ParentSort
+import com.example.navsample.dto.sort.SortProperty
 
 
-class SortingDialog(
+class SortingDialog<Sort : ParentSort>(
+    private var selected: SortProperty<Sort>,
     private var options: List<String>,
     private var onFinish: (String, Direction) -> Unit
 ) : DialogFragment() {
@@ -30,8 +33,15 @@ class SortingDialog(
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        collectRadioButtons()
 
+
+        collectRadioButtons()
+        if ("asc" == selected.direction.value) {
+            binding.ascendingButton.isChecked = true
+        } else {
+            binding.descendingButton.isChecked = true
+        }
+        propertyButtonList[getIndexOfName()].isChecked = true
 
         for (index in 0..propertyButtonList.lastIndex) {
             if (index < options.size) {
@@ -51,6 +61,15 @@ class SortingDialog(
             dismiss()
         }
 
+    }
+
+    private fun getIndexOfName(): Int {
+        for (index in 0..options.lastIndex) {
+            if (options[index] == selected.sort.friendlyNameKey) {
+                return index
+            }
+        }
+        return 0
     }
 
     private fun getIndexOfChosenProperty(): Int {
