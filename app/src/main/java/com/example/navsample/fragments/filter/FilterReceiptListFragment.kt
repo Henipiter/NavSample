@@ -1,6 +1,5 @@
 package com.example.navsample.fragments.filter
 
-import android.R
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -11,6 +10,7 @@ import androidx.core.widget.doOnTextChanged
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.navigation.Navigation
+import com.example.navsample.R
 import com.example.navsample.databinding.FragmentFilterReceiptListBinding
 import com.example.navsample.dto.filter.FilterReceiptList
 import com.example.navsample.viewmodels.ReceiptDataViewModel
@@ -18,6 +18,7 @@ import com.google.android.material.datepicker.MaterialDatePicker
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Locale
+import java.util.TimeZone
 
 class FilterReceiptListFragment : Fragment() {
     private var _binding: FragmentFilterReceiptListBinding? = null
@@ -37,12 +38,13 @@ class FilterReceiptListFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        binding.toolbar.inflateMenu(com.example.navsample.R.menu.top_menu_filter)
-        binding.toolbar.setNavigationIcon(com.example.navsample.R.drawable.back)
+        binding.toolbar.inflateMenu(R.menu.top_menu_filter)
+        binding.toolbar.setNavigationIcon(R.drawable.back)
         binding.toolbar.title = "Filter"
 
         initObserver()
         putFilterDefinitionIntoInputs()
+        setUpCalendars()
 
         binding.dateBetweenLayout.setEndIconOnClickListener {
             showDatePicker()
@@ -71,14 +73,14 @@ class FilterReceiptListFragment : Fragment() {
         }
         binding.toolbar.setOnMenuItemClickListener {
             when (it.itemId) {
-                com.example.navsample.R.id.clear_filter -> {
+                R.id.clear_filter -> {
                     binding.dateBetweenInput.setText("")
                     binding.storeInput.setText("")
                     receiptDataViewModel.filterReceiptList.value = FilterReceiptList()
                     true
                 }
 
-                com.example.navsample.R.id.confirm -> {
+                R.id.confirm -> {
                     receiptDataViewModel.filterReceiptList.value = filterReceiptList
                     Navigation.findNavController(requireView()).popBackStack()
                 }
@@ -89,6 +91,8 @@ class FilterReceiptListFragment : Fragment() {
     }
 
     private fun showDatePicker() {
+
+
         val dateRangePicker =
             MaterialDatePicker.Builder.dateRangePicker()
                 .setTitleText("Select dates")
@@ -119,7 +123,9 @@ class FilterReceiptListFragment : Fragment() {
     }
 
     private fun getDateFormat(): SimpleDateFormat {
-        return SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
+        val sdf = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
+        sdf.timeZone = TimeZone.getTimeZone("UTC");
+        return sdf
     }
 
     private fun initObserver() {
@@ -127,7 +133,7 @@ class FilterReceiptListFragment : Fragment() {
             it?.let {
                 ArrayAdapter(
                     requireContext(),
-                    R.layout.simple_list_item_1,
+                    android.R.layout.simple_list_item_1,
                     it.map { it2 -> it2.name }
                 ).also { adapter ->
                     binding.storeInput.setAdapter(adapter)
@@ -138,7 +144,25 @@ class FilterReceiptListFragment : Fragment() {
             it?.let {
                 filterReceiptList = it
                 putFilterDefinitionIntoInputs()
+                setUpCalendars()
+
             }
+        }
+    }
+
+    private fun setUpCalendars() {
+        try {
+            getDateFormat().parse(filterReceiptList.dateFrom)?.let { date ->
+                calendarDateFrom.time = date
+            }
+        } catch (_: Exception) {
+        }
+
+        try {
+            getDateFormat().parse(filterReceiptList.dateTo)?.let { date ->
+                calendarDateTo.time = date
+            }
+        } catch (_: Exception) {
         }
     }
 }
