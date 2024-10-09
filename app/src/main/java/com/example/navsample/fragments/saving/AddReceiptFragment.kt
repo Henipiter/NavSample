@@ -5,7 +5,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
-import androidx.core.widget.doOnTextChanged
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.navigation.Navigation
@@ -77,7 +76,6 @@ class AddReceiptFragment : Fragment() {
             }
         }
         defineClickListeners()
-
     }
 
     private fun setStoreDataToInputs(store: Store) {
@@ -108,8 +106,7 @@ class AddReceiptFragment : Fragment() {
                 ).also { adapter ->
                     binding.storeNameInput.setAdapter(adapter)
                 }
-            }
-            if (storeList != null) {
+
                 receiptDataViewModel.store.value?.let {
                     binding.storeNIPInput.setText(it.nip)
                     binding.storeNameInput.setText(it.name)
@@ -245,16 +242,6 @@ class AddReceiptFragment : Fragment() {
 
 
     private fun defineClickListeners() {
-
-        binding.storeNameInput.doOnTextChanged { actual, _, _, _ ->
-            val storeLists = receiptDataViewModel.storeList.value?.map { it.name }
-            if (storeLists?.contains(actual.toString()) == false) {
-                binding.storeNameLayout.helperText = "New store will be added"
-            } else {
-                binding.storeNameLayout.helperText = null
-
-            }
-        }
         binding.storeNIPLayout.setEndIconOnClickListener {
             receiptDataViewModel.savedStore.value = null
             Navigation.findNavController(it)

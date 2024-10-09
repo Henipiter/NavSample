@@ -75,9 +75,12 @@ class AddProductFragment : Fragment() {
             }
         }
         receiptDataViewModel.store.observe(viewLifecycleOwner) { store ->
+            store?.let {
+                binding.toolbar.title = it.name
+            }
             if (chosenCategory.name == "") {
                 chosenCategory = try {
-                    receiptDataViewModel.categoryList.value?.first { it.id == store.defaultCategoryId }
+                    receiptDataViewModel.categoryList.value?.first { it.id == store?.defaultCategoryId }
                         ?: Category("", "")
                 } catch (e: Exception) {
                     Category("", "")
@@ -230,7 +233,10 @@ class AddProductFragment : Fragment() {
         ).also { adapter ->
             binding.ptuTypeInput.setAdapter(adapter)
         }
-
+        binding.ptuTypeInput.keyListener = null;
+        binding.ptuTypeInput.setOnClickListener {
+            binding.ptuTypeInput.showDropDown()
+        }
         if (args.productIndex != -1) {
             val productOriginal = receiptDataViewModel.product.value?.get(args.productIndex)
             productId = productOriginal?.id

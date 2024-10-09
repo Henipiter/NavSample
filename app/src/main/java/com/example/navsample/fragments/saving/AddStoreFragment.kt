@@ -108,8 +108,13 @@ class AddStoreFragment : Fragment() {
                 }
 
                 R.id.confirm -> {
+                    if (binding.storeNIPInput.text.toString() == "") {
+                        Toast.makeText(requireContext(), "NIP cannot be empty", Toast.LENGTH_SHORT)
+                            .show()
+                        return@setOnMenuItemClickListener false
+                    }
                     if (binding.storeNIPLayout.error != null) {
-                        Toast.makeText(requireContext(), "Change NIP!", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(requireContext(), "Incorrect nip", Toast.LENGTH_SHORT).show()
                     }
                     saveChangesToDatabase()
                     changeViewToDisplayMode()
