@@ -16,9 +16,9 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_rowWeight="1"
-            app:cardCornerRadius="8dp"
             android:layout_columnWeight="12"
             android:layout_margin="4dp"
+            app:cardCornerRadius="8dp"
             app:layout_constraintBottom_toBottomOf="@id/text_layout"
             app:layout_constraintEnd_toStartOf="@id/text_layout"
             app:layout_constraintTop_toTopOf="@id/text_layout">
@@ -53,6 +53,7 @@
             android:layout_rowWeight="1"
             android:layout_columnWeight="12"
             android:layout_margin="4dp"
+            app:cardCornerRadius="8dp"
             app:layout_constraintBottom_toBottomOf="@id/text_layout"
             app:layout_constraintStart_toEndOf="@id/text_layout"
             app:layout_constraintTop_toTopOf="@id/text_layout">
@@ -87,19 +88,23 @@
             android:layout_height="wrap_content"
             android:layout_marginHorizontal="64dp"
             android:layout_marginTop="20dp"
-            android:hint="Text"
+            android:hint="Text "
             app:endIconMode="clear_text"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:startIconDrawable="@drawable/renew">
+            app:layout_constraintTop_toTopOf="parent">
 
-            <AutoCompleteTextView
+            <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/text_input"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:inputType="textNoSuggestions"
+                android:layout_height="wrap_content"
+                android:gravity="top|start"
+                android:inputType="textMultiLine"
+                android:maxLines="5"
+                android:minLines="1"
+                android:overScrollMode="always"
                 android:padding="13dp"
+                android:scrollbars="vertical"
                 tools:ignore="LabelFor" />
         </com.google.android.material.textfield.TextInputLayout>
 

@@ -1,5 +1,7 @@
 package com.example.navsample.fragments.dialogs
 
+import android.content.res.Resources
+import android.graphics.Rect
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -41,6 +43,7 @@ class EditTextDialog(
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        setWidthPercent(95)
         super.onViewCreated(view, savedInstanceState)
         if (!showSideButtons) {
             binding.addRowAtBottomButton.visibility = View.GONE
@@ -61,15 +64,19 @@ class EditTextDialog(
         }
         binding.textInput.setText(text)
 
-        binding.textLayout.setStartIconOnClickListener {
-            binding.textInput.setText(text)
-
-        }
         binding.confirmButton.setOnClickListener {
             returnChange.invoke(binding.textInput.text.toString())
             dismiss()
         }
         binding.cancelButton.setOnClickListener { dismiss() }
 
+    }
+
+    fun DialogFragment.setWidthPercent(percentage: Int) {
+        val percent = percentage.toFloat() / 100
+        val dm = Resources.getSystem().displayMetrics
+        val rect = dm.run { Rect(0, 0, widthPixels, heightPixels) }
+        val percentWidth = rect.width() * percent
+        dialog?.window?.setLayout(percentWidth.toInt(), ViewGroup.LayoutParams.WRAP_CONTENT)
     }
 }
