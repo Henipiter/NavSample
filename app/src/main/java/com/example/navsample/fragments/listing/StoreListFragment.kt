@@ -79,9 +79,13 @@ class StoreListFragment : Fragment(), ItemClickListener {
                             " products??\n\n" + "Name: " + it.name + "\nNIP: " + it.nip
                 ) {
                     receiptDataViewModel.deleteStore(it)
-                    receiptDataViewModel.storeList.value?.removeAt(i)
-                    storeListAdapter.notifyItemRemoved(i)
-                    storeListAdapter.notifyItemRangeChanged(i, storeListAdapter.storeList.size)
+                    receiptDataViewModel.storeList.value?.let { storeList ->
+                        storeList.removeAt(i)
+                        storeListAdapter.storeList = storeList
+                        storeListAdapter.notifyItemRemoved(i)
+                        storeListAdapter.notifyItemRangeChanged(i, storeListAdapter.storeList.size)
+
+                    }
 
                 }.show(childFragmentManager, "TAG")
             }

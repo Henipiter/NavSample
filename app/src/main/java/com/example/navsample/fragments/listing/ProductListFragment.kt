@@ -96,17 +96,20 @@ class ProductListFragment : Fragment(), ItemClickListener {
         ) { i ->
             receiptDataViewModel.productRichList.value?.get(i)?.let {
                 DeleteConfirmationDialog(
-                    "Are you sure you want to delete the product??\n\nName: " + it.name +
+                    "$i Are you sure you want to delete the product??\n\nName: " + it.name +
                             "\nPLN: " + it.subtotalPrice
                 ) {
                     if (it.id >= 0) {
                         receiptDataViewModel.deleteProduct(it.id)
                     }
-                    receiptDataViewModel.productRichList.value?.removeAt(i)
-                    richProductListAdapter.notifyItemRemoved(i)
-                    richProductListAdapter.notifyItemRangeChanged(
-                        i, richProductListAdapter.productList.size
-                    )
+                    receiptDataViewModel.productRichList.value?.let { productRichList ->
+                        productRichList.removeAt(i)
+                        richProductListAdapter.productList = productRichList
+                        richProductListAdapter.notifyItemRemoved(i)
+                        richProductListAdapter.notifyItemRangeChanged(
+                            i, richProductListAdapter.productList.size
+                        )
+                    }
 
                 }.show(childFragmentManager, "TAG")
             }

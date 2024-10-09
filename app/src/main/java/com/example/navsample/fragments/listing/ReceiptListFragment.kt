@@ -94,12 +94,14 @@ class ReceiptListFragment : Fragment(), ItemClickListener {
                 ) {
 
                     receiptDataViewModel.deleteReceipt(it.id)
-                    receiptListAdapter.receiptList =
-                        receiptDataViewModel.receiptList.value ?: arrayListOf()
-                    receiptListAdapter.notifyItemRemoved(i)
-                    receiptListAdapter.notifyItemRangeChanged(
-                        i, receiptListAdapter.receiptList.size
-                    )
+                    receiptDataViewModel.receiptList.value?.let { receiptList ->
+                        receiptList.removeAt(i)
+                        receiptListAdapter.receiptList = receiptList
+                        receiptListAdapter.notifyItemRemoved(i)
+                        receiptListAdapter.notifyItemRangeChanged(
+                            i, receiptListAdapter.receiptList.size
+                        )
+                    }
 
 
                 }.show(childFragmentManager, "TAG")

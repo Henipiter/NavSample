@@ -45,7 +45,7 @@ class CategoryListFragment : Fragment(), ItemClickListener {
             requireContext(), receiptDataViewModel.categoryList.value ?: arrayListOf(), this
         ) { i ->
             receiptDataViewModel.categoryList.value?.get(i)?.let {
-                DeleteConfirmationDialog("Are you sure you want to delete the category products??\n\nName: " + it.name) {
+                DeleteConfirmationDialog("$i Are you sure you want to delete the category products??\n\nName: " + it.name) {
                     if (receiptDataViewModel.productRichList.value?.none { product -> product.categoryId == it.id } != true) {
                         Toast.makeText(
                             requireContext(),
@@ -55,11 +55,14 @@ class CategoryListFragment : Fragment(), ItemClickListener {
 
                     } else {
                         receiptDataViewModel.deleteCategory(it)
-                        receiptDataViewModel.categoryList.value?.removeAt(i)
-                        categoryListAdapter.notifyItemRemoved(i)
-                        categoryListAdapter.notifyItemRangeChanged(
-                            i, categoryListAdapter.categoryList.size
-                        )
+                        receiptDataViewModel.categoryList.value?.let { categoryList ->
+                            categoryList.removeAt(i)
+                            categoryListAdapter.categoryList = categoryList
+                            categoryListAdapter.notifyItemRemoved(i)
+                            categoryListAdapter.notifyItemRangeChanged(
+                                i, categoryListAdapter.categoryList.size
+                            )
+                        }
 
                     }
                 }.show(childFragmentManager, "TAG")
