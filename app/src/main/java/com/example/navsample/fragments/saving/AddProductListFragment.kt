@@ -25,6 +25,7 @@ import com.example.navsample.ItemClickListener
 import com.example.navsample.R
 import com.example.navsample.adapters.ProductListAdapter
 import com.example.navsample.databinding.FragmentAddProductListBinding
+import com.example.navsample.dto.Utils.Companion.roundDouble
 import com.example.navsample.dto.sorting.AlgorithmItemAdapterArgument
 import com.example.navsample.exception.NoReceiptIdException
 import com.example.navsample.exception.NoStoreIdException
@@ -136,7 +137,7 @@ class AddProductListFragment : Fragment(), ItemClickListener {
         productListAdapter.productList.forEach {
             sum += it.finalPrice
         }
-        sum = "%.2f".format(sum).toDouble()
+        sum = roundDouble(sum)
         binding.cartValueText.text = sum.toString()
 
         val final = receiptDataViewModel.receipt.value?.pln

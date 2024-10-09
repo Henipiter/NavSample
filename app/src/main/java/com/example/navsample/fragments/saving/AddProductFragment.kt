@@ -13,6 +13,9 @@ import androidx.navigation.fragment.navArgs
 import com.example.navsample.R
 import com.example.navsample.adapters.CategoryDropdownAdapter
 import com.example.navsample.databinding.FragmentAddProductBinding
+import com.example.navsample.dto.Utils.Companion.doubleToString
+import com.example.navsample.dto.Utils.Companion.quantityToString
+import com.example.navsample.dto.Utils.Companion.roundDouble
 import com.example.navsample.entities.Category
 import com.example.navsample.entities.Product
 import com.example.navsample.exception.NoCategoryIdException
@@ -89,12 +92,8 @@ class AddProductFragment : Fragment() {
 
     }
 
-    private fun roundDouble(double: Double): Double {
-        return "%.2f".format(double).toDouble()
-    }
-
-    private fun getSuggestionMessage(double: Double): String {
-        return "${SUGGESTION_PREFIX}${double}"
+    private fun getSuggestionMessage(value: String): String {
+        return "${SUGGESTION_PREFIX}${value}"
     }
 
     private fun validateFinalPrice() {
@@ -106,23 +105,23 @@ class AddProductFragment : Fragment() {
             return
         }
         if (checks == 2) {
-            if ("%.2f".format(subtotalPrice!! - discountPrice!!).toDouble() == finalPrice!!) {
+            if (roundDouble(subtotalPrice!! - discountPrice!!) == finalPrice!!) {
                 binding.productDiscountHelperText.text = ""
                 binding.productFinalPriceHelperText.text = ""
             } else {
                 binding.productDiscountHelperText.text =
-                    getSuggestionMessage(roundDouble(subtotalPrice - finalPrice))
+                    getSuggestionMessage(doubleToString(subtotalPrice - finalPrice))
                 binding.productFinalPriceHelperText.text =
-                    getSuggestionMessage(roundDouble(subtotalPrice - discountPrice))
+                    getSuggestionMessage(doubleToString(subtotalPrice - discountPrice))
             }
         } else if (checks == 1) {
             if (discountPrice == null) {
                 binding.productDiscountHelperText.text =
-                    getSuggestionMessage(roundDouble(subtotalPrice!! - finalPrice!!))
+                    getSuggestionMessage(doubleToString(subtotalPrice!! - finalPrice!!))
             }
             if (finalPrice == null) {
                 binding.productFinalPriceHelperText.text =
-                    getSuggestionMessage(roundDouble(subtotalPrice!! - discountPrice!!))
+                    getSuggestionMessage(doubleToString(subtotalPrice!! - discountPrice!!))
             }
         } else {
             binding.productDiscountHelperText.text = ""
@@ -137,30 +136,31 @@ class AddProductFragment : Fragment() {
 
         val checks = arrayOf(subtotalPrice, unitPrice, quantity).count { it != null }
         if (checks == 3) {
-            if ("%.2f".format(unitPrice!! * quantity!!).toDouble() == subtotalPrice) {
+            if (roundDouble(unitPrice!! * quantity!!) == subtotalPrice) {
                 binding.productSubtotalPriceHelperText.text = ""
                 binding.productUnitPriceHelperText.text = ""
                 binding.productQuantityHelperText.text = ""
             } else {
                 binding.productSubtotalPriceHelperText.text =
-                    getSuggestionMessage(roundDouble(unitPrice * quantity))
+                    getSuggestionMessage(doubleToString(unitPrice * quantity))
                 binding.productUnitPriceHelperText.text =
-                    getSuggestionMessage(roundDouble(subtotalPrice!! / quantity))
+                    getSuggestionMessage(doubleToString(subtotalPrice!! / quantity))
                 binding.productQuantityHelperText.text =
-                    getSuggestionMessage(roundDouble(subtotalPrice / unitPrice))
+                    getSuggestionMessage(quantityToString(subtotalPrice / unitPrice))
             }
         } else if (checks == 2) {
             if (subtotalPrice == null) {
                 binding.productSubtotalPriceHelperText.text =
-                    getSuggestionMessage(roundDouble(unitPrice!! * quantity!!))
+                    getSuggestionMessage(doubleToString(unitPrice!! * quantity!!))
             }
+
             if (unitPrice == null) {
                 binding.productUnitPriceHelperText.text =
-                    getSuggestionMessage(roundDouble(subtotalPrice!! / quantity!!))
+                    getSuggestionMessage(doubleToString(subtotalPrice!! / quantity!!))
             }
             if (quantity == null) {
                 binding.productQuantityHelperText.text =
-                    getSuggestionMessage(roundDouble(subtotalPrice!! / unitPrice!!))
+                    getSuggestionMessage(quantityToString(subtotalPrice!! / unitPrice!!))
             }
         } else {
             binding.productSubtotalPriceHelperText.text = ""
@@ -245,11 +245,11 @@ class AddProductFragment : Fragment() {
                 }
 
                 binding.productNameInput.setText(product.name)
-                binding.productUnitPriceInput.setText(product.unitPrice.toString())
-                binding.productQuantityInput.setText(product.quantity.toString())
-                binding.productSubtotalPriceInput.setText(product.subtotalPrice.toString())
-                binding.productDiscountInput.setText(product.discount.toString())
-                binding.productFinalPriceInput.setText(product.finalPrice.toString())
+                binding.productUnitPriceInput.setText(doubleToString(product.unitPrice))
+                binding.productQuantityInput.setText(quantityToString(product.quantity))
+                binding.productSubtotalPriceInput.setText(doubleToString(product.subtotalPrice))
+                binding.productDiscountInput.setText(doubleToString(product.discount))
+                binding.productFinalPriceInput.setText(doubleToString(product.finalPrice))
                 binding.ptuTypeInput.setText(product.ptuType)
                 binding.productCategoryInput.setText(chosenCategory.name)
                 binding.productOriginalInput.setText(product.raw)

@@ -99,8 +99,8 @@ class ProductListFragment : Fragment(), ItemClickListener {
                     "Are you sure you want to delete the product??\n\nName: " + it.name +
                             "\nPLN: " + it.subtotalPrice
                 ) {
-                    if (it.id != null && it.id!! >= 0) {
-                        receiptDataViewModel.deleteProduct(it.id!!)
+                    if (it.id >= 0) {
+                        receiptDataViewModel.deleteProduct(it.id)
                     }
                     receiptDataViewModel.productRichList.value?.removeAt(i)
                     richProductListAdapter.productList =

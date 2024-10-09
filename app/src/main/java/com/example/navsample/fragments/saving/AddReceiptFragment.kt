@@ -13,6 +13,7 @@ import com.example.navsample.R
 import com.example.navsample.adapters.StoreDropdownAdapter
 import com.example.navsample.databinding.FragmentAddReceiptBinding
 import com.example.navsample.dto.DataMode
+import com.example.navsample.dto.Utils.Companion.doubleToString
 import com.example.navsample.entities.Receipt
 import com.example.navsample.entities.Store
 import com.example.navsample.exception.NoStoreIdException
@@ -85,8 +86,8 @@ class AddReceiptFragment : Fragment() {
     }
 
     private fun setReceiptDataToInputs(receipt: Receipt) {
-        binding.receiptPTUInput.setText(receipt.ptu.toString())
-        binding.receiptPLNInput.setText(receipt.pln.toString())
+        binding.receiptPTUInput.setText(doubleToString(receipt.ptu))
+        binding.receiptPLNInput.setText(doubleToString(receipt.pln))
         binding.receiptDateInput.setText(receipt.date)
         binding.receiptTimeInput.setText(receipt.time)
     }
@@ -291,8 +292,8 @@ class AddReceiptFragment : Fragment() {
             if (mode == DataMode.EDIT) {
                 changeViewToDisplayMode()
                 binding.storeNIPInput.setText(receiptDataViewModel.store.value?.nip)
-                binding.receiptPTUInput.setText(receiptDataViewModel.receipt.value?.ptu.toString())
-                binding.receiptPLNInput.setText(receiptDataViewModel.receipt.value?.pln.toString())
+                binding.receiptPTUInput.setText(doubleToString(receiptDataViewModel.receipt.value?.ptu))
+                binding.receiptPLNInput.setText(doubleToString(receiptDataViewModel.receipt.value?.pln))
                 binding.receiptDateInput.setText(receiptDataViewModel.receipt.value?.date)
                 binding.receiptTimeInput.setText(receiptDataViewModel.receipt.value?.time)
             } else {

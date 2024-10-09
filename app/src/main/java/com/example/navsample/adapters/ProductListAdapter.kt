@@ -8,6 +8,9 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.example.navsample.ItemClickListener
 import com.example.navsample.databinding.ProductDtoRowBinding
+import com.example.navsample.dto.Utils.Companion.doubleToString
+import com.example.navsample.dto.Utils.Companion.quantityToString
+import com.example.navsample.dto.Utils.Companion.roundDouble
 import com.example.navsample.entities.Category
 import com.example.navsample.entities.Product
 
@@ -39,15 +42,15 @@ class ProductListAdapter(
         if (roundDouble(productList[position].discount) != 0.0) {
             holder.binding.discountPrice.visibility = View.VISIBLE
             holder.binding.minusSign.visibility = View.VISIBLE
-            holder.binding.discountPrice.text = productList[position].discount.toString()
+            holder.binding.discountPrice.text = doubleToString(productList[position].discount)
         } else {
             holder.binding.discountPrice.visibility = View.GONE
             holder.binding.minusSign.visibility = View.GONE
         }
         holder.binding.ptuType.text = productList[position].ptuType
-        holder.binding.quantity.text = productList[position].quantity.toString()
+        holder.binding.quantity.text = quantityToString(productList[position].quantity)
         holder.binding.unitPrice.text = doubleToString(productList[position].unitPrice)
-        holder.binding.finalPrice.text = productList[position].finalPrice.toString()
+        holder.binding.finalPrice.text = doubleToString(productList[position].finalPrice)
         holder.binding.categoryName.text = category.name
         holder.binding.categoryColor.setBackgroundColor(Color.parseColor(category.color))
         holder.binding.productName.text = trimDescription(productList[position].name)
@@ -63,19 +66,6 @@ class ProductListAdapter(
         ) {
             holder.binding.finalPrice.setTextColor(Color.RED)
         }
-    }
-
-    fun doubleToString(value: Double): String {
-        return if (value % 1.0 == 0.0) {
-            value.toLong()
-                .toString() // Dla liczb całkowitych konwertujemy do Long i zwracamy bez części dziesiętnej
-        } else {
-            value.toString() // Dla liczb niecałkowitych zwracamy normalnie jako String
-        }
-    }
-
-    private fun roundDouble(double: Double): Double {
-        return "%.2f".format(double).toDouble()
     }
 
     private fun trimDescription(description: String): String {

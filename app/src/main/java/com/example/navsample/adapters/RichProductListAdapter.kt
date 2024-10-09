@@ -9,8 +9,10 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.navsample.ItemClickListener
 import com.example.navsample.R
 import com.example.navsample.databinding.ProductRowBinding
+import com.example.navsample.dto.Utils.Companion.doubleToString
+import com.example.navsample.dto.Utils.Companion.quantityToString
+import com.example.navsample.dto.Utils.Companion.roundDouble
 import com.example.navsample.entities.relations.ProductRichData
-import kotlin.math.roundToInt
 
 
 class RichProductListAdapter(
@@ -36,11 +38,11 @@ class RichProductListAdapter(
         holder.binding.categoryName.text = productList[position].categoryName
         holder.binding.categoryColor.setBackgroundColor(Color.parseColor(productList[position].categoryColor))
         holder.binding.ptuType.text = productList[position].ptuType
-        holder.binding.quantity.text = productList[position].quantity.toString()
-        holder.binding.unitPrice.text = productList[position].unitPrice.toString()
-        holder.binding.subtotalPrice.text = productList[position].subtotalPrice.toString()
-        holder.binding.discountPrice.text = productList[position].discount.toString()
-        holder.binding.finalPrice.text = productList[position].finalPrice.toString()
+        holder.binding.quantity.text = quantityToString(productList[position].quantity)
+        holder.binding.unitPrice.text = doubleToString(productList[position].unitPrice)
+        holder.binding.subtotalPrice.text = doubleToString(productList[position].subtotalPrice)
+        holder.binding.discountPrice.text = doubleToString(productList[position].discount)
+        holder.binding.finalPrice.text = doubleToString(productList[position].finalPrice)
         holder.binding.productName.text = trimDescription(productList[position].name)
         setCollapseOrExpand(holder, position)
         holder.binding.mainLayout.setOnClickListener {
@@ -85,7 +87,9 @@ class RichProductListAdapter(
         val discount = trim(productList[position].discount.toString()).toDoubleOrNull()
         val finalPrice = trim(productList[position].finalPrice.toString()).toDoubleOrNull()
 
-        if (doubleQuantity == null || unitPrice == null || subtotalPrice == null || (doubleQuantity * unitPrice * 100.0).roundToInt() / 100.0 != subtotalPrice) {
+        if (doubleQuantity == null || unitPrice == null || subtotalPrice == null
+            || roundDouble(doubleQuantity * unitPrice) != subtotalPrice
+        ) {
             holder.binding.subtotalPrice.setTextColor(Color.RED)
         } else {
             holder.binding.subtotalPrice.setTextColor(
@@ -96,7 +100,9 @@ class RichProductListAdapter(
             )
         }
 
-        if (subtotalPrice == null || discount == null || finalPrice == null || subtotalPrice - discount != finalPrice) {
+        if (subtotalPrice == null || discount == null || finalPrice == null
+            || roundDouble(subtotalPrice - discount) != finalPrice
+        ) {
             holder.binding.finalPrice.setTextColor(Color.RED)
         } else {
             holder.binding.finalPrice.setTextColor(
