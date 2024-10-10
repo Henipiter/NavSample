@@ -15,13 +15,16 @@ class Utils {
         }
 
         fun doubleToString(double: Double?): String {
-            if (double == null) {
-                doubleToString(0.0)
+            if (double == null || double.isNaN() || double.isInfinite()) {
+                return doubleToString(1.0)
             }
             return "%.2f".format(double)
         }
 
         fun quantityToString(double: Double): String {
+            if (double.isNaN() || double.isInfinite()) {
+                return doubleToString(1.0)
+            }
             return if (double % 1.0 == 0.0) {
                 "%.0f".format(double)
             } else {

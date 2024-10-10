@@ -113,6 +113,16 @@ class AddStoreFragment : Fragment() {
                             .show()
                         return@setOnMenuItemClickListener false
                     }
+                    if (chosenCategory.id == null || chosenCategory.id == -1) {
+                        Toast.makeText(
+                            requireContext(),
+                            "Category cannot be empty",
+                            Toast.LENGTH_SHORT
+                        )
+                            .show()
+                        return@setOnMenuItemClickListener false
+
+                    }
                     if (binding.storeNIPLayout.error != null) {
                         Toast.makeText(requireContext(), "Incorrect nip", Toast.LENGTH_SHORT).show()
                     }
@@ -146,7 +156,7 @@ class AddStoreFragment : Fragment() {
         }
 
         binding.storeDefaultCategoryLayout.setStartIconOnClickListener {
-            receiptDataViewModel.category.value = null
+            receiptDataViewModel.savedCategory.value = null
             Navigation.findNavController(it)
                 .navigate(R.id.action_addStoreFragment_to_addCategoryFragment)
         }
@@ -221,9 +231,6 @@ class AddStoreFragment : Fragment() {
                 ).also { adapter ->
                     binding.storeDefaultCategoryInput.setAdapter(adapter)
                 }
-            }
-            if (chosenCategory.name == "") {
-                chosenCategory = it[0]
             }
         }
     }

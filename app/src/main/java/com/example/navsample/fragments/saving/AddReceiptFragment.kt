@@ -5,6 +5,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import androidx.core.widget.doOnTextChanged
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.navigation.Navigation
@@ -193,18 +194,53 @@ class AddReceiptFragment : Fragment() {
         binding.toolbar.menu.findItem(R.id.add_new).isVisible = false
     }
 
+    private fun validateObligatoryFields(): Boolean {
+        var succeedValidation = true
+        if (binding.receiptPLNInput.text.isNullOrEmpty()) {
+            binding.receiptPLNLayout.error = "Empty"
+            succeedValidation = false
+        }
+        if (binding.receiptPTUInput.text.isNullOrEmpty()) {
+            binding.receiptPTULayout.error = "Empty"
+            succeedValidation = false
+        }
+        if (binding.receiptDateInput.text.isNullOrEmpty()) {
+            binding.receiptDateLayout.error = "Empty"
+            succeedValidation = false
+        }
+        if (binding.receiptTimeInput.text.isNullOrEmpty()) {
+            binding.receiptTimeLayout.error = "Empty"
+            succeedValidation = false
+        }
+        return succeedValidation
+    }
+
     private fun saveChangesToDatabase() {
+        if (pickedStore == null) {
+            Toast.makeText(requireContext(), "Pick store!", Toast.LENGTH_SHORT).show()
+            return
+        }
+        if (!validateObligatoryFields()) {
+            Toast.makeText(requireContext(), "Fill all fields", Toast.LENGTH_SHORT).show()
+            return
+        }
+        val pln = transformToDouble(binding.receiptPLNInput.text.toString())
+        val ptu = transformToDouble(binding.receiptPTUInput.text.toString())
+        val date = binding.receiptDateInput.text.toString()
+        val time = binding.receiptTimeInput.text.toString()
+
+
         if (pickedStore == null) {
             Toast.makeText(requireContext(), "Pick store!", Toast.LENGTH_SHORT).show()
             return
         }
         if (mode == DataMode.NEW) {
             val receipt = Receipt(-1, -1.0, -1.0, "", "").apply {
-                storeId = pickedStore!!.id!!
-                pln = transformToDouble(binding.receiptPLNInput.text.toString())
-                ptu = transformToDouble(binding.receiptPTUInput.text.toString())
-                date = binding.receiptDateInput.text.toString()
-                time = binding.receiptTimeInput.text.toString()
+                this.storeId = pickedStore!!.id!!
+                this.pln = pln
+                this.ptu = ptu
+                this.date = date
+                this.time = time
             }
             receiptDataViewModel.insertReceipt(receipt)
             val action =
@@ -212,15 +248,15 @@ class AddReceiptFragment : Fragment() {
             Navigation.findNavController(requireView()).navigate(action)
         } else if (mode == DataMode.EDIT) {
             receiptDataViewModel.receipt.value?.let {
-                val receipt = Receipt(-1, -1.0, -1.0, "", "")
-                receipt.id = it.id
-                receipt.storeId = pickedStore!!.id!!
-                receipt.pln = transformToDouble(binding.receiptPLNInput.text.toString())
-                receipt.ptu = transformToDouble(binding.receiptPTUInput.text.toString())
-                receipt.date = binding.receiptDateInput.text.toString()
-                receipt.time = binding.receiptTimeInput.text.toString()
+                val receipt = Receipt(-1, -1.0, -1.0, "", "").apply {
+                    this.id = it.id
+                    this.storeId = pickedStore!!.id!!
+                    this.pln = pln
+                    this.ptu = ptu
+                    this.date = date
+                    this.time = time
+                }
                 receiptDataViewModel.updateReceipt(receipt)
-
             }
         }
         receiptDataViewModel.store.value = pickedStore
@@ -330,6 +366,27 @@ class AddReceiptFragment : Fragment() {
         }
         binding.receiptTimeInput.setOnClickListener {
             showTimePicker()
+        }
+
+        binding.receiptDateInput.doOnTextChanged { actual, _, _, _ ->
+            if (!actual.isNullOrEmpty()) {
+                binding.receiptDateLayout.error = null
+            }
+        }
+        binding.receiptTimeInput.doOnTextChanged { actual, _, _, _ ->
+            if (!actual.isNullOrEmpty()) {
+                binding.receiptTimeInput.error = null
+            }
+        }
+        binding.receiptPLNInput.doOnTextChanged { actual, _, _, _ ->
+            if (!actual.isNullOrEmpty()) {
+                binding.receiptPLNLayout.error = null
+            }
+        }
+        binding.receiptPTUInput.doOnTextChanged { actual, _, _, _ ->
+            if (!actual.isNullOrEmpty()) {
+                binding.receiptPTULayout.error = null
+            }
         }
     }
 
