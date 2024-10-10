@@ -262,7 +262,7 @@
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toBottomOf="@+id/product_discount_layout"
-                    app:startIconDrawable="@drawable/add">
+                    app:startIconDrawable="@drawable/clear">
 
                     <AutoCompleteTextView
                         android:id="@+id/product_category_input"

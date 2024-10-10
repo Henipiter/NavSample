@@ -62,7 +62,6 @@ class AddReceiptGuideFragment : Fragment(), Guide {
 
     private fun clearInputs() {
         binding.storeNameInput.setText("")
-        binding.storeNIPInput.setText("")
         binding.receiptPLNInput.setText("")
         binding.receiptPLNInput.setText("")
         binding.receiptPTUInput.setText("")
@@ -72,7 +71,6 @@ class AddReceiptGuideFragment : Fragment(), Guide {
 
     private fun fillInputs() {
         binding.storeNameInput.setText("CARREFOUR")
-        binding.storeNIPInput.setText("9370008168")
         binding.receiptPLNInput.setText("6.79")
         binding.receiptPLNInput.setText("0.09")
         binding.receiptPTUInput.setText("0.09")

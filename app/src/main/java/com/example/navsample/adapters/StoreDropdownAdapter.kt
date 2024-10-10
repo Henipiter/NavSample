@@ -15,8 +15,6 @@ class StoreDropdownAdapter(
     res: Int,
     var storeList: ArrayList<Store>
 ) : ArrayAdapter<Store>(ctx, res, storeList), Filterable {
-
-
     private var filteredList: ArrayList<Store>
     private val addNewStoreHolder = Store("", "+ ADD NEW", 0)
 
@@ -85,5 +83,4 @@ class StoreDropdownAdapter(
         }
 
     }
-
 }

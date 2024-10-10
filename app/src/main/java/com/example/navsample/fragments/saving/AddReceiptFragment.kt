@@ -60,8 +60,6 @@ class AddReceiptFragment : Fragment() {
             binding.storeNameInput.setAdapter(adapter)
         }
 
-        binding.storeNIPInput.isEnabled = false
-
         receiptDataViewModel.refreshStoreList()
         receiptImageViewModel.bitmap.value?.let {
             binding.receiptImage.setImageBitmap(it)
@@ -86,7 +84,6 @@ class AddReceiptFragment : Fragment() {
     }
 
     private fun setStoreDataToInputs(store: Store) {
-        binding.storeNIPInput.setText(store.nip)
         binding.storeNameInput.setText(store.name)
     }
 
@@ -111,17 +108,15 @@ class AddReceiptFragment : Fragment() {
                 dropdownAdapter.storeList = storeList
                 dropdownAdapter.notifyDataSetChanged()
                 receiptDataViewModel.store.value?.let {
-                    binding.storeNIPInput.setText(it.nip)
                     binding.storeNameInput.setText(it.name)
 
-                    val indexOfStore = storeList.map { it.nip }.indexOf(it.nip)
+                    val indexOfStore = storeList.map { sort -> sort.nip }.indexOf(it.nip)
                     if (indexOfStore < 0) {
                         Navigation.findNavController(requireView())
                             .navigate(R.id.action_addReceiptFragment_to_editStoreFragment)
                     } else {
                         pickedStore = storeList[indexOfStore]
                         binding.storeNameInput.setText(storeList[indexOfStore].name)
-                        binding.storeNIPInput.setText(storeList[indexOfStore].nip)
                         binding.storeNameInput.isEnabled = false
                     }
                 }
@@ -273,7 +268,6 @@ class AddReceiptFragment : Fragment() {
             )
             receiptDataViewModel.receipt.value?.id = receipt.id
         }
-        binding.storeNIPLayout.visibility = View.GONE
         changeViewToDisplayMode()
 
     }
@@ -284,7 +278,6 @@ class AddReceiptFragment : Fragment() {
         binding.toolbar.setOnMenuItemClickListener {
             when (it.itemId) {
                 R.id.edit -> {
-                    binding.storeNIPLayout.visibility = View.VISIBLE
                     changeViewToEditMode()
                     return@setOnMenuItemClickListener true
                 }
@@ -295,8 +288,8 @@ class AddReceiptFragment : Fragment() {
                 }
 
                 R.id.add_new -> {
-                    receiptDataViewModel.receipt.value?.id?.let {
-                        receiptDataViewModel.refreshProductListForReceipt(it)
+                    receiptDataViewModel.receipt.value?.id?.let { id ->
+                        receiptDataViewModel.refreshProductListForReceipt(id)
                     }
                     val action =
                         AddReceiptFragmentDirections.actionAddReceiptFragmentToAddProductListFragment()
@@ -311,7 +304,6 @@ class AddReceiptFragment : Fragment() {
         binding.toolbar.setNavigationOnClickListener {
             if (mode == DataMode.EDIT) {
                 changeViewToDisplayMode()
-                binding.storeNIPInput.setText(receiptDataViewModel.store.value?.nip)
                 binding.receiptPTUInput.setText(doubleToString(receiptDataViewModel.receipt.value?.ptu))
                 binding.receiptPLNInput.setText(doubleToString(receiptDataViewModel.receipt.value?.pln))
                 binding.receiptDateInput.setText(receiptDataViewModel.receipt.value?.date)
@@ -325,15 +317,13 @@ class AddReceiptFragment : Fragment() {
             binding.storeNameInput.setText("")
             binding.storeNameLayout.helperText = null
             binding.storeNameInput.isEnabled = true
-            binding.storeNIPInput.setText("")
             pickedStore = null
         }
 
-        binding.storeNameInput.setOnItemClickListener { adapter, view, position, _ ->
+        binding.storeNameInput.setOnItemClickListener { adapter, _, position, _ ->
             val store = adapter.getItemAtPosition(position) as Store
             pickedStore = store
             binding.storeNameInput.setText(store.name)
-            binding.storeNIPInput.setText(store.nip)
             binding.storeNameInput.isEnabled = false
 
             if ("" == store.nip && binding.storeNameInput.adapter.count - 1 == position) {
@@ -344,20 +334,6 @@ class AddReceiptFragment : Fragment() {
 
         }
 
-        binding.storeNIPLayout.setStartIconOnClickListener {
-            binding.storeNIPInput.text
-            val index = receiptDataViewModel.storeList.value?.map { it.nip }
-                ?.indexOf(binding.storeNIPInput.text.toString()) ?: -1
-            if (index >= 0) {
-                pickedStore = receiptDataViewModel.storeList.value?.get(index)
-                binding.storeNIPInput.setText(pickedStore?.nip ?: "")
-                binding.storeNameInput.setText(pickedStore?.name ?: "")
-                binding.storeNameInput.isEnabled = false
-                binding.toolbar.menu.findItem(R.id.confirm).isVisible = true
-                binding.toolbar.menu.findItem(R.id.edit).isVisible = false
-            }
-
-        }
         binding.receiptDateLayout.setEndIconOnClickListener {
             showDatePicker()
         }

@@ -29,6 +29,7 @@ class AddStoreFragment : Fragment() {
     private var mode = DataMode.NEW
     private var chosenCategory = Category("", "")
     private var currentStoreId = -1
+    private lateinit var dropdownAdapter: CategoryDropdownAdapter
 
 
     override fun onCreateView(
@@ -44,6 +45,13 @@ class AddStoreFragment : Fragment() {
         binding.toolbar.inflateMenu(R.menu.top_menu_basic_add)
         binding.toolbar.setNavigationIcon(R.drawable.back)
         binding.toolbar.menu.findItem(R.id.edit).isVisible = false
+
+        dropdownAdapter = CategoryDropdownAdapter(
+            requireContext(), R.layout.array_adapter_row, arrayListOf()
+        ).also { adapter ->
+            binding.storeDefaultCategoryInput.setAdapter(adapter)
+        }
+
         initObserver()
         receiptDataViewModel.refreshStoreList()
         receiptDataViewModel.refreshCategoryList()
@@ -150,15 +158,23 @@ class AddStoreFragment : Fragment() {
             }
         }
 
-        binding.storeDefaultCategoryInput.setOnItemClickListener { adapter, _, i, _ ->
-            chosenCategory = adapter.getItemAtPosition(i) as Category
+        binding.storeDefaultCategoryInput.setOnItemClickListener { adapter, _, position, _ ->
+            chosenCategory = adapter.getItemAtPosition(position) as Category
             binding.storeDefaultCategoryInput.setText(chosenCategory.name)
+
+            if ("" == chosenCategory.color && binding.storeDefaultCategoryInput.adapter.count - 1 == position) {
+                receiptDataViewModel.savedCategory.value = null
+                Navigation.findNavController(requireView())
+                    .navigate(R.id.action_addStoreFragment_to_addCategoryFragment)
+            }
         }
 
         binding.storeDefaultCategoryLayout.setStartIconOnClickListener {
-            receiptDataViewModel.savedCategory.value = null
-            Navigation.findNavController(it)
-                .navigate(R.id.action_addStoreFragment_to_addCategoryFragment)
+            binding.storeDefaultCategoryInput.setText("")
+            //TODO verify that
+//            binding.storeDefaultCategoryLayout.helperText = null
+//            binding.storeDefaultCategoryInput.isEnabled = true
+            chosenCategory = Category("", "")
         }
     }
 
@@ -224,14 +240,12 @@ class AddStoreFragment : Fragment() {
             }
         }
 
-        receiptDataViewModel.categoryList.observe(viewLifecycleOwner) {
-            it?.let {
-                CategoryDropdownAdapter(
-                    requireContext(), R.layout.array_adapter_row, it
-                ).also { adapter ->
-                    binding.storeDefaultCategoryInput.setAdapter(adapter)
-                }
+        receiptDataViewModel.categoryList.observe(viewLifecycleOwner) { categoryList ->
+            categoryList?.let {
+                dropdownAdapter.categoryList = it
+                dropdownAdapter.notifyDataSetChanged()
             }
+
         }
     }
 }

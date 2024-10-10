@@ -16,6 +16,12 @@ class CategoryDropdownAdapter(
     var categoryList: ArrayList<Category>
 ) : ArrayAdapter<Category>(ctx, res, categoryList), Filterable {
     private var filteredList = ArrayList<Category>(categoryList)
+    private val addNewCategoryHolder = Category("+ ADD NEW", "")
+
+    init {
+        filteredList = ArrayList(categoryList)
+        filteredList.add(addNewCategoryHolder)
+    }
 
     override fun getView(position: Int, convertView: View?, parent: ViewGroup): View {
 
@@ -63,10 +69,13 @@ class CategoryDropdownAdapter(
 
             override fun publishResults(constraint: CharSequence?, results: FilterResults?) {
                 val values = results?.values
-                filteredList = if (values is ArrayList<*>) {
-                    values.map { it as Category } as ArrayList
+                if (values is ArrayList<*>) {
+                    filteredList = values.map { it as Category } as ArrayList
+                    if (filteredList.size == 0 || filteredList.last().color != addNewCategoryHolder.color) {
+                        filteredList.add(addNewCategoryHolder)
+                    }
                 } else {
-                    arrayListOf()
+                    filteredList = arrayListOf()
                 }
                 notifyDataSetChanged()
             }

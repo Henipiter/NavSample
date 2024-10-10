@@ -32,14 +32,13 @@ class AddProductFragment : Fragment() {
 
     private val args: AddProductFragmentArgs by navArgs()
 
-    private var ptuTypeList = arrayListOf("A", "B", "C", "D", "E", "F", "G")
-
     private val receiptImageViewModel: ReceiptImageViewModel by activityViewModels()
     private val receiptDataViewModel: ReceiptDataViewModel by activityViewModels()
 
     private var productOriginalInput = ""
     private var chosenCategory = Category("", "")
     private var productId: Int? = null
+    private lateinit var dropdownAdapter: CategoryDropdownAdapter
 
     companion object {
         private const val SUGGESTION_PREFIX = "Maybe "
@@ -64,15 +63,8 @@ class AddProductFragment : Fragment() {
         }
         receiptDataViewModel.categoryList.observe(viewLifecycleOwner) { categoryList ->
             categoryList?.let {
-                CategoryDropdownAdapter(
-                    requireContext(), R.layout.array_adapter_row, categoryList
-                ).also { adapter ->
-                    binding.productCategoryInput.setAdapter(adapter)
-                    binding.productCategoryInput.keyListener = null
-                }
-            }
-            if (chosenCategory.name == "") {
-                chosenCategory = categoryList[0]
+                dropdownAdapter.categoryList = it
+                dropdownAdapter.notifyDataSetChanged()
             }
         }
         receiptDataViewModel.store.observe(viewLifecycleOwner) { store ->
@@ -211,6 +203,13 @@ class AddProductFragment : Fragment() {
         binding.toolbar.menu.findItem(R.id.reorder).isVisible = false
         binding.toolbar.menu.findItem(R.id.add_new).isVisible = false
 
+
+        dropdownAdapter = CategoryDropdownAdapter(
+            requireContext(), R.layout.array_adapter_row, arrayListOf()
+        ).also { adapter ->
+            binding.productCategoryInput.setAdapter(adapter)
+        }
+
         initObserver()
 
         binding.toolbar.title = receiptDataViewModel.store.value?.name
@@ -271,9 +270,15 @@ class AddProductFragment : Fragment() {
         if (productOriginalInput == "") {
             binding.productOriginalLayout.visibility = View.INVISIBLE
         }
-        binding.productCategoryInput.setOnItemClickListener { adapter, _, i, _ ->
-            chosenCategory = adapter.getItemAtPosition(i) as Category
+        binding.productCategoryInput.setOnItemClickListener { adapter, _, position, _ ->
+            chosenCategory = adapter.getItemAtPosition(position) as Category
             binding.productCategoryInput.setText(chosenCategory.name)
+
+            if ("" == chosenCategory.color && binding.productCategoryInput.adapter.count - 1 == position) {
+                receiptDataViewModel.savedCategory.value = null
+                Navigation.findNavController(requireView())
+                    .navigate(R.id.action_addProductFragment_to_addCategoryFragment)
+            }
         }
         binding.ptuTypeInput.setOnItemClickListener { adapter, _, i, _ ->
             val x = adapter.getItemAtPosition(i) as String
@@ -281,9 +286,11 @@ class AddProductFragment : Fragment() {
         }
 
         binding.productCategoryLayout.setStartIconOnClickListener {
-            Navigation.findNavController(it)
-                .navigate(R.id.action_addProductFragment_to_addCategoryFragment)
-
+            binding.productCategoryInput.setText("")
+            //TODO verify that
+//            binding.storeDefaultCategoryLayout.helperText = null
+//            binding.storeDefaultCategoryInput.isEnabled = true
+            chosenCategory = Category("", "")
         }
 
         binding.productOriginalLayout.setEndIconOnClickListener {
