@@ -42,7 +42,6 @@ class StoreListFragment : Fragment(), ItemClickListener {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         initObserver()
-        refreshList()
         binding.toolbar.inflateMenu(R.menu.top_menu_list_filter)
         binding.toolbar.menu.findItem(R.id.filter).isVisible = false
         binding.toolbar.menu.findItem(R.id.collapse).isVisible = false
@@ -56,7 +55,7 @@ class StoreListFragment : Fragment(), ItemClickListener {
 
                     SortingDialog(
                         selected,
-                        StoreSort.entries.map { it.friendlyNameKey }) { name, dir ->
+                        StoreSort.entries.map { sort -> sort.friendlyNameKey }) { name, dir ->
                         val appliedSort = SortProperty(StoreSort::class, name, dir)
                         receiptDataViewModel.storeSort.value = appliedSort
                         receiptDataViewModel.updateSorting(appliedSort)
@@ -96,11 +95,11 @@ class StoreListFragment : Fragment(), ItemClickListener {
 
         binding.storeNameInput.doOnTextChanged { text, _, _, _ ->
             receiptDataViewModel.filterStoreList.value?.store = text.toString()
-            refreshList()
+            receiptDataViewModel.loadDataByStoreFilter()
         }
         binding.storeNIPInput.doOnTextChanged { text, _, _, _ ->
             receiptDataViewModel.filterStoreList.value?.nip = text.toString()
-            refreshList()
+            receiptDataViewModel.loadDataByStoreFilter()
         }
         binding.storeNameLayout.setStartIconOnClickListener {
             binding.storeNameInput.setText("")
@@ -144,13 +143,6 @@ class StoreListFragment : Fragment(), ItemClickListener {
         }
     }
 
-    private fun refreshList() { //TODO move to viewModel
-        receiptDataViewModel.filterStoreList.value?.let {
-            putFilterDefinitionIntoInputs()
-            receiptDataViewModel.refreshStoreList(it.store, it.nip)
-        }
-    }
-
     @SuppressLint("NotifyDataSetChanged")
     private fun initObserver() {
         receiptDataViewModel.storeList.observe(viewLifecycleOwner) {
@@ -160,7 +152,7 @@ class StoreListFragment : Fragment(), ItemClickListener {
             }
         }
         receiptDataViewModel.filterStoreList.observe(viewLifecycleOwner) {
-            refreshList()
+            putFilterDefinitionIntoInputs()
         }
     }
 }

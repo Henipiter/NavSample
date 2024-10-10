@@ -1,5 +1,6 @@
 package com.example.navsample.fragments.listing
 
+import android.annotation.SuppressLint
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -37,7 +38,6 @@ class CategoryListFragment : Fragment(), ItemClickListener {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         initObserver()
-        refreshList()
         receiptDataViewModel.refreshProductList()
 
         recyclerViewEvent = binding.recyclerViewEventReceipts
@@ -74,7 +74,7 @@ class CategoryListFragment : Fragment(), ItemClickListener {
 
         binding.categoryNameInput.doOnTextChanged { text, _, _, _ ->
             receiptDataViewModel.filterCategoryList.value?.category = text.toString()
-            refreshList()
+            receiptDataViewModel.loadDataByCategoryFilter()
         }
         binding.categoryNameLayout.setStartIconOnClickListener {
             binding.categoryNameInput.setText("")
@@ -89,6 +89,7 @@ class CategoryListFragment : Fragment(), ItemClickListener {
 
     }
 
+    @SuppressLint("NotifyDataSetChanged")
     private fun initObserver() {
         receiptDataViewModel.categoryList.observe(viewLifecycleOwner) {
             it?.let {
@@ -97,7 +98,7 @@ class CategoryListFragment : Fragment(), ItemClickListener {
             }
         }
         receiptDataViewModel.filterCategoryList.observe(viewLifecycleOwner) {
-            refreshList()
+            putFilterDefinitionIntoInputs()
         }
     }
 
@@ -106,13 +107,6 @@ class CategoryListFragment : Fragment(), ItemClickListener {
             if (binding.categoryNameInput.text.toString() != it.category) {
                 binding.categoryNameInput.setText(it.category)
             }
-        }
-    }
-
-    private fun refreshList() {
-        receiptDataViewModel.filterCategoryList.value?.let {
-            putFilterDefinitionIntoInputs()
-            receiptDataViewModel.refreshCategoryList(it.category)
         }
     }
 

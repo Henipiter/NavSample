@@ -96,8 +96,10 @@ class ReceiptDataViewModel : ViewModel() {
 
     init {
         clearData()
+        loadDataByStoreFilter()
         loadDataByReceiptFilter()
         loadDataByProductFilter()
+        loadDataByCategoryFilter()
     }
 
     fun <Sort : ParentSort> updateSorting(sort: SortProperty<Sort>) {
@@ -121,6 +123,18 @@ class ReceiptDataViewModel : ViewModel() {
                     )
                 }
             }
+        }
+    }
+
+    fun loadDataByStoreFilter() {
+        filterStoreList.value?.let {
+            refreshStoreList(it.store, it.nip)
+        }
+    }
+
+    fun loadDataByCategoryFilter() {
+        filterCategoryList.value?.let {
+            refreshCategoryList(it.category)
         }
     }
 
@@ -462,7 +476,7 @@ class ReceiptDataViewModel : ViewModel() {
         }
     }
 
-    fun refreshCategoryList(categoryName: String) {
+    private fun refreshCategoryList(categoryName: String) {
         Log.i("Database", "refresh category list")
         viewModelScope.launch {
             categoryList.postValue(
@@ -478,7 +492,7 @@ class ReceiptDataViewModel : ViewModel() {
         }
     }
 
-    fun refreshStoreList(name: String, nip: String) {
+    private fun refreshStoreList(name: String, nip: String) {
         Log.i("Database", "refresh store list")
         viewModelScope.launch {
             val list = ReceiptDaoHelper.getAllStoresOrdered(
