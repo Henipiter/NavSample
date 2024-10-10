@@ -36,7 +36,7 @@ class AddReceiptFragment : Fragment() {
 
     private var calendarDate = Calendar.getInstance()
     private var calendarTime = Calendar.getInstance()
-
+    private lateinit var dropdownAdapter: StoreDropdownAdapter
     private var mode = DataMode.NEW
     private var pickedStore: Store? = null
     override fun onCreateView(
@@ -53,6 +53,12 @@ class AddReceiptFragment : Fragment() {
         binding.toolbar.menu.findItem(R.id.reorder).isVisible = false
 
         initObserver()
+
+        dropdownAdapter = StoreDropdownAdapter(
+            requireContext(), R.layout.array_adapter_row, arrayListOf()
+        ).also { adapter ->
+            binding.storeNameInput.setAdapter(adapter)
+        }
 
         binding.storeNIPInput.isEnabled = false
 
@@ -102,12 +108,8 @@ class AddReceiptFragment : Fragment() {
         }
         receiptDataViewModel.storeList.observe(viewLifecycleOwner) { storeList ->
             storeList?.let {
-                StoreDropdownAdapter(
-                    requireContext(), R.layout.array_adapter_row, storeList
-                ).also { adapter ->
-                    binding.storeNameInput.setAdapter(adapter)
-                }
-
+                dropdownAdapter.storeList = storeList
+                dropdownAdapter.notifyDataSetChanged()
                 receiptDataViewModel.store.value?.let {
                     binding.storeNIPInput.setText(it.nip)
                     binding.storeNameInput.setText(it.name)
@@ -278,11 +280,6 @@ class AddReceiptFragment : Fragment() {
 
 
     private fun defineClickListeners() {
-        binding.storeNIPLayout.setEndIconOnClickListener {
-            receiptDataViewModel.savedStore.value = null
-            Navigation.findNavController(it)
-                .navigate(R.id.action_addReceiptFragment_to_editStoreFragment)
-        }
 
         binding.toolbar.setOnMenuItemClickListener {
             when (it.itemId) {
@@ -332,12 +329,18 @@ class AddReceiptFragment : Fragment() {
             pickedStore = null
         }
 
-        binding.storeNameInput.setOnItemClickListener { adapter, _, i, _ ->
-            val store = adapter.getItemAtPosition(i) as Store
+        binding.storeNameInput.setOnItemClickListener { adapter, view, position, _ ->
+            val store = adapter.getItemAtPosition(position) as Store
             pickedStore = store
             binding.storeNameInput.setText(store.name)
             binding.storeNIPInput.setText(store.nip)
             binding.storeNameInput.isEnabled = false
+
+            if ("" == store.nip && binding.storeNameInput.adapter.count - 1 == position) {
+                receiptDataViewModel.savedStore.value = null
+                Navigation.findNavController(requireView())
+                    .navigate(R.id.action_addReceiptFragment_to_editStoreFragment)
+            }
 
         }
 

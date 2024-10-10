@@ -15,7 +15,7 @@ class CategoryDropdownAdapter(
     res: Int,
     var categoryList: ArrayList<Category>
 ) : ArrayAdapter<Category>(ctx, res, categoryList), Filterable {
-    private var filteredList = ArrayList<Category>()
+    private var filteredList = ArrayList<Category>(categoryList)
 
     override fun getView(position: Int, convertView: View?, parent: ViewGroup): View {
 

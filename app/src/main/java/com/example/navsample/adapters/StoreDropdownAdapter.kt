@@ -16,7 +16,14 @@ class StoreDropdownAdapter(
     var storeList: ArrayList<Store>
 ) : ArrayAdapter<Store>(ctx, res, storeList), Filterable {
 
-    private var filteredList = ArrayList<Store>()
+
+    private var filteredList: ArrayList<Store>
+    private val addNewStoreHolder = Store("", "+ ADD NEW", 0)
+
+    init {
+        filteredList = ArrayList(storeList)
+        filteredList.add(addNewStoreHolder)
+    }
 
     override fun getView(position: Int, convertView: View?, parent: ViewGroup): View {
 
@@ -65,10 +72,13 @@ class StoreDropdownAdapter(
 
             override fun publishResults(constraint: CharSequence?, results: FilterResults?) {
                 val values = results?.values
-                filteredList = if (values is ArrayList<*>) {
-                    values.map { it as Store } as ArrayList
+                if (values is ArrayList<*>) {
+                    filteredList = values.map { it as Store } as ArrayList
+                    if (filteredList.size == 0 || filteredList.last().nip != addNewStoreHolder.nip) {
+                        filteredList.add(addNewStoreHolder)
+                    }
                 } else {
-                    arrayListOf()
+                    filteredList = arrayListOf()
                 }
                 notifyDataSetChanged()
             }
