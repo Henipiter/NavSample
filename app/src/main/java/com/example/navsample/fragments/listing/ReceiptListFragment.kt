@@ -1,5 +1,6 @@
 package com.example.navsample.fragments.listing
 
+import android.annotation.SuppressLint
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -40,7 +41,6 @@ class ReceiptListFragment : Fragment(), ItemClickListener {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         initObserver()
-        refreshList()
         receiptDataViewModel.refreshCategoryList()
         binding.toolbar.inflateMenu(R.menu.top_menu_list_filter)
         binding.toolbar.menu.findItem(R.id.collapse).isVisible = false
@@ -59,7 +59,7 @@ class ReceiptListFragment : Fragment(), ItemClickListener {
                         ?: receiptDataViewModel.defaultReceiptWithStoreSort
                     SortingDialog(
                         selected,
-                        ReceiptWithStoreSort.entries.map { it.friendlyNameKey }) { name, dir ->
+                        ReceiptWithStoreSort.entries.map { sort -> sort.friendlyNameKey }) { name, dir ->
                         val appliedSort = SortProperty(ReceiptWithStoreSort::class, name, dir)
                         receiptDataViewModel.receiptWithStoreSort.value = appliedSort
                         receiptDataViewModel.updateSorting(appliedSort)
@@ -113,24 +113,13 @@ class ReceiptListFragment : Fragment(), ItemClickListener {
             LinearLayoutManager(requireContext(), LinearLayoutManager.VERTICAL, false)
     }
 
-    private fun refreshList() { //TODO move to viewModel
-        receiptDataViewModel.filterReceiptList.value?.let {
-            receiptDataViewModel.refreshReceiptList(
-                it.store, it.dateFrom, it.dateTo
-            )
-        }
-    }
-
+    @SuppressLint("NotifyDataSetChanged")
     private fun initObserver() {
         receiptDataViewModel.receiptList.observe(viewLifecycleOwner) {
             it?.let {
                 receiptListAdapter.receiptList = it
                 receiptListAdapter.notifyDataSetChanged()
             }
-        }
-
-        receiptDataViewModel.filterReceiptList.observe(viewLifecycleOwner) {
-            refreshList()
         }
     }
 

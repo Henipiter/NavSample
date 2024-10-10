@@ -1,6 +1,7 @@
 package com.example.navsample.fragments.listing
 
 
+import android.annotation.SuppressLint
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -40,7 +41,6 @@ class ProductListFragment : Fragment(), ItemClickListener {
         super.onViewCreated(view, savedInstanceState)
         initObserver()
 
-        refreshList()
         binding.toolbar.inflateMenu(R.menu.top_menu_list_filter)
         binding.toolbar.setOnMenuItemClickListener {
             when (it.itemId) {
@@ -76,7 +76,7 @@ class ProductListFragment : Fragment(), ItemClickListener {
                         ?: receiptDataViewModel.defaultRichProductSort
                     SortingDialog(
                         selected,
-                        RichProductSort.entries.map { it.friendlyNameKey }) { name, dir ->
+                        RichProductSort.entries.map { sort -> sort.friendlyNameKey }) { name, dir ->
                         val appliedSort = SortProperty(RichProductSort::class, name, dir)
                         receiptDataViewModel.richProductSort.value = appliedSort
                         receiptDataViewModel.updateSorting(appliedSort)
@@ -122,15 +122,13 @@ class ProductListFragment : Fragment(), ItemClickListener {
         receiptDataViewModel.refreshCategoryList()
     }
 
+    @SuppressLint("NotifyDataSetChanged")
     private fun initObserver() {
         receiptDataViewModel.productRichList.observe(viewLifecycleOwner) {
             it?.let {
                 richProductListAdapter.productList = it
                 richProductListAdapter.notifyDataSetChanged()
             }
-        }
-        receiptDataViewModel.filterProductList.observe(viewLifecycleOwner) {
-            refreshList()
         }
     }
 
@@ -158,16 +156,4 @@ class ProductListFragment : Fragment(), ItemClickListener {
         Navigation.findNavController(requireView()).navigate(action)
     }
 
-    private fun refreshList() { //TODO move to viewModel
-        receiptDataViewModel.filterProductList.value?.let {
-            receiptDataViewModel.refreshProductList(
-                it.store,
-                it.category,
-                it.dateFrom,
-                it.dateTo,
-                it.lowerPrice,
-                it.higherPrice
-            )
-        }
-    }
 }

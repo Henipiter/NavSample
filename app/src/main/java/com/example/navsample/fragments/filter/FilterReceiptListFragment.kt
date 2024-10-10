@@ -82,6 +82,7 @@ class FilterReceiptListFragment : Fragment() {
 
                 R.id.confirm -> {
                     receiptDataViewModel.filterReceiptList.value = filterReceiptList
+                    receiptDataViewModel.loadDataByReceiptFilter()
                     Navigation.findNavController(requireView()).popBackStack()
                 }
 
@@ -91,8 +92,6 @@ class FilterReceiptListFragment : Fragment() {
     }
 
     private fun showDatePicker() {
-
-
         val dateRangePicker =
             MaterialDatePicker.Builder.dateRangePicker()
                 .setTitleText("Select dates")
@@ -111,20 +110,21 @@ class FilterReceiptListFragment : Fragment() {
             receiptDataViewModel.filterReceiptList.value?.let { filter ->
                 filter.dateFrom = getDateFormat().format(calendarDateFrom.time)
                 filter.dateTo = getDateFormat().format(calendarDateTo.time)
-
-                binding.dateBetweenInput.setText("${filter.dateFrom} - ${filter.dateTo}")
+                val text = "${filter.dateFrom} - ${filter.dateTo}"
+                binding.dateBetweenInput.setText(text)
             }
         }
     }
 
     private fun putFilterDefinitionIntoInputs() {
         binding.storeInput.setText(filterReceiptList.store)
-        binding.dateBetweenInput.setText(filterReceiptList.dateFrom + " - " + filterReceiptList.dateTo)
+        val text = filterReceiptList.dateFrom + " - " + filterReceiptList.dateTo
+        binding.dateBetweenInput.setText(text)
     }
 
     private fun getDateFormat(): SimpleDateFormat {
         val sdf = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
-        sdf.timeZone = TimeZone.getTimeZone("UTC");
+        sdf.timeZone = TimeZone.getTimeZone("UTC")
         return sdf
     }
 
