@@ -11,7 +11,6 @@ import com.example.navsample.R
 import com.example.navsample.databinding.ProductRowBinding
 import com.example.navsample.dto.Utils.Companion.doubleToString
 import com.example.navsample.dto.Utils.Companion.quantityToString
-import com.example.navsample.dto.Utils.Companion.roundDouble
 import com.example.navsample.entities.relations.ProductRichData
 
 
@@ -58,7 +57,14 @@ class RichProductListAdapter(
             setCollapseOrExpand(holder, position)
             this.notifyItemChanged(position)
         }
-        validateParams(holder)
+        if (!productList[position].validPrice) {
+            holder.binding.finalPrice.setTextColor(Color.RED)
+        } else {
+            holder.binding.finalPrice.setTextColor(
+                context.resources.getColor(R.color.basic_text_grey, context.theme)
+            )
+
+        }
     }
 
     private fun setCollapseOrExpand(holder: MyViewHolder, position: Int) {
@@ -78,61 +84,6 @@ class RichProductListAdapter(
         holder.binding.additional.visibility = View.VISIBLE
         holder.binding.boundary.setBackgroundResource(R.drawable.arrow_drop_up)
 
-    }
-
-    private fun validateParams(holder: MyViewHolder) {
-        val doubleQuantity = trim(productList[position].quantity.toString()).toDoubleOrNull()
-        val unitPrice = trim(productList[position].unitPrice.toString()).toDoubleOrNull()
-        val subtotalPrice = trim(productList[position].subtotalPrice.toString()).toDoubleOrNull()
-        val discount = trim(productList[position].discount.toString()).toDoubleOrNull()
-        val finalPrice = trim(productList[position].finalPrice.toString()).toDoubleOrNull()
-
-        if (doubleQuantity == null || unitPrice == null || subtotalPrice == null
-            || roundDouble(doubleQuantity * unitPrice) != subtotalPrice
-        ) {
-            holder.binding.subtotalPrice.setTextColor(Color.RED)
-        } else {
-            holder.binding.subtotalPrice.setTextColor(
-                context.resources.getColor(
-                    R.color.basic_text_grey,
-                    context.theme
-                )
-            )
-        }
-
-        if (subtotalPrice == null || discount == null || finalPrice == null
-            || roundDouble(subtotalPrice - discount) != finalPrice
-        ) {
-            holder.binding.finalPrice.setTextColor(Color.RED)
-        } else {
-            holder.binding.finalPrice.setTextColor(
-                context.resources.getColor(
-                    R.color.basic_text_grey,
-                    context.theme
-                )
-            )
-
-        }
-    }
-
-    private fun trim(x: String): String {
-        var delimiter = false
-        var newString = ""
-        for (i in x) {
-            if (i != '.' && !i.isDigit()) {
-                return newString
-            }
-            if (delimiter && !i.isDigit()) {
-                return newString
-            }
-
-            if (!delimiter && i == '.') {
-                delimiter = true
-
-            }
-            newString += i
-        }
-        return newString
     }
 
     private fun trimDescription(description: String): String {

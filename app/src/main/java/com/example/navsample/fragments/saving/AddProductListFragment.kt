@@ -1,6 +1,7 @@
 package com.example.navsample.fragments.saving
 
 
+import android.annotation.SuppressLint
 import android.content.SharedPreferences
 import android.graphics.BitmapFactory
 import android.graphics.Color
@@ -57,6 +58,7 @@ class AddProductListFragment : Fragment(), ItemClickListener {
     }
 
 
+    @SuppressLint("NotifyDataSetChanged")
     private fun initObserver() {
         receiptImageViewModel.bitmapCropped.observe(viewLifecycleOwner) {
             if (it != null) {
@@ -153,6 +155,7 @@ class AddProductListFragment : Fragment(), ItemClickListener {
         binding.countText.text = productListAdapter.productList.size.toString()
     }
 
+    @SuppressLint("NotifyDataSetChanged")
     @ExperimentalGetImage
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -223,6 +226,8 @@ class AddProductListFragment : Fragment(), ItemClickListener {
                 }
 
                 R.id.confirm -> {
+                    isProductsAreValid()
+
                     receiptDataViewModel.insertProducts(
                         receiptDataViewModel.product.value?.toList() ?: listOf()
                     )
@@ -239,6 +244,14 @@ class AddProductListFragment : Fragment(), ItemClickListener {
 
     }
 
+    private fun isProductsAreValid(): Boolean {
+        productListAdapter.productList.forEach { productItem ->
+            if (!productItem.validPrice) {
+                return false
+            }
+        }
+        return true
+    }
 
     private val customCropImage = registerForActivityResult(CropImageContract()) {
         if (it !is CropImage.CancelledResult) {

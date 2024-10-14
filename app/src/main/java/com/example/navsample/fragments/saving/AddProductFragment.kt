@@ -38,6 +38,7 @@ class AddProductFragment : Fragment() {
     private var productOriginalInput = ""
     private var chosenCategory = Category("", "")
     private var productId: Int? = null
+    private var isValidPrices = true
     private lateinit var dropdownAdapter: CategoryDropdownAdapter
 
     companion object {
@@ -102,15 +103,18 @@ class AddProductFragment : Fragment() {
         }
         if (checks == 2) {
             if (roundDouble(subtotalPrice!! - discountPrice!!) == finalPrice!!) {
+                isValidPrices = true
                 binding.productDiscountHelperText.text = ""
                 binding.productFinalPriceHelperText.text = ""
             } else {
+                isValidPrices = false
                 binding.productDiscountHelperText.text =
                     getSuggestionMessage(doubleToString(subtotalPrice - finalPrice))
                 binding.productFinalPriceHelperText.text =
                     getSuggestionMessage(doubleToString(subtotalPrice - discountPrice))
             }
         } else if (checks == 1) {
+            isValidPrices = false
             if (discountPrice == null) {
                 binding.productDiscountHelperText.text =
                     getSuggestionMessage(doubleToString(subtotalPrice!! - finalPrice!!))
@@ -120,6 +124,7 @@ class AddProductFragment : Fragment() {
                     getSuggestionMessage(doubleToString(subtotalPrice!! - discountPrice!!))
             }
         } else {
+            isValidPrices = true
             binding.productDiscountHelperText.text = ""
             binding.productFinalPriceHelperText.text = ""
         }
@@ -133,10 +138,12 @@ class AddProductFragment : Fragment() {
         val checks = arrayOf(subtotalPrice, unitPrice, quantity).count { it != null }
         if (checks == 3) {
             if (roundDouble(unitPrice!! * quantity!!) == subtotalPrice) {
+                isValidPrices = true
                 binding.productSubtotalPriceHelperText.text = ""
                 binding.productUnitPriceHelperText.text = ""
                 binding.productQuantityHelperText.text = ""
             } else {
+                isValidPrices = false
                 binding.productSubtotalPriceHelperText.text =
                     getSuggestionMessage(doubleToString(unitPrice * quantity))
                 binding.productUnitPriceHelperText.text =
@@ -145,6 +152,7 @@ class AddProductFragment : Fragment() {
                     getSuggestionMessage(quantityToString(subtotalPrice / unitPrice))
             }
         } else if (checks == 2) {
+            isValidPrices = false
             if (subtotalPrice == null) {
                 binding.productSubtotalPriceHelperText.text =
                     getSuggestionMessage(doubleToString(unitPrice!! * quantity!!))
@@ -159,6 +167,7 @@ class AddProductFragment : Fragment() {
                     getSuggestionMessage(quantityToString(subtotalPrice!! / unitPrice!!))
             }
         } else {
+            isValidPrices = true
             binding.productSubtotalPriceHelperText.text = ""
             binding.productUnitPriceHelperText.text = ""
             binding.productQuantityHelperText.text = ""
@@ -377,7 +386,8 @@ class AddProductFragment : Fragment() {
                         binding.productDiscountInput.text.toString().toDouble(),
                         binding.productFinalPriceInput.text.toString().toDouble(),
                         binding.ptuTypeInput.text.toString(),
-                        binding.productOriginalInput.text.toString()
+                        binding.productOriginalInput.text.toString(),
+                        isValidPrices
                     )
                     product.id = productId
 

@@ -190,6 +190,7 @@ interface ReceiptDao {
                 "p.unitPrice as productUnitPrice, p.subtotalPrice as productSubtotalPrice, " +
                 "p.discount as productDiscount, p.finalPrice as productFinalPrice, " +
                 "p.ptuType as productPtuType, p.raw as productRaw, " +
+                "p.validPrice as productValidPrice, " +
                 "c.name as categoryName, c.color as categoryColor " +
                 "from product p, receipt r, store s, category c " +
                 "where p.receiptId = r.id and s.id =r.storeId and p.categoryId = c.id "

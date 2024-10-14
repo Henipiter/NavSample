@@ -144,7 +144,8 @@ class ProductListFragment : Fragment(), ItemClickListener {
                 0.0,
                 it.subtotalPrice,
                 it.ptuType,
-                it.raw
+                it.raw,
+                it.validPrice
             )
             chosenProduct.id = it.id
             receiptDataViewModel.product.value = arrayListOf(chosenProduct)

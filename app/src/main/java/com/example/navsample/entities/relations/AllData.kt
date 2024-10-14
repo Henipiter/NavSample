@@ -18,6 +18,7 @@ data class AllData(
     var productFinalPrice: Double,
     var productPtuType: String,
     var productRaw: String,
+    var productValidPrice: Boolean,
 
     var categoryName: String,
     var categoryColor: String,

@@ -21,7 +21,6 @@ class ProductListAdapter(
     private var itemClickListener: ItemClickListener,
     private var onDelete: (Int) -> Unit,
 ) : RecyclerView.Adapter<ProductListAdapter.MyViewHolder>() {
-    var position = 0
 
     class MyViewHolder(val binding: ProductDtoRowBinding) : RecyclerView.ViewHolder(binding.root)
 
@@ -31,13 +30,11 @@ class ProductListAdapter(
         return MyViewHolder(binding)
     }
 
-
     override fun onBindViewHolder(holder: MyViewHolder, position: Int) {
-        this.position = position
         val category = try {
             categoryList.first { it.id == productList[position].categoryId }
         } catch (exception: Exception) {
-            categoryList[0]
+            null
         }
         if (roundDouble(productList[position].discount) != 0.0) {
             holder.binding.discountPrice.visibility = View.VISIBLE
@@ -51,8 +48,12 @@ class ProductListAdapter(
         holder.binding.quantity.text = quantityToString(productList[position].quantity)
         holder.binding.unitPrice.text = doubleToString(productList[position].unitPrice)
         holder.binding.finalPrice.text = doubleToString(productList[position].finalPrice)
-        holder.binding.categoryName.text = category.name
-        holder.binding.categoryColor.setBackgroundColor(Color.parseColor(category.color))
+        holder.binding.categoryName.text = category?.name ?: "-"
+        holder.binding.categoryColor.setBackgroundColor(
+            Color.parseColor(
+                category?.color ?: "#FFFFFF"
+            )
+        )
         holder.binding.productName.text = trimDescription(productList[position].name)
         holder.binding.mainLayout.setOnClickListener {
             itemClickListener.onItemClick(position)
@@ -61,9 +62,7 @@ class ProductListAdapter(
             onDelete.invoke(position)
             true
         }
-        if (roundDouble(productList[position].quantity * productList[position].unitPrice) != productList[position].subtotalPrice ||
-            roundDouble(productList[position].subtotalPrice - productList[position].discount) != productList[position].finalPrice
-        ) {
+        if (!productList[position].validPrice) {
             holder.binding.finalPrice.setTextColor(Color.RED)
         }
     }

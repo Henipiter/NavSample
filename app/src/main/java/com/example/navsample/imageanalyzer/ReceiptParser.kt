@@ -64,7 +64,8 @@ class ReceiptParser(var receiptId: Int, var categoryId: Int) {
                 -fixedUnitPrice,
                 fixedSubtotalPrice,
                 fixPtuType(ptuType.data),
-                productInformation
+                productInformation,
+                false
             )
         } else {
             val quantity = findQuantity(productInformation, unitPrice.startIndex)
@@ -79,7 +80,8 @@ class ReceiptParser(var receiptId: Int, var categoryId: Int) {
                 0.0,
                 fixedSubtotalPrice,
                 fixPtuType(ptuType.data),
-                productInformation
+                productInformation,
+                false
             )
         }
     }
