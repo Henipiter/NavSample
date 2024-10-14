@@ -160,12 +160,14 @@ class AddStoreFragment : Fragment() {
 
         binding.storeDefaultCategoryInput.setOnItemClickListener { adapter, _, position, _ ->
             chosenCategory = adapter.getItemAtPosition(position) as Category
-            binding.storeDefaultCategoryInput.setText(chosenCategory.name)
 
             if ("" == chosenCategory.color && binding.storeDefaultCategoryInput.adapter.count - 1 == position) {
                 receiptDataViewModel.savedCategory.value = null
+                binding.storeDefaultCategoryInput.setText("")
                 Navigation.findNavController(requireView())
                     .navigate(R.id.action_addStoreFragment_to_addCategoryFragment)
+            } else {
+                binding.storeDefaultCategoryInput.setText(chosenCategory.name)
             }
         }
 

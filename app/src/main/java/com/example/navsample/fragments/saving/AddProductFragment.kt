@@ -272,12 +272,14 @@ class AddProductFragment : Fragment() {
         }
         binding.productCategoryInput.setOnItemClickListener { adapter, _, position, _ ->
             chosenCategory = adapter.getItemAtPosition(position) as Category
-            binding.productCategoryInput.setText(chosenCategory.name)
 
             if ("" == chosenCategory.color && binding.productCategoryInput.adapter.count - 1 == position) {
                 receiptDataViewModel.savedCategory.value = null
+                binding.productCategoryInput.setText("")
                 Navigation.findNavController(requireView())
                     .navigate(R.id.action_addProductFragment_to_addCategoryFragment)
+            } else {
+                binding.productCategoryInput.setText(chosenCategory.name)
             }
         }
         binding.ptuTypeInput.setOnItemClickListener { adapter, _, i, _ ->

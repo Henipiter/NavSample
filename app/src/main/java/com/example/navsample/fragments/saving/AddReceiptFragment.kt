@@ -322,14 +322,15 @@ class AddReceiptFragment : Fragment() {
 
         binding.storeNameInput.setOnItemClickListener { adapter, _, position, _ ->
             val store = adapter.getItemAtPosition(position) as Store
-            pickedStore = store
-            binding.storeNameInput.setText(store.name)
-            binding.storeNameInput.isEnabled = false
-
             if ("" == store.nip && binding.storeNameInput.adapter.count - 1 == position) {
                 receiptDataViewModel.savedStore.value = null
+                binding.storeNameInput.setText("")
                 Navigation.findNavController(requireView())
                     .navigate(R.id.action_addReceiptFragment_to_editStoreFragment)
+            } else {
+                pickedStore = store
+                binding.storeNameInput.setText(store.name)
+                binding.storeNameInput.isEnabled = false
             }
 
         }
