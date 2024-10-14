@@ -1,6 +1,7 @@
 package com.example.navsample.adapters
 
 import android.content.Context
+import android.graphics.Color
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
@@ -33,6 +34,12 @@ class ReceiptListAdapter(
         holder.binding.time.text = receiptList[position].time
         holder.binding.subtotalPrize.text = doubleToString(receiptList[position].pln)
         holder.binding.productCount.text = receiptList[position].productCount.toString()
+
+        if (receiptList[position].validProductCount != receiptList[position].productCount) {
+            holder.binding.productCount.setTextColor(Color.RED)
+            holder.binding.productText.setTextColor(Color.RED)
+        }
+
         holder.binding.mainLayout.setOnClickListener {
             itemClickListener.onItemClick(position)
         }

@@ -38,7 +38,7 @@ class ReceiptDaoHelper {
         ): List<ReceiptWithStore>? {
 
             val sql = StringBuilder()
-                .append("SELECT r.id as id, storeId, nip, s.name, s.defaultCategoryId, pln, ptu, date, time, count(p.id)  as productCount ")
+                .append("SELECT r.id as id, storeId, nip, s.name, s.defaultCategoryId, pln, ptu, date, time, sum(p.validPrice)  as validProductCount , count(p.id)  as productCount ")
                 .append("FROM receipt r ")
                 .append("INNER JOIN  store s ON  s.id = r.storeId ")
                 .append("LEFT JOIN product p ON  r.id = p.receiptId ")
