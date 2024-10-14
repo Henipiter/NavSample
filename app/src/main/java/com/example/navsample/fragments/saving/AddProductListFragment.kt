@@ -126,10 +126,7 @@ class AddProductListFragment : Fragment(), ItemClickListener {
         imageAnalyzerViewModel.uid = receiptImageViewModel.uid.value ?: "temp"
         receiptImageViewModel.bitmapCropped.value?.let { bitmap ->
             imageAnalyzerViewModel.analyzeProductList(
-                bitmap,
-                receiptId,
-                categoryId,
-                receiptDataViewModel.categoryList.value
+                bitmap, receiptId, categoryId, receiptDataViewModel.categoryList.value
             )
         }
     }
@@ -226,15 +223,12 @@ class AddProductListFragment : Fragment(), ItemClickListener {
                 }
 
                 R.id.confirm -> {
-                    isProductsAreValid()
-
-                    receiptDataViewModel.insertProducts(
-                        receiptDataViewModel.product.value?.toList() ?: listOf()
-                    )
-                    imageAnalyzerViewModel.clearData()
-                    Navigation.findNavController(binding.root)
-                        .popBackStack(R.id.menuFragment, false)
-
+                    if (!isProductsAreValid()) {
+                        DeleteConfirmationDialog("Some products have invalid prices. Continue?")
+                        { save() }.show(childFragmentManager, "TAG")
+                    } else {
+                        save()
+                    }
                     true
                 }
 
@@ -242,6 +236,14 @@ class AddProductListFragment : Fragment(), ItemClickListener {
             }
         }
 
+    }
+
+    private fun save() {
+        receiptDataViewModel.insertProducts(
+            receiptDataViewModel.product.value?.toList() ?: listOf()
+        )
+        imageAnalyzerViewModel.clearData()
+        Navigation.findNavController(binding.root).popBackStack(R.id.menuFragment, false)
     }
 
     private fun isProductsAreValid(): Boolean {
