@@ -74,6 +74,8 @@ class AddStoreFragment : Fragment() {
             binding.storeNIPInput.setText(store.nip)
             binding.storeDefaultCategoryInput.setText(chosenCategory.name)
             actualNIP = store.nip
+
+            validateNip(actualNIP)
         }
         receiptDataViewModel.store.value = null
 
@@ -106,13 +108,7 @@ class AddStoreFragment : Fragment() {
                 isDuplicatedNIP = false
             }
 
-            if (!isCorrectNIP(text.toString())) {
-                binding.storeNIPLayout.error = "Bad NIP"
-                binding.storeNIPLayout.helperText = null
-            } else {
-                binding.storeNIPLayout.error = null
-                binding.storeNIPLayout.helperText = "Correct NIP"
-            }
+            validateNip(text.toString())
         }
         binding.toolbar.setOnMenuItemClickListener {
             when (it.itemId) {
@@ -168,8 +164,11 @@ class AddStoreFragment : Fragment() {
         binding.toolbar.setNavigationOnClickListener {
             if (mode == DataMode.EDIT) {
                 changeViewToDisplayMode()
-                binding.storeNIPInput.setText(receiptDataViewModel.savedStore.value?.nip)
-                binding.storeNameInput.setText(receiptDataViewModel.savedStore.value?.name)
+                receiptDataViewModel.savedStore.value?.let { savedStore ->
+                    binding.storeNIPInput.setText(savedStore.nip)
+                    binding.storeNameInput.setText(savedStore.name)
+                    validateNip(savedStore.nip)
+                }
             } else {
                 Navigation.findNavController(it).popBackStack()
             }
@@ -197,6 +196,15 @@ class AddStoreFragment : Fragment() {
         }
     }
 
+    private fun validateNip(text: String) {
+        if (!isCorrectNIP(text)) {
+            binding.storeNIPLayout.error = "Bad NIP"
+            binding.storeNIPLayout.helperText = null
+        } else {
+            binding.storeNIPLayout.error = null
+            binding.storeNIPLayout.helperText = "Correct NIP"
+        }
+    }
 
     private fun saveChangesToDatabase() {
         if (mode == DataMode.NEW) {

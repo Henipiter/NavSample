@@ -11,6 +11,8 @@ class ImageKeywordAnalyzer {
         private const val REGEX_NIP_FIRST = """NIP(\.?:?)\s*(\d{10}|\d{3}-\d{2}-\d{2}-\d{3})"""
         private const val REGEX_NIP_SECOND =
             """(.IP|N.P|NI.)(\.?:?)\s*(\d{10}|\d{3}-\d{2}-\d{2}-\d{3})"""
+        private const val REGEX_NIP_THIRD =
+            """(.IP|N.P|NI.)(\.?:?)"""
         private const val REGEX_PLN_FIRST = """(SUMA|.UMA|S.MA|SU.A|SUM.)\s*:?\s*(PLN)\s*"""
         private const val REGEX_PLN_SECOND =
             """(SUMA|.UMA|S.MA|SU.A|SUM.)\s*:?\s*(.LN|P.N|PL.)\s*"""
@@ -28,6 +30,7 @@ class ImageKeywordAnalyzer {
     private var indexOfCellWithDate = -1
     private var indexOfCellWithTime = -1
     private var indexOfCellWithNip = -1
+    private var indexOfCellWithNipEmergency = -1
 
     var companyName: String = ""
     var valueTotalSum: Double = 0.0
@@ -99,11 +102,14 @@ class ImageKeywordAnalyzer {
                 ""
             ) ?: ""
         }
-        if (indexOfCellWithNip == -1) {
-            Log.i("ImageKeywordAnalyzer", "not found 'nip'")
-        } else {
+        if (indexOfCellWithNip != -1) {
             val nip = data[indexOfCellWithNip].content
             valueNIP = Regex("""\d""").findAll(nip).take(10).joinToString("") { it.value }
+        } else if (indexOfCellWithNipEmergency != -1) {
+            val nip = data[indexOfCellWithNipEmergency].content
+            valueNIP = Regex("""\d""").findAll(nip).take(10).joinToString("") { it.value }
+        } else {
+            Log.i("ImageKeywordAnalyzer", "not found 'nip'")
         }
 
         Log.i("ImageKeywordAnalyzer", "PLN;$valueTotalSum")
@@ -118,6 +124,7 @@ class ImageKeywordAnalyzer {
         indexOfCellWithDate = -1
         indexOfCellWithTime = -1
         indexOfCellWithNip = -1
+        indexOfCellWithNipEmergency = -1
         for (i in 0..data.lastIndex) {
             if (isContainsSumPrice(data[i])) {
                 indexOfCellWithSumPrice = i
@@ -130,6 +137,12 @@ class ImageKeywordAnalyzer {
             }
             if (indexOfCellWithNip == -1 && isContainsNip(data[i])) {
                 indexOfCellWithNip = i
+            }
+            if (indexOfCellWithNip == -1 && indexOfCellWithNipEmergency == -1 && isContainsNipEmergency(
+                    data[i]
+                )
+            ) {
+                indexOfCellWithNipEmergency = i
             }
         }
     }
@@ -150,5 +163,9 @@ class ImageKeywordAnalyzer {
     private fun isContainsNip(cell: Cell): Boolean {
         return Regex(REGEX_NIP_FIRST).containsMatchIn(cell.content) ||
                 Regex(REGEX_NIP_SECOND).containsMatchIn(cell.content)
+    }
+
+    private fun isContainsNipEmergency(cell: Cell): Boolean {
+        return Regex(REGEX_NIP_THIRD).containsMatchIn(cell.content)
     }
 }
