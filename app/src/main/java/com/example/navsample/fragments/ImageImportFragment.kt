@@ -1,14 +1,11 @@
 package com.example.navsample.fragments
 
-import android.graphics.Canvas
 import android.graphics.ImageDecoder
-import android.graphics.Paint
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts.PickVisualMedia
 import androidx.camera.core.ExperimentalGetImage
@@ -36,7 +33,6 @@ class ImageImportFragment : Fragment() {
     private val receiptImageViewModel: ReceiptImageViewModel by activityViewModels()
     private val receiptDataViewModel: ReceiptDataViewModel by activityViewModels()
 
-    private var goNext = false
     private val pickMedia = registerForActivityResult(PickVisualMedia()) { uri ->
         if (uri != null) {
             receiptImageViewModel.uri.value = uri
@@ -66,12 +62,15 @@ class ImageImportFragment : Fragment() {
 
         }
         binding.loadImage.setOnClickListener {
-            goNext = true
             pickMedia.launch(PickVisualMediaRequest(PickVisualMedia.ImageOnly))
         }
 
-        binding.receiptImage.setOnCropImageCompleteListener { listener, cropResult ->
-            receiptImageViewModel.bitmap.value = cropResult.bitmap
+        binding.receiptImage.setOnCropImageCompleteListener { _, result ->
+            result.getBitmap(requireContext())?.let { bitmap ->
+                receiptImageViewModel.bitmap.value = bitmap
+                val analyzedImage = InputImage.fromBitmap(bitmap, 0)
+                imageAnalyzerViewModel.analyzeReceipt(analyzedImage)
+            }
         }
 
         binding.manualButton.setOnClickListener {
@@ -82,27 +81,18 @@ class ImageImportFragment : Fragment() {
                 .navigate(R.id.action_imageImportFragment_to_addReceiptFragment)
         }
 
-        binding.receiptImage.setOnCropImageCompleteListener { listener, result ->
-            Toast.makeText(requireContext(), "'${result.bitmap?.width ?: 0}'", Toast.LENGTH_SHORT)
-                .show()
-        }
-
         binding.analyzeButton.setOnClickListener {
-            goNext = true
-            receiptImageViewModel.bitmap.value = binding.receiptImage.getCroppedImage()
-            receiptImageViewModel.setImageUriOriginal()
+            val cropped = binding.receiptImage.getCroppedImage()
+            receiptImageViewModel.bitmap.value = cropped
 
-            analyzeImage()
+            binding.receiptImage.croppedImageAsync()
+            Navigation.findNavController(requireView())
+                .navigate(R.id.action_imageImportFragment_to_addReceiptFragment)
+
         }
 
     }
 
-    private fun analyzeImage() {
-        receiptImageViewModel.bitmap.value?.let { it1 ->
-            val analyzedImage = InputImage.fromBitmap(it1, 0)
-            imageAnalyzerViewModel.analyzeReceipt(analyzedImage)
-        }
-    }
 
     private fun initObserver() {
         receiptImageViewModel.bitmap.observe(viewLifecycleOwner) {
@@ -114,48 +104,6 @@ class ImageImportFragment : Fragment() {
             }
         }
 
-
-        imageAnalyzerViewModel.receiptAnalyzed.observe(viewLifecycleOwner) {
-
-            if (it == null) {
-                return@observe
-            }
-            val store = Store(it.valueNIP, it.companyName, 0)
-            val receipt = Receipt(
-                -1,
-                it.valuePLN.toString().toDouble(),
-                it.valuePTU.toString().toDouble(),
-                it.valueDate,
-                it.valueTime
-            )
-            Log.i("ImageProcess", "valueNIP ${it.valueNIP}")
-            Log.i("ImageProcess", "companyName ${it.companyName}")
-            Log.i("ImageProcess", "valuePTU ${it.valuePTU}")
-            Log.i("ImageProcess", "valuePLN ${it.valuePLN}")
-            Log.i("ImageProcess", "valueDate ${it.valueDate}")
-            Log.i("ImageProcess", "valueTime ${it.valueTime}")
-            receiptDataViewModel.store.value = store
-            receiptDataViewModel.receipt.value = receipt
-
-            if (goNext) {
-                goNext = false
-                Navigation.findNavController(requireView())
-                    .navigate(R.id.action_imageImportFragment_to_addReceiptFragment)
-            }
-
-        }
-    }
-
-
-    private fun drawLine(
-        startX: Int,
-        startY: Int,
-        stopX: Int,
-        stopY: Int,
-        canvas: Canvas,
-        paint: Paint,
-    ) {
-        canvas.drawLine(startX.toFloat(), startY.toFloat(), stopX.toFloat(), stopY.toFloat(), paint)
     }
 
 }
