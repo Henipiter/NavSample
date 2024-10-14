@@ -29,6 +29,7 @@ class AddStoreFragment : Fragment() {
     private var mode = DataMode.NEW
     private var chosenCategory = Category("", "")
     private var currentStoreId = -1
+    private var isDuplicatedNIP = false
     private lateinit var dropdownAdapter: CategoryDropdownAdapter
 
 
@@ -93,11 +94,16 @@ class AddStoreFragment : Fragment() {
             val index =
                 receiptDataViewModel.storeList.value?.map { it.nip }?.indexOf(text.toString()) ?: -1
 
-            if (text.toString() != actualNIP && index >= 0 && currentStoreId >= 0 && currentStoreId != index) {
+            val duplicatedStore =
+                receiptDataViewModel.storeList.value?.find { it.nip == text.toString() }
+            if (text.toString() != actualNIP && duplicatedStore != null && duplicatedStore.id != currentStoreId) {
                 binding.storeNIPLayout.error =
                     "NIP exist in store " + (receiptDataViewModel.storeList.value?.get(index)?.name
                         ?: "")
+                isDuplicatedNIP = true
                 return@doOnTextChanged
+            } else {
+                isDuplicatedNIP = false
             }
 
             if (!isCorrectNIP(text.toString())) {
@@ -116,6 +122,15 @@ class AddStoreFragment : Fragment() {
                 }
 
                 R.id.confirm -> {
+                    if (isDuplicatedNIP) {
+                        Toast.makeText(
+                            requireContext(),
+                            "NIP cannot be duplicated",
+                            Toast.LENGTH_SHORT
+                        )
+                            .show()
+                        return@setOnMenuItemClickListener false
+                    }
                     if (binding.storeNIPInput.text.toString() == "") {
                         Toast.makeText(requireContext(), "NIP cannot be empty", Toast.LENGTH_SHORT)
                             .show()
@@ -131,9 +146,11 @@ class AddStoreFragment : Fragment() {
                         return@setOnMenuItemClickListener false
 
                     }
-                    if (binding.storeNIPLayout.error != null) {
-                        Toast.makeText(requireContext(), "Incorrect nip", Toast.LENGTH_SHORT).show()
-                    }
+                    if (binding.storeNIPInput.text.toString() == "")
+                        if (binding.storeNIPLayout.error != null) {
+                            Toast.makeText(requireContext(), "Incorrect nip", Toast.LENGTH_SHORT)
+                                .show()
+                        }
                     saveChangesToDatabase()
                     changeViewToDisplayMode()
                     receiptDataViewModel.store.value?.nip = binding.storeNIPInput.text.toString()
