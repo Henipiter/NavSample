@@ -7,8 +7,9 @@ import android.view.ViewGroup
 import androidx.fragment.app.DialogFragment
 import com.example.navsample.databinding.DialogConfirmBinding
 
-class DeleteConfirmationDialog(
-    private var details: String,
+class ConfirmDialog(
+    private var title: String,
+    private var description: String,
     private var onConfirmClick: () -> Unit,
 ) : DialogFragment() {
     private var _binding: DialogConfirmBinding? = null
@@ -24,7 +25,8 @@ class DeleteConfirmationDialog(
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        binding.detailsText.text = details
+        binding.titleText.text = title
+        binding.descriptionText.text = description
 
 
         binding.confirmButton.setOnClickListener {

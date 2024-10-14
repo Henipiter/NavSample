@@ -18,7 +18,7 @@ import com.example.navsample.adapters.StoreListAdapter
 import com.example.navsample.databinding.FragmentStoreListBinding
 import com.example.navsample.dto.sort.SortProperty
 import com.example.navsample.dto.sort.StoreSort
-import com.example.navsample.fragments.dialogs.DeleteConfirmationDialog
+import com.example.navsample.fragments.dialogs.ConfirmDialog
 import com.example.navsample.fragments.dialogs.SortingDialog
 import com.example.navsample.viewmodels.ReceiptDataViewModel
 
@@ -73,7 +73,8 @@ class StoreListFragment : Fragment(), ItemClickListener {
             receiptDataViewModel.storeList.value ?: arrayListOf(), this
         ) { i: Int ->
             receiptDataViewModel.storeList.value?.get(i)?.let {
-                DeleteConfirmationDialog(
+                ConfirmDialog(
+                    "Delete",
                     "$i Are you sure you want to delete the store with dependent receipts and" +
                             " products??\n\n" + "Name: " + it.name + "\nNIP: " + it.nip
                 ) {

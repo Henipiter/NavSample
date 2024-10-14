@@ -30,7 +30,7 @@ import com.example.navsample.dto.Utils.Companion.roundDouble
 import com.example.navsample.dto.sorting.AlgorithmItemAdapterArgument
 import com.example.navsample.exception.NoReceiptIdException
 import com.example.navsample.exception.NoStoreIdException
-import com.example.navsample.fragments.dialogs.DeleteConfirmationDialog
+import com.example.navsample.fragments.dialogs.ConfirmDialog
 import com.example.navsample.viewmodels.ImageAnalyzerViewModel
 import com.example.navsample.viewmodels.ReceiptDataViewModel
 import com.example.navsample.viewmodels.ReceiptImageViewModel
@@ -175,7 +175,8 @@ class AddProductListFragment : Fragment(), ItemClickListener {
             this
         ) { i: Int ->
             receiptDataViewModel.product.value?.get(i)?.let {
-                DeleteConfirmationDialog(
+                ConfirmDialog(
+                    "Delete",
                     "Are you sure you want to delete the product??\n\n" + "Name: " + it.name + "\nPLN: " + it.subtotalPrice
                 ) {
                     if (it.id != null && it.id!! >= 0) {
@@ -224,7 +225,10 @@ class AddProductListFragment : Fragment(), ItemClickListener {
 
                 R.id.confirm -> {
                     if (!isProductsAreValid()) {
-                        DeleteConfirmationDialog("Some products have invalid prices. Continue?")
+                        ConfirmDialog(
+                            "Invalid prices",
+                            "Some products have invalid prices. Continue?"
+                        )
                         { save() }.show(childFragmentManager, "TAG")
                     } else {
                         save()

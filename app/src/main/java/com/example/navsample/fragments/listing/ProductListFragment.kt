@@ -19,7 +19,7 @@ import com.example.navsample.databinding.FragmentProductListBinding
 import com.example.navsample.dto.sort.RichProductSort
 import com.example.navsample.dto.sort.SortProperty
 import com.example.navsample.entities.Product
-import com.example.navsample.fragments.dialogs.DeleteConfirmationDialog
+import com.example.navsample.fragments.dialogs.ConfirmDialog
 import com.example.navsample.fragments.dialogs.SortingDialog
 import com.example.navsample.viewmodels.ReceiptDataViewModel
 
@@ -95,7 +95,8 @@ class ProductListFragment : Fragment(), ItemClickListener {
 
         ) { i ->
             receiptDataViewModel.productRichList.value?.get(i)?.let {
-                DeleteConfirmationDialog(
+                ConfirmDialog(
+                    "Delete",
                     "$i Are you sure you want to delete the product??\n\nName: " + it.name +
                             "\nPLN: " + it.subtotalPrice
                 ) {

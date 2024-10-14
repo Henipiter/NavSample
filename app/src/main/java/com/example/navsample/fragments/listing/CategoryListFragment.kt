@@ -15,7 +15,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.navsample.ItemClickListener
 import com.example.navsample.adapters.CategoryListAdapter
 import com.example.navsample.databinding.FragmentCategoryListBinding
-import com.example.navsample.fragments.dialogs.DeleteConfirmationDialog
+import com.example.navsample.fragments.dialogs.ConfirmDialog
 import com.example.navsample.viewmodels.ReceiptDataViewModel
 
 
@@ -45,7 +45,10 @@ class CategoryListFragment : Fragment(), ItemClickListener {
             requireContext(), receiptDataViewModel.categoryList.value ?: arrayListOf(), this
         ) { i ->
             receiptDataViewModel.categoryList.value?.get(i)?.let {
-                DeleteConfirmationDialog("$i Are you sure you want to delete the category products??\n\nName: " + it.name) {
+                ConfirmDialog(
+                    "Delete",
+                    "$i Are you sure you want to delete the category products??\n\nName: " + it.name
+                ) {
                     if (receiptDataViewModel.productRichList.value?.none { product -> product.categoryId == it.id } != true) {
                         Toast.makeText(
                             requireContext(),
