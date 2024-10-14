@@ -56,7 +56,7 @@ class AddStoreFragment : Fragment() {
         initObserver()
         receiptDataViewModel.refreshStoreList()
         receiptDataViewModel.refreshCategoryList()
-        receiptImageViewModel.bitmap.value?.let {
+        receiptImageViewModel.bitmapCroppedReceipt.value?.let {
             binding.receiptImage.setImageBitmap(it)
         }
         var actualNIP = ""
@@ -258,10 +258,10 @@ class AddStoreFragment : Fragment() {
     }
 
     private fun initObserver() {
-        receiptImageViewModel.bitmap.observe(viewLifecycleOwner) {
+        receiptImageViewModel.bitmapCroppedReceipt.observe(viewLifecycleOwner) {
             if (it != null) {
                 binding.receiptImage.visibility = View.VISIBLE
-                binding.receiptImage.setImageBitmap(receiptImageViewModel.bitmap.value)
+                binding.receiptImage.setImageBitmap(receiptImageViewModel.bitmapCroppedReceipt.value)
             } else {
                 binding.receiptImage.visibility = View.GONE
             }

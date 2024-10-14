@@ -60,10 +60,10 @@ class AddProductListFragment : Fragment(), ItemClickListener {
 
     @SuppressLint("NotifyDataSetChanged")
     private fun initObserver() {
-        receiptImageViewModel.bitmapCropped.observe(viewLifecycleOwner) {
+        receiptImageViewModel.bitmapCroppedProduct.observe(viewLifecycleOwner) {
             if (it != null) {
                 binding.receiptImage.visibility = View.VISIBLE
-                binding.receiptImage.setImageBitmap(receiptImageViewModel.bitmapCropped.value)
+                binding.receiptImage.setImageBitmap(receiptImageViewModel.bitmapCroppedProduct.value)
                 binding.toolbar.menu.findItem(R.id.reorder).isVisible = true
             } else {
                 binding.receiptImage.visibility = View.GONE
@@ -124,7 +124,7 @@ class AddProductListFragment : Fragment(), ItemClickListener {
             receiptDataViewModel.store.value?.defaultCategoryId ?: throw NoStoreIdException()
 
         imageAnalyzerViewModel.uid = receiptImageViewModel.uid.value ?: "temp"
-        receiptImageViewModel.bitmapCropped.value?.let { bitmap ->
+        receiptImageViewModel.bitmapCroppedProduct.value?.let { bitmap ->
             imageAnalyzerViewModel.analyzeProductList(
                 bitmap, receiptId, categoryId, receiptDataViewModel.categoryList.value
             )
@@ -163,7 +163,7 @@ class AddProductListFragment : Fragment(), ItemClickListener {
         myPref =
             requireContext().getSharedPreferences("preferences", AppCompatActivity.MODE_PRIVATE)
 
-        if (receiptImageViewModel.uriCropped.value == null) {
+        if (receiptImageViewModel.uriCroppedProduct.value == null) {
             startCameraWithUri()
         }
         initObserver()
@@ -277,7 +277,7 @@ class AddProductListFragment : Fragment(), ItemClickListener {
             requireContext().contentResolver.openInputStream(it)
         })
 
-        receiptImageViewModel.bitmapCropped.value = bitmap
+        receiptImageViewModel.bitmapCroppedProduct.value = bitmap
         receiptImageViewModel.setImageUriCropped()
         analyzeImage()
     }

@@ -38,7 +38,7 @@ class ImageImportFragment : Fragment() {
             receiptImageViewModel.uri.value = uri
             val source = ImageDecoder.createSource(requireContext().contentResolver, uri)
             val bitmap = ImageDecoder.decodeBitmap(source)
-            receiptImageViewModel.bitmap.value = bitmap
+            receiptImageViewModel.bitmapOriginal.value = bitmap
             binding.receiptImage.setImageBitmap(bitmap)
         } else {
             Log.d("PhotoPicker", "No media selected")
@@ -67,7 +67,7 @@ class ImageImportFragment : Fragment() {
 
         binding.receiptImage.setOnCropImageCompleteListener { _, result ->
             result.getBitmap(requireContext())?.let { bitmap ->
-                receiptImageViewModel.bitmap.value = bitmap
+                receiptImageViewModel.bitmapCroppedReceipt.value = bitmap
                 val analyzedImage = InputImage.fromBitmap(bitmap, 0)
                 imageAnalyzerViewModel.analyzeReceipt(analyzedImage)
             }
@@ -83,7 +83,7 @@ class ImageImportFragment : Fragment() {
 
         binding.analyzeButton.setOnClickListener {
             val cropped = binding.receiptImage.getCroppedImage()
-            receiptImageViewModel.bitmap.value = cropped
+            receiptImageViewModel.bitmapCroppedReceipt.value = cropped
 
             binding.receiptImage.croppedImageAsync()
             Navigation.findNavController(requireView())
@@ -95,7 +95,7 @@ class ImageImportFragment : Fragment() {
 
 
     private fun initObserver() {
-        receiptImageViewModel.bitmap.observe(viewLifecycleOwner) {
+        receiptImageViewModel.bitmapOriginal.observe(viewLifecycleOwner) {
             if (it != null) {
                 binding.receiptImage.visibility = View.VISIBLE
                 binding.receiptImage.setImageBitmap(it)

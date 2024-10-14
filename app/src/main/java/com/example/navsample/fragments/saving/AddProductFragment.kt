@@ -54,10 +54,10 @@ class AddProductFragment : Fragment() {
     }
 
     private fun initObserver() {
-        receiptImageViewModel.bitmapCropped.observe(viewLifecycleOwner) {
+        receiptImageViewModel.bitmapCroppedProduct.observe(viewLifecycleOwner) {
             if (it != null) {
                 binding.receiptImage.visibility = View.VISIBLE
-                binding.receiptImage.setImageBitmap(receiptImageViewModel.bitmapCropped.value)
+                binding.receiptImage.setImageBitmap(receiptImageViewModel.bitmapCroppedProduct.value)
             } else {
                 binding.receiptImage.visibility = View.GONE
             }
