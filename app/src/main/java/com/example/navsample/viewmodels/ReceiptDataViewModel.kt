@@ -54,14 +54,14 @@ class ReceiptDataViewModel : ViewModel() {
 
     lateinit var imageUuid: MutableLiveData<String>
 
-    lateinit var storeSort: MutableLiveData<SortProperty<StoreSort>>
-    lateinit var receiptWithStoreSort: MutableLiveData<SortProperty<ReceiptWithStoreSort>>
-    lateinit var richProductSort: MutableLiveData<SortProperty<RichProductSort>>
+    val storeSort = MutableLiveData(defaultStoreSort)
+    val receiptWithStoreSort = MutableLiveData(defaultReceiptWithStoreSort)
+    val richProductSort = MutableLiveData(defaultRichProductSort)
 
-    lateinit var filterCategoryList: MutableLiveData<FilterCategoryList>
-    lateinit var filterStoreList: MutableLiveData<FilterStoreList>
-    lateinit var filterProductList: MutableLiveData<FilterProductList>
-    lateinit var filterReceiptList: MutableLiveData<FilterReceiptList>
+    val filterCategoryList = MutableLiveData(FilterCategoryList())
+    val filterStoreList = MutableLiveData(FilterStoreList())
+    val filterProductList = MutableLiveData(FilterProductList())
+    val filterReceiptList = MutableLiveData(FilterReceiptList())
 
     lateinit var store: MutableLiveData<Store>
     lateinit var receipt: MutableLiveData<Receipt>
@@ -105,23 +105,15 @@ class ReceiptDataViewModel : ViewModel() {
     fun <Sort : ParentSort> updateSorting(sort: SortProperty<Sort>) {
         when (sort.sort) {
             is StoreSort -> {
-                filterStoreList.value?.let {
-                    refreshStoreList(it.store, it.nip)
-                }
+                loadDataByStoreFilter()
             }
 
             is ReceiptWithStoreSort -> {
-                filterReceiptList.value?.let {
-                    refreshReceiptList(it.store, it.dateFrom, it.dateTo)
-                }
+                loadDataByReceiptFilter()
             }
 
             is RichProductSort -> {
-                filterProductList.value?.let {
-                    refreshProductList(
-                        it.store, it.category, it.dateFrom, it.dateTo, it.lowerPrice, it.higherPrice
-                    )
-                }
+                loadDataByProductFilter()
             }
         }
     }
@@ -160,14 +152,13 @@ class ReceiptDataViewModel : ViewModel() {
     }
 
     fun clearData() {
-        storeSort = MutableLiveData<SortProperty<StoreSort>>(defaultStoreSort)
-        receiptWithStoreSort =
-            MutableLiveData<SortProperty<ReceiptWithStoreSort>>(defaultReceiptWithStoreSort)
-        richProductSort = MutableLiveData<SortProperty<RichProductSort>>(defaultRichProductSort)
-        filterCategoryList = MutableLiveData<FilterCategoryList>(FilterCategoryList())
-        filterStoreList = MutableLiveData<FilterStoreList>(FilterStoreList())
-        filterProductList = MutableLiveData<FilterProductList>(FilterProductList())
-        filterReceiptList = MutableLiveData<FilterReceiptList>(FilterReceiptList())
+        storeSort.value = defaultStoreSort
+        receiptWithStoreSort.value = defaultReceiptWithStoreSort
+        richProductSort.value = defaultRichProductSort
+        filterCategoryList.value = FilterCategoryList()
+        filterStoreList.value = FilterStoreList()
+        filterProductList.value = FilterProductList()
+        filterReceiptList.value = FilterReceiptList()
 
         imageUuid = MutableLiveData<String>(null)
         reorderedProductTiles = MutableLiveData<Boolean>(false)
@@ -192,6 +183,10 @@ class ReceiptDataViewModel : ViewModel() {
 
 
         refreshCategoryList()
+        loadDataByStoreFilter()
+        loadDataByProductFilter()
+        loadDataByReceiptFilter()
+
         userOrderedName = MutableLiveData(arrayListOf())
         userOrderedPrices = MutableLiveData(arrayListOf())
         algorithmOrderedNames = MutableLiveData(
@@ -352,7 +347,7 @@ class ReceiptDataViewModel : ViewModel() {
                 Log.e("Insert store to DB", e.message.toString())
             }
             savedStore.postValue(newStore)
-            refreshStoreList()
+            loadDataByStoreFilter()
         }
     }
 
