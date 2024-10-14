@@ -125,11 +125,15 @@ class ImageKeywordAnalyzer {
     }
 
     fun findKeywordsIndexes(data: List<Cell>) {
+        if (data.isEmpty()) {
+            return
+        }
         indexOfCellWithSumPrice = -1
         indexOfCellWithDate = -1
         indexOfCellWithTime = -1
         indexOfCellWithNip = -1
         indexOfCellWithNipEmergency = -1
+
         topYLevel = data[0].getMinY()
         for (i in 0..data.lastIndex) {
             isHighestCell(data[i], i)

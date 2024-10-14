@@ -112,6 +112,8 @@ class AddReceiptFragment : Fragment() {
 
                     val indexOfStore = storeList.map { sort -> sort.nip }.indexOf(it.nip)
                     if (indexOfStore < 0) {
+
+                        binding.storeNameInput.setText("")
                         Navigation.findNavController(requireView())
                             .navigate(R.id.action_addReceiptFragment_to_editStoreFragment)
                     } else {
