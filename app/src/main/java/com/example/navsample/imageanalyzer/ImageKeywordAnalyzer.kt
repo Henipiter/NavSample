@@ -25,7 +25,9 @@ class ImageKeywordAnalyzer {
     private var topBoundary = 0
     private var bottomBoundary = 0
     private var leftBoundary = 0
+    private var topYLevel = 0
 
+    private var indexOfCellWithCompanyName = -1
     private var indexOfCellWithSumPrice = -1
     private var indexOfCellWithDate = -1
     private var indexOfCellWithTime = -1
@@ -111,6 +113,9 @@ class ImageKeywordAnalyzer {
         } else {
             Log.i("ImageKeywordAnalyzer", "not found 'nip'")
         }
+        if (indexOfCellWithCompanyName != -1) {
+            companyName = data[indexOfCellWithCompanyName].content
+        }
 
         Log.i("ImageKeywordAnalyzer", "PLN;$valueTotalSum")
         Log.i("ImageKeywordAnalyzer", "PTU;$valueTaxSum")
@@ -125,7 +130,10 @@ class ImageKeywordAnalyzer {
         indexOfCellWithTime = -1
         indexOfCellWithNip = -1
         indexOfCellWithNipEmergency = -1
+        topYLevel = data[0].getMinY()
         for (i in 0..data.lastIndex) {
+            isHighestCell(data[i], i)
+
             if (isContainsSumPrice(data[i])) {
                 indexOfCellWithSumPrice = i
             }
@@ -138,12 +146,18 @@ class ImageKeywordAnalyzer {
             if (indexOfCellWithNip == -1 && isContainsNip(data[i])) {
                 indexOfCellWithNip = i
             }
-            if (indexOfCellWithNip == -1 && indexOfCellWithNipEmergency == -1 && isContainsNipEmergency(
-                    data[i]
-                )
+            if (indexOfCellWithNip == -1 && indexOfCellWithNipEmergency == -1 &&
+                isContainsNipEmergency(data[i])
             ) {
                 indexOfCellWithNipEmergency = i
             }
+        }
+    }
+
+    private fun isHighestCell(cell: Cell, index: Int) {
+        if (cell.getMinY() < topYLevel) {
+            topYLevel = cell.getMinY()
+            indexOfCellWithCompanyName = index
         }
     }
 
