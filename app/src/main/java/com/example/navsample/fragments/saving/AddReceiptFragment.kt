@@ -132,19 +132,16 @@ class AddReceiptFragment : Fragment() {
 
 
         }
-        receiptDataViewModel.store.observe(viewLifecycleOwner) {
-
-            setStoreName(receiptDataViewModel.store.value, receiptDataViewModel.storeList.value)
-            pickedStore = it
+        receiptDataViewModel.store.observe(viewLifecycleOwner) { store ->
+            store?.let {
+                setStoreName(it, receiptDataViewModel.storeList.value)
+            }
         }
         //TODO Reduce duplicated observed (methods above and under)
-        receiptDataViewModel.savedStore.observe(viewLifecycleOwner) {
-
-            setStoreName(
-                receiptDataViewModel.savedStore.value,
-                receiptDataViewModel.storeList.value
-            )
-            pickedStore = it
+        receiptDataViewModel.savedStore.observe(viewLifecycleOwner) { store ->
+            store?.let {
+                setStoreName(it, receiptDataViewModel.storeList.value)
+            }
         }
         receiptDataViewModel.receipt.observe(viewLifecycleOwner) {
             it?.let {
@@ -247,7 +244,7 @@ class AddReceiptFragment : Fragment() {
     }
 
     private fun saveChangesToDatabase() {
-        if (pickedStore == null) {
+        if (pickedStore == null || pickedStore?.id == null) {
             Toast.makeText(requireContext(), "Pick store!", Toast.LENGTH_SHORT).show()
             return
         }
@@ -260,34 +257,33 @@ class AddReceiptFragment : Fragment() {
         val date = binding.receiptDateInput.text.toString()
         val time = binding.receiptTimeInput.text.toString()
 
-
-        if (pickedStore == null) {
-            Toast.makeText(requireContext(), "Pick store!", Toast.LENGTH_SHORT).show()
-            return
-        }
         if (mode == DataMode.NEW) {
-            val receipt = Receipt(-1, -1.0, -1.0, "", "").apply {
-                this.storeId = pickedStore!!.id!!
-                this.pln = pln
-                this.ptu = ptu
-                this.date = date
-                this.time = time
-            }
-            receiptDataViewModel.insertReceipt(receipt)
-            val action =
-                AddReceiptFragmentDirections.actionAddReceiptFragmentToAddProductListFragment()
-            Navigation.findNavController(requireView()).navigate(action)
-        } else if (mode == DataMode.EDIT) {
-            receiptDataViewModel.receipt.value?.let {
+            pickedStore?.id?.let { storeId ->
                 val receipt = Receipt(-1, -1.0, -1.0, "", "").apply {
-                    this.id = it.id
-                    this.storeId = pickedStore!!.id!!
+                    this.storeId = storeId
                     this.pln = pln
                     this.ptu = ptu
                     this.date = date
                     this.time = time
                 }
-                receiptDataViewModel.updateReceipt(receipt)
+                receiptDataViewModel.insertReceipt(receipt)
+                val action =
+                    AddReceiptFragmentDirections.actionAddReceiptFragmentToAddProductListFragment()
+                Navigation.findNavController(requireView()).navigate(action)
+            }
+        } else if (mode == DataMode.EDIT) {
+            receiptDataViewModel.receipt.value?.let {
+                pickedStore?.id?.let { storeId ->
+                    val receipt = Receipt(-1, -1.0, -1.0, "", "").apply {
+                        this.id = it.id
+                        this.storeId = storeId
+                        this.pln = pln
+                        this.ptu = ptu
+                        this.date = date
+                        this.time = time
+                    }
+                    receiptDataViewModel.updateReceipt(receipt)
+                }
             }
         }
         receiptDataViewModel.store.value = pickedStore
@@ -427,7 +423,8 @@ class AddReceiptFragment : Fragment() {
 
         datePicker.addOnPositiveButtonClickListener {
             calendarDate.timeInMillis = it
-            val date = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(calendarDate.time)
+            val date =
+                SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(calendarDate.time)
             binding.receiptDateInput.setText(date)
         }
     }
