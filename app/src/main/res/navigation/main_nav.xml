@@ -41,6 +41,9 @@
         <action
             android:id="@+id/action_addProductListFragment_to_experimentRecycleFragment"
             app:destination="@id/experimentRecycleFragment" />
+        <action
+            android:id="@+id/action_addProductListFragment_to_cropImageFragment"
+            app:destination="@id/cropImageFragment" />
     </fragment>
     <fragment
         android:id="@+id/addProductFragment"
@@ -153,4 +156,9 @@
         android:name="com.example.navsample.fragments.filter.FilterReceiptListFragment"
         android:label="fragment_filter_receipt_list"
         tools:layout="@layout/fragment_filter_receipt_list" />
+    <fragment
+        android:id="@+id/cropImageFragment"
+        android:name="com.example.navsample.fragments.CropImageFragment"
+        android:label="fragment_crop_image"
+        tools:layout="@layout/fragment_crop_image" />
 </navigation>

@@ -6,6 +6,7 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts.PickVisualMedia
 import androidx.camera.core.ExperimentalGetImage
@@ -57,9 +58,23 @@ class ImageImportFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         initObserver()
 
+        binding.toolbar.inflateMenu(R.menu.top_menu_crop)
+        binding.toolbar.visibility = View.GONE
+        binding.toolbar.setNavigationIcon(R.drawable.back)
+        binding.toolbar.menu.findItem(R.id.confirm).isVisible = false
         imageAnalyzerViewModel.uid = receiptImageViewModel.uid.value ?: "temp"
-        binding.captureImage.setOnClickListener {
+        binding.toolbar.setNavigationOnClickListener {
+            Navigation.findNavController(it).popBackStack()
+        }
+        binding.toolbar.setOnMenuItemClickListener {
+            when (it.itemId) {
+                R.id.rotate -> {
+                    Toast.makeText(requireContext(), "ROTATE", Toast.LENGTH_SHORT).show()
+                    true
+                }
 
+                else -> false
+            }
         }
         binding.loadImage.setOnClickListener {
             pickMedia.launch(PickVisualMediaRequest(PickVisualMedia.ImageOnly))
@@ -82,9 +97,6 @@ class ImageImportFragment : Fragment() {
         }
 
         binding.analyzeButton.setOnClickListener {
-            val cropped = binding.receiptImage.getCroppedImage()
-            receiptImageViewModel.bitmapCroppedReceipt.value = cropped
-
             binding.receiptImage.croppedImageAsync()
             Navigation.findNavController(requireView())
                 .navigate(R.id.action_imageImportFragment_to_addReceiptFragment)
@@ -98,9 +110,11 @@ class ImageImportFragment : Fragment() {
         receiptImageViewModel.bitmapOriginal.observe(viewLifecycleOwner) {
             if (it != null) {
                 binding.receiptImage.visibility = View.VISIBLE
+                binding.toolbar.visibility = View.VISIBLE
                 binding.receiptImage.setImageBitmap(it)
             } else {
                 binding.receiptImage.visibility = View.GONE
+                binding.toolbar.visibility = View.GONE
             }
         }
 
