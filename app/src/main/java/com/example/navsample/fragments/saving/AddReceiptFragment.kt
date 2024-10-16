@@ -263,6 +263,7 @@ class AddReceiptFragment : Fragment() {
                     this.time = time
                 }
                 receiptDataViewModel.insertReceipt(receipt)
+                receiptDataViewModel.loadDataByReceiptFilter()
                 val action =
                     AddReceiptFragmentDirections.actionAddReceiptFragmentToAddProductListFragment()
                 Navigation.findNavController(requireView()).navigate(action)
@@ -279,6 +280,7 @@ class AddReceiptFragment : Fragment() {
                         this.time = time
                     }
                     receiptDataViewModel.updateReceipt(receipt)
+                    receiptDataViewModel.loadDataByReceiptFilter()
                 }
             }
         }
