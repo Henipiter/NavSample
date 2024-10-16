@@ -93,12 +93,7 @@ class AddReceiptFragment : Fragment() {
     }
 
     private fun setStoreName(store: Store?, storeList: ArrayList<Store>?) {
-        if (store == null) {
-            binding.storeNameInput.setText("")
-            return
-        }
-        if (storeList.isNullOrEmpty()) {
-            binding.storeNameInput.setText(store.name)
+        if (store == null || storeList.isNullOrEmpty()) {
             return
         }
 
@@ -320,10 +315,13 @@ class AddReceiptFragment : Fragment() {
                 R.id.add_new -> {
                     receiptDataViewModel.receipt.value?.id?.let { id ->
                         receiptDataViewModel.refreshProductListForReceipt(id)
+                        val action =
+                            AddReceiptFragmentDirections.actionAddReceiptFragmentToAddProductListFragment()
+                        Navigation.findNavController(requireView()).navigate(action)
+                        return@setOnMenuItemClickListener true
                     }
-                    val action =
-                        AddReceiptFragmentDirections.actionAddReceiptFragmentToAddProductListFragment()
-                    Navigation.findNavController(requireView()).navigate(action)
+                    Toast.makeText(requireContext(), "Receipt not set", Toast.LENGTH_SHORT)
+
                     return@setOnMenuItemClickListener true
                 }
 
