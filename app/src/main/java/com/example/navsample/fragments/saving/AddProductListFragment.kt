@@ -42,6 +42,7 @@ class AddProductListFragment : Fragment(), ItemClickListener {
     private lateinit var recyclerViewEvent: RecyclerView
     private lateinit var productListAdapter: ProductListAdapter
     private var onStart = true
+    private var isPricesSumValid = true
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?,
@@ -120,8 +121,10 @@ class AddProductListFragment : Fragment(), ItemClickListener {
 
         val final = receiptDataViewModel.receipt.value?.pln
         if (final != sum) {
+            isPricesSumValid = false
             binding.cartValueText.setTextColor(Color.RED)
         } else {
+            isPricesSumValid = true
             binding.cartValueText.setTextColor(
                 resources.getColor(
                     R.color.basic_text_grey, requireContext().theme
@@ -225,6 +228,13 @@ class AddProductListFragment : Fragment(), ItemClickListener {
     }
 
     private fun save() {
+        if (!isPricesSumValid) {
+            receiptDataViewModel.receipt.value?.let {
+                it.validPrice = false
+
+                receiptDataViewModel.updateReceipt(it)
+            }
+        }
         receiptDataViewModel.insertProducts(
             receiptDataViewModel.product.value?.toList() ?: listOf()
         )

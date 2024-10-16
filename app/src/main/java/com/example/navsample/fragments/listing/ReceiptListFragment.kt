@@ -132,7 +132,8 @@ class ReceiptListFragment : Fragment(), ItemClickListener {
                 it.pln.toString().toDouble(),
                 it.ptu.toString().toDouble(),
                 it.date,
-                it.time
+                it.time,
+                it.validPriceSum
             )
             receipt.id = it.id
             receiptDataViewModel.receipt.value = receipt

@@ -155,7 +155,8 @@ class AddReceiptFragment : Fragment() {
                 it.valuePLN.toString().toDouble(),
                 it.valuePTU.toString().toDouble(),
                 it.valueDate,
-                it.valueTime
+                it.valueTime,
+                true
             )
             Log.i("ImageProcess", "valueNIP ${it.valueNIP}")
             Log.i("ImageProcess", "companyName ${it.companyName}")
@@ -255,7 +256,7 @@ class AddReceiptFragment : Fragment() {
 
         if (mode == DataMode.NEW) {
             pickedStore?.id?.let { storeId ->
-                val receipt = Receipt(-1, -1.0, -1.0, "", "").apply {
+                val receipt = Receipt(-1, -1.0, -1.0, "", "", true).apply {
                     this.storeId = storeId
                     this.pln = pln
                     this.ptu = ptu
@@ -271,7 +272,7 @@ class AddReceiptFragment : Fragment() {
         } else if (mode == DataMode.EDIT) {
             receiptDataViewModel.receipt.value?.let {
                 pickedStore?.id?.let { storeId ->
-                    val receipt = Receipt(-1, -1.0, -1.0, "", "").apply {
+                    val receipt = Receipt(-1, -1.0, -1.0, "", "", true).apply {
                         this.id = it.id
                         this.storeId = storeId
                         this.pln = pln
@@ -292,7 +293,8 @@ class AddReceiptFragment : Fragment() {
                 receipt.pln.toString().toDouble(),
                 receipt.ptu.toString().toDouble(),
                 receipt.date,
-                receipt.time
+                receipt.time,
+                receipt.validPrice
             )
             receiptDataViewModel.receipt.value?.id = receipt.id
         }

@@ -9,7 +9,8 @@ data class Receipt(
     var pln: Double,
     var ptu: Double,
     var date: String,
-    var time: String
+    var time: String,
+    var validPrice: Boolean
 ) : TranslateEntity {
     @PrimaryKey(autoGenerate = true)
     var id: Int? = null

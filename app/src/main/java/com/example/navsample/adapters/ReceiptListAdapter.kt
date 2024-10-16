@@ -39,6 +39,10 @@ class ReceiptListAdapter(
             holder.binding.productCount.setTextColor(Color.RED)
             holder.binding.productText.setTextColor(Color.RED)
         }
+        if (!receiptList[position].validPriceSum) {
+            holder.binding.subtotalPrize.setTextColor(Color.RED)
+            holder.binding.pln.setTextColor(Color.RED)
+        }
 
         holder.binding.mainLayout.setOnClickListener {
             itemClickListener.onItemClick(position)
