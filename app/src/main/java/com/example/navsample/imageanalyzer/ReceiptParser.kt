@@ -37,11 +37,10 @@ class ReceiptParser(var receiptId: Int, var categoryId: Int) {
                 val lastProduct = productList.last()
                 lastProduct.discount = parsedProduct.discount
                 lastProduct.finalPrice = parsedProduct.finalPrice
-                lastProduct.validPrice = calculatePrices(parsedProduct)
                 continue
             }
             if (parsedProduct.name != "" || parsedProduct.subtotalPrice != 0.0) {
-                parsedProduct.validPrice = calculatePrices(parsedProduct)
+                parsedProduct.validPrice = arePricesValid(parsedProduct)
                 productList.add(parsedProduct)
             }
         }
@@ -89,12 +88,9 @@ class ReceiptParser(var receiptId: Int, var categoryId: Int) {
         }
     }
 
-    private fun calculatePrices(product: Product): Boolean {
-        return roundDouble(product.quantity) +
-                roundDouble(product.unitPrice) +
-                roundDouble(product.subtotalPrice) -
-                roundDouble(product.discount) ==
-                roundDouble(product.finalPrice)
+    private fun arePricesValid(product: Product): Boolean {
+        return roundDouble(product.quantity * product.unitPrice) == roundDouble(product.subtotalPrice) &&
+                roundDouble(product.subtotalPrice - product.discount) == roundDouble(product.finalPrice)
     }
 
     private fun fixPrize(price: String): Double {

@@ -127,25 +127,20 @@ class ImageProductAnalyzer {
             receiptNameLines.add(columnCell.leftColumnCells[index].content.trim())
         }
         rightList.forEach {
-            when (it) {
-                "", "-" -> {
-                    receiptPriceLines.add("")
+            if (it == "" || it == "-") {
+                receiptPriceLines.add("")
+            } else {
+                val indexes = it.split("+").map { element ->
+                    element.toIntOrNull()
                 }
+                var prices = ""
 
-                "x" -> {
-                    return@forEach
-                }
-
-                else -> {
-                    val indexes = it.split("+").map { element ->
-                        element.toInt()
+                indexes.forEach { index ->
+                    index?.let {
+                        prices += " " + columnCell.rightColumnCells[it].content.trim()
                     }
-                    var prices = ""
-                    indexes.forEach { index ->
-                        prices += " " + columnCell.rightColumnCells[index].content.trim()
-                    }
-                    receiptPriceLines.add(prices)
                 }
+                receiptPriceLines.add(prices)
             }
         }
         Log.i("ImageProductAnalyzer", "Result:")
