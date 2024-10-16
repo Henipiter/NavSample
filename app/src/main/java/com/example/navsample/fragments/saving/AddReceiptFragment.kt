@@ -93,7 +93,7 @@ class AddReceiptFragment : Fragment() {
     }
 
     private fun setStoreName(store: Store?, storeList: ArrayList<Store>?) {
-        if (store == null || storeList.isNullOrEmpty()) {
+        if (store == null || storeList.isNullOrEmpty() || store.nip == "") {
             return
         }
 
@@ -165,6 +165,7 @@ class AddReceiptFragment : Fragment() {
             Log.i("ImageProcess", "valueTime ${it.valueTime}")
             receiptDataViewModel.store.value = store
             receiptDataViewModel.receipt.value = receipt
+            imageAnalyzerViewModel.receiptAnalyzed.value = null
 
 
         }

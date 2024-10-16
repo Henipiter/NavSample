@@ -1,5 +1,6 @@
 package com.example.navsample.fragments
 
+import android.graphics.Bitmap
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -15,7 +16,6 @@ import com.example.navsample.exception.NoStoreIdException
 import com.example.navsample.viewmodels.ImageAnalyzerViewModel
 import com.example.navsample.viewmodels.ReceiptDataViewModel
 import com.example.navsample.viewmodels.ReceiptImageViewModel
-import com.google.mlkit.vision.common.InputImage
 
 
 class CropImageFragment : Fragment() {
@@ -71,27 +71,22 @@ class CropImageFragment : Fragment() {
         binding.receiptImage.setOnCropImageCompleteListener { _, result ->
             result.getBitmap(requireContext())?.let { bitmap ->
                 receiptImageViewModel.bitmapCroppedProduct.value = bitmap
-                val analyzedImage = InputImage.fromBitmap(bitmap, 0)
-                imageAnalyzerViewModel.analyzeReceipt(analyzedImage)
-                analyzeImage()
+                analyzeImage(bitmap)
                 Navigation.findNavController(requireView()).popBackStack()
             }
-
         }
-
-
     }
 
-    private fun analyzeImage() {
+    private fun analyzeImage(bitmap: Bitmap) {
         val receiptId = receiptDataViewModel.receipt.value?.id ?: throw NoReceiptIdException()
         val categoryId =
             receiptDataViewModel.store.value?.defaultCategoryId ?: throw NoStoreIdException()
 
         imageAnalyzerViewModel.uid = receiptImageViewModel.uid.value ?: "temp"
-        receiptImageViewModel.bitmapCroppedProduct.value?.let { bitmap ->
-            imageAnalyzerViewModel.analyzeProductList(
-                bitmap, receiptId, categoryId, receiptDataViewModel.categoryList.value
-            )
-        }
+
+        imageAnalyzerViewModel.analyzeProductList(
+            bitmap, receiptId, categoryId, receiptDataViewModel.categoryList.value
+        )
+
     }
 }
