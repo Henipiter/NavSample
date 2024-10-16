@@ -94,7 +94,7 @@ class AddCategoryFragment : Fragment() {
                         binding.categoryNameInput.text.toString(),
                         binding.categoryColorInput.text.toString()
                     )
-                    receiptDataViewModel.refreshCategoryList()
+                    receiptDataViewModel.loadDataByCategoryFilter()
                     Navigation.findNavController(requireView()).popBackStack()
                 }
 
