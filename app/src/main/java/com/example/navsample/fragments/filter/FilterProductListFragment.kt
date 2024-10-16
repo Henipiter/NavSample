@@ -103,6 +103,7 @@ class FilterProductListFragment : Fragment() {
 
                 R.id.confirm -> {
                     receiptDataViewModel.filterProductList.value = filterProductList
+                    receiptDataViewModel.loadDataByProductFilter()
                     Navigation.findNavController(requireView()).popBackStack()
                 }
 
@@ -133,11 +134,9 @@ class FilterProductListFragment : Fragment() {
             receiptDataViewModel.filterProductList.value?.let {
                 it.lowerPrice = convertTextToDouble(lower)
                 it.higherPrice = convertTextToDouble(higher)
-                binding.priceBetweenInput.setText(
-                    convertDoubleToText(it.lowerPrice) + " - " + convertDoubleToText(
-                        it.higherPrice
-                    )
-                )
+                val text =
+                    convertDoubleToText(it.lowerPrice) + " - " + convertDoubleToText(it.higherPrice)
+                binding.priceBetweenInput.setText(text)
             }
         }.show(childFragmentManager, "TAG")
 
@@ -162,8 +161,8 @@ class FilterProductListFragment : Fragment() {
             receiptDataViewModel.filterProductList.value?.let { filter ->
                 filter.dateFrom = getDateFormat().format(calendarDateFrom.time)
                 filter.dateTo = getDateFormat().format(calendarDateTo.time)
-
-                binding.dateBetweenInput.setText("${filter.dateFrom} - ${filter.dateTo}")
+                val text = "${filter.dateFrom} - ${filter.dateTo}"
+                binding.dateBetweenInput.setText(text)
             }
         }
     }
@@ -171,12 +170,13 @@ class FilterProductListFragment : Fragment() {
     private fun putFilterDefinitionIntoInputs() {
         binding.storeInput.setText(filterProductList.store)
         binding.categoryNameInput.setText(filterProductList.category)
-        binding.priceBetweenInput.setText(
+        val priceText =
             convertDoubleToText(filterProductList.lowerPrice) + " - " + convertDoubleToText(
                 filterProductList.higherPrice
             )
-        )
-        binding.dateBetweenInput.setText(filterProductList.dateFrom + " - " + filterProductList.dateTo)
+        binding.priceBetweenInput.setText(priceText)
+        val dateText = filterProductList.dateFrom + " - " + filterProductList.dateTo
+        binding.dateBetweenInput.setText(dateText)
     }
 
     private fun getDateFormat(): SimpleDateFormat {

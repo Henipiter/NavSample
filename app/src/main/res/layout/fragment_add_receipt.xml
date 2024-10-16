@@ -56,13 +56,13 @@
                     android:layout_marginHorizontal="32dp"
                     android:layout_marginTop="16dp"
                     android:hint="Store name"
-                    app:helperTextEnabled="true"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent"
                     app:startIconDrawable="@drawable/clear">
 
                     <AutoCompleteTextView
+                        android:clickable="true"
                         android:id="@+id/storeNameInput"
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
@@ -72,32 +72,6 @@
                 </com.google.android.material.textfield.TextInputLayout>
 
 
-                <com.google.android.material.textfield.TextInputLayout
-                    android:id="@+id/storeNIPLayout"
-                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginHorizontal="32dp"
-                    android:layout_marginTop="16dp"
-                    android:hint="Store NIP"
-                    app:counterEnabled="true"
-                    app:counterMaxLength="10"
-                    app:endIconMode="custom"
-                    app:endIconDrawable="@drawable/add"
-                    app:errorEnabled="true"
-                    app:helperTextEnabled="true"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@+id/store_name_layout">
-
-                    <AutoCompleteTextView
-                        android:id="@+id/store_NIP_input"
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:inputType="numberDecimal"
-                        android:padding="13dp"
-                        tools:ignore="LabelFor" />
-                </com.google.android.material.textfield.TextInputLayout>
 
                 <Space
                     android:id="@+id/center"
@@ -118,10 +92,11 @@
                     android:layout_marginTop="16dp"
                     android:layout_marginEnd="-18dp"
                     android:hint="PLN"
+                    app:errorEnabled="true"
                     app:endIconMode="clear_text"
                     app:layout_constraintEnd_toEndOf="@id/center"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@+id/storeNIPLayout">
+                    app:layout_constraintTop_toBottomOf="@+id/store_name_layout">
 
                     <AutoCompleteTextView
                         android:id="@+id/receiptPLNInput"
@@ -141,10 +116,11 @@
                     android:layout_marginTop="16dp"
                     android:layout_marginEnd="32dp"
                     android:hint="PTU"
+                    app:errorEnabled="true"
                     app:endIconMode="clear_text"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="@id/center"
-                    app:layout_constraintTop_toBottomOf="@+id/storeNIPLayout">
+                    app:layout_constraintTop_toBottomOf="@+id/store_name_layout">
 
                     <AutoCompleteTextView
                         android:id="@+id/receiptPTUInput"
@@ -165,6 +141,7 @@
                     android:layout_marginTop="16dp"
                     android:layout_marginEnd="-18dp"
                     android:hint="Date"
+                    app:errorEnabled="true"
                     app:endIconDrawable="@drawable/date"
                     app:endIconMode="custom"
                     app:layout_constraintEnd_toEndOf="@id/center"
@@ -177,6 +154,7 @@
                         android:layout_height="match_parent"
                         android:focusable="false"
                         android:focusableInTouchMode="false"
+
                         android:inputType="date"
                         android:padding="13dp"
                         app:errorEnabled="true"
@@ -192,6 +170,7 @@
                     android:layout_marginTop="16dp"
                     android:layout_marginEnd="32dp"
                     android:hint="Time"
+                    app:errorEnabled="true"
                     app:endIconDrawable="@drawable/time"
                     app:endIconMode="custom"
                     app:layout_constraintEnd_toEndOf="parent"

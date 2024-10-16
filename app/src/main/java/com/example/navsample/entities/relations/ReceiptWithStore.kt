@@ -11,5 +11,7 @@ data class ReceiptWithStore(
     var ptu: Double,
     var date: String,
     var time: String,
+    var validPriceSum: Boolean,
+    var validProductCount: Int,
     var productCount: Int
 )

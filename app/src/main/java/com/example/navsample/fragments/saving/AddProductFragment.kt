@@ -4,7 +4,6 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.ArrayAdapter
 import androidx.core.widget.doOnTextChanged
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
@@ -12,7 +11,11 @@ import androidx.navigation.Navigation
 import androidx.navigation.fragment.navArgs
 import com.example.navsample.R
 import com.example.navsample.adapters.CategoryDropdownAdapter
+import com.example.navsample.adapters.PtuTypeDropdownAdapter
 import com.example.navsample.databinding.FragmentAddProductBinding
+import com.example.navsample.dto.Utils.Companion.doubleToString
+import com.example.navsample.dto.Utils.Companion.quantityToString
+import com.example.navsample.dto.Utils.Companion.roundDouble
 import com.example.navsample.entities.Category
 import com.example.navsample.entities.Product
 import com.example.navsample.exception.NoCategoryIdException
@@ -29,14 +32,14 @@ class AddProductFragment : Fragment() {
 
     private val args: AddProductFragmentArgs by navArgs()
 
-    private var ptuTypeList = arrayOf("A", "B", "C", "D", "E", "F", "G")
-
     private val receiptImageViewModel: ReceiptImageViewModel by activityViewModels()
     private val receiptDataViewModel: ReceiptDataViewModel by activityViewModels()
 
     private var productOriginalInput = ""
     private var chosenCategory = Category("", "")
     private var productId: Int? = null
+    private var isValidPrices = true
+    private lateinit var dropdownAdapter: CategoryDropdownAdapter
 
     companion object {
         private const val SUGGESTION_PREFIX = "Maybe "
@@ -51,30 +54,27 @@ class AddProductFragment : Fragment() {
     }
 
     private fun initObserver() {
-        receiptImageViewModel.bitmapCropped.observe(viewLifecycleOwner) {
+        receiptImageViewModel.bitmapCroppedProduct.observe(viewLifecycleOwner) {
             if (it != null) {
                 binding.receiptImage.visibility = View.VISIBLE
-                binding.receiptImage.setImageBitmap(receiptImageViewModel.bitmapCropped.value)
+                binding.receiptImage.setImageBitmap(receiptImageViewModel.bitmapCroppedProduct.value)
             } else {
                 binding.receiptImage.visibility = View.GONE
             }
         }
-        receiptDataViewModel.categoryList.observe(viewLifecycleOwner) {
-            it?.let {
-                CategoryDropdownAdapter(
-                    requireContext(), R.layout.array_adapter_row, it
-                ).also { adapter ->
-                    binding.productCategoryInput.setAdapter(adapter)
-                }
-            }
-            if (chosenCategory.name == "") {
-                chosenCategory = it[0]
+        receiptDataViewModel.categoryList.observe(viewLifecycleOwner) { categoryList ->
+            categoryList?.let {
+                dropdownAdapter.categoryList = it
+                dropdownAdapter.notifyDataSetChanged()
             }
         }
         receiptDataViewModel.store.observe(viewLifecycleOwner) { store ->
+            store?.let {
+                binding.toolbar.title = it.name
+            }
             if (chosenCategory.name == "") {
                 chosenCategory = try {
-                    receiptDataViewModel.categoryList.value?.first { it.id == store.defaultCategoryId }
+                    receiptDataViewModel.categoryList.value?.first { it.id == store?.defaultCategoryId }
                         ?: Category("", "")
                 } catch (e: Exception) {
                     Category("", "")
@@ -89,12 +89,8 @@ class AddProductFragment : Fragment() {
 
     }
 
-    private fun roundDouble(double: Double): Double {
-        return "%.2f".format(double).toDouble()
-    }
-
-    private fun getSuggestionMessage(double: Double): String {
-        return "${SUGGESTION_PREFIX}${double}"
+    private fun getSuggestionMessage(value: String): String {
+        return "${SUGGESTION_PREFIX}${value}"
     }
 
     private fun validateFinalPrice() {
@@ -106,25 +102,29 @@ class AddProductFragment : Fragment() {
             return
         }
         if (checks == 2) {
-            if ("%.2f".format(subtotalPrice!! - discountPrice!!).toDouble() == finalPrice!!) {
+            if (roundDouble(subtotalPrice!! - discountPrice!!) == finalPrice!!) {
+                isValidPrices = true
                 binding.productDiscountHelperText.text = ""
                 binding.productFinalPriceHelperText.text = ""
             } else {
+                isValidPrices = false
                 binding.productDiscountHelperText.text =
-                    getSuggestionMessage(roundDouble(subtotalPrice - finalPrice))
+                    getSuggestionMessage(doubleToString(subtotalPrice - finalPrice))
                 binding.productFinalPriceHelperText.text =
-                    getSuggestionMessage(roundDouble(subtotalPrice - discountPrice))
+                    getSuggestionMessage(doubleToString(subtotalPrice - discountPrice))
             }
         } else if (checks == 1) {
+            isValidPrices = false
             if (discountPrice == null) {
                 binding.productDiscountHelperText.text =
-                    getSuggestionMessage(roundDouble(subtotalPrice!! - finalPrice!!))
+                    getSuggestionMessage(doubleToString(subtotalPrice!! - finalPrice!!))
             }
             if (finalPrice == null) {
                 binding.productFinalPriceHelperText.text =
-                    getSuggestionMessage(roundDouble(subtotalPrice!! - discountPrice!!))
+                    getSuggestionMessage(doubleToString(subtotalPrice!! - discountPrice!!))
             }
         } else {
+            isValidPrices = true
             binding.productDiscountHelperText.text = ""
             binding.productFinalPriceHelperText.text = ""
         }
@@ -137,32 +137,37 @@ class AddProductFragment : Fragment() {
 
         val checks = arrayOf(subtotalPrice, unitPrice, quantity).count { it != null }
         if (checks == 3) {
-            if ("%.2f".format(unitPrice!! * quantity!!).toDouble() == subtotalPrice) {
+            if (roundDouble(unitPrice!! * quantity!!) == subtotalPrice) {
+                isValidPrices = true
                 binding.productSubtotalPriceHelperText.text = ""
                 binding.productUnitPriceHelperText.text = ""
                 binding.productQuantityHelperText.text = ""
             } else {
+                isValidPrices = false
                 binding.productSubtotalPriceHelperText.text =
-                    getSuggestionMessage(roundDouble(unitPrice * quantity))
+                    getSuggestionMessage(doubleToString(unitPrice * quantity))
                 binding.productUnitPriceHelperText.text =
-                    getSuggestionMessage(roundDouble(subtotalPrice!! / quantity))
+                    getSuggestionMessage(doubleToString(subtotalPrice!! / quantity))
                 binding.productQuantityHelperText.text =
-                    getSuggestionMessage(roundDouble(subtotalPrice / unitPrice))
+                    getSuggestionMessage(quantityToString(subtotalPrice / unitPrice))
             }
         } else if (checks == 2) {
+            isValidPrices = false
             if (subtotalPrice == null) {
                 binding.productSubtotalPriceHelperText.text =
-                    getSuggestionMessage(roundDouble(unitPrice!! * quantity!!))
+                    getSuggestionMessage(doubleToString(unitPrice!! * quantity!!))
             }
+
             if (unitPrice == null) {
                 binding.productUnitPriceHelperText.text =
-                    getSuggestionMessage(roundDouble(subtotalPrice!! / quantity!!))
+                    getSuggestionMessage(doubleToString(subtotalPrice!! / quantity!!))
             }
             if (quantity == null) {
                 binding.productQuantityHelperText.text =
-                    getSuggestionMessage(roundDouble(subtotalPrice!! / unitPrice!!))
+                    getSuggestionMessage(quantityToString(subtotalPrice!! / unitPrice!!))
             }
         } else {
+            isValidPrices = true
             binding.productSubtotalPriceHelperText.text = ""
             binding.productUnitPriceHelperText.text = ""
             binding.productQuantityHelperText.text = ""
@@ -207,6 +212,13 @@ class AddProductFragment : Fragment() {
         binding.toolbar.menu.findItem(R.id.reorder).isVisible = false
         binding.toolbar.menu.findItem(R.id.add_new).isVisible = false
 
+
+        dropdownAdapter = CategoryDropdownAdapter(
+            requireContext(), R.layout.array_adapter_row, arrayListOf()
+        ).also { adapter ->
+            binding.productCategoryInput.setAdapter(adapter)
+        }
+
         initObserver()
 
         binding.toolbar.title = receiptDataViewModel.store.value?.name
@@ -225,10 +237,12 @@ class AddProductFragment : Fragment() {
             }
         }
 
-        ArrayAdapter(
-            requireContext(), android.R.layout.simple_list_item_1, ptuTypeList
+        PtuTypeDropdownAdapter(
+            requireContext(), R.layout.array_adapter_row
         ).also { adapter ->
             binding.ptuTypeInput.setAdapter(adapter)
+//            binding.ptuTypeInput.keyListener = null
+
         }
 
         if (args.productIndex != -1) {
@@ -245,11 +259,11 @@ class AddProductFragment : Fragment() {
                 }
 
                 binding.productNameInput.setText(product.name)
-                binding.productUnitPriceInput.setText(product.unitPrice.toString())
-                binding.productQuantityInput.setText(product.quantity.toString())
-                binding.productSubtotalPriceInput.setText(product.subtotalPrice.toString())
-                binding.productDiscountInput.setText(product.discount.toString())
-                binding.productFinalPriceInput.setText(product.finalPrice.toString())
+                binding.productUnitPriceInput.setText(doubleToString(product.unitPrice))
+                binding.productQuantityInput.setText(quantityToString(product.quantity))
+                binding.productSubtotalPriceInput.setText(doubleToString(product.subtotalPrice))
+                binding.productDiscountInput.setText(doubleToString(product.discount))
+                binding.productFinalPriceInput.setText(doubleToString(product.finalPrice))
                 binding.ptuTypeInput.setText(product.ptuType)
                 binding.productCategoryInput.setText(chosenCategory.name)
                 binding.productOriginalInput.setText(product.raw)
@@ -265,15 +279,29 @@ class AddProductFragment : Fragment() {
         if (productOriginalInput == "") {
             binding.productOriginalLayout.visibility = View.INVISIBLE
         }
-        binding.productCategoryInput.setOnItemClickListener { adapter, _, i, _ ->
-            chosenCategory = adapter.getItemAtPosition(i) as Category
-            binding.productCategoryInput.setText(chosenCategory.name)
+        binding.productCategoryInput.setOnItemClickListener { adapter, _, position, _ ->
+            chosenCategory = adapter.getItemAtPosition(position) as Category
+
+            if ("" == chosenCategory.color && binding.productCategoryInput.adapter.count - 1 == position) {
+                receiptDataViewModel.savedCategory.value = null
+                binding.productCategoryInput.setText("")
+                Navigation.findNavController(requireView())
+                    .navigate(R.id.action_addProductFragment_to_addCategoryFragment)
+            } else {
+                binding.productCategoryInput.setText(chosenCategory.name)
+            }
+        }
+        binding.ptuTypeInput.setOnItemClickListener { adapter, _, i, _ ->
+            val x = adapter.getItemAtPosition(i) as String
+            binding.ptuTypeInput.setText(x)
         }
 
         binding.productCategoryLayout.setStartIconOnClickListener {
-            Navigation.findNavController(it)
-                .navigate(R.id.action_addProductFragment_to_addCategoryFragment)
-
+            binding.productCategoryInput.setText("")
+            //TODO verify that
+//            binding.storeDefaultCategoryLayout.helperText = null
+//            binding.storeDefaultCategoryInput.isEnabled = true
+            chosenCategory = Category("", "")
         }
 
         binding.productOriginalLayout.setEndIconOnClickListener {
@@ -358,7 +386,8 @@ class AddProductFragment : Fragment() {
                         binding.productDiscountInput.text.toString().toDouble(),
                         binding.productFinalPriceInput.text.toString().toDouble(),
                         binding.ptuTypeInput.text.toString(),
-                        binding.productOriginalInput.text.toString()
+                        binding.productOriginalInput.text.toString(),
+                        isValidPrices
                     )
                     product.id = productId
 

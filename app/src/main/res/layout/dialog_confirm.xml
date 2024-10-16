@@ -5,7 +5,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    tools:context=".fragments.dialogs.EditTextDialog">
+    tools:context=".fragments.dialogs.ConfirmDialog">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
@@ -17,7 +17,7 @@
             android:layout_height="wrap_content"
             android:layout_marginHorizontal="64dp"
             android:layout_marginTop="20dp"
-            android:text="Delete confirmation"
+            android:text="Title"
             android:textAlignment="center"
             android:textSize="20sp"
             app:layout_constraintEnd_toEndOf="parent"
@@ -25,12 +25,12 @@
             app:layout_constraintTop_toTopOf="parent" />
 
         <TextView
-            android:id="@+id/details_text"
+            android:id="@+id/descriptionText"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginHorizontal="64dp"
             android:layout_marginTop="20dp"
-            android:text="Delete description"
+            android:text="Description"
             android:textAlignment="center"
             android:textSize="15sp"
             app:layout_constraintEnd_toEndOf="parent"
@@ -64,7 +64,7 @@
             android:text="Cancel"
             app:layout_constraintEnd_toEndOf="@id/center"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/details_text" />
+            app:layout_constraintTop_toBottomOf="@id/descriptionText" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </RelativeLayout>

@@ -1,10 +1,9 @@
 package com.example.navsample.fragments.saving
 
 
+import android.annotation.SuppressLint
 import android.content.SharedPreferences
-import android.graphics.BitmapFactory
 import android.graphics.Color
-import android.net.Uri
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -17,18 +16,13 @@ import androidx.fragment.app.activityViewModels
 import androidx.navigation.Navigation
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.canhub.cropper.CropImage
-import com.canhub.cropper.CropImageContract
-import com.canhub.cropper.CropImageContractOptions
-import com.canhub.cropper.CropImageOptions
 import com.example.navsample.ItemClickListener
 import com.example.navsample.R
 import com.example.navsample.adapters.ProductListAdapter
 import com.example.navsample.databinding.FragmentAddProductListBinding
+import com.example.navsample.dto.Utils.Companion.roundDouble
 import com.example.navsample.dto.sorting.AlgorithmItemAdapterArgument
-import com.example.navsample.exception.NoReceiptIdException
-import com.example.navsample.exception.NoStoreIdException
-import com.example.navsample.fragments.dialogs.DeleteConfirmationDialog
+import com.example.navsample.fragments.dialogs.ConfirmDialog
 import com.example.navsample.viewmodels.ImageAnalyzerViewModel
 import com.example.navsample.viewmodels.ReceiptDataViewModel
 import com.example.navsample.viewmodels.ReceiptImageViewModel
@@ -47,6 +41,8 @@ class AddProductListFragment : Fragment(), ItemClickListener {
 
     private lateinit var recyclerViewEvent: RecyclerView
     private lateinit var productListAdapter: ProductListAdapter
+    private var onStart = true
+    private var isPricesSumValid = true
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?,
@@ -56,11 +52,12 @@ class AddProductListFragment : Fragment(), ItemClickListener {
     }
 
 
+    @SuppressLint("NotifyDataSetChanged")
     private fun initObserver() {
-        receiptImageViewModel.bitmapCropped.observe(viewLifecycleOwner) {
+        receiptImageViewModel.bitmapCroppedProduct.observe(viewLifecycleOwner) {
             if (it != null) {
                 binding.receiptImage.visibility = View.VISIBLE
-                binding.receiptImage.setImageBitmap(receiptImageViewModel.bitmapCropped.value)
+                binding.receiptImage.setImageBitmap(receiptImageViewModel.bitmapCroppedProduct.value)
                 binding.toolbar.menu.findItem(R.id.reorder).isVisible = true
             } else {
                 binding.receiptImage.visibility = View.GONE
@@ -73,6 +70,10 @@ class AddProductListFragment : Fragment(), ItemClickListener {
                 productListAdapter.notifyDataSetChanged()
                 recalculateSumOfPrices()
             }
+        }
+
+        receiptDataViewModel.receipt.observe(viewLifecycleOwner) {
+            binding.receiptValueText.text = receiptDataViewModel.receipt.value?.pln.toString()
         }
 
         receiptDataViewModel.reorderedProductTiles.observe(viewLifecycleOwner) {
@@ -110,35 +111,20 @@ class AddProductListFragment : Fragment(), ItemClickListener {
         }
     }
 
-    @ExperimentalGetImage
-    private fun analyzeImage() {
-        val receiptId = receiptDataViewModel.receipt.value?.id ?: throw NoReceiptIdException()
-        val categoryId =
-            receiptDataViewModel.store.value?.defaultCategoryId ?: throw NoStoreIdException()
-
-        imageAnalyzerViewModel.uid = receiptImageViewModel.uid.value ?: "temp"
-        receiptImageViewModel.bitmapCropped.value?.let { bitmap ->
-            imageAnalyzerViewModel.analyzeProductList(
-                bitmap,
-                receiptId,
-                categoryId,
-                receiptDataViewModel.categoryList.value
-            )
-        }
-    }
-
     private fun recalculateSumOfPrices() {
         var sum = 0.0
         productListAdapter.productList.forEach {
             sum += it.finalPrice
         }
-        sum = "%.2f".format(sum).toDouble()
+        sum = roundDouble(sum)
         binding.cartValueText.text = sum.toString()
 
         val final = receiptDataViewModel.receipt.value?.pln
         if (final != sum) {
+            isPricesSumValid = false
             binding.cartValueText.setTextColor(Color.RED)
         } else {
+            isPricesSumValid = true
             binding.cartValueText.setTextColor(
                 resources.getColor(
                     R.color.basic_text_grey, requireContext().theme
@@ -148,6 +134,7 @@ class AddProductListFragment : Fragment(), ItemClickListener {
         binding.countText.text = productListAdapter.productList.size.toString()
     }
 
+    @SuppressLint("NotifyDataSetChanged")
     @ExperimentalGetImage
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -158,8 +145,10 @@ class AddProductListFragment : Fragment(), ItemClickListener {
         myPref =
             requireContext().getSharedPreferences("preferences", AppCompatActivity.MODE_PRIVATE)
 
-        if (receiptImageViewModel.uriCropped.value == null) {
-            startCameraWithUri()
+        if (onStart && receiptImageViewModel.uriCroppedProduct.value == null) {
+            onStart = false
+            Navigation.findNavController(requireView())
+                .navigate(R.id.action_addProductListFragment_to_cropImageFragment)
         }
         initObserver()
         recyclerViewEvent = binding.recyclerViewEvent
@@ -170,7 +159,8 @@ class AddProductListFragment : Fragment(), ItemClickListener {
             this
         ) { i: Int ->
             receiptDataViewModel.product.value?.get(i)?.let {
-                DeleteConfirmationDialog(
+                ConfirmDialog(
+                    "Delete",
                     "Are you sure you want to delete the product??\n\n" + "Name: " + it.name + "\nPLN: " + it.subtotalPrice
                 ) {
                     if (it.id != null && it.id!! >= 0) {
@@ -187,11 +177,11 @@ class AddProductListFragment : Fragment(), ItemClickListener {
 
 
         binding.receiptImage.setOnLongClickListener {
-            startCameraWithUri()
+            Navigation.findNavController(requireView())
+                .navigate(R.id.action_addProductListFragment_to_cropImageFragment)
             true
         }
         binding.toolbar.title = receiptDataViewModel.store.value?.name
-        binding.receiptValueText.text = receiptDataViewModel.receipt.value?.pln.toString()
         recyclerViewEvent.adapter = productListAdapter
         recyclerViewEvent.layoutManager =
             LinearLayoutManager(requireContext(), LinearLayoutManager.VERTICAL, false)
@@ -204,6 +194,7 @@ class AddProductListFragment : Fragment(), ItemClickListener {
         binding.toolbar.setOnMenuItemClickListener {
             when (it.itemId) {
                 R.id.reorder -> {
+                    imageAnalyzerViewModel.productAnalyzed.value = null
                     reorderTilesWithProducts()
                     true
                 }
@@ -218,12 +209,15 @@ class AddProductListFragment : Fragment(), ItemClickListener {
                 }
 
                 R.id.confirm -> {
-                    receiptDataViewModel.insertProducts(
-                        receiptDataViewModel.product.value?.toList() ?: listOf()
-                    )
-                    Navigation.findNavController(binding.root)
-                        .popBackStack(R.id.menuFragment, false)
-
+                    if (!isProductsAreValid()) {
+                        ConfirmDialog(
+                            "Invalid prices",
+                            "Some products have invalid prices. Continue?"
+                        )
+                        { save() }.show(childFragmentManager, "TAG")
+                    } else {
+                        save()
+                    }
                     true
                 }
 
@@ -233,40 +227,34 @@ class AddProductListFragment : Fragment(), ItemClickListener {
 
     }
 
+    private fun save() {
+        if (!isPricesSumValid) {
+            receiptDataViewModel.receipt.value?.let {
+                it.validPrice = false
 
-    private val customCropImage = registerForActivityResult(CropImageContract()) {
-        if (it !is CropImage.CancelledResult) {
-            handleCropImageResult(it.uriContent)
+                receiptDataViewModel.updateReceipt(it)
+            }
         }
+        receiptDataViewModel.insertProducts(
+            receiptDataViewModel.product.value?.toList() ?: listOf()
+        )
+        imageAnalyzerViewModel.clearData()
+        Navigation.findNavController(binding.root).popBackStack(R.id.menuFragment, false)
+    }
+
+    private fun isProductsAreValid(): Boolean {
+        productListAdapter.productList.forEach { productItem ->
+            if (!productItem.validPrice) {
+                return false
+            }
+        }
+        return true
     }
 
     private fun reorderTilesWithProducts() {
         Navigation.findNavController(requireView())
             .navigate(R.id.action_addProductListFragment_to_experimentRecycleFragment)
 
-    }
-
-    @ExperimentalGetImage
-    private fun handleCropImageResult(uri: Uri?) {
-        val bitmap = BitmapFactory.decodeStream(uri?.let {
-            requireContext().contentResolver.openInputStream(it)
-        })
-
-        receiptImageViewModel.bitmapCropped.value = bitmap
-        receiptImageViewModel.setImageUriCropped()
-        analyzeImage()
-    }
-
-    private fun startCameraWithUri() {
-        customCropImage.launch(
-            CropImageContractOptions(
-                uri = receiptImageViewModel.uri.value,
-                cropImageOptions = CropImageOptions(
-                    imageSourceIncludeCamera = false,
-                    imageSourceIncludeGallery = false,
-                ),
-            ),
-        )
     }
 
     override fun onItemClick(index: Int) {

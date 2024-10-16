@@ -1,6 +1,7 @@
 package com.example.navsample.fragments.saving
 
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -13,9 +14,11 @@ import com.example.navsample.R
 import com.example.navsample.adapters.StoreDropdownAdapter
 import com.example.navsample.databinding.FragmentAddReceiptBinding
 import com.example.navsample.dto.DataMode
+import com.example.navsample.dto.Utils.Companion.doubleToString
 import com.example.navsample.entities.Receipt
 import com.example.navsample.entities.Store
 import com.example.navsample.exception.NoStoreIdException
+import com.example.navsample.viewmodels.ImageAnalyzerViewModel
 import com.example.navsample.viewmodels.ReceiptDataViewModel
 import com.example.navsample.viewmodels.ReceiptImageViewModel
 import com.google.android.material.datepicker.MaterialDatePicker
@@ -29,13 +32,14 @@ import java.util.Locale
 class AddReceiptFragment : Fragment() {
     private var _binding: FragmentAddReceiptBinding? = null
     private val binding get() = _binding!!
+    private val imageAnalyzerViewModel: ImageAnalyzerViewModel by activityViewModels()
     private val receiptImageViewModel: ReceiptImageViewModel by activityViewModels()
     private val receiptDataViewModel: ReceiptDataViewModel by activityViewModels()
 
 
     private var calendarDate = Calendar.getInstance()
     private var calendarTime = Calendar.getInstance()
-
+    private lateinit var dropdownAdapter: StoreDropdownAdapter
     private var mode = DataMode.NEW
     private var pickedStore: Store? = null
     override fun onCreateView(
@@ -53,20 +57,23 @@ class AddReceiptFragment : Fragment() {
 
         initObserver()
 
-        binding.storeNIPInput.isEnabled = false
+        dropdownAdapter = StoreDropdownAdapter(
+            requireContext(), R.layout.array_adapter_row, arrayListOf()
+        ).also { adapter ->
+            binding.storeNameInput.setAdapter(adapter)
+        }
 
         receiptDataViewModel.refreshStoreList()
-        receiptImageViewModel.bitmap.value?.let {
+        receiptImageViewModel.bitmapCroppedReceipt.value?.let {
             binding.receiptImage.setImageBitmap(it)
         }
+        setStoreName(receiptDataViewModel.store.value, receiptDataViewModel.storeList.value)
 
 
         if (receiptDataViewModel.receipt.value == null) {
             changeViewToNewMode()
         }
-        receiptDataViewModel.store.value?.let {
-            setStoreDataToInputs(it)
-        }
+
         receiptDataViewModel.receipt.value?.let { receipt ->
             if ((receipt.id ?: -1) >= 0) {
                 changeViewToDisplayMode()
@@ -76,68 +83,92 @@ class AddReceiptFragment : Fragment() {
             }
         }
         defineClickListeners()
-
-    }
-
-    private fun setStoreDataToInputs(store: Store) {
-        binding.storeNIPInput.setText(store.nip)
-        binding.storeNameInput.setText(store.name)
     }
 
     private fun setReceiptDataToInputs(receipt: Receipt) {
-        binding.receiptPTUInput.setText(receipt.ptu.toString())
-        binding.receiptPLNInput.setText(receipt.pln.toString())
+        binding.receiptPTUInput.setText(doubleToString(receipt.ptu))
+        binding.receiptPLNInput.setText(doubleToString(receipt.pln))
         binding.receiptDateInput.setText(receipt.date)
         binding.receiptTimeInput.setText(receipt.time)
     }
 
+    private fun setStoreName(store: Store?, storeList: ArrayList<Store>?) {
+        if (store == null || storeList.isNullOrEmpty() || store.nip == "") {
+            return
+        }
+
+        val indexOfStore = storeList.map { sort -> sort.nip }.indexOf(store.nip)
+        if (indexOfStore < 0) {
+            binding.storeNameInput.setText("")
+            Navigation.findNavController(requireView())
+                .navigate(R.id.action_addReceiptFragment_to_editStoreFragment)
+        } else {
+            pickedStore = storeList[indexOfStore]
+            binding.storeNameInput.setText(storeList[indexOfStore].name)
+            binding.storeNameInput.isEnabled = false
+        }
+    }
+
     private fun initObserver() {
-        receiptImageViewModel.bitmap.observe(viewLifecycleOwner) {
+        receiptImageViewModel.bitmapCroppedReceipt.observe(viewLifecycleOwner) {
             if (it != null) {
                 binding.receiptImage.visibility = View.VISIBLE
-                binding.receiptImage.setImageBitmap(receiptImageViewModel.bitmap.value)
+                binding.receiptImage.setImageBitmap(receiptImageViewModel.bitmapCroppedReceipt.value)
             } else {
                 binding.receiptImage.visibility = View.GONE
             }
         }
         receiptDataViewModel.storeList.observe(viewLifecycleOwner) { storeList ->
             storeList?.let {
-                StoreDropdownAdapter(
-                    requireContext(), R.layout.array_adapter_row, storeList
-                ).also { adapter ->
-                    binding.storeNameInput.setAdapter(adapter)
-                }
-            }
-            if (storeList != null) {
-                receiptDataViewModel.store.value?.let {
-                    binding.storeNIPInput.setText(it.nip)
-                    binding.storeNameInput.setText(it.name)
-
-                    val indexOfStore = storeList.map { it.nip }.indexOf(it.nip)
-                    if (indexOfStore < 0) {
-                        Navigation.findNavController(requireView())
-                            .navigate(R.id.action_addReceiptFragment_to_editStoreFragment)
-                    } else {
-                        pickedStore = storeList[indexOfStore]
-                        binding.storeNameInput.setText(storeList[indexOfStore].name)
-                        binding.storeNIPInput.setText(storeList[indexOfStore].nip)
-                        binding.storeNameInput.isEnabled = false
-                    }
-                }
+                dropdownAdapter.storeList = storeList
+                dropdownAdapter.notifyDataSetChanged()
+                setStoreName(receiptDataViewModel.store.value, storeList)
             }
 
 
         }
-        receiptDataViewModel.store.observe(viewLifecycleOwner) {
-            it?.let {
-                setStoreDataToInputs(it)
+        receiptDataViewModel.store.observe(viewLifecycleOwner) { store ->
+            store?.let {
+                setStoreName(it, receiptDataViewModel.storeList.value)
             }
-            pickedStore = it
+        }
+        //TODO Reduce duplicated observed (methods above and under)
+        receiptDataViewModel.savedStore.observe(viewLifecycleOwner) { store ->
+            store?.let {
+                setStoreName(it, receiptDataViewModel.storeList.value)
+            }
         }
         receiptDataViewModel.receipt.observe(viewLifecycleOwner) {
             it?.let {
                 setReceiptDataToInputs(it)
             }
+        }
+
+        imageAnalyzerViewModel.receiptAnalyzed.observe(viewLifecycleOwner) {
+
+            if (it == null) {
+                return@observe
+            }
+            val store = Store(it.valueNIP, it.companyName, 0)
+            val receipt = Receipt(
+                -1,
+                it.valuePLN.toString().toDouble(),
+                it.valuePTU.toString().toDouble(),
+                it.valueDate,
+                it.valueTime,
+                true
+            )
+            Log.i("ImageProcess", "valueNIP ${it.valueNIP}")
+            Log.i("ImageProcess", "companyName ${it.companyName}")
+            Log.i("ImageProcess", "valuePTU ${it.valuePTU}")
+            Log.i("ImageProcess", "valuePLN ${it.valuePLN}")
+            Log.i("ImageProcess", "valueDate ${it.valueDate}")
+            Log.i("ImageProcess", "valueTime ${it.valueTime}")
+            receiptDataViewModel.store.value = store
+            receiptDataViewModel.receipt.value = receipt
+            imageAnalyzerViewModel.receiptAnalyzed.value = null
+
+
         }
     }
 
@@ -188,34 +219,70 @@ class AddReceiptFragment : Fragment() {
         binding.toolbar.menu.findItem(R.id.add_new).isVisible = false
     }
 
+    private fun validateObligatoryFields(): Boolean {
+        var succeedValidation = true
+        if (binding.receiptPLNInput.text.isNullOrEmpty()) {
+            binding.receiptPLNLayout.error = "Empty"
+            succeedValidation = false
+        }
+        if (binding.receiptPTUInput.text.isNullOrEmpty()) {
+            binding.receiptPTULayout.error = "Empty"
+            succeedValidation = false
+        }
+        if (binding.receiptDateInput.text.isNullOrEmpty()) {
+            binding.receiptDateLayout.error = "Empty"
+            succeedValidation = false
+        }
+        if (binding.receiptTimeInput.text.isNullOrEmpty()) {
+            binding.receiptTimeLayout.error = "Empty"
+            succeedValidation = false
+        }
+        return succeedValidation
+    }
+
     private fun saveChangesToDatabase() {
-        if (pickedStore == null) {
+        if (pickedStore == null || pickedStore?.id == null) {
             Toast.makeText(requireContext(), "Pick store!", Toast.LENGTH_SHORT).show()
             return
         }
+        if (!validateObligatoryFields()) {
+            Toast.makeText(requireContext(), "Fill all fields", Toast.LENGTH_SHORT).show()
+            return
+        }
+        val pln = transformToDouble(binding.receiptPLNInput.text.toString())
+        val ptu = transformToDouble(binding.receiptPTUInput.text.toString())
+        val date = binding.receiptDateInput.text.toString()
+        val time = binding.receiptTimeInput.text.toString()
+
         if (mode == DataMode.NEW) {
-            val receipt = Receipt(-1, -1.0, -1.0, "", "").apply {
-                storeId = pickedStore!!.id!!
-                pln = transformToDouble(binding.receiptPLNInput.text.toString())
-                ptu = transformToDouble(binding.receiptPTUInput.text.toString())
-                date = binding.receiptDateInput.text.toString()
-                time = binding.receiptTimeInput.text.toString()
+            pickedStore?.id?.let { storeId ->
+                val receipt = Receipt(-1, -1.0, -1.0, "", "", true).apply {
+                    this.storeId = storeId
+                    this.pln = pln
+                    this.ptu = ptu
+                    this.date = date
+                    this.time = time
+                }
+                receiptDataViewModel.insertReceipt(receipt)
+                receiptDataViewModel.loadDataByReceiptFilter()
+                val action =
+                    AddReceiptFragmentDirections.actionAddReceiptFragmentToAddProductListFragment()
+                Navigation.findNavController(requireView()).navigate(action)
             }
-            receiptDataViewModel.insertReceipt(receipt)
-            val action =
-                AddReceiptFragmentDirections.actionAddReceiptFragmentToAddProductListFragment()
-            Navigation.findNavController(requireView()).navigate(action)
         } else if (mode == DataMode.EDIT) {
             receiptDataViewModel.receipt.value?.let {
-                val receipt = Receipt(-1, -1.0, -1.0, "", "")
-                receipt.id = it.id
-                receipt.storeId = pickedStore!!.id!!
-                receipt.pln = transformToDouble(binding.receiptPLNInput.text.toString())
-                receipt.ptu = transformToDouble(binding.receiptPTUInput.text.toString())
-                receipt.date = binding.receiptDateInput.text.toString()
-                receipt.time = binding.receiptTimeInput.text.toString()
-                receiptDataViewModel.updateReceipt(receipt)
-
+                pickedStore?.id?.let { storeId ->
+                    val receipt = Receipt(-1, -1.0, -1.0, "", "", true).apply {
+                        this.id = it.id
+                        this.storeId = storeId
+                        this.pln = pln
+                        this.ptu = ptu
+                        this.date = date
+                        this.time = time
+                    }
+                    receiptDataViewModel.updateReceipt(receipt)
+                    receiptDataViewModel.loadDataByReceiptFilter()
+                }
             }
         }
         receiptDataViewModel.store.value = pickedStore
@@ -226,11 +293,11 @@ class AddReceiptFragment : Fragment() {
                 receipt.pln.toString().toDouble(),
                 receipt.ptu.toString().toDouble(),
                 receipt.date,
-                receipt.time
+                receipt.time,
+                receipt.validPrice
             )
             receiptDataViewModel.receipt.value?.id = receipt.id
         }
-        binding.storeNIPLayout.visibility = View.GONE
         changeViewToDisplayMode()
 
     }
@@ -238,25 +305,9 @@ class AddReceiptFragment : Fragment() {
 
     private fun defineClickListeners() {
 
-        binding.storeNameInput.doOnTextChanged { actual, _, _, _ ->
-            val storeLists = receiptDataViewModel.storeList.value?.map { it.name }
-            if (storeLists?.contains(actual.toString()) == false) {
-                binding.storeNameLayout.helperText = "New store will be added"
-            } else {
-                binding.storeNameLayout.helperText = null
-
-            }
-        }
-        binding.storeNIPLayout.setEndIconOnClickListener {
-            receiptDataViewModel.savedStore.value = null
-            Navigation.findNavController(it)
-                .navigate(R.id.action_addReceiptFragment_to_editStoreFragment)
-        }
-
         binding.toolbar.setOnMenuItemClickListener {
             when (it.itemId) {
                 R.id.edit -> {
-                    binding.storeNIPLayout.visibility = View.VISIBLE
                     changeViewToEditMode()
                     return@setOnMenuItemClickListener true
                 }
@@ -267,12 +318,15 @@ class AddReceiptFragment : Fragment() {
                 }
 
                 R.id.add_new -> {
-                    receiptDataViewModel.receipt.value?.id?.let {
-                        receiptDataViewModel.refreshProductListForReceipt(it)
+                    receiptDataViewModel.receipt.value?.id?.let { id ->
+                        receiptDataViewModel.refreshProductListForReceipt(id)
+                        val action =
+                            AddReceiptFragmentDirections.actionAddReceiptFragmentToAddProductListFragment()
+                        Navigation.findNavController(requireView()).navigate(action)
+                        return@setOnMenuItemClickListener true
                     }
-                    val action =
-                        AddReceiptFragmentDirections.actionAddReceiptFragmentToAddProductListFragment()
-                    Navigation.findNavController(requireView()).navigate(action)
+                    Toast.makeText(requireContext(), "Receipt not set", Toast.LENGTH_SHORT)
+
                     return@setOnMenuItemClickListener true
                 }
 
@@ -283,9 +337,8 @@ class AddReceiptFragment : Fragment() {
         binding.toolbar.setNavigationOnClickListener {
             if (mode == DataMode.EDIT) {
                 changeViewToDisplayMode()
-                binding.storeNIPInput.setText(receiptDataViewModel.store.value?.nip)
-                binding.receiptPTUInput.setText(receiptDataViewModel.receipt.value?.ptu.toString())
-                binding.receiptPLNInput.setText(receiptDataViewModel.receipt.value?.pln.toString())
+                binding.receiptPTUInput.setText(doubleToString(receiptDataViewModel.receipt.value?.ptu))
+                binding.receiptPLNInput.setText(doubleToString(receiptDataViewModel.receipt.value?.pln))
                 binding.receiptDateInput.setText(receiptDataViewModel.receipt.value?.date)
                 binding.receiptTimeInput.setText(receiptDataViewModel.receipt.value?.time)
             } else {
@@ -297,33 +350,24 @@ class AddReceiptFragment : Fragment() {
             binding.storeNameInput.setText("")
             binding.storeNameLayout.helperText = null
             binding.storeNameInput.isEnabled = true
-            binding.storeNIPInput.setText("")
             pickedStore = null
         }
 
-        binding.storeNameInput.setOnItemClickListener { adapter, _, i, _ ->
-            val store = adapter.getItemAtPosition(i) as Store
-            pickedStore = store
-            binding.storeNameInput.setText(store.name)
-            binding.storeNIPInput.setText(store.nip)
-            binding.storeNameInput.isEnabled = false
-
-        }
-
-        binding.storeNIPLayout.setStartIconOnClickListener {
-            binding.storeNIPInput.text
-            val index = receiptDataViewModel.storeList.value?.map { it.nip }
-                ?.indexOf(binding.storeNIPInput.text.toString()) ?: -1
-            if (index >= 0) {
-                pickedStore = receiptDataViewModel.storeList.value?.get(index)
-                binding.storeNIPInput.setText(pickedStore?.nip ?: "")
-                binding.storeNameInput.setText(pickedStore?.name ?: "")
+        binding.storeNameInput.setOnItemClickListener { adapter, _, position, _ ->
+            val store = adapter.getItemAtPosition(position) as Store
+            if ("" == store.nip && binding.storeNameInput.adapter.count - 1 == position) {
+                receiptDataViewModel.savedStore.value = null
+                binding.storeNameInput.setText("")
+                Navigation.findNavController(requireView())
+                    .navigate(R.id.action_addReceiptFragment_to_editStoreFragment)
+            } else {
+                pickedStore = store
+                binding.storeNameInput.setText(store.name)
                 binding.storeNameInput.isEnabled = false
-                binding.toolbar.menu.findItem(R.id.confirm).isVisible = true
-                binding.toolbar.menu.findItem(R.id.edit).isVisible = false
             }
 
         }
+
         binding.receiptDateLayout.setEndIconOnClickListener {
             showDatePicker()
         }
@@ -335,6 +379,27 @@ class AddReceiptFragment : Fragment() {
         }
         binding.receiptTimeInput.setOnClickListener {
             showTimePicker()
+        }
+
+        binding.receiptDateInput.doOnTextChanged { actual, _, _, _ ->
+            if (!actual.isNullOrEmpty()) {
+                binding.receiptDateLayout.error = null
+            }
+        }
+        binding.receiptTimeInput.doOnTextChanged { actual, _, _, _ ->
+            if (!actual.isNullOrEmpty()) {
+                binding.receiptTimeInput.error = null
+            }
+        }
+        binding.receiptPLNInput.doOnTextChanged { actual, _, _, _ ->
+            if (!actual.isNullOrEmpty()) {
+                binding.receiptPLNLayout.error = null
+            }
+        }
+        binding.receiptPTUInput.doOnTextChanged { actual, _, _, _ ->
+            if (!actual.isNullOrEmpty()) {
+                binding.receiptPTULayout.error = null
+            }
         }
     }
 
@@ -361,7 +426,8 @@ class AddReceiptFragment : Fragment() {
 
         datePicker.addOnPositiveButtonClickListener {
             calendarDate.timeInMillis = it
-            val date = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(calendarDate.time)
+            val date =
+                SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(calendarDate.time)
             binding.receiptDateInput.setText(date)
         }
     }

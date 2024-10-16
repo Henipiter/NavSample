@@ -70,6 +70,6 @@ class ImageImportGuideFragment : Fragment(), Guide {
 
 
     override fun getPhotoView(): PhotoView {
-        return binding.receiptImage
+        return PhotoView(requireContext())
     }
 }

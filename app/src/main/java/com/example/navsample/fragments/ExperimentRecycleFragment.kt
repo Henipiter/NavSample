@@ -13,6 +13,7 @@ import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.navigation.Navigation
+import androidx.navigation.fragment.navArgs
 import com.example.navsample.BuildConfig
 import com.example.navsample.R
 import com.example.navsample.adapters.sorting.AlgorithmItemListAdapter
@@ -22,6 +23,7 @@ import com.example.navsample.databinding.FragmentExperimentRecycleBinding
 import com.example.navsample.dto.SortingElementAction
 import com.example.navsample.dto.SortingElementMode
 import com.example.navsample.dto.Type
+import com.example.navsample.dto.analyzer.AnalyzedProductsData
 import com.example.navsample.dto.sorting.AlgorithmItemAdapterArgument
 import com.example.navsample.dto.sorting.ItemAdapterArgument
 import com.example.navsample.dto.sorting.UserItemAdapterArgument
@@ -31,6 +33,7 @@ import com.example.navsample.exception.NoStoreIdException
 import com.example.navsample.imageanalyzer.ReceiptParser
 import com.example.navsample.sorting.NonScrollableGridLayoutManager
 import com.example.navsample.sorting.operation.ElementOperationHelper
+import com.example.navsample.viewmodels.ImageAnalyzerViewModel
 import com.example.navsample.viewmodels.ReceiptDataViewModel
 import com.example.navsample.viewmodels.ReceiptImageViewModel
 
@@ -42,7 +45,8 @@ open class ExperimentRecycleFragment : Fragment() {
 
     private val receiptImageViewModel: ReceiptImageViewModel by activityViewModels()
     private val receiptDataViewModel: ReceiptDataViewModel by activityViewModels()
-
+    private val imageAnalyzerViewModel: ImageAnalyzerViewModel by activityViewModels()
+    val args: ExperimentRecycleFragmentArgs by navArgs()
     private lateinit var algorithmOrderedPricesAdapter: AlgorithmItemListAdapter
     private lateinit var algorithmOrderedNamesAdapter: AlgorithmItemListAdapter
     private lateinit var userOrderedPricesAdapter: UserItemListAdapter
@@ -162,6 +166,11 @@ open class ExperimentRecycleFragment : Fragment() {
         }
 
         binding.confirmButton.setOnClickListener {
+            if (args.developerMode) {
+                Navigation.findNavController(binding.root).popBackStack()
+                return@setOnClickListener
+            }
+
             val names = elementOperationHelper.userNames.map { it.value }
             val prices = elementOperationHelper.userPrices.map { it.value }
             receiptDataViewModel.algorithmOrderedNames.value =
@@ -169,15 +178,25 @@ open class ExperimentRecycleFragment : Fragment() {
             receiptDataViewModel.algorithmOrderedPrices.value =
                 createAlgorithmElementsFromUserElements(recycleListUserPrices)
             receiptDataViewModel.product.value = receiptParser.parseToProducts(names, prices)
+
+
+            val productsData =
+                AnalyzedProductsData(
+                    ArrayList(names),
+                    ArrayList(prices),
+                    receiptParser.parseToProducts(names, prices)
+                )
+            imageAnalyzerViewModel.aiAnalyze(productsData, receiptDataViewModel.categoryList.value)
+
             Navigation.findNavController(binding.root).popBackStack()
         }
     }
 
     private fun initObserver() {
-        receiptImageViewModel.bitmapCropped.observe(viewLifecycleOwner) {
+        receiptImageViewModel.bitmapCroppedProduct.observe(viewLifecycleOwner) {
             if (it != null) {
                 binding.receiptImage.visibility = View.VISIBLE
-                binding.receiptImage.setImageBitmap(receiptImageViewModel.bitmapCropped.value)
+                binding.receiptImage.setImageBitmap(receiptImageViewModel.bitmapCroppedProduct.value)
             } else {
                 binding.receiptImage.visibility = View.GONE
             }

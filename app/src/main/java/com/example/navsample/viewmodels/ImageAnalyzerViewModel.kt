@@ -24,6 +24,13 @@ class ImageAnalyzerViewModel : ViewModel() {
     val geminiResponse = MutableLiveData<String?>(null)
     val isGeminiWorking = MutableLiveData(false)
 
+    fun clearData() {
+        productAnalyzed.value = null
+        receiptAnalyzed.value = null
+        geminiResponse.value = null
+        isGeminiWorking.value = false
+    }
+
     private fun aiProductCorrection(
         productList: ArrayList<Product>,
         categories: ArrayList<Category>?,
@@ -93,17 +100,24 @@ class ImageAnalyzerViewModel : ViewModel() {
                 receiptId,
                 categoryId
             ) { analyzedProducts ->
-                productAnalyzed.value = analyzedProducts
-                isGeminiWorking.value = true
-                aiProductCorrection(analyzedProducts.productList, categories)
-                { list, response ->
-                    analyzedProducts.productList = list
-                    productAnalyzed.value = analyzedProducts
-                    geminiResponse.value = response
-                    isGeminiWorking.value = false
-                }
+                aiAnalyze(analyzedProducts, categories)
 
             }
+        }
+    }
+
+    fun aiAnalyze(
+        analyzedProducts: AnalyzedProductsData,
+        categories: ArrayList<Category>?
+    ) {
+        productAnalyzed.value = analyzedProducts
+        isGeminiWorking.value = true
+        aiProductCorrection(analyzedProducts.productList, categories) ///daw
+        { list, response ->
+            analyzedProducts.productList = list
+            productAnalyzed.value = analyzedProducts
+            geminiResponse.value = response
+            isGeminiWorking.value = false
         }
     }
 

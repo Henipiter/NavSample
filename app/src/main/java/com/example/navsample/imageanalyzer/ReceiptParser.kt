@@ -1,5 +1,6 @@
 package com.example.navsample.imageanalyzer
 
+import com.example.navsample.dto.Utils.Companion.roundDouble
 import com.example.navsample.entities.Product
 import kotlin.math.min
 
@@ -39,6 +40,7 @@ class ReceiptParser(var receiptId: Int, var categoryId: Int) {
                 continue
             }
             if (parsedProduct.name != "" || parsedProduct.subtotalPrice != 0.0) {
+                parsedProduct.validPrice = arePricesValid(parsedProduct)
                 productList.add(parsedProduct)
             }
         }
@@ -64,7 +66,8 @@ class ReceiptParser(var receiptId: Int, var categoryId: Int) {
                 -fixedUnitPrice,
                 fixedSubtotalPrice,
                 fixPtuType(ptuType.data),
-                productInformation
+                productInformation,
+                false
             )
         } else {
             val quantity = findQuantity(productInformation, unitPrice.startIndex)
@@ -79,9 +82,15 @@ class ReceiptParser(var receiptId: Int, var categoryId: Int) {
                 0.0,
                 fixedSubtotalPrice,
                 fixPtuType(ptuType.data),
-                productInformation
+                productInformation,
+                false
             )
         }
+    }
+
+    private fun arePricesValid(product: Product): Boolean {
+        return roundDouble(product.quantity * product.unitPrice) == roundDouble(product.subtotalPrice) &&
+                roundDouble(product.subtotalPrice - product.discount) == roundDouble(product.finalPrice)
     }
 
     private fun fixPrize(price: String): Double {

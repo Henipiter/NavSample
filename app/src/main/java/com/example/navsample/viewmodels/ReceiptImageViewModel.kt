@@ -10,9 +10,10 @@ import java.io.FileOutputStream
 
 class ReceiptImageViewModel : ViewModel() {
     lateinit var uri: MutableLiveData<Uri?>
-    lateinit var bitmap: MutableLiveData<Bitmap?>
-    lateinit var uriCropped: MutableLiveData<Uri?>
-    lateinit var bitmapCropped: MutableLiveData<Bitmap?>
+    lateinit var bitmapOriginal: MutableLiveData<Bitmap?>
+    lateinit var bitmapCroppedReceipt: MutableLiveData<Bitmap?>
+    lateinit var uriCroppedProduct: MutableLiveData<Uri?>
+    lateinit var bitmapCroppedProduct: MutableLiveData<Bitmap?>
     lateinit var uid: MutableLiveData<String>
 
 
@@ -31,9 +32,10 @@ class ReceiptImageViewModel : ViewModel() {
 
         uid = MutableLiveData<String>(null)
         uri = MutableLiveData<Uri?>(null)
-        bitmap = MutableLiveData<Bitmap?>(null)
-        uriCropped = MutableLiveData<Uri?>(null)
-        bitmapCropped = MutableLiveData<Bitmap?>(null)
+        bitmapOriginal = MutableLiveData<Bitmap?>(null)
+        bitmapCroppedReceipt = MutableLiveData<Bitmap?>(null)
+        uriCroppedProduct = MutableLiveData<Uri?>(null)
+        bitmapCroppedProduct = MutableLiveData<Bitmap?>(null)
     }
 
     private fun clearDirectoryFromTempImages() {
@@ -53,12 +55,12 @@ class ReceiptImageViewModel : ViewModel() {
 
     fun setImageUriOriginal() {
         uri.value?.let { File(it.path.toString()).delete() }
-        uri.value = bitmap.value?.let { setImageUri(it) }
+        uri.value = bitmapCroppedReceipt.value?.let { setImageUri(it) }
     }
 
     fun setImageUriCropped() {
-        uriCropped.value?.let { File(it.path.toString()).delete() }
-        uriCropped.value = bitmapCropped.value?.let { setImageUri(it) }
+        uriCroppedProduct.value?.let { File(it.path.toString()).delete() }
+        uriCroppedProduct.value = bitmapCroppedProduct.value?.let { setImageUri(it) }
     }
 
     private fun setImageUri(bitmap: Bitmap): Uri {

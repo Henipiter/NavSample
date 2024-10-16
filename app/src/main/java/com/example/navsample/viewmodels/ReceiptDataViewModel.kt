@@ -46,22 +46,22 @@ class ReceiptDataViewModel : ViewModel() {
         private const val CATEGORY_FIRESTORE_PATH = "categories"
     }
 
-    private val defaultStoreSort = SortProperty<StoreSort>(StoreSort.NAME, Direction.ASCENDING)
-    private val defaultRichProductSort =
+    val defaultStoreSort = SortProperty<StoreSort>(StoreSort.NAME, Direction.ASCENDING)
+    val defaultRichProductSort =
         SortProperty<RichProductSort>(RichProductSort.DATE, Direction.DESCENDING)
-    private val defaultReceiptWithStoreSort =
+    val defaultReceiptWithStoreSort =
         SortProperty<ReceiptWithStoreSort>(ReceiptWithStoreSort.DATE, Direction.DESCENDING)
 
     lateinit var imageUuid: MutableLiveData<String>
 
-    lateinit var storeSort: MutableLiveData<SortProperty<StoreSort>>
-    lateinit var receiptWithStoreSort: MutableLiveData<SortProperty<ReceiptWithStoreSort>>
-    lateinit var richProductSort: MutableLiveData<SortProperty<RichProductSort>>
+    val storeSort = MutableLiveData(defaultStoreSort)
+    val receiptWithStoreSort = MutableLiveData(defaultReceiptWithStoreSort)
+    val richProductSort = MutableLiveData(defaultRichProductSort)
 
-    lateinit var filterCategoryList: MutableLiveData<FilterCategoryList>
-    lateinit var filterStoreList: MutableLiveData<FilterStoreList>
-    lateinit var filterProductList: MutableLiveData<FilterProductList>
-    lateinit var filterReceiptList: MutableLiveData<FilterReceiptList>
+    val filterCategoryList = MutableLiveData(FilterCategoryList())
+    val filterStoreList = MutableLiveData(FilterStoreList())
+    val filterProductList = MutableLiveData(FilterProductList())
+    val filterReceiptList = MutableLiveData(FilterReceiptList())
 
     lateinit var store: MutableLiveData<Store>
     lateinit var receipt: MutableLiveData<Receipt>
@@ -96,41 +96,69 @@ class ReceiptDataViewModel : ViewModel() {
 
     init {
         clearData()
+        loadDataByStoreFilter()
+        loadDataByReceiptFilter()
+        loadDataByProductFilter()
+        loadDataByCategoryFilter()
     }
 
     fun <Sort : ParentSort> updateSorting(sort: SortProperty<Sort>) {
         when (sort.sort) {
             is StoreSort -> {
-                filterStoreList.value?.let {
-                    refreshStoreList(it.store, it.nip)
-                }
+                loadDataByStoreFilter()
             }
 
             is ReceiptWithStoreSort -> {
-                filterReceiptList.value?.let {
-                    refreshReceiptList(it.store, it.dateFrom, it.dateTo)
-                }
+                loadDataByReceiptFilter()
             }
 
             is RichProductSort -> {
-                filterProductList.value?.let {
-                    refreshProductList(
-                        it.store, it.category, it.dateFrom, it.dateTo, it.lowerPrice, it.higherPrice
-                    )
-                }
+                loadDataByProductFilter()
             }
         }
     }
 
+    fun loadDataByStoreFilter() {
+        filterStoreList.value?.let {
+            refreshStoreList(it.store, it.nip)
+        }
+    }
+
+    fun loadDataByCategoryFilter() {
+        filterCategoryList.value?.let {
+            refreshCategoryList(it.category)
+        }
+    }
+
+    fun loadDataByReceiptFilter() {
+        filterReceiptList.value?.let {
+            refreshReceiptList(
+                it.store, it.dateFrom, it.dateTo
+            )
+        }
+    }
+
+    fun loadDataByProductFilter() {
+        filterProductList.value?.let {
+            refreshProductList(
+                it.store,
+                it.category,
+                it.dateFrom,
+                it.dateTo,
+                it.lowerPrice,
+                it.higherPrice
+            )
+        }
+    }
+
     fun clearData() {
-        storeSort = MutableLiveData<SortProperty<StoreSort>>(defaultStoreSort)
-        receiptWithStoreSort =
-            MutableLiveData<SortProperty<ReceiptWithStoreSort>>(defaultReceiptWithStoreSort)
-        richProductSort = MutableLiveData<SortProperty<RichProductSort>>(defaultRichProductSort)
-        filterCategoryList = MutableLiveData<FilterCategoryList>(FilterCategoryList())
-        filterStoreList = MutableLiveData<FilterStoreList>(FilterStoreList())
-        filterProductList = MutableLiveData<FilterProductList>(FilterProductList())
-        filterReceiptList = MutableLiveData<FilterReceiptList>(FilterReceiptList())
+        storeSort.value = defaultStoreSort
+        receiptWithStoreSort.value = defaultReceiptWithStoreSort
+        richProductSort.value = defaultRichProductSort
+        filterCategoryList.value = FilterCategoryList()
+        filterStoreList.value = FilterStoreList()
+        filterProductList.value = FilterProductList()
+        filterReceiptList.value = FilterReceiptList()
 
         imageUuid = MutableLiveData<String>(null)
         reorderedProductTiles = MutableLiveData<Boolean>(false)
@@ -155,6 +183,10 @@ class ReceiptDataViewModel : ViewModel() {
 
 
         refreshCategoryList()
+        loadDataByStoreFilter()
+        loadDataByProductFilter()
+        loadDataByReceiptFilter()
+
         userOrderedName = MutableLiveData(arrayListOf())
         userOrderedPrices = MutableLiveData(arrayListOf())
         algorithmOrderedNames = MutableLiveData(
@@ -315,7 +347,7 @@ class ReceiptDataViewModel : ViewModel() {
                 Log.e("Insert store to DB", e.message.toString())
             }
             savedStore.postValue(newStore)
-            refreshStoreList()
+            loadDataByStoreFilter()
         }
     }
 
@@ -415,7 +447,7 @@ class ReceiptDataViewModel : ViewModel() {
 
     }
 
-    fun refreshReceiptList(name: String, dateFrom: String, dateTo: String) {
+    private fun refreshReceiptList(name: String, dateFrom: String, dateTo: String) {
         Log.i("Database", "refresh receipt for store $name")
         viewModelScope.launch {
             val list = ReceiptDaoHelper.getReceiptWithStore(
@@ -439,7 +471,7 @@ class ReceiptDataViewModel : ViewModel() {
         }
     }
 
-    fun refreshCategoryList(categoryName: String) {
+    private fun refreshCategoryList(categoryName: String) {
         Log.i("Database", "refresh category list")
         viewModelScope.launch {
             categoryList.postValue(
@@ -455,7 +487,7 @@ class ReceiptDataViewModel : ViewModel() {
         }
     }
 
-    fun refreshStoreList(name: String, nip: String) {
+    private fun refreshStoreList(name: String, nip: String) {
         Log.i("Database", "refresh store list")
         viewModelScope.launch {
             val list = ReceiptDaoHelper.getAllStoresOrdered(
@@ -497,7 +529,7 @@ class ReceiptDataViewModel : ViewModel() {
     }
 
 
-    fun refreshProductList(
+    private fun refreshProductList(
         storeName: String,
         categoryName: String,
         dateFrom: String,

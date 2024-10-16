@@ -1,5 +1,6 @@
 package com.example.navsample.fragments.listing
 
+import android.annotation.SuppressLint
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -17,7 +18,7 @@ import com.example.navsample.databinding.FragmentReceiptListBinding
 import com.example.navsample.dto.sort.ReceiptWithStoreSort
 import com.example.navsample.dto.sort.SortProperty
 import com.example.navsample.entities.Receipt
-import com.example.navsample.fragments.dialogs.DeleteConfirmationDialog
+import com.example.navsample.fragments.dialogs.ConfirmDialog
 import com.example.navsample.fragments.dialogs.SortingDialog
 import com.example.navsample.viewmodels.ReceiptDataViewModel
 
@@ -40,7 +41,6 @@ class ReceiptListFragment : Fragment(), ItemClickListener {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         initObserver()
-        refreshList()
         receiptDataViewModel.refreshCategoryList()
         binding.toolbar.inflateMenu(R.menu.top_menu_list_filter)
         binding.toolbar.menu.findItem(R.id.collapse).isVisible = false
@@ -55,7 +55,11 @@ class ReceiptListFragment : Fragment(), ItemClickListener {
 
                 R.id.sort -> {
                     //TODO Connect Dialog with DB
-                    SortingDialog(ReceiptWithStoreSort.entries.map { it.friendlyNameKey }) { name, dir ->
+                    val selected = receiptDataViewModel.receiptWithStoreSort.value
+                        ?: receiptDataViewModel.defaultReceiptWithStoreSort
+                    SortingDialog(
+                        selected,
+                        ReceiptWithStoreSort.entries.map { sort -> sort.friendlyNameKey }) { name, dir ->
                         val appliedSort = SortProperty(ReceiptWithStoreSort::class, name, dir)
                         receiptDataViewModel.receiptWithStoreSort.value = appliedSort
                         receiptDataViewModel.updateSorting(appliedSort)
@@ -68,14 +72,21 @@ class ReceiptListFragment : Fragment(), ItemClickListener {
             }
         }
 
+
+        binding.newButton.setOnClickListener {
+            val action =
+                ListingFragmentDirections.actionListingFragmentToImageImportFragment()
+            Navigation.findNavController(requireView()).navigate(action)
+        }
         recyclerViewEvent = binding.recyclerViewEventReceipts
         receiptListAdapter = ReceiptListAdapter(
             requireContext(),
             receiptDataViewModel.receiptList.value ?: arrayListOf(), this
         ) { i: Int ->
             receiptDataViewModel.receiptList.value?.get(i)?.let {
-                DeleteConfirmationDialog(
-                    "Are you sure you want to delete the receipt with dependent products??\n\n" +
+                ConfirmDialog(
+                    "Delete",
+                    "$i Are you sure you want to delete the receipt with dependent products??\n\n" +
                             "Store: " + it.name
                             + "\nPLN: " + it.pln
                             + "\nPTU: " + it.ptu
@@ -84,10 +95,15 @@ class ReceiptListFragment : Fragment(), ItemClickListener {
                 ) {
 
                     receiptDataViewModel.deleteReceipt(it.id)
-                    receiptDataViewModel.receiptList.value?.removeAt(i)
-                    receiptListAdapter.receiptList =
-                        receiptDataViewModel.receiptList.value ?: arrayListOf()
-                    receiptListAdapter.notifyItemRemoved(i)
+                    receiptDataViewModel.receiptList.value?.let { receiptList ->
+                        receiptList.removeAt(i)
+                        receiptListAdapter.receiptList = receiptList
+                        receiptListAdapter.notifyItemRemoved(i)
+                        receiptListAdapter.notifyItemRangeChanged(
+                            i, receiptListAdapter.receiptList.size
+                        )
+                    }
+
 
                 }.show(childFragmentManager, "TAG")
             }
@@ -98,24 +114,13 @@ class ReceiptListFragment : Fragment(), ItemClickListener {
             LinearLayoutManager(requireContext(), LinearLayoutManager.VERTICAL, false)
     }
 
-    private fun refreshList() { //TODO move to viewModel
-        receiptDataViewModel.filterReceiptList.value?.let {
-            receiptDataViewModel.refreshReceiptList(
-                it.store, it.dateFrom, it.dateTo
-            )
-        }
-    }
-
+    @SuppressLint("NotifyDataSetChanged")
     private fun initObserver() {
         receiptDataViewModel.receiptList.observe(viewLifecycleOwner) {
             it?.let {
                 receiptListAdapter.receiptList = it
                 receiptListAdapter.notifyDataSetChanged()
             }
-        }
-
-        receiptDataViewModel.filterReceiptList.observe(viewLifecycleOwner) {
-            refreshList()
         }
     }
 
@@ -127,7 +132,8 @@ class ReceiptListFragment : Fragment(), ItemClickListener {
                 it.pln.toString().toDouble(),
                 it.ptu.toString().toDouble(),
                 it.date,
-                it.time
+                it.time,
+                it.validPriceSum
             )
             receipt.id = it.id
             receiptDataViewModel.receipt.value = receipt

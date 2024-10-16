@@ -18,7 +18,7 @@ import com.example.navsample.adapters.StoreListAdapter
 import com.example.navsample.databinding.FragmentStoreListBinding
 import com.example.navsample.dto.sort.SortProperty
 import com.example.navsample.dto.sort.StoreSort
-import com.example.navsample.fragments.dialogs.DeleteConfirmationDialog
+import com.example.navsample.fragments.dialogs.ConfirmDialog
 import com.example.navsample.fragments.dialogs.SortingDialog
 import com.example.navsample.viewmodels.ReceiptDataViewModel
 
@@ -42,7 +42,6 @@ class StoreListFragment : Fragment(), ItemClickListener {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         initObserver()
-        refreshList()
         binding.toolbar.inflateMenu(R.menu.top_menu_list_filter)
         binding.toolbar.menu.findItem(R.id.filter).isVisible = false
         binding.toolbar.menu.findItem(R.id.collapse).isVisible = false
@@ -51,8 +50,12 @@ class StoreListFragment : Fragment(), ItemClickListener {
             when (it.itemId) {
                 R.id.sort -> {
                     //TODO Connect Dialog with DB
+                    val selected = receiptDataViewModel.storeSort.value
+                        ?: receiptDataViewModel.defaultStoreSort
 
-                    SortingDialog(StoreSort.entries.map { it.friendlyNameKey }) { name, dir ->
+                    SortingDialog(
+                        selected,
+                        StoreSort.entries.map { sort -> sort.friendlyNameKey }) { name, dir ->
                         val appliedSort = SortProperty(StoreSort::class, name, dir)
                         receiptDataViewModel.storeSort.value = appliedSort
                         receiptDataViewModel.updateSorting(appliedSort)
@@ -70,25 +73,34 @@ class StoreListFragment : Fragment(), ItemClickListener {
             receiptDataViewModel.storeList.value ?: arrayListOf(), this
         ) { i: Int ->
             receiptDataViewModel.storeList.value?.get(i)?.let {
-                DeleteConfirmationDialog(
-                    "Are you sure you want to delete the store with dependent receipts and" +
+                ConfirmDialog(
+                    "Delete",
+                    "$i Are you sure you want to delete the store with dependent receipts and" +
                             " products??\n\n" + "Name: " + it.name + "\nNIP: " + it.nip
                 ) {
                     receiptDataViewModel.deleteStore(it)
-                    receiptDataViewModel.storeList.value?.removeAt(i)
-                    storeListAdapter.storeList =
-                        receiptDataViewModel.storeList.value ?: arrayListOf()
-                    storeListAdapter.notifyItemRemoved(i)
+                    receiptDataViewModel.storeList.value?.let { storeList ->
+                        storeList.removeAt(i)
+                        storeListAdapter.storeList = storeList
+                        storeListAdapter.notifyItemRemoved(i)
+                        storeListAdapter.notifyItemRangeChanged(i, storeListAdapter.storeList.size)
+
+                    }
+
                 }.show(childFragmentManager, "TAG")
             }
         }
+        recyclerViewEvent.adapter = storeListAdapter
+        recyclerViewEvent.layoutManager =
+            LinearLayoutManager(requireContext(), LinearLayoutManager.VERTICAL, false)
+
         binding.storeNameInput.doOnTextChanged { text, _, _, _ ->
             receiptDataViewModel.filterStoreList.value?.store = text.toString()
-            refreshList()
+            receiptDataViewModel.loadDataByStoreFilter()
         }
         binding.storeNIPInput.doOnTextChanged { text, _, _, _ ->
             receiptDataViewModel.filterStoreList.value?.nip = text.toString()
-            refreshList()
+            receiptDataViewModel.loadDataByStoreFilter()
         }
         binding.storeNameLayout.setStartIconOnClickListener {
             binding.storeNameInput.setText("")
@@ -98,9 +110,6 @@ class StoreListFragment : Fragment(), ItemClickListener {
             binding.storeNIPInput.setText("")
             receiptDataViewModel.filterStoreList.value?.nip = ""
         }
-        recyclerViewEvent.adapter = storeListAdapter
-        recyclerViewEvent.layoutManager =
-            LinearLayoutManager(requireContext(), LinearLayoutManager.VERTICAL, false)
 
         binding.newButton.setOnClickListener {
             receiptDataViewModel.savedStore.value = null
@@ -111,12 +120,15 @@ class StoreListFragment : Fragment(), ItemClickListener {
     }
 
     override fun onItemClick(index: Int) {
-        val store = receiptDataViewModel.storeList.value!![index]
-        receiptDataViewModel.savedStore.value = store
-        receiptDataViewModel.store.value = store
-        val action =
-            ListingFragmentDirections.actionListingFragmentToAddStoreFragment()
-        Navigation.findNavController(requireView()).navigate(action)
+        receiptDataViewModel.storeList.value?.let { storeList ->
+            val store = storeList[index]
+            receiptDataViewModel.savedStore.value = store
+            receiptDataViewModel.store.value = store
+            val action =
+                ListingFragmentDirections.actionListingFragmentToAddStoreFragment()
+            Navigation.findNavController(requireView()).navigate(action)
+        }
+
 
     }
 
@@ -132,13 +144,6 @@ class StoreListFragment : Fragment(), ItemClickListener {
         }
     }
 
-    private fun refreshList() { //TODO move to viewModel
-        receiptDataViewModel.filterStoreList.value?.let {
-            putFilterDefinitionIntoInputs()
-            receiptDataViewModel.refreshStoreList(it.store, it.nip)
-        }
-    }
-
     @SuppressLint("NotifyDataSetChanged")
     private fun initObserver() {
         receiptDataViewModel.storeList.observe(viewLifecycleOwner) {
@@ -148,7 +153,7 @@ class StoreListFragment : Fragment(), ItemClickListener {
             }
         }
         receiptDataViewModel.filterStoreList.observe(viewLifecycleOwner) {
-            refreshList()
+            putFilterDefinitionIntoInputs()
         }
     }
 }

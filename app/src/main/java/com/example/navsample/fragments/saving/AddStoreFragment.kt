@@ -28,6 +28,9 @@ class AddStoreFragment : Fragment() {
 
     private var mode = DataMode.NEW
     private var chosenCategory = Category("", "")
+    private var currentStoreId = -1
+    private var isDuplicatedNIP = false
+    private lateinit var dropdownAdapter: CategoryDropdownAdapter
 
 
     override fun onCreateView(
@@ -43,10 +46,17 @@ class AddStoreFragment : Fragment() {
         binding.toolbar.inflateMenu(R.menu.top_menu_basic_add)
         binding.toolbar.setNavigationIcon(R.drawable.back)
         binding.toolbar.menu.findItem(R.id.edit).isVisible = false
+
+        dropdownAdapter = CategoryDropdownAdapter(
+            requireContext(), R.layout.array_adapter_row, arrayListOf()
+        ).also { adapter ->
+            binding.storeDefaultCategoryInput.setAdapter(adapter)
+        }
+
         initObserver()
         receiptDataViewModel.refreshStoreList()
         receiptDataViewModel.refreshCategoryList()
-        receiptImageViewModel.bitmap.value?.let {
+        receiptImageViewModel.bitmapCroppedReceipt.value?.let {
             binding.receiptImage.setImageBitmap(it)
         }
         var actualNIP = ""
@@ -64,6 +74,8 @@ class AddStoreFragment : Fragment() {
             binding.storeNIPInput.setText(store.nip)
             binding.storeDefaultCategoryInput.setText(chosenCategory.name)
             actualNIP = store.nip
+
+            validateNip(actualNIP)
         }
         receiptDataViewModel.store.value = null
 
@@ -84,20 +96,19 @@ class AddStoreFragment : Fragment() {
             val index =
                 receiptDataViewModel.storeList.value?.map { it.nip }?.indexOf(text.toString()) ?: -1
 
-            if (text.toString() != actualNIP && index >= 0) {
+            val duplicatedStore =
+                receiptDataViewModel.storeList.value?.find { it.nip == text.toString() }
+            if (text.toString() != actualNIP && duplicatedStore != null && duplicatedStore.id != currentStoreId) {
                 binding.storeNIPLayout.error =
                     "NIP exist in store " + (receiptDataViewModel.storeList.value?.get(index)?.name
                         ?: "")
+                isDuplicatedNIP = true
                 return@doOnTextChanged
+            } else {
+                isDuplicatedNIP = false
             }
 
-            if (!isCorrectNIP(text.toString())) {
-                binding.storeNIPLayout.error = "Bad NIP"
-                binding.storeNIPLayout.helperText = null
-            } else {
-                binding.storeNIPLayout.error = null
-                binding.storeNIPLayout.helperText = "Correct NIP"
-            }
+            validateNip(text.toString())
         }
         binding.toolbar.setOnMenuItemClickListener {
             when (it.itemId) {
@@ -107,9 +118,35 @@ class AddStoreFragment : Fragment() {
                 }
 
                 R.id.confirm -> {
-                    if (binding.storeNIPLayout.error != null) {
-                        Toast.makeText(requireContext(), "Change NIP!", Toast.LENGTH_SHORT).show()
+                    if (isDuplicatedNIP) {
+                        Toast.makeText(
+                            requireContext(),
+                            "NIP cannot be duplicated",
+                            Toast.LENGTH_SHORT
+                        )
+                            .show()
+                        return@setOnMenuItemClickListener false
                     }
+                    if (binding.storeNIPInput.text.toString() == "") {
+                        Toast.makeText(requireContext(), "NIP cannot be empty", Toast.LENGTH_SHORT)
+                            .show()
+                        return@setOnMenuItemClickListener false
+                    }
+                    if (chosenCategory.id == null || chosenCategory.id == -1) {
+                        Toast.makeText(
+                            requireContext(),
+                            "Category cannot be empty",
+                            Toast.LENGTH_SHORT
+                        )
+                            .show()
+                        return@setOnMenuItemClickListener false
+
+                    }
+                    if (binding.storeNIPInput.text.toString() == "")
+                        if (binding.storeNIPLayout.error != null) {
+                            Toast.makeText(requireContext(), "Incorrect nip", Toast.LENGTH_SHORT)
+                                .show()
+                        }
                     saveChangesToDatabase()
                     changeViewToDisplayMode()
                     receiptDataViewModel.store.value?.nip = binding.storeNIPInput.text.toString()
@@ -127,19 +164,47 @@ class AddStoreFragment : Fragment() {
         binding.toolbar.setNavigationOnClickListener {
             if (mode == DataMode.EDIT) {
                 changeViewToDisplayMode()
-                binding.storeNIPInput.setText(receiptDataViewModel.savedStore.value?.nip)
-                binding.storeNameInput.setText(receiptDataViewModel.savedStore.value?.name)
+                receiptDataViewModel.savedStore.value?.let { savedStore ->
+                    binding.storeNIPInput.setText(savedStore.nip)
+                    binding.storeNameInput.setText(savedStore.name)
+                    validateNip(savedStore.nip)
+                }
             } else {
                 Navigation.findNavController(it).popBackStack()
             }
         }
 
-        binding.storeDefaultCategoryInput.setOnItemClickListener { adapter, _, i, _ ->
-            chosenCategory = adapter.getItemAtPosition(i) as Category
-            binding.storeDefaultCategoryInput.setText(chosenCategory.name)
+        binding.storeDefaultCategoryInput.setOnItemClickListener { adapter, _, position, _ ->
+            chosenCategory = adapter.getItemAtPosition(position) as Category
+
+            if ("" == chosenCategory.color && binding.storeDefaultCategoryInput.adapter.count - 1 == position) {
+                receiptDataViewModel.savedCategory.value = null
+                binding.storeDefaultCategoryInput.setText("")
+                Navigation.findNavController(requireView())
+                    .navigate(R.id.action_addStoreFragment_to_addCategoryFragment)
+            } else {
+                binding.storeDefaultCategoryInput.setText(chosenCategory.name)
+            }
+        }
+
+        binding.storeDefaultCategoryLayout.setStartIconOnClickListener {
+            binding.storeDefaultCategoryInput.setText("")
+            //TODO verify that
+//            binding.storeDefaultCategoryLayout.helperText = null
+//            binding.storeDefaultCategoryInput.isEnabled = true
+            chosenCategory = Category("", "")
         }
     }
 
+    private fun validateNip(text: String) {
+        if (!isCorrectNIP(text)) {
+            binding.storeNIPLayout.error = "Bad NIP"
+            binding.storeNIPLayout.helperText = null
+        } else {
+            binding.storeNIPLayout.error = null
+            binding.storeNIPLayout.helperText = "Correct NIP"
+        }
+    }
 
     private fun saveChangesToDatabase() {
         if (mode == DataMode.NEW) {
@@ -193,26 +258,21 @@ class AddStoreFragment : Fragment() {
     }
 
     private fun initObserver() {
-        receiptImageViewModel.bitmap.observe(viewLifecycleOwner) {
+        receiptImageViewModel.bitmapCroppedReceipt.observe(viewLifecycleOwner) {
             if (it != null) {
                 binding.receiptImage.visibility = View.VISIBLE
-                binding.receiptImage.setImageBitmap(receiptImageViewModel.bitmap.value)
+                binding.receiptImage.setImageBitmap(receiptImageViewModel.bitmapCroppedReceipt.value)
             } else {
                 binding.receiptImage.visibility = View.GONE
             }
         }
 
-        receiptDataViewModel.categoryList.observe(viewLifecycleOwner) {
-            it?.let {
-                CategoryDropdownAdapter(
-                    requireContext(), R.layout.array_adapter_row, it
-                ).also { adapter ->
-                    binding.storeDefaultCategoryInput.setAdapter(adapter)
-                }
+        receiptDataViewModel.categoryList.observe(viewLifecycleOwner) { categoryList ->
+            categoryList?.let {
+                dropdownAdapter.categoryList = it
+                dropdownAdapter.notifyDataSetChanged()
             }
-            if (chosenCategory.name == "") {
-                chosenCategory = it[0]
-            }
+
         }
     }
 }

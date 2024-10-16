@@ -18,6 +18,7 @@ data class ProductRichData(
     var finalPrice: Double,
     var ptuType: String,
     var raw: String,
+    var validPrice: Boolean,
     var id: Int,
     @Ignore
     var collapse: Boolean = true
@@ -38,6 +39,7 @@ data class ProductRichData(
         finalPrice: Double,
         ptuType: String,
         raw: String,
+        validPrice: Boolean,
         id: Int,
     ) : this(
         storeId,
@@ -55,6 +57,8 @@ data class ProductRichData(
         finalPrice,
         ptuType,
         raw,
-        id, true
+        validPrice,
+        id,
+        true
     )
 }

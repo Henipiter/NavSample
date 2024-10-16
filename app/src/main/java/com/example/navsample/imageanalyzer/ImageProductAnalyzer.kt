@@ -131,11 +131,14 @@ class ImageProductAnalyzer {
                 receiptPriceLines.add("")
             } else {
                 val indexes = it.split("+").map { element ->
-                    element.toInt()
+                    element.toIntOrNull()
                 }
                 var prices = ""
+
                 indexes.forEach { index ->
-                    prices += " " + columnCell.rightColumnCells[index].content.trim()
+                    index?.let {
+                        prices += " " + columnCell.rightColumnCells[it].content.trim()
+                    }
                 }
                 receiptPriceLines.add(prices)
             }

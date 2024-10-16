@@ -12,7 +12,7 @@ import java.io.FileOutputStream
 import java.io.OutputStreamWriter
 
 
-class ImageAnalyzer(var uid: String) {
+class ImageAnalyzer(private var uid: String) {
 
 
     private val recognizer = TextRecognition.getClient(TextRecognizerOptions.DEFAULT_OPTIONS)

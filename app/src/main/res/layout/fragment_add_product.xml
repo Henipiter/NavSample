@@ -100,7 +100,6 @@
                     android:id="@+id/product_subtotal_price_helper_text"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="ADWWAD"
                     android:layout_marginStart="8dp"
                     app:layout_constraintStart_toStartOf="@+id/product_subtotal_price_layout"
                     app:layout_constraintTop_toBottomOf="@+id/product_subtotal_price_layout" />
@@ -133,7 +132,6 @@
                     android:id="@+id/product_discount_helper_text"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="ADWWAD"
                     android:layout_marginStart="8dp"
                     app:layout_constraintStart_toStartOf="@+id/product_discount_layout"
                     app:layout_constraintTop_toBottomOf="@+id/product_discount_layout" />
@@ -165,7 +163,6 @@
                     android:id="@+id/product_final_price_helper_text"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="ADWWAD"
                     android:layout_marginStart="8dp"
                     app:layout_constraintStart_toStartOf="@+id/product_final_price_layout"
                     app:layout_constraintTop_toBottomOf="@+id/product_final_price_layout" />
@@ -187,6 +184,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
                         android:inputType="numberDecimal"
+                        android:focusable="false"
                         android:padding="13dp"
                         android:text="A"
                         tools:ignore="LabelFor" />
@@ -219,7 +217,6 @@
                     android:id="@+id/product_quantity_helper_text"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="ADWWAD"
                     android:layout_marginStart="8dp"
                     app:layout_constraintStart_toStartOf="@+id/product_quantity_layout"
                     app:layout_constraintTop_toBottomOf="@+id/product_quantity_layout" />
@@ -250,7 +247,6 @@
                     android:id="@+id/product_unit_price_helper_text"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="ADWWAD"
                     android:layout_marginStart="8dp"
                     app:layout_constraintStart_toStartOf="@+id/product_unit_price_layout"
                     app:layout_constraintTop_toBottomOf="@+id/product_unit_price_layout" />
@@ -263,17 +259,17 @@
                     android:layout_marginHorizontal="32dp"
                     android:layout_marginTop="20dp"
                     android:hint="Category"
-                    app:helperTextEnabled="true"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toBottomOf="@+id/product_discount_layout"
-                    app:startIconDrawable="@drawable/add">
+                    app:startIconDrawable="@drawable/clear">
 
                     <AutoCompleteTextView
                         android:id="@+id/product_category_input"
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
-                        android:inputType="textCapCharacters"
+                        android:inputType="textNoSuggestions"
+                        android:padding="13dp"
                         tools:ignore="LabelFor" />
                 </com.google.android.material.textfield.TextInputLayout>
 

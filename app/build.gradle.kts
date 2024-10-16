@@ -114,7 +114,7 @@ dependencies {
     implementation("com.google.mlkit:text-recognition:16.0.0")
     implementation("com.github.chrisbanes:PhotoView:2.3.0")
 
-    implementation("com.vanniktech:android-image-cropper:4.5.0")
+    implementation("com.vanniktech:android-image-cropper:4.6.0")
 
     testImplementation("junit:junit:4.13.2")
     androidTestImplementation("androidx.test.espresso:espresso-core:3.5.1")

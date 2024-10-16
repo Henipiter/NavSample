@@ -1,6 +1,7 @@
 package com.example.navsample.fragments.listing
 
 
+import android.annotation.SuppressLint
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -18,7 +19,7 @@ import com.example.navsample.databinding.FragmentProductListBinding
 import com.example.navsample.dto.sort.RichProductSort
 import com.example.navsample.dto.sort.SortProperty
 import com.example.navsample.entities.Product
-import com.example.navsample.fragments.dialogs.DeleteConfirmationDialog
+import com.example.navsample.fragments.dialogs.ConfirmDialog
 import com.example.navsample.fragments.dialogs.SortingDialog
 import com.example.navsample.viewmodels.ReceiptDataViewModel
 
@@ -40,7 +41,6 @@ class ProductListFragment : Fragment(), ItemClickListener {
         super.onViewCreated(view, savedInstanceState)
         initObserver()
 
-        refreshList()
         binding.toolbar.inflateMenu(R.menu.top_menu_list_filter)
         binding.toolbar.setOnMenuItemClickListener {
             when (it.itemId) {
@@ -72,7 +72,11 @@ class ProductListFragment : Fragment(), ItemClickListener {
 
                 R.id.sort -> {
                     //TODO Connect Dialog with DB
-                    SortingDialog(RichProductSort.entries.map { it.friendlyNameKey }) { name, dir ->
+                    val selected = receiptDataViewModel.richProductSort.value
+                        ?: receiptDataViewModel.defaultRichProductSort
+                    SortingDialog(
+                        selected,
+                        RichProductSort.entries.map { sort -> sort.friendlyNameKey }) { name, dir ->
                         val appliedSort = SortProperty(RichProductSort::class, name, dir)
                         receiptDataViewModel.richProductSort.value = appliedSort
                         receiptDataViewModel.updateSorting(appliedSort)
@@ -90,18 +94,24 @@ class ProductListFragment : Fragment(), ItemClickListener {
             receiptDataViewModel.productRichList.value ?: arrayListOf(), this
 
         ) { i ->
-            receiptDataViewModel.product.value?.get(i)?.let {
-                DeleteConfirmationDialog(
-                    "Are you sure you want to delete the product??\n\nName: " + it.name +
+            receiptDataViewModel.productRichList.value?.get(i)?.let {
+                ConfirmDialog(
+                    "Delete",
+                    "$i Are you sure you want to delete the product??\n\nName: " + it.name +
                             "\nPLN: " + it.subtotalPrice
                 ) {
-                    if (it.id != null && it.id!! >= 0) {
-                        receiptDataViewModel.deleteProduct(it.id!!)
+                    if (it.id >= 0) {
+                        receiptDataViewModel.deleteProduct(it.id)
                     }
-                    receiptDataViewModel.productRichList.value?.removeAt(i)
-                    richProductListAdapter.productList =
-                        receiptDataViewModel.productRichList.value ?: arrayListOf()
-                    richProductListAdapter.notifyDataSetChanged()
+                    receiptDataViewModel.productRichList.value?.let { productRichList ->
+                        productRichList.removeAt(i)
+                        richProductListAdapter.productList = productRichList
+                        richProductListAdapter.notifyItemRemoved(i)
+                        richProductListAdapter.notifyItemRangeChanged(
+                            i, richProductListAdapter.productList.size
+                        )
+                    }
+
                 }.show(childFragmentManager, "TAG")
             }
         }
@@ -113,15 +123,13 @@ class ProductListFragment : Fragment(), ItemClickListener {
         receiptDataViewModel.refreshCategoryList()
     }
 
+    @SuppressLint("NotifyDataSetChanged")
     private fun initObserver() {
         receiptDataViewModel.productRichList.observe(viewLifecycleOwner) {
             it?.let {
                 richProductListAdapter.productList = it
                 richProductListAdapter.notifyDataSetChanged()
             }
-        }
-        receiptDataViewModel.filterProductList.observe(viewLifecycleOwner) {
-            refreshList()
         }
     }
 
@@ -137,7 +145,8 @@ class ProductListFragment : Fragment(), ItemClickListener {
                 0.0,
                 it.subtotalPrice,
                 it.ptuType,
-                it.raw
+                it.raw,
+                it.validPrice
             )
             chosenProduct.id = it.id
             receiptDataViewModel.product.value = arrayListOf(chosenProduct)
@@ -149,16 +158,4 @@ class ProductListFragment : Fragment(), ItemClickListener {
         Navigation.findNavController(requireView()).navigate(action)
     }
 
-    private fun refreshList() { //TODO move to viewModel
-        receiptDataViewModel.filterProductList.value?.let {
-            receiptDataViewModel.refreshProductList(
-                it.store,
-                it.category,
-                it.dateFrom,
-                it.dateTo,
-                it.lowerPrice,
-                it.higherPrice
-            )
-        }
-    }
 }
