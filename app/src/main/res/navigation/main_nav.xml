@@ -3,31 +3,22 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/nav"
-    app:startDestination="@id/menuFragment">
+    app:startDestination="@id/listingFragment">
 
     <fragment
-        android:id="@+id/menuFragment"
-        android:name="com.example.navsample.fragments.MenuFragment"
-        android:label="fragment_menu"
-        tools:layout="@layout/fragment_menu">
+        android:id="@+id/settingsFragment"
+        android:name="com.example.navsample.fragments.SettingsFragment"
+        android:label="fragment_settings"
+        tools:layout="@layout/fragment_settings">
         <action
-            android:id="@+id/action_menuFragment_to_imageImportFragment"
-            app:destination="@id/imageImportFragment" />
-        <action
-            android:id="@+id/action_menuFragment_to_experimentRecycleFragment"
+            android:id="@+id/action_settingsFragment_to_experimentRecycleFragment"
             app:destination="@id/experimentRecycleFragment">
             <argument
                 android:name="developerMode"
                 android:defaultValue="true" />
         </action>
         <action
-            android:id="@+id/action_menuFragment_to_diagramFragment"
-            app:destination="@id/diagramFragment" />
-        <action
-            android:id="@+id/action_menuFragment_to_listingFragment"
-            app:destination="@id/listingFragment" />
-        <action
-            android:id="@+id/action_menuFragment_to_exportDataFragment"
+            android:id="@+id/action_settingsFragment_to_exportDataFragment"
             app:destination="@id/exportDataFragment" />
     </fragment>
     <fragment

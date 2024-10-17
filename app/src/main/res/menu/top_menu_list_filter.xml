@@ -24,7 +24,7 @@
         android:layout_height="wrap_content"
         android:title="Filter"
         android:iconTint="@color/colorOnPrimary"
-        android:icon="@drawable/setting"
+        android:icon="@drawable/filter"
         app:showAsAction="always" />
     <item
         android:id="@+id/sort"
