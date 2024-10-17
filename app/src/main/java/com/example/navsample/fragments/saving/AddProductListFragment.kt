@@ -238,8 +238,9 @@ class AddProductListFragment : Fragment(), ItemClickListener {
         receiptDataViewModel.insertProducts(
             receiptDataViewModel.product.value?.toList() ?: listOf()
         )
+        receiptDataViewModel.loadDataByProductFilter()
         imageAnalyzerViewModel.clearData()
-        Navigation.findNavController(binding.root).popBackStack(R.id.menuFragment, false)
+        Navigation.findNavController(binding.root).popBackStack(R.id.settingsFragment, false)
     }
 
     private fun isProductsAreValid(): Boolean {

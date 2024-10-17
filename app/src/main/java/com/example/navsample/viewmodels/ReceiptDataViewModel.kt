@@ -182,7 +182,7 @@ class ReceiptDataViewModel : ViewModel() {
 
 
 
-        refreshCategoryList()
+        loadDataByCategoryFilter()
         loadDataByStoreFilter()
         loadDataByProductFilter()
         loadDataByReceiptFilter()

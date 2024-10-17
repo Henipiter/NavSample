@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    tools:context=".activity.GuideActivity"
+    tools:context=".fragments.SettingsFragment"
     tools:ignore="UselessParent">
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -13,12 +13,12 @@
         android:layout_height="match_parent">
 
         <Button
-            android:id="@+id/add_receipt"
+            android:id="@+id/export_data_button"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginBottom="24dp"
             android:layout_marginHorizontal="64dp"
-            android:text="Add receipt"
+            android:text="Export data"
             app:layout_constraintBottom_toTopOf="@+id/space"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent" />
@@ -29,33 +29,12 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="24dp"
             android:layout_marginHorizontal="64dp"
-            android:text="Show lists"
+            android:text="---"
             app:layout_constraintTop_toBottomOf="@+id/space"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent" />
 
-        <Button
-            android:id="@+id/export_data_button"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="48dp"
-            android:layout_marginHorizontal="64dp"
-            android:text="Export data"
-            app:layout_constraintTop_toBottomOf="@+id/show_receipt"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent" />
 
-
-        <Button
-            android:id="@+id/diagram_view"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="48dp"
-            android:layout_marginHorizontal="64dp"
-            android:text="Diagram"
-            app:layout_constraintTop_toBottomOf="@+id/export_data_button"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent" />
 
         <Space
             android:id="@+id/space"
@@ -74,7 +53,7 @@
             android:layout_marginTop="20dp"
             android:visibility="invisible"
 
-            app:layout_constraintTop_toBottomOf="@+id/diagram_view"
+            app:layout_constraintTop_toBottomOf="@+id/show_receipt"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent">
 

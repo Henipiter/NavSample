@@ -151,7 +151,7 @@ class AddStoreFragment : Fragment() {
                     changeViewToDisplayMode()
                     receiptDataViewModel.store.value?.nip = binding.storeNIPInput.text.toString()
                     receiptDataViewModel.store.value?.name = binding.storeNameInput.text.toString()
-                    receiptDataViewModel.refreshStoreList()
+                    receiptDataViewModel.loadDataByStoreFilter()
                     Navigation.findNavController(requireView()).popBackStack()
                 }
 
