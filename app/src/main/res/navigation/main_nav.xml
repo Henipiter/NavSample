@@ -43,8 +43,8 @@
         tools:layout="@layout/fragment_add_product">
         <argument
             android:name="productIndex"
-            app:argType="integer"
-            android:defaultValue="-1" />
+            android:defaultValue="-1"
+            app:argType="integer" />
         <argument
             android:name="saveProduct"
             app:argType="boolean" />
@@ -63,8 +63,12 @@
             android:id="@+id/action_addReceiptFragment_to_addProductListFragment"
             app:destination="@id/addProductListFragment" />
         <action
-            android:id="@+id/action_addReceiptFragment_to_editStoreFragment"
-            app:destination="@id/addStoreFragment" />
+            android:id="@+id/action_addReceiptFragment_to_addStoreFragment"
+            app:destination="@id/addStoreFragment">
+            <argument
+                android:name="inputType"
+                android:defaultValue="EMPTY" />
+        </action>
     </fragment>
     <fragment
         android:id="@+id/imageImportFragment"
@@ -82,8 +86,8 @@
         tools:layout="@layout/fragment_experiment_recycle">
         <argument
             android:name="developerMode"
-            app:argType="boolean"
-            android:defaultValue="false" />
+            android:defaultValue="false"
+            app:argType="boolean" />
     </fragment>
     <fragment
         android:id="@+id/addStoreFragment"
@@ -91,7 +95,11 @@
         android:label="fragment_edit_store"
         tools:layout="@layout/fragment_add_store">
         <argument
-            android:name="storeIndex"
+            android:name="inputType"
+            android:defaultValue="EMPTY"
+            app:argType="string" />
+        <argument
+            android:name="storeId"
             android:defaultValue="-1"
             app:argType="integer" />
         <action
@@ -99,6 +107,14 @@
             app:destination="@id/addCategoryFragment">
             <argument android:name="inputType" />
         </action>
+        <argument
+            android:name="storeName"
+            app:argType="string"
+            app:nullable="true" />
+        <argument
+            android:name="storeNip"
+            app:argType="string"
+            app:nullable="true" />
     </fragment>
     <fragment
         android:id="@+id/diagramFragment"
@@ -115,7 +131,11 @@
             app:destination="@id/addReceiptFragment" />
         <action
             android:id="@+id/action_listingFragment_to_addStoreFragment"
-            app:destination="@id/addStoreFragment" />
+            app:destination="@id/addStoreFragment">
+            <argument
+                android:name="inputType"
+                android:defaultValue="ID" />
+        </action>
         <action
             android:id="@+id/action_listingFragment_to_addProductFragment"
             app:destination="@id/addProductFragment" />
@@ -142,12 +162,12 @@
         android:label="AddCategoryFragment">
         <argument
             android:name="inputType"
-            app:argType="string"
-            android:defaultValue="EMPTY" />
+            android:defaultValue="EMPTY"
+            app:argType="string" />
         <argument
             android:name="id"
-            app:argType="integer"
-            android:defaultValue="-1" />
+            android:defaultValue="-1"
+            app:argType="integer" />
     </fragment>
     <fragment
         android:id="@+id/exportDataFragment"

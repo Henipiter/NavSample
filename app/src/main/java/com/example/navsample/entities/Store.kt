@@ -6,7 +6,7 @@ import androidx.room.PrimaryKey
 
 @Entity(indices = [Index(value = ["nip"], unique = true)])
 data class Store(
-    var nip: String, var name: String, var defaultCategoryId: Int
+    var nip: String, var name: String, var defaultCategoryId: Int?
 ) : TranslateEntity {
     @PrimaryKey(autoGenerate = true)
     var id: Int? = null

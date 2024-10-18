@@ -15,6 +15,7 @@ import com.example.navsample.adapters.StoreDropdownAdapter
 import com.example.navsample.databinding.FragmentAddReceiptBinding
 import com.example.navsample.dto.DataMode
 import com.example.navsample.dto.Utils.Companion.doubleToString
+import com.example.navsample.dto.inputmode.AddingInputType
 import com.example.navsample.entities.Receipt
 import com.example.navsample.entities.Store
 import com.example.navsample.exception.NoStoreIdException
@@ -102,8 +103,15 @@ class AddReceiptFragment : Fragment() {
         val indexOfStore = storeList.map { sort -> sort.nip }.indexOf(store.nip)
         if (indexOfStore < 0) {
             binding.storeNameInput.setText("")
-            Navigation.findNavController(requireView())
-                .navigate(R.id.action_addReceiptFragment_to_editStoreFragment)
+
+            val action =
+                AddReceiptFragmentDirections.actionAddReceiptFragmentToAddStoreFragment(
+                    inputType = AddingInputType.FIELD.name,
+                    storeName = store.name,
+                    storeNip = store.nip
+                )
+            Navigation.findNavController(requireView()).navigate(action)
+
         } else {
             pickedStore = storeList[indexOfStore]
             binding.storeNameInput.setText(storeList[indexOfStore].name)
@@ -151,7 +159,7 @@ class AddReceiptFragment : Fragment() {
             if (it == null) {
                 return@observe
             }
-            val store = Store(it.valueNIP, it.companyName, 0)
+            val store = Store(it.valueNIP, it.companyName, null)
             val receipt = Receipt(
                 -1,
                 it.valuePLN.toString().toDouble(),
@@ -360,8 +368,13 @@ class AddReceiptFragment : Fragment() {
             if ("" == store.nip && binding.storeNameInput.adapter.count - 1 == position) {
                 receiptDataViewModel.savedStore.value = null
                 binding.storeNameInput.setText("")
-                Navigation.findNavController(requireView())
-                    .navigate(R.id.action_addReceiptFragment_to_editStoreFragment)
+
+                val action =
+                    AddReceiptFragmentDirections.actionAddReceiptFragmentToAddStoreFragment(
+                        storeName = null,
+                        storeNip = null
+                    )
+                Navigation.findNavController(requireView()).navigate(action)
             } else {
                 pickedStore = store
                 binding.storeNameInput.setText(store.name)

@@ -16,18 +16,19 @@ import com.example.navsample.ItemClickListener
 import com.example.navsample.R
 import com.example.navsample.adapters.StoreListAdapter
 import com.example.navsample.databinding.FragmentStoreListBinding
+import com.example.navsample.dto.inputmode.AddingInputType
 import com.example.navsample.dto.sort.SortProperty
 import com.example.navsample.dto.sort.StoreSort
 import com.example.navsample.fragments.dialogs.ConfirmDialog
 import com.example.navsample.fragments.dialogs.SortingDialog
 import com.example.navsample.viewmodels.ListingViewModel
-import com.example.navsample.viewmodels.ReceiptDataViewModel
+import com.example.navsample.viewmodels.fragment.AddStoreDataViewModel
 
 
 class StoreListFragment : Fragment(), ItemClickListener {
     private var _binding: FragmentStoreListBinding? = null
     private val binding get() = _binding!!
-    private val receiptDataViewModel: ReceiptDataViewModel by activityViewModels()
+    private val addStoreDataViewModel: AddStoreDataViewModel by activityViewModels()
     private val listingViewModel: ListingViewModel by activityViewModels()
 
     private lateinit var recyclerViewEvent: RecyclerView
@@ -75,21 +76,25 @@ class StoreListFragment : Fragment(), ItemClickListener {
             listingViewModel.storeList.value ?: arrayListOf(), this
         ) { i: Int ->
             listingViewModel.storeList.value?.get(i)?.let {
-                ConfirmDialog(
-                    "Delete",
-                    "$i Are you sure you want to delete the store with dependent receipts and" +
-                            " products??\n\n" + "Name: " + it.name + "\nNIP: " + it.nip
-                ) {
-                    receiptDataViewModel.deleteStore(it)
-                    listingViewModel.storeList.value?.let { storeList ->
-                        storeList.removeAt(i)
-                        storeListAdapter.storeList = storeList
-                        storeListAdapter.notifyItemRemoved(i)
-                        storeListAdapter.notifyItemRangeChanged(i, storeListAdapter.storeList.size)
-
-                    }
-
-                }.show(childFragmentManager, "TAG")
+                if (it.id == null) {
+                    Toast.makeText(requireContext(), "STORE HAS NOT ID", Toast.LENGTH_SHORT).show()
+                } else {
+                    ConfirmDialog(
+                        "Delete",
+                        "$i Are you sure you want to delete the store with dependent receipts and" +
+                                " products??\n\n" + "Name: " + it.name + "\nNIP: " + it.nip
+                    ) {
+                        addStoreDataViewModel.deleteStore(it.id!!)
+                        listingViewModel.storeList.value?.let { storeList ->
+                            storeList.removeAt(i)
+                            storeListAdapter.storeList = storeList
+                            storeListAdapter.notifyItemRemoved(i)
+                            storeListAdapter.notifyItemRangeChanged(
+                                i, storeListAdapter.storeList.size
+                            )
+                        }
+                    }.show(childFragmentManager, "TAG")
+                }
             }
         }
         recyclerViewEvent.adapter = storeListAdapter
@@ -114,21 +119,31 @@ class StoreListFragment : Fragment(), ItemClickListener {
         }
 
         binding.newButton.setOnClickListener {
-            receiptDataViewModel.savedStore.value = null
             val action =
-                ListingFragmentDirections.actionListingFragmentToAddStoreFragment()
+                ListingFragmentDirections.actionListingFragmentToAddStoreFragment(
+                    storeName = null,
+                    storeNip = null
+                )
             Navigation.findNavController(requireView()).navigate(action)
         }
     }
 
     override fun onItemClick(index: Int) {
         listingViewModel.storeList.value?.let { storeList ->
-            val store = storeList[index]
-            receiptDataViewModel.savedStore.value = store
-            receiptDataViewModel.store.value = store
-            val action =
-                ListingFragmentDirections.actionListingFragmentToAddStoreFragment()
-            Navigation.findNavController(requireView()).navigate(action)
+            val storeId = storeList[index].id
+            if (storeId == null) {
+                Toast.makeText(requireContext(), "STORE ID IS NULL", Toast.LENGTH_SHORT).show()
+
+            } else {
+                val action =
+                    ListingFragmentDirections.actionListingFragmentToAddStoreFragment(
+                        inputType = AddingInputType.ID.name,
+                        storeId = storeId,
+                        storeName = null,
+                        storeNip = null
+                    )
+                Navigation.findNavController(requireView()).navigate(action)
+            }
         }
 
 

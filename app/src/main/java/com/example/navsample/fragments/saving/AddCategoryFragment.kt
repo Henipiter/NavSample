@@ -102,9 +102,7 @@ class AddCategoryFragment : Fragment() {
                 binding.categoryNameLayout.error = "Cannot be empty"
             } else if (text.toString() == addCategoryDataViewModel.categoryById.value?.name) {
                 binding.categoryNameLayout.error = null
-
-            } else if (addCategoryDataViewModel.categoryList.value?.map { it.name }
-                    ?.contains(text.toString()) == true) {
+            } else if (addCategoryDataViewModel.categoryList.value?.find { it.name == text.toString() } != null) {
                 binding.categoryNameLayout.error = "Category name already defined"
             } else {
                 binding.categoryNameLayout.error = null

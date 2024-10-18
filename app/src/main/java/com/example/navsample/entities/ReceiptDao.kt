@@ -58,6 +58,11 @@ interface ReceiptDao {
     suspend fun deleteCategory(category: Category)
 
     @Transaction
+    @Query("delete from store where id = :id")
+    suspend fun deleteStoreById(id: Int)
+
+
+    @Transaction
     @Query("delete from product where id = :id")
     suspend fun deleteProductById(id: Int)
 

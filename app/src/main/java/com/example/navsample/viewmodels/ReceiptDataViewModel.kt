@@ -20,7 +20,6 @@ import com.example.navsample.entities.relations.TableCounts
 import com.google.firebase.Firebase
 import com.google.firebase.firestore.CollectionReference
 import com.google.firebase.firestore.firestore
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import java.util.UUID
 
@@ -201,19 +200,6 @@ class ReceiptDataViewModel : ViewModel() {
         }
     }
 
-    fun insertCategory(newCategory: Category) {
-        Log.i("Database", "insert category: ${newCategory.name}")
-        viewModelScope.launch {
-            dao?.let {
-                val rowId = dao.insertCategory(newCategory)
-                newCategory.id = dao.getCategoryId(rowId)
-            }
-            Log.i("Database", "inserted category with id ${newCategory.id}")
-            savedCategory.value = newCategory
-            addFirestore(newCategory)
-        }
-    }
-
     private fun convertDateFormat(date: String): String {
         val newDate = date.replace(".", "-")
         val splitDate = newDate.split("-")
@@ -290,17 +276,6 @@ class ReceiptDataViewModel : ViewModel() {
         }
     }
 
-    fun updateCategory(newCategory: Category) {
-        Log.i("Database", "update category with id ${newCategory.id}: ${newCategory.name}")
-        viewModelScope.launch {
-            dao?.let {
-                dao.updateCategory(newCategory)
-            }
-            savedCategory.postValue(newCategory)
-            updateFirestore(newCategory)
-        }
-    }
-
     fun getStoreById(id: Int) {
         Log.i("Database", "get store with id $id")
         viewModelScope.launch {
@@ -319,17 +294,6 @@ class ReceiptDataViewModel : ViewModel() {
         }
     }
 
-    fun updateStore(newStore: Store) {
-        Log.i("Database", "update store with id ${newStore.id}: ${newStore.name}")
-        viewModelScope.launch(Dispatchers.IO) {
-            dao?.let {
-                dao.updateStore(newStore)
-            }
-        }
-        savedStore.value = newStore
-        updateFirestore(newStore)
-
-    }
 
     private fun getPath(obj: Any): String {
         when (obj) {
@@ -372,15 +336,6 @@ class ReceiptDataViewModel : ViewModel() {
 
     }
 
-
-    fun deleteStore(store: Store) {
-        Log.i("Database", "delete store - id ${store.id}")
-        viewModelScope.launch {
-            dao?.deleteProductsOfStore(store.id!!)
-            dao?.deleteReceiptsOfStore(store.id!!)
-            dao?.deleteStore(store)
-        }
-    }
 
     fun deleteCategory(category: Category) {
         Log.i("Database", "delete category - id ${category.id}")
