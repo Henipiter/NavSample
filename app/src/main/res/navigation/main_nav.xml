@@ -50,7 +50,9 @@
             app:argType="boolean" />
         <action
             android:id="@+id/action_addProductFragment_to_addCategoryFragment"
-            app:destination="@id/addCategoryFragment" />
+            app:destination="@id/addCategoryFragment">
+            <argument android:name="inputType" />
+        </action>
     </fragment>
     <fragment
         android:id="@+id/addReceiptFragment"
@@ -94,7 +96,9 @@
             app:argType="integer" />
         <action
             android:id="@+id/action_addStoreFragment_to_addCategoryFragment"
-            app:destination="@id/addCategoryFragment" />
+            app:destination="@id/addCategoryFragment">
+            <argument android:name="inputType" />
+        </action>
     </fragment>
     <fragment
         android:id="@+id/diagramFragment"
@@ -113,9 +117,6 @@
             android:id="@+id/action_listingFragment_to_addStoreFragment"
             app:destination="@id/addStoreFragment" />
         <action
-            android:id="@+id/action_listingFragment_to_addCategoryFragment"
-            app:destination="@id/addCategoryFragment" />
-        <action
             android:id="@+id/action_listingFragment_to_addProductFragment"
             app:destination="@id/addProductFragment" />
         <action
@@ -127,11 +128,27 @@
         <action
             android:id="@+id/action_listingFragment_to_imageImportFragment"
             app:destination="@id/imageImportFragment" />
+        <action
+            android:id="@+id/action_listingFragment_to_addCategoryFragment"
+            app:destination="@id/addCategoryFragment">
+            <argument
+                android:name="inputType"
+                android:defaultValue="ID" />
+        </action>
     </fragment>
     <fragment
         android:id="@+id/addCategoryFragment"
         android:name="com.example.navsample.fragments.saving.AddCategoryFragment"
-        android:label="AddCategoryFragment" />
+        android:label="AddCategoryFragment">
+        <argument
+            android:name="inputType"
+            app:argType="string"
+            android:defaultValue="EMPTY" />
+        <argument
+            android:name="id"
+            app:argType="integer"
+            android:defaultValue="-1" />
+    </fragment>
     <fragment
         android:id="@+id/exportDataFragment"
         android:name="com.example.navsample.fragments.ExportDataFragment"

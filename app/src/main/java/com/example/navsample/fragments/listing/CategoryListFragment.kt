@@ -15,6 +15,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.navsample.ItemClickListener
 import com.example.navsample.adapters.CategoryListAdapter
 import com.example.navsample.databinding.FragmentCategoryListBinding
+import com.example.navsample.dto.inputmode.AddingInputType
 import com.example.navsample.fragments.dialogs.ConfirmDialog
 import com.example.navsample.viewmodels.ListingViewModel
 import com.example.navsample.viewmodels.ReceiptDataViewModel
@@ -88,7 +89,9 @@ class CategoryListFragment : Fragment(), ItemClickListener {
         binding.newButton.setOnClickListener {
             receiptDataViewModel.savedCategory.value = null
 
-            val action = ListingFragmentDirections.actionListingFragmentToAddCategoryFragment()
+//            val action = ListingFragmentDirections.actionListingFragmentToAddCategoryFragment(AddingInputType.EMPTY)
+            val action =
+                ListingFragmentDirections.actionListingFragmentToAddCategoryFragment(AddingInputType.EMPTY.name)
             Navigation.findNavController(requireView()).navigate(action)
         }
 
@@ -119,7 +122,10 @@ class CategoryListFragment : Fragment(), ItemClickListener {
         val category = listingViewModel.categoryList.value!![index]
         receiptDataViewModel.savedCategory.value = category
         receiptDataViewModel.category.value = category
-        val action = ListingFragmentDirections.actionListingFragmentToAddCategoryFragment()
+        val action = ListingFragmentDirections.actionListingFragmentToAddCategoryFragment(
+            id = category.id!!,
+            inputType = AddingInputType.ID.name
+        )
         Navigation.findNavController(requireView()).navigate(action)
     }
 }

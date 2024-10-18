@@ -88,6 +88,10 @@ interface ReceiptDao {
     suspend fun getReceipt(id: Int): Receipt
 
     @Transaction
+    @Query("SELECT * FROM category WHERE id = :id")
+    suspend fun getCategoryById(id: Int): Category
+
+    @Transaction
     @Query("SELECT uuid FROM user WHERE id = 0")
     suspend fun getUserUuid(): String?
 
