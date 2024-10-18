@@ -5,42 +5,31 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.navsample.ApplicationContext
-import com.example.navsample.entities.Category
+import com.example.navsample.entities.Receipt
 import com.example.navsample.entities.ReceiptDatabase
 import com.example.navsample.entities.Store
 import com.example.navsample.entities.TranslateEntity
 import com.google.firebase.Firebase
 import com.google.firebase.firestore.CollectionReference
 import com.google.firebase.firestore.firestore
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
-class AddStoreDataViewModel : ViewModel() {
+class AddReceiptDataViewModel : ViewModel() {
 
     companion object {
-        private const val STORE_FIRESTORE_PATH = "stores"
+        private const val RECEIPT_FIRESTORE_PATH = "receipts"
     }
 
     private val firestore = Firebase.firestore
     private val dao = ApplicationContext.context?.let { ReceiptDatabase.getInstance(it).receiptDao }
 
     var storeList = MutableLiveData<ArrayList<Store>>()
-    var categoryList = MutableLiveData<ArrayList<Category>>()
-    var storeById = MutableLiveData<Store?>()
-    private var savedStore = MutableLiveData<Store>()
+    var receiptById = MutableLiveData<Receipt?>()
+    var savedReceipt = MutableLiveData<Receipt>()
     private var userUuid = MutableLiveData<String?>(null)
 
     init {
         setUserUuid()
-    }
-
-    fun refreshCategoryList() {
-        Log.i("Database", "refresh category list")
-        viewModelScope.launch {
-            categoryList.postValue(
-                dao?.getAllCategories() as ArrayList<Category>
-            )
-        }
     }
 
     fun refreshStoreList() {
@@ -50,52 +39,52 @@ class AddStoreDataViewModel : ViewModel() {
         }
     }
 
-    fun deleteStore(storeId: Int) {
-        Log.i("Database", "delete store - id $storeId")
-        viewModelScope.launch {
-            dao?.deleteProductsOfStore(storeId)
-            dao?.deleteReceiptsOfStore(storeId)
-            dao?.deleteStoreById(storeId)
-        }
-    }
-
-    fun getStoreById(id: Int) {
+    fun getReceiptById(id: Int) {
         Log.i("Database", "get store with id $id")
         viewModelScope.launch {
             dao?.let {
-                storeById.postValue(dao.getStoreById(id))
+                receiptById.postValue(dao.getReceiptById(id))
             }
         }
     }
 
-    fun insertStore(newStore: Store) {
-        Log.i("Database", "insert store ${newStore.name}")
+    fun updateReceipt(newReceipt: Receipt) {
+        Log.i(
+            "Database",
+            "update receipt with id ${newReceipt.id}: ${newReceipt.date} ${newReceipt.pln}"
+        )
         viewModelScope.launch {
-            try {
-                dao?.let {
-                    val rowId = dao.insertStore(newStore)
-                    newStore.id = dao.getStoreId(rowId)
-                }
-                Log.i("Database", "inserted receipt with id ${newStore.id}")
-                addFirestore(newStore)
-            } catch (e: Exception) {
-                Log.e("Insert store to DB", e.message.toString())
-            }
-            savedStore.postValue(newStore)
-        }
-    }
-
-    fun updateStore(newStore: Store) {
-        Log.i("Database", "update store with id ${newStore.id}: ${newStore.name}")
-        viewModelScope.launch(Dispatchers.IO) {
             dao?.let {
-                dao.updateStore(newStore)
+                dao.updateReceipt(newReceipt)
             }
+            savedReceipt.postValue(newReceipt)
+            updateFirestore(newReceipt)
         }
-        savedStore.value = newStore
-        updateFirestore(newStore)
-
     }
+
+
+    fun deleteReceipt(receiptId: Int) {
+        Log.i("Database", "delete receipt - id $receiptId")
+        viewModelScope.launch {
+            dao?.deleteProductsOfReceipt(receiptId)
+            dao?.deleteReceiptById(receiptId)
+        }
+    }
+
+    fun insertReceipt(newReceipt: Receipt) {
+        Log.i("Database", "insert receipt: ${newReceipt.date} ${newReceipt.pln}")
+        viewModelScope.launch {
+            dao?.let {
+                newReceipt.date = convertDateFormat(newReceipt.date)
+                val rowId = dao.insertReceipt(newReceipt)
+                newReceipt.id = dao.getReceiptId(rowId)
+            }
+            Log.i("Database", "inserted receipt with id ${newReceipt.id}")
+            savedReceipt.value = newReceipt
+            addFirestore(newReceipt)
+        }
+    }
+
 
     private fun <T : TranslateEntity> addFirestore(obj: T) {
         getFirestoreUserPath().document(obj.getDescriptiveId()).set(obj)
@@ -110,7 +99,7 @@ class AddStoreDataViewModel : ViewModel() {
 
     private fun getFirestoreUserPath(): CollectionReference {
         return firestore.collection("user").document(userUuid.value.toString())
-            .collection(STORE_FIRESTORE_PATH)
+            .collection(RECEIPT_FIRESTORE_PATH)
 
     }
 
@@ -123,5 +112,19 @@ class AddStoreDataViewModel : ViewModel() {
         }
     }
 
+
+    private fun convertDateFormat(date: String): String {
+        val newDate = date.replace(".", "-")
+        val splitDate = newDate.split("-")
+        try {
+            if (splitDate[2].length == 4) {
+                return splitDate[2] + "-" + splitDate[1] + "-" + splitDate[0]
+            }
+            return newDate
+        } catch (e: Exception) {
+            Log.e("ConvertDate", "Cannot convert date: $splitDate")
+            return newDate
+        }
+    }
 
 }

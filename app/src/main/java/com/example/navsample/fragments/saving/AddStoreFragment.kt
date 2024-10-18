@@ -46,19 +46,6 @@ class AddStoreFragment : Fragment() {
         return binding.root
     }
 
-    private fun isNIPUnique(text: String): Boolean {
-        if (addStoreDataViewModel.storeById.value?.nip == text) {
-            return true
-        }
-        val index = addStoreDataViewModel.storeList.value?.map { it.nip }?.indexOf(text) ?: -1
-        if (addStoreDataViewModel.storeList.value?.find { it.nip == text } != null) {
-            binding.storeNIPLayout.error =
-                "NIP exist in store " + (addStoreDataViewModel.storeList.value?.get(index)?.name)
-            return false
-        }
-        return true
-
-    }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -98,7 +85,9 @@ class AddStoreFragment : Fragment() {
                         return@setOnMenuItemClickListener false
                     }
                     saveChangesToDatabase()
+                    //TODO zoptymalizować - odswiezać w zależnosci czy bylo dodane czy zupdatowane
                     listingViewModel.loadDataByStoreFilter()
+                    listingViewModel.loadDataByReceiptFilter()
                     Navigation.findNavController(requireView()).popBackStack()
                 }
 
@@ -234,7 +223,19 @@ class AddStoreFragment : Fragment() {
 
             }
         }
+    }
 
+    private fun isNIPUnique(text: String): Boolean {
+        if (addStoreDataViewModel.storeById.value?.nip == text) {
+            return true
+        }
+        val index = addStoreDataViewModel.storeList.value?.map { it.nip }?.indexOf(text) ?: -1
+        if (addStoreDataViewModel.storeList.value?.find { it.nip == text } != null) {
+            binding.storeNIPLayout.error =
+                "NIP exist in store " + (addStoreDataViewModel.storeList.value?.get(index)?.name)
+            return false
+        }
+        return true
 
     }
 

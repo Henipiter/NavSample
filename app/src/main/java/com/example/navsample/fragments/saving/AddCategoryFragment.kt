@@ -67,6 +67,8 @@ class AddCategoryFragment : Fragment() {
                         return@setOnMenuItemClickListener true
                     }
                     saveChangesToDatabase()
+                    //TODO zoptymalizować - odswiezać w zależnosci czy bylo dodane czy zupdatowane
+                    listingViewModel.loadDataByProductFilter()
                     listingViewModel.loadDataByCategoryFilter()
                     Navigation.findNavController(requireView()).popBackStack()
                 }

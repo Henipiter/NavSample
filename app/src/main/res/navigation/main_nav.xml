@@ -69,6 +69,14 @@
                 android:name="inputType"
                 android:defaultValue="EMPTY" />
         </action>
+        <argument
+            android:name="inputType"
+            app:argType="string"
+            android:defaultValue="EMPTY" />
+        <argument
+            android:name="receiptId"
+            app:argType="integer"
+            android:defaultValue="-1" />
     </fragment>
     <fragment
         android:id="@+id/imageImportFragment"
@@ -77,7 +85,11 @@
         tools:layout="@layout/fragment_image_import">
         <action
             android:id="@+id/action_imageImportFragment_to_addReceiptFragment"
-            app:destination="@id/addReceiptFragment" />
+            app:destination="@id/addReceiptFragment">
+            <argument
+                android:name="inputType"
+                android:defaultValue="EMPTY" />
+        </action>
     </fragment>
     <fragment
         android:id="@+id/experimentRecycleFragment"
@@ -128,13 +140,17 @@
         tools:layout="@layout/fragment_listing">
         <action
             android:id="@+id/action_listingFragment_to_addReceiptFragment"
-            app:destination="@id/addReceiptFragment" />
+            app:destination="@id/addReceiptFragment">
+            <argument
+                android:name="inputType"
+                android:defaultValue="EMPTY" />
+        </action>
         <action
             android:id="@+id/action_listingFragment_to_addStoreFragment"
             app:destination="@id/addStoreFragment">
             <argument
                 android:name="inputType"
-                android:defaultValue="ID" />
+                android:defaultValue="EMPTY" />
         </action>
         <action
             android:id="@+id/action_listingFragment_to_addProductFragment"
@@ -153,7 +169,7 @@
             app:destination="@id/addCategoryFragment">
             <argument
                 android:name="inputType"
-                android:defaultValue="ID" />
+                android:defaultValue="EMPTY" />
         </action>
     </fragment>
     <fragment

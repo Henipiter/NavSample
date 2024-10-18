@@ -144,6 +144,7 @@ class AddProductListFragment : Fragment(), ItemClickListener {
         binding.toolbar.setNavigationIcon(R.drawable.back)
         binding.toolbar.menu.findItem(R.id.edit).isVisible = false
 
+        receiptDataViewModel.refreshProductListForReceipt(id)
         myPref =
             requireContext().getSharedPreferences("preferences", AppCompatActivity.MODE_PRIVATE)
 

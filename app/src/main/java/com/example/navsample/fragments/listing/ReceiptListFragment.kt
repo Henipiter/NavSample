@@ -15,19 +15,19 @@ import com.example.navsample.ItemClickListener
 import com.example.navsample.R
 import com.example.navsample.adapters.ReceiptListAdapter
 import com.example.navsample.databinding.FragmentReceiptListBinding
+import com.example.navsample.dto.inputmode.AddingInputType
 import com.example.navsample.dto.sort.ReceiptWithStoreSort
 import com.example.navsample.dto.sort.SortProperty
-import com.example.navsample.entities.Receipt
 import com.example.navsample.fragments.dialogs.ConfirmDialog
 import com.example.navsample.fragments.dialogs.SortingDialog
 import com.example.navsample.viewmodels.ListingViewModel
-import com.example.navsample.viewmodels.ReceiptDataViewModel
+import com.example.navsample.viewmodels.fragment.AddReceiptDataViewModel
 
 class ReceiptListFragment : Fragment(), ItemClickListener {
     private var _binding: FragmentReceiptListBinding? = null
     private val binding get() = _binding!!
 
-    private val receiptDataViewModel: ReceiptDataViewModel by activityViewModels()
+    private val addReceiptDataViewModel: AddReceiptDataViewModel by activityViewModels()
     private val listingViewModel: ListingViewModel by activityViewModels()
 
     private lateinit var recyclerViewEvent: RecyclerView
@@ -96,7 +96,7 @@ class ReceiptListFragment : Fragment(), ItemClickListener {
                             + "\nTime: " + it.time
                 ) {
 
-                    receiptDataViewModel.deleteReceipt(it.id)
+                    addReceiptDataViewModel.deleteReceipt(it.id)
                     listingViewModel.receiptList.value?.let { receiptList ->
                         receiptList.removeAt(i)
                         receiptListAdapter.receiptList = receiptList
@@ -127,21 +127,15 @@ class ReceiptListFragment : Fragment(), ItemClickListener {
     }
 
     override fun onItemClick(index: Int) {
-        listingViewModel.receiptList.value?.get(index)?.let {
-            receiptDataViewModel.getStoreById(it.storeId)
-            val receipt = Receipt(
-                it.storeId,
-                it.pln.toString().toDouble(),
-                it.ptu.toString().toDouble(),
-                it.date,
-                it.time,
-                it.validPriceSum
-            )
-            receipt.id = it.id
-            receiptDataViewModel.receipt.value = receipt
-        }
+        listingViewModel.receiptList.value?.let { receiptList ->
+            val receiptId = receiptList[index].id
+            val action =
+                ListingFragmentDirections.actionListingFragmentToAddReceiptFragment(
+                    inputType = AddingInputType.ID.name,
+                    receiptId = receiptId
+                )
+            Navigation.findNavController(requireView()).navigate(action)
 
-        Navigation.findNavController(binding.root)
-            .navigate(R.id.action_listingFragment_to_addReceiptFragment)
+        }
     }
 }

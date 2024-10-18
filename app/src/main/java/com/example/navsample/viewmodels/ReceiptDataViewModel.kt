@@ -81,14 +81,6 @@ class ReceiptDataViewModel : ViewModel() {
     }
 
 
-    fun refreshStoreList() {
-        Log.i("Database", "refresh store list")
-        viewModelScope.launch {
-            storeList.postValue(dao?.getAllStores()?.let { ArrayList(it) })
-        }
-    }
-
-
     fun clearData() {
         categoryList = MutableLiveData<ArrayList<Category>>(null)
         storeList = MutableLiveData<ArrayList<Store>>(null)
@@ -341,14 +333,6 @@ class ReceiptDataViewModel : ViewModel() {
         Log.i("Database", "delete category - id ${category.id}")
         viewModelScope.launch {
             dao?.deleteCategory(category)
-        }
-    }
-
-    fun deleteReceipt(receiptId: Int) {
-        Log.i("Database", "delete receipt - id $receiptId")
-        viewModelScope.launch {
-            dao?.deleteProductsOfReceipt(receiptId)
-            dao?.deleteReceiptById(receiptId)
         }
     }
 

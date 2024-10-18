@@ -125,6 +125,10 @@ interface ReceiptDao {
     suspend fun getStoreById(id: Int): Store
 
     @Transaction
+    @Query("SELECT * FROM receipt WHERE id = :id")
+    suspend fun getReceiptById(id: Int): Receipt
+
+    @Transaction
     @Query("SELECT * FROM store order by name")
     suspend fun getAllStores(): List<Store>
 
