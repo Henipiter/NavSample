@@ -17,6 +17,7 @@ import com.example.navsample.databinding.FragmentAddCategoryBinding
 import com.example.navsample.dto.DataMode
 import com.example.navsample.entities.Category
 import com.example.navsample.fragments.dialogs.ColorPickerDialog
+import com.example.navsample.viewmodels.ListingViewModel
 import com.example.navsample.viewmodels.ReceiptDataViewModel
 
 
@@ -24,6 +25,7 @@ class AddCategoryFragment : Fragment() {
     private var _binding: FragmentAddCategoryBinding? = null
     private val binding get() = _binding!!
     private val receiptDataViewModel: ReceiptDataViewModel by activityViewModels()
+    private val listingViewModel: ListingViewModel by activityViewModels()
 
     private var baseCategoryName: String = ""
     private var mode = DataMode.DISPLAY
@@ -94,7 +96,7 @@ class AddCategoryFragment : Fragment() {
                         binding.categoryNameInput.text.toString(),
                         binding.categoryColorInput.text.toString()
                     )
-                    receiptDataViewModel.loadDataByCategoryFilter()
+                    listingViewModel.loadDataByCategoryFilter()
                     Navigation.findNavController(requireView()).popBackStack()
                 }
 

@@ -19,6 +19,7 @@ import com.example.navsample.entities.Receipt
 import com.example.navsample.entities.Store
 import com.example.navsample.exception.NoStoreIdException
 import com.example.navsample.viewmodels.ImageAnalyzerViewModel
+import com.example.navsample.viewmodels.ListingViewModel
 import com.example.navsample.viewmodels.ReceiptDataViewModel
 import com.example.navsample.viewmodels.ReceiptImageViewModel
 import com.google.android.material.datepicker.MaterialDatePicker
@@ -35,6 +36,7 @@ class AddReceiptFragment : Fragment() {
     private val imageAnalyzerViewModel: ImageAnalyzerViewModel by activityViewModels()
     private val receiptImageViewModel: ReceiptImageViewModel by activityViewModels()
     private val receiptDataViewModel: ReceiptDataViewModel by activityViewModels()
+    private val listingViewModel: ListingViewModel by activityViewModels()
 
 
     private var calendarDate = Calendar.getInstance()
@@ -264,7 +266,7 @@ class AddReceiptFragment : Fragment() {
                     this.time = time
                 }
                 receiptDataViewModel.insertReceipt(receipt)
-                receiptDataViewModel.loadDataByReceiptFilter()
+                listingViewModel.loadDataByReceiptFilter()
                 val action =
                     AddReceiptFragmentDirections.actionAddReceiptFragmentToAddProductListFragment()
                 Navigation.findNavController(requireView()).navigate(action)
@@ -281,7 +283,7 @@ class AddReceiptFragment : Fragment() {
                         this.time = time
                     }
                     receiptDataViewModel.updateReceipt(receipt)
-                    receiptDataViewModel.loadDataByReceiptFilter()
+                    listingViewModel.loadDataByReceiptFilter()
                 }
             }
         }

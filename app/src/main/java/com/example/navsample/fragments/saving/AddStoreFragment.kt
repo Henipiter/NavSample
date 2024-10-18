@@ -16,6 +16,7 @@ import com.example.navsample.dto.DataMode
 import com.example.navsample.entities.Category
 import com.example.navsample.entities.Store
 import com.example.navsample.exception.NoCategoryIdException
+import com.example.navsample.viewmodels.ListingViewModel
 import com.example.navsample.viewmodels.ReceiptDataViewModel
 import com.example.navsample.viewmodels.ReceiptImageViewModel
 
@@ -25,6 +26,7 @@ class AddStoreFragment : Fragment() {
 
     private val receiptImageViewModel: ReceiptImageViewModel by activityViewModels()
     private val receiptDataViewModel: ReceiptDataViewModel by activityViewModels()
+    private val listingViewModel: ListingViewModel by activityViewModels()
 
     private var mode = DataMode.NEW
     private var chosenCategory = Category("", "")
@@ -151,7 +153,7 @@ class AddStoreFragment : Fragment() {
                     changeViewToDisplayMode()
                     receiptDataViewModel.store.value?.nip = binding.storeNIPInput.text.toString()
                     receiptDataViewModel.store.value?.name = binding.storeNameInput.text.toString()
-                    receiptDataViewModel.loadDataByStoreFilter()
+                    listingViewModel.loadDataByStoreFilter()
                     Navigation.findNavController(requireView()).popBackStack()
                 }
 

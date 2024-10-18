@@ -24,6 +24,7 @@ import com.example.navsample.dto.Utils.Companion.roundDouble
 import com.example.navsample.dto.sorting.AlgorithmItemAdapterArgument
 import com.example.navsample.fragments.dialogs.ConfirmDialog
 import com.example.navsample.viewmodels.ImageAnalyzerViewModel
+import com.example.navsample.viewmodels.ListingViewModel
 import com.example.navsample.viewmodels.ReceiptDataViewModel
 import com.example.navsample.viewmodels.ReceiptImageViewModel
 
@@ -38,6 +39,7 @@ class AddProductListFragment : Fragment(), ItemClickListener {
     private val imageAnalyzerViewModel: ImageAnalyzerViewModel by activityViewModels()
     private val receiptImageViewModel: ReceiptImageViewModel by activityViewModels()
     private val receiptDataViewModel: ReceiptDataViewModel by activityViewModels()
+    private val listingViewModel: ListingViewModel by activityViewModels()
 
     private lateinit var recyclerViewEvent: RecyclerView
     private lateinit var productListAdapter: ProductListAdapter
@@ -238,7 +240,7 @@ class AddProductListFragment : Fragment(), ItemClickListener {
         receiptDataViewModel.insertProducts(
             receiptDataViewModel.product.value?.toList() ?: listOf()
         )
-        receiptDataViewModel.loadDataByProductFilter()
+        listingViewModel.loadDataByProductFilter()
         imageAnalyzerViewModel.clearData()
         Navigation.findNavController(binding.root).popBackStack(R.id.settingsFragment, false)
     }

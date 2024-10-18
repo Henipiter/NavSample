@@ -21,12 +21,14 @@ import com.example.navsample.dto.sort.SortProperty
 import com.example.navsample.entities.Product
 import com.example.navsample.fragments.dialogs.ConfirmDialog
 import com.example.navsample.fragments.dialogs.SortingDialog
+import com.example.navsample.viewmodels.ListingViewModel
 import com.example.navsample.viewmodels.ReceiptDataViewModel
 
 class ProductListFragment : Fragment(), ItemClickListener {
     private var _binding: FragmentProductListBinding? = null
     private val binding get() = _binding!!
     private val receiptDataViewModel: ReceiptDataViewModel by activityViewModels()
+    private val listingViewModel: ListingViewModel by activityViewModels()
 
     private lateinit var recyclerViewEvent: RecyclerView
     private lateinit var richProductListAdapter: RichProductListAdapter
@@ -72,14 +74,14 @@ class ProductListFragment : Fragment(), ItemClickListener {
 
                 R.id.sort -> {
                     //TODO Connect Dialog with DB
-                    val selected = receiptDataViewModel.richProductSort.value
-                        ?: receiptDataViewModel.defaultRichProductSort
+                    val selected = listingViewModel.richProductSort.value
+                        ?: listingViewModel.defaultRichProductSort
                     SortingDialog(
                         selected,
                         RichProductSort.entries.map { sort -> sort.friendlyNameKey }) { name, dir ->
                         val appliedSort = SortProperty(RichProductSort::class, name, dir)
-                        receiptDataViewModel.richProductSort.value = appliedSort
-                        receiptDataViewModel.updateSorting(appliedSort)
+                        listingViewModel.richProductSort.value = appliedSort
+                        listingViewModel.updateSorting(appliedSort)
                         Toast.makeText(requireContext(), "$appliedSort", Toast.LENGTH_SHORT).show()
                     }.show(childFragmentManager, "Test")
                     true
@@ -91,10 +93,10 @@ class ProductListFragment : Fragment(), ItemClickListener {
         recyclerViewEvent = binding.recyclerViewEventProducts
         richProductListAdapter = RichProductListAdapter(
             requireContext(),
-            receiptDataViewModel.productRichList.value ?: arrayListOf(), this
+            listingViewModel.productRichList.value ?: arrayListOf(), this
 
         ) { i ->
-            receiptDataViewModel.productRichList.value?.get(i)?.let {
+            listingViewModel.productRichList.value?.get(i)?.let {
                 ConfirmDialog(
                     "Delete",
                     "$i Are you sure you want to delete the product??\n\nName: " + it.name +
@@ -103,7 +105,7 @@ class ProductListFragment : Fragment(), ItemClickListener {
                     if (it.id >= 0) {
                         receiptDataViewModel.deleteProduct(it.id)
                     }
-                    receiptDataViewModel.productRichList.value?.let { productRichList ->
+                    listingViewModel.productRichList.value?.let { productRichList ->
                         productRichList.removeAt(i)
                         richProductListAdapter.productList = productRichList
                         richProductListAdapter.notifyItemRemoved(i)
@@ -119,13 +121,13 @@ class ProductListFragment : Fragment(), ItemClickListener {
         recyclerViewEvent.layoutManager =
             LinearLayoutManager(requireContext(), LinearLayoutManager.VERTICAL, false)
 
-        receiptDataViewModel.refreshStoreList()
-        receiptDataViewModel.refreshCategoryList()
+        listingViewModel.refreshStoreList()
+        listingViewModel.refreshCategoryList()
     }
 
     @SuppressLint("NotifyDataSetChanged")
     private fun initObserver() {
-        receiptDataViewModel.productRichList.observe(viewLifecycleOwner) {
+        listingViewModel.productRichList.observe(viewLifecycleOwner) {
             it?.let {
                 richProductListAdapter.productList = it
                 richProductListAdapter.notifyDataSetChanged()
@@ -134,7 +136,7 @@ class ProductListFragment : Fragment(), ItemClickListener {
     }
 
     override fun onItemClick(index: Int) {
-        receiptDataViewModel.productRichList.value?.get(index)?.let {
+        listingViewModel.productRichList.value?.get(index)?.let {
             val chosenProduct = Product(
                 it.receiptId,
                 it.name,

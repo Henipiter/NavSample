@@ -13,6 +13,7 @@ import androidx.navigation.Navigation
 import com.example.navsample.R
 import com.example.navsample.databinding.FragmentFilterReceiptListBinding
 import com.example.navsample.dto.filter.FilterReceiptList
+import com.example.navsample.viewmodels.ListingViewModel
 import com.example.navsample.viewmodels.ReceiptDataViewModel
 import com.google.android.material.datepicker.MaterialDatePicker
 import java.text.SimpleDateFormat
@@ -24,6 +25,7 @@ class FilterReceiptListFragment : Fragment() {
     private var _binding: FragmentFilterReceiptListBinding? = null
     private val binding get() = _binding!!
     private val receiptDataViewModel: ReceiptDataViewModel by activityViewModels()
+    private val listingViewModel: ListingViewModel by activityViewModels()
 
     private var filterReceiptList = FilterReceiptList()
     private var calendarDateFrom = Calendar.getInstance()
@@ -54,15 +56,15 @@ class FilterReceiptListFragment : Fragment() {
         }
         binding.storeLayout.setStartIconOnClickListener {
             binding.storeInput.setText("")
-            receiptDataViewModel.filterReceiptList.value?.store = ""
+            listingViewModel.filterReceiptList.value?.store = ""
         }
 
         binding.storeInput.doOnTextChanged { text, _, _, _ ->
-            receiptDataViewModel.filterReceiptList.value?.store = text.toString()
+            listingViewModel.filterReceiptList.value?.store = text.toString()
         }
         binding.dateBetweenLayout.setStartIconOnClickListener {
             binding.dateBetweenInput.setText("")
-            receiptDataViewModel.filterReceiptList.value?.let {
+            listingViewModel.filterReceiptList.value?.let {
                 it.dateFrom = ""
                 it.dateTo = ""
             }
@@ -76,13 +78,13 @@ class FilterReceiptListFragment : Fragment() {
                 R.id.clear_filter -> {
                     binding.dateBetweenInput.setText("")
                     binding.storeInput.setText("")
-                    receiptDataViewModel.filterReceiptList.value = FilterReceiptList()
+                    listingViewModel.filterReceiptList.value = FilterReceiptList()
                     true
                 }
 
                 R.id.confirm -> {
-                    receiptDataViewModel.filterReceiptList.value = filterReceiptList
-                    receiptDataViewModel.loadDataByReceiptFilter()
+                    listingViewModel.filterReceiptList.value = filterReceiptList
+                    listingViewModel.loadDataByReceiptFilter()
                     Navigation.findNavController(requireView()).popBackStack()
                 }
 
@@ -107,7 +109,7 @@ class FilterReceiptListFragment : Fragment() {
         dateRangePicker.addOnPositiveButtonClickListener {
             calendarDateFrom.timeInMillis = it.first
             calendarDateTo.timeInMillis = it.second
-            receiptDataViewModel.filterReceiptList.value?.let { filter ->
+            listingViewModel.filterReceiptList.value?.let { filter ->
                 filter.dateFrom = getDateFormat().format(calendarDateFrom.time)
                 filter.dateTo = getDateFormat().format(calendarDateTo.time)
                 val text = "${filter.dateFrom} - ${filter.dateTo}"
@@ -140,7 +142,7 @@ class FilterReceiptListFragment : Fragment() {
                 }
             }
         }
-        receiptDataViewModel.filterReceiptList.observe(viewLifecycleOwner) {
+        listingViewModel.filterReceiptList.observe(viewLifecycleOwner) {
             it?.let {
                 filterReceiptList = it
                 putFilterDefinitionIntoInputs()

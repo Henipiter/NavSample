@@ -14,6 +14,7 @@ import com.example.navsample.R
 import com.example.navsample.databinding.FragmentFilterProductListBinding
 import com.example.navsample.dto.filter.FilterProductList
 import com.example.navsample.fragments.dialogs.PricePickerDialog
+import com.example.navsample.viewmodels.ListingViewModel
 import com.example.navsample.viewmodels.ReceiptDataViewModel
 import com.google.android.material.datepicker.MaterialDatePicker
 import java.text.SimpleDateFormat
@@ -24,6 +25,7 @@ class FilterProductListFragment : Fragment() {
     private var _binding: FragmentFilterProductListBinding? = null
     private val binding get() = _binding!!
     private val receiptDataViewModel: ReceiptDataViewModel by activityViewModels()
+    private val listingViewModel: ListingViewModel by activityViewModels()
 
     private var filterProductList = FilterProductList()
     private var calendarDateFrom = Calendar.getInstance()
@@ -59,29 +61,29 @@ class FilterProductListFragment : Fragment() {
         }
         binding.storeLayout.setStartIconOnClickListener {
             binding.storeInput.setText("")
-            receiptDataViewModel.filterProductList.value?.store = ""
+            listingViewModel.filterProductList.value?.store = ""
         }
 
         binding.storeInput.doOnTextChanged { text, _, _, _ ->
-            receiptDataViewModel.filterProductList.value?.store = text.toString()
+            listingViewModel.filterProductList.value?.store = text.toString()
         }
         binding.categoryNameLayout.setStartIconOnClickListener {
             binding.categoryNameInput.setText("")
-            receiptDataViewModel.filterProductList.value?.category = ""
+            listingViewModel.filterProductList.value?.category = ""
         }
         binding.categoryNameInput.doOnTextChanged { text, _, _, _ ->
-            receiptDataViewModel.filterProductList.value?.category = text.toString()
+            listingViewModel.filterProductList.value?.category = text.toString()
         }
         binding.dateBetweenLayout.setStartIconOnClickListener {
             binding.dateBetweenInput.setText("")
-            receiptDataViewModel.filterProductList.value?.let {
+            listingViewModel.filterProductList.value?.let {
                 it.dateFrom = ""
                 it.dateTo = ""
             }
         }
         binding.priceBetweenLayout.setStartIconOnClickListener {
             binding.priceBetweenInput.setText("-")
-            receiptDataViewModel.filterProductList.value?.let {
+            listingViewModel.filterProductList.value?.let {
                 it.lowerPrice = -1.0
                 it.higherPrice = -1.0
             }
@@ -97,13 +99,13 @@ class FilterProductListFragment : Fragment() {
                     binding.priceBetweenInput.setText("-")
                     binding.categoryNameInput.setText("")
                     binding.storeInput.setText("")
-                    receiptDataViewModel.filterProductList.value = FilterProductList()
+                    listingViewModel.filterProductList.value = FilterProductList()
                     true
                 }
 
                 R.id.confirm -> {
-                    receiptDataViewModel.filterProductList.value = filterProductList
-                    receiptDataViewModel.loadDataByProductFilter()
+                    listingViewModel.filterProductList.value = filterProductList
+                    listingViewModel.loadDataByProductFilter()
                     Navigation.findNavController(requireView()).popBackStack()
                 }
 
@@ -131,7 +133,7 @@ class FilterProductListFragment : Fragment() {
         val priceBoundaries =
             binding.priceBetweenInput.text.toString().replace("\\s+".toRegex(), "").split("-")
         PricePickerDialog(priceBoundaries[0], priceBoundaries[1]) { lower, higher ->
-            receiptDataViewModel.filterProductList.value?.let {
+            listingViewModel.filterProductList.value?.let {
                 it.lowerPrice = convertTextToDouble(lower)
                 it.higherPrice = convertTextToDouble(higher)
                 val text =
@@ -158,7 +160,7 @@ class FilterProductListFragment : Fragment() {
         dateRangePicker.addOnPositiveButtonClickListener {
             calendarDateFrom.timeInMillis = it.first
             calendarDateTo.timeInMillis = it.second
-            receiptDataViewModel.filterProductList.value?.let { filter ->
+            listingViewModel.filterProductList.value?.let { filter ->
                 filter.dateFrom = getDateFormat().format(calendarDateFrom.time)
                 filter.dateTo = getDateFormat().format(calendarDateTo.time)
                 val text = "${filter.dateFrom} - ${filter.dateTo}"
@@ -206,7 +208,7 @@ class FilterProductListFragment : Fragment() {
                 }
             }
         }
-        receiptDataViewModel.filterProductList.observe(viewLifecycleOwner) {
+        listingViewModel.filterProductList.observe(viewLifecycleOwner) {
             it?.let {
                 filterProductList = it
                 putFilterDefinitionIntoInputs()

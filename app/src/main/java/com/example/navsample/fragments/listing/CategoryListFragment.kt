@@ -16,6 +16,7 @@ import com.example.navsample.ItemClickListener
 import com.example.navsample.adapters.CategoryListAdapter
 import com.example.navsample.databinding.FragmentCategoryListBinding
 import com.example.navsample.fragments.dialogs.ConfirmDialog
+import com.example.navsample.viewmodels.ListingViewModel
 import com.example.navsample.viewmodels.ReceiptDataViewModel
 
 
@@ -23,6 +24,7 @@ class CategoryListFragment : Fragment(), ItemClickListener {
     private var _binding: FragmentCategoryListBinding? = null
     private val binding get() = _binding!!
     private val receiptDataViewModel: ReceiptDataViewModel by activityViewModels()
+    private val listingViewModel: ListingViewModel by activityViewModels()
 
     private lateinit var recyclerViewEvent: RecyclerView
     private lateinit var categoryListAdapter: CategoryListAdapter
@@ -38,18 +40,18 @@ class CategoryListFragment : Fragment(), ItemClickListener {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         initObserver()
-        receiptDataViewModel.refreshProductList()
+        listingViewModel.refreshProductList()
 
         recyclerViewEvent = binding.recyclerViewEventReceipts
         categoryListAdapter = CategoryListAdapter(
-            requireContext(), receiptDataViewModel.categoryList.value ?: arrayListOf(), this
+            requireContext(), listingViewModel.categoryList.value ?: arrayListOf(), this
         ) { i ->
-            receiptDataViewModel.categoryList.value?.get(i)?.let {
+            listingViewModel.categoryList.value?.get(i)?.let {
                 ConfirmDialog(
                     "Delete",
                     "$i Are you sure you want to delete the category products??\n\nName: " + it.name
                 ) {
-                    if (receiptDataViewModel.productRichList.value?.none { product -> product.categoryId == it.id } != true) {
+                    if (listingViewModel.productRichList.value?.none { product -> product.categoryId == it.id } != true) {
                         Toast.makeText(
                             requireContext(),
                             "Cannot delete beacuse of existing products",
@@ -58,7 +60,7 @@ class CategoryListFragment : Fragment(), ItemClickListener {
 
                     } else {
                         receiptDataViewModel.deleteCategory(it)
-                        receiptDataViewModel.categoryList.value?.let { categoryList ->
+                        listingViewModel.categoryList.value?.let { categoryList ->
                             categoryList.removeAt(i)
                             categoryListAdapter.categoryList = categoryList
                             categoryListAdapter.notifyItemRemoved(i)
@@ -76,12 +78,12 @@ class CategoryListFragment : Fragment(), ItemClickListener {
             LinearLayoutManager(requireContext(), LinearLayoutManager.VERTICAL, false)
 
         binding.categoryNameInput.doOnTextChanged { text, _, _, _ ->
-            receiptDataViewModel.filterCategoryList.value?.category = text.toString()
-            receiptDataViewModel.loadDataByCategoryFilter()
+            listingViewModel.filterCategoryList.value?.category = text.toString()
+            listingViewModel.loadDataByCategoryFilter()
         }
         binding.categoryNameLayout.setStartIconOnClickListener {
             binding.categoryNameInput.setText("")
-            receiptDataViewModel.filterCategoryList.value?.category = ""
+            listingViewModel.filterCategoryList.value?.category = ""
         }
         binding.newButton.setOnClickListener {
             receiptDataViewModel.savedCategory.value = null
@@ -94,19 +96,19 @@ class CategoryListFragment : Fragment(), ItemClickListener {
 
     @SuppressLint("NotifyDataSetChanged")
     private fun initObserver() {
-        receiptDataViewModel.categoryList.observe(viewLifecycleOwner) {
+        listingViewModel.categoryList.observe(viewLifecycleOwner) {
             it?.let {
                 categoryListAdapter.categoryList = it
                 categoryListAdapter.notifyDataSetChanged()
             }
         }
-        receiptDataViewModel.filterCategoryList.observe(viewLifecycleOwner) {
+        listingViewModel.filterCategoryList.observe(viewLifecycleOwner) {
             putFilterDefinitionIntoInputs()
         }
     }
 
     private fun putFilterDefinitionIntoInputs() {
-        receiptDataViewModel.filterCategoryList.value?.let {
+        listingViewModel.filterCategoryList.value?.let {
             if (binding.categoryNameInput.text.toString() != it.category) {
                 binding.categoryNameInput.setText(it.category)
             }
@@ -114,7 +116,7 @@ class CategoryListFragment : Fragment(), ItemClickListener {
     }
 
     override fun onItemClick(index: Int) {
-        val category = receiptDataViewModel.categoryList.value!![index]
+        val category = listingViewModel.categoryList.value!![index]
         receiptDataViewModel.savedCategory.value = category
         receiptDataViewModel.category.value = category
         val action = ListingFragmentDirections.actionListingFragmentToAddCategoryFragment()
