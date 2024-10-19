@@ -39,7 +39,7 @@ class ExperimentalDataViewModel : ViewModel() {
     }
 
 
-    fun clearData() {
+    private fun clearData() {
         userOrderedName = MutableLiveData(arrayListOf())
         userOrderedPrices = MutableLiveData(arrayListOf())
         algorithmOrderedNames = MutableLiveData(

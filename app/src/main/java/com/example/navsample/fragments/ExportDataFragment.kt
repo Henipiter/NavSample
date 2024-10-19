@@ -1,5 +1,6 @@
 package com.example.navsample.fragments
 
+import android.annotation.SuppressLint
 import android.content.ContentValues
 import android.os.Bundle
 import android.os.Environment
@@ -148,6 +149,7 @@ class ExportDataFragment : Fragment() {
         }
     }
 
+    @SuppressLint("NotifyDataSetChanged")
     private fun initObserver() {
         exportDataViewModel.tableCounts.observe(viewLifecycleOwner) {
             it?.let {

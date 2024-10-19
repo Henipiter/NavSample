@@ -15,9 +15,7 @@ class ExportDataViewModel : ViewModel() {
     var allData = MutableLiveData<ArrayList<AllData>>()
     var tableCounts = MutableLiveData<ArrayList<TableCounts>>()
 
-
     private val dao = ApplicationContext.context?.let { ReceiptDatabase.getInstance(it).receiptDao }
-
 
     fun getTableCounts() {
         viewModelScope.launch {

@@ -99,6 +99,13 @@ class InitDatabaseViewModel : ViewModel() {
         }
     }
 
+    fun insertCategoryList(category: Category) {
+        Log.i("Database", "insert category ${category.name} - id ${category.id}")
+        viewModelScope.launch {
+            dao?.insertCategory(category)
+        }
+    }
+
     fun setUserUuid() {
         viewModelScope.launch {
             dao?.let {
@@ -160,13 +167,6 @@ class InitDatabaseViewModel : ViewModel() {
             .document(obj.getDescriptiveId())
             .set(obj)
 
-    }
-
-    fun insertCategoryList(category: Category) {
-        Log.i("Database", "insert category ${category.name} - id ${category.id}")
-        viewModelScope.launch {
-            dao?.insertCategory(category)
-        }
     }
 
 }

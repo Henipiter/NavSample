@@ -6,8 +6,6 @@ import androidx.lifecycle.viewModelScope
 import com.example.navsample.ApplicationContext
 import com.example.navsample.entities.ReceiptDatabase
 import com.example.navsample.entities.relations.PriceByCategory
-import com.google.firebase.Firebase
-import com.google.firebase.firestore.firestore
 import kotlinx.coroutines.launch
 
 class ChartDataViewModel : ViewModel() {
@@ -17,28 +15,11 @@ class ChartDataViewModel : ViewModel() {
     lateinit var imageUuid: MutableLiveData<String>
 
 
-    lateinit var timelineChartData: MutableLiveData<List<PriceByCategory>>
-    lateinit var categoryChartData: MutableLiveData<List<PriceByCategory>>
+    var timelineChartData = MutableLiveData<List<PriceByCategory>>()
+    var categoryChartData = MutableLiveData<List<PriceByCategory>>()
 
 
     private val dao = ApplicationContext.context?.let { ReceiptDatabase.getInstance(it).receiptDao }
-    private val firestore = Firebase.firestore
-
-    init {
-        clearData()
-    }
-
-
-    fun clearData() {
-
-        //---------------
-
-
-        timelineChartData = MutableLiveData<List<PriceByCategory>>(null)
-        categoryChartData = MutableLiveData<List<PriceByCategory>>(null)
-
-
-    }
 
 
     fun getChartDataTimeline(dateFrom: String = "0", dateTo: String = "9") {
@@ -55,6 +36,4 @@ class ChartDataViewModel : ViewModel() {
                 ?.let { ArrayList(it) })
         }
     }
-
-
 }

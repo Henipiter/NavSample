@@ -24,8 +24,8 @@ class AddCategoryDataViewModel : ViewModel() {
 
     var categoryList = MutableLiveData<ArrayList<Category>>()
     var categoryById = MutableLiveData<Category?>()
-    var savedCategory = MutableLiveData<Category>()
-    var userUuid = MutableLiveData<String?>(null)
+    private var savedCategory = MutableLiveData<Category>()
+    private var userUuid = MutableLiveData<String?>(null)
 
     init {
         setUserUuid()
