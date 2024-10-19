@@ -35,6 +35,12 @@
         <action
             android:id="@+id/action_addProductListFragment_to_cropImageFragment"
             app:destination="@id/cropImageFragment" />
+        <argument
+            android:name="receiptId"
+            app:argType="integer" />
+        <argument
+            android:name="storeId"
+            app:argType="integer" />
     </fragment>
     <fragment
         android:id="@+id/addProductFragment"

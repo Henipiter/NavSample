@@ -59,7 +59,6 @@ class ReceiptDataViewModel : ViewModel() {
     lateinit var categoryChartData: MutableLiveData<List<PriceByCategory>>
     lateinit var allData: MutableLiveData<ArrayList<AllData>>
     lateinit var tableCounts: MutableLiveData<ArrayList<TableCounts>>
-    lateinit var reorderedProductTiles: MutableLiveData<Boolean>
 
     var userUuid = MutableLiveData<String?>(null)
 
@@ -88,7 +87,6 @@ class ReceiptDataViewModel : ViewModel() {
         //---------------
 
         imageUuid = MutableLiveData<String>(null)
-        reorderedProductTiles = MutableLiveData<Boolean>(false)
         store = MutableLiveData<Store>(null)
         receipt = MutableLiveData<Receipt>(null)
         product = MutableLiveData<ArrayList<Product>>(ArrayList())
@@ -340,13 +338,6 @@ class ReceiptDataViewModel : ViewModel() {
         Log.i("Database", "delete product - id $productId")
         viewModelScope.launch {
             dao?.deleteProductById(productId)
-        }
-    }
-
-
-    fun refreshProductListForReceipt(receiptId: Int) {
-        viewModelScope.launch {
-            product.postValue(dao?.getAllProducts(receiptId)?.let { ArrayList(it) })
         }
     }
 

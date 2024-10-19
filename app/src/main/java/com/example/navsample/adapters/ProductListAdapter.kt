@@ -16,8 +16,8 @@ import com.example.navsample.entities.Product
 
 class ProductListAdapter(
     var context: Context,
-    var productList: ArrayList<Product>,
-    var categoryList: ArrayList<Category>,
+    var productList: MutableList<Product>,
+    var categoryList: List<Category>,
     private var itemClickListener: ItemClickListener,
     private var onDelete: (Int) -> Unit,
 ) : RecyclerView.Adapter<ProductListAdapter.MyViewHolder>() {

@@ -30,6 +30,8 @@ class AddProductDataViewModel : ViewModel() {
     var receiptById = MutableLiveData<Receipt?>()
     var productById = MutableLiveData<Product?>()
     var storeById = MutableLiveData<Store?>()
+
+
     private var userUuid = MutableLiveData<String?>(null)
 
     init {
@@ -42,6 +44,14 @@ class AddProductDataViewModel : ViewModel() {
             categoryList.postValue(
                 dao?.getAllCategories()
             )
+        }
+    }
+
+
+    fun deleteProduct(productId: Int) {
+        Log.i("Database", "delete product - id $productId")
+        viewModelScope.launch {
+            dao?.deleteProductById(productId)
         }
     }
 
@@ -109,6 +119,19 @@ class AddProductDataViewModel : ViewModel() {
                     }
                 }
             }
+        }
+    }
+
+    fun updateReceipt(newReceipt: Receipt) {
+        Log.i(
+            "Database",
+            "update receipt with id ${newReceipt.id}: ${newReceipt.date} ${newReceipt.pln}"
+        )
+        viewModelScope.launch {
+            dao?.let {
+                dao.updateReceipt(newReceipt)
+            }
+            updateFirestore(newReceipt)
         }
     }
 

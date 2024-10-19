@@ -173,9 +173,11 @@ class AddReceiptFragment : Fragment() {
         }
         addReceiptDataViewModel.savedReceipt.observe(viewLifecycleOwner) {
             it?.let {
-                val receiptId = it.id
                 val action =
-                    AddReceiptFragmentDirections.actionAddReceiptFragmentToAddProductListFragment()
+                    AddReceiptFragmentDirections.actionAddReceiptFragmentToAddProductListFragment(
+                        receiptId = it.id!!,
+                        storeId = it.storeId
+                    )
                 Navigation.findNavController(requireView()).navigate(action)
             }
         }
@@ -277,10 +279,12 @@ class AddReceiptFragment : Fragment() {
                 }
 
                 R.id.add_new -> {
-                    receiptDataViewModel.receipt.value?.id?.let { id ->
-                        //id przeniesc do fragmentu z dodawaniem produktow
+                    addReceiptDataViewModel.receiptById.value?.let { receipt ->
                         val action =
-                            AddReceiptFragmentDirections.actionAddReceiptFragmentToAddProductListFragment()
+                            AddReceiptFragmentDirections.actionAddReceiptFragmentToAddProductListFragment(
+                                receiptId = receipt.id!!,
+                                storeId = receipt.storeId
+                            )
                         Navigation.findNavController(requireView()).navigate(action)
                         return@setOnMenuItemClickListener true
                     }
