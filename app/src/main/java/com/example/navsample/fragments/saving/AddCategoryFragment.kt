@@ -47,7 +47,6 @@ class AddCategoryFragment : Fragment() {
         binding.toolbar.inflateMenu(R.menu.top_menu_basic_add)
         binding.toolbar.setNavigationIcon(R.drawable.back)
         binding.toolbar.menu.findItem(R.id.confirm).isVisible = true
-        binding.toolbar.menu.findItem(R.id.edit).isVisible = false
 
         addCategoryDataViewModel.categoryById.value = null
         binding.colorSquare.setBackgroundColor(pickedColor)

@@ -67,7 +67,6 @@ class AddProductListFragment : Fragment(), ItemClickListener {
         super.onViewCreated(view, savedInstanceState)
         binding.toolbar.inflateMenu(R.menu.top_menu_extended_add)
         binding.toolbar.setNavigationIcon(R.drawable.back)
-        binding.toolbar.menu.findItem(R.id.edit).isVisible = false
 
         addProductDataViewModel.refreshCategoryList()
         initObserver()

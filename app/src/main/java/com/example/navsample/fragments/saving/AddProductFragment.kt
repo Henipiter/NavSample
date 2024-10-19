@@ -179,7 +179,6 @@ class AddProductFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         binding.toolbar.inflateMenu(R.menu.top_menu_extended_add)
         binding.toolbar.setNavigationIcon(R.drawable.back)
-        binding.toolbar.menu.findItem(R.id.edit).isVisible = false
         binding.toolbar.menu.findItem(R.id.reorder).isVisible = false
         binding.toolbar.menu.findItem(R.id.add_new).isVisible = false
 
