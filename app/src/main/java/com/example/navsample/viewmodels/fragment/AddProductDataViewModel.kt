@@ -30,8 +30,6 @@ class AddProductDataViewModel : ViewModel() {
     var receiptById = MutableLiveData<Receipt?>()
     var productById = MutableLiveData<Product?>()
     var storeById = MutableLiveData<Store?>()
-
-
     private var userUuid = MutableLiveData<String?>(null)
 
     init {

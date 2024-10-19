@@ -23,6 +23,7 @@ import com.example.navsample.R
 import com.example.navsample.adapters.ProductListAdapter
 import com.example.navsample.databinding.FragmentAddProductListBinding
 import com.example.navsample.dto.Utils.Companion.roundDouble
+import com.example.navsample.dto.inputmode.AddingInputType
 import com.example.navsample.dto.sorting.AlgorithmItemAdapterArgument
 import com.example.navsample.entities.Product
 import com.example.navsample.fragments.dialogs.ConfirmDialog
@@ -131,7 +132,7 @@ class AddProductListFragment : Fragment(), ItemClickListener {
                 R.id.add_new -> {
                     val action =
                         AddProductListFragmentDirections.actionAddProductListFragmentToAddProductFragment(
-                            false, -1
+                            false, AddingInputType.EMPTY.name
                         )
                     Navigation.findNavController(requireView()).navigate(action)
                     true
@@ -229,7 +230,7 @@ class AddProductListFragment : Fragment(), ItemClickListener {
     override fun onItemClick(index: Int) {
         val action =
             AddProductListFragmentDirections.actionAddProductListFragmentToAddProductFragment(
-                false, index
+                false, AddingInputType.ID.name, index
             )
         Navigation.findNavController(requireView()).navigate(action)
 

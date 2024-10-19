@@ -13,9 +13,11 @@ import com.example.navsample.R
 import com.example.navsample.adapters.CategoryDropdownAdapter
 import com.example.navsample.adapters.PtuTypeDropdownAdapter
 import com.example.navsample.databinding.FragmentAddProductBinding
+import com.example.navsample.dto.DataMode
 import com.example.navsample.dto.Utils.Companion.doubleToString
 import com.example.navsample.dto.Utils.Companion.quantityToString
 import com.example.navsample.dto.Utils.Companion.roundDouble
+import com.example.navsample.dto.inputmode.AddingInputType
 import com.example.navsample.entities.Category
 import com.example.navsample.entities.Product
 import com.example.navsample.exception.NoCategoryIdException
@@ -24,17 +26,20 @@ import com.example.navsample.exception.NoStoreIdException
 import com.example.navsample.imageanalyzer.ReceiptParser
 import com.example.navsample.viewmodels.ReceiptDataViewModel
 import com.example.navsample.viewmodels.ReceiptImageViewModel
+import com.example.navsample.viewmodels.fragment.AddProductDataViewModel
 
 class AddProductFragment : Fragment() {
 
     private var _binding: FragmentAddProductBinding? = null
     private val binding get() = _binding!!
 
-    private val args: AddProductFragmentArgs by navArgs()
+    private val navArgs: AddProductFragmentArgs by navArgs()
 
     private val receiptImageViewModel: ReceiptImageViewModel by activityViewModels()
     private val receiptDataViewModel: ReceiptDataViewModel by activityViewModels()
+    private val addProductDataViewModel: AddProductDataViewModel by activityViewModels()
 
+    private var mode = DataMode.NEW
     private var productOriginalInput = ""
     private var chosenCategory = Category("", "")
     private var productId: Int? = null
@@ -51,37 +56,6 @@ class AddProductFragment : Fragment() {
     ): View {
         _binding = FragmentAddProductBinding.inflate(inflater, container, false)
         return binding.root
-    }
-
-    private fun initObserver() {
-        receiptImageViewModel.bitmapCroppedProduct.observe(viewLifecycleOwner) {
-            if (it != null) {
-                binding.receiptImage.visibility = View.VISIBLE
-                binding.receiptImage.setImageBitmap(receiptImageViewModel.bitmapCroppedProduct.value)
-            } else {
-                binding.receiptImage.visibility = View.GONE
-            }
-        }
-        receiptDataViewModel.categoryList.observe(viewLifecycleOwner) { categoryList ->
-            categoryList?.let {
-                dropdownAdapter.categoryList = it
-                dropdownAdapter.notifyDataSetChanged()
-            }
-        }
-        receiptDataViewModel.store.observe(viewLifecycleOwner) { store ->
-            store?.let {
-                binding.toolbar.title = it.name
-            }
-            if (chosenCategory.name == "") {
-                chosenCategory = try {
-                    receiptDataViewModel.categoryList.value?.first { it.id == store?.defaultCategoryId }
-                        ?: Category("", "")
-                } catch (e: Exception) {
-                    Category("", "")
-                }
-
-            }
-        }
     }
 
     private fun tryConvertToDouble(correctString: String): Double? {
@@ -218,17 +192,32 @@ class AddProductFragment : Fragment() {
         ).also { adapter ->
             binding.productCategoryInput.setAdapter(adapter)
         }
+        PtuTypeDropdownAdapter(
+            requireContext(), R.layout.array_adapter_row
+        ).also { adapter ->
+            binding.ptuTypeInput.setAdapter(adapter)
+        }
 
+        addProductDataViewModel.productById.value = null
         initObserver()
+        addProductDataViewModel.refreshCategoryList()
+        if (navArgs.receiptId >= 0) {
+            addProductDataViewModel.getProductsByReceiptId(navArgs.receiptId)
+        } else {
+            throw Exception("NO RECEIPT ID SET: " + navArgs.receiptId)
+        }
+
+        consumeNavArgs()
+
 
         binding.toolbar.title = receiptDataViewModel.store.value?.name
-        receiptDataViewModel.refreshCategoryList()
-        receiptDataViewModel.categoryList.value?.let {
+        addProductDataViewModel.refreshCategoryList()
+        addProductDataViewModel.categoryList.value?.let {
             if (chosenCategory.name == "") {
                 val categoryId = receiptDataViewModel.store.value?.defaultCategoryId ?: 0
 
                 chosenCategory = try {
-                    receiptDataViewModel.categoryList.value?.first { it.id == categoryId }
+                    addProductDataViewModel.categoryList.value?.first { it.id == categoryId }
                         ?: Category("", "")
                 } catch (e: Exception) {
                     Category("", "")
@@ -237,45 +226,7 @@ class AddProductFragment : Fragment() {
             }
         }
 
-        PtuTypeDropdownAdapter(
-            requireContext(), R.layout.array_adapter_row
-        ).also { adapter ->
-            binding.ptuTypeInput.setAdapter(adapter)
-//            binding.ptuTypeInput.keyListener = null
 
-        }
-
-        if (args.productIndex != -1) {
-            val productOriginal = receiptDataViewModel.product.value?.get(args.productIndex)
-            productId = productOriginal?.id
-            productOriginal?.let { product ->
-                val category = try {
-                    receiptDataViewModel.categoryList.value?.first { it.id == product.categoryId }
-                } catch (e: Exception) {
-                    null
-                }
-                if (category != null) {
-                    chosenCategory = category
-                }
-
-                binding.productNameInput.setText(product.name)
-                binding.productUnitPriceInput.setText(doubleToString(product.unitPrice))
-                binding.productQuantityInput.setText(quantityToString(product.quantity))
-                binding.productSubtotalPriceInput.setText(doubleToString(product.subtotalPrice))
-                binding.productDiscountInput.setText(doubleToString(product.discount))
-                binding.productFinalPriceInput.setText(doubleToString(product.finalPrice))
-                binding.ptuTypeInput.setText(product.ptuType)
-                binding.productCategoryInput.setText(chosenCategory.name)
-                binding.productOriginalInput.setText(product.raw)
-                productOriginalInput = product.raw
-
-                validatePrices()
-                validateFinalPrice()
-            }
-        } else {
-            binding.productCategoryInput.setText(chosenCategory.name)
-
-        }
         if (productOriginalInput == "") {
             binding.productOriginalLayout.visibility = View.INVISIBLE
         }
@@ -351,7 +302,7 @@ class AddProductFragment : Fragment() {
             )
             val product = receiptParser.parseStringToProduct(actual.toString())
             val category = try {
-                receiptDataViewModel.categoryList.value?.first { it.id == product.categoryId }
+                addProductDataViewModel.categoryList.value?.first { it.id == product.categoryId }
             } catch (e: Exception) {
                 null
             }
@@ -376,29 +327,7 @@ class AddProductFragment : Fragment() {
                         return@setOnMenuItemClickListener false
                     }
 
-                    val product = Product(
-                        receiptDataViewModel.receipt.value?.id ?: throw NoReceiptIdException(),
-                        binding.productNameInput.text.toString(),
-                        chosenCategory.id ?: throw NoCategoryIdException(),
-                        binding.productQuantityInput.text.toString().toDouble(),
-                        binding.productUnitPriceInput.text.toString().toDouble(),
-                        binding.productSubtotalPriceInput.text.toString().toDouble(),
-                        binding.productDiscountInput.text.toString().toDouble(),
-                        binding.productFinalPriceInput.text.toString().toDouble(),
-                        binding.ptuTypeInput.text.toString(),
-                        binding.productOriginalInput.text.toString(),
-                        isValidPrices
-                    )
-                    product.id = productId
-
-                    if (args.productIndex != -1) {
-                        receiptDataViewModel.product.value!![args.productIndex] = product
-                    } else {
-                        receiptDataViewModel.product.value!!.add(product)
-                    }
-                    if (args.saveProduct) {
-                        receiptDataViewModel.insertProducts(listOf(product))
-                    }
+                    saveChanges()
                     Navigation.findNavController(requireView()).popBackStack()
                 }
 
@@ -450,9 +379,139 @@ class AddProductFragment : Fragment() {
         }
     }
 
+    private fun consumeNavArgs() {
+
+        if (navArgs.receiptId >= 0) {
+            addProductDataViewModel.getReceiptById(navArgs.receiptId)
+        } else {
+            throw Exception("NO RECEIPT ID SET: " + navArgs.receiptId)
+        }
+
+        val inputType = AddingInputType.getByName(navArgs.inputType)
+        if (inputType == AddingInputType.EMPTY) {
+            mode = DataMode.NEW
+            binding.productNameInput.setText("")
+            binding.productSubtotalPriceInput.setText("")
+            binding.productUnitPriceInput.setText("")
+            binding.productQuantityInput.setText("")
+            binding.ptuTypeInput.setText("")
+            binding.productCategoryInput.setText("")
+            binding.toolbar.title = "Add product"
+
+        } else if (inputType == AddingInputType.ID) {
+            mode = DataMode.EDIT
+            binding.toolbar.title = "Edit product"
+
+            if (navArgs.updateProduct && navArgs.productIndex >= 0) {
+                addProductDataViewModel.getProductById(navArgs.productIndex)
+            } else if (!navArgs.updateProduct && navArgs.productIndex >= 0) {
+                addProductDataViewModel.productById.value =
+                    addProductDataViewModel.productList.value?.get(navArgs.productIndex)
+            } else {
+                throw Exception("NO PRODUCT ID/INDEX SET: " + navArgs.productIndex)
+            }
+        } else {
+            throw Exception("BAD INPUT TYPE: " + navArgs.inputType)
+        }
+
+
+    }
+
+    private fun saveChanges() {
+        if (mode == DataMode.NEW) {
+            val product = Product(
+                addProductDataViewModel.receiptById.value?.id ?: throw NoReceiptIdException(),
+                binding.productNameInput.text.toString(),
+                chosenCategory.id ?: throw NoCategoryIdException(),
+                binding.productQuantityInput.text.toString().toDouble(),
+                binding.productUnitPriceInput.text.toString().toDouble(),
+                binding.productSubtotalPriceInput.text.toString().toDouble(),
+                binding.productDiscountInput.text.toString().toDouble(),
+                binding.productFinalPriceInput.text.toString().toDouble(),
+                binding.ptuTypeInput.text.toString(),
+                binding.productOriginalInput.text.toString(),
+                isValidPrices
+            )
+
+            receiptDataViewModel.product.value!!.add(product)
+
+
+        } else if (mode == DataMode.EDIT) {
+            val product = addProductDataViewModel.productById.value!!
+            product.name = binding.productNameInput.text.toString()
+            product.categoryId = chosenCategory.id ?: throw NoCategoryIdException()
+            product.quantity = binding.productQuantityInput.text.toString().toDouble()
+            product.unitPrice = binding.productUnitPriceInput.text.toString().toDouble()
+            product.subtotalPrice = binding.productSubtotalPriceInput.text.toString().toDouble()
+            product.discount = binding.productDiscountInput.text.toString().toDouble()
+            product.finalPrice = binding.productFinalPriceInput.text.toString().toDouble()
+            product.ptuType = binding.ptuTypeInput.text.toString()
+            product.raw = binding.productOriginalInput.text.toString()
+            product.validPrice = isValidPrices
+
+            if (navArgs.updateProduct) {
+                addProductDataViewModel.updateSingleProduct(product)
+            } else if (navArgs.productIndex != -1) {
+                addProductDataViewModel.productList.value!![navArgs.productIndex] = product
+            } else {
+                throw Exception("PRODUCT INDEX IS NOT SET")
+            }
+
+        }
+
+
+    }
+
     private fun convertSuggestionToValue(suggestion: String): String {
         return suggestion.substring(
             SUGGESTION_PREFIX.length, suggestion.lastIndex + 1
         )
+    }
+
+    private fun initObserver() {
+        receiptImageViewModel.bitmapCroppedProduct.observe(viewLifecycleOwner) {
+            if (it != null) {
+                binding.receiptImage.visibility = View.VISIBLE
+                binding.receiptImage.setImageBitmap(receiptImageViewModel.bitmapCroppedProduct.value)
+            } else {
+                binding.receiptImage.visibility = View.GONE
+            }
+        }
+        addProductDataViewModel.categoryList.observe(viewLifecycleOwner) { categoryList ->
+            categoryList?.let {
+                dropdownAdapter.categoryList = it as ArrayList<Category>
+                dropdownAdapter.notifyDataSetChanged()
+            }
+        }
+        addProductDataViewModel.productById.observe(viewLifecycleOwner) { product ->
+            product?.let {
+                binding.productNameInput.setText(product.name)
+                binding.productSubtotalPriceInput.setText(product.subtotalPrice.toString())
+                binding.productUnitPriceInput.setText(product.unitPrice.toString())
+                binding.productQuantityInput.setText(product.quantity.toString())
+                binding.ptuTypeInput.setText(product.ptuType)
+                val category =
+                    addProductDataViewModel.categoryList.value?.first { it.id == product.categoryId }
+                category?.let {
+                    binding.productCategoryInput.setText(it.name)
+                }
+            }
+        }
+        addProductDataViewModel.receiptById.observe(viewLifecycleOwner) { receipt ->
+            receipt?.let {
+                addProductDataViewModel.getStoreById(it.storeId)
+            }
+        }
+        addProductDataViewModel.storeById.observe(viewLifecycleOwner) { store ->
+            store?.let {
+                binding.toolbar.title = it.name
+            }
+            val category =
+                receiptDataViewModel.categoryList.value?.first { it.id == store?.defaultCategoryId }
+            category?.let {
+                binding.productCategoryInput.setText(it.name)
+            }
+
+        }
     }
 }
