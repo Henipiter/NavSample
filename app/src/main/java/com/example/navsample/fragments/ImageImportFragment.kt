@@ -54,9 +54,9 @@ class ImageImportFragment : Fragment() {
         initObserver()
 
         binding.toolbar.inflateMenu(R.menu.top_menu_crop)
-        binding.toolbar.visibility = View.GONE
         binding.toolbar.setNavigationIcon(R.drawable.back)
         binding.toolbar.menu.findItem(R.id.confirm).isVisible = false
+        binding.toolbar.menu.findItem(R.id.rotate).isVisible = false
         imageAnalyzerViewModel.uid = imageViewModel.uid.value ?: "temp"
         binding.toolbar.setNavigationOnClickListener {
             Navigation.findNavController(it).popBackStack()
@@ -65,6 +65,13 @@ class ImageImportFragment : Fragment() {
             when (it.itemId) {
                 R.id.rotate -> {
                     Toast.makeText(requireContext(), "ROTATE", Toast.LENGTH_SHORT).show()
+                    true
+                }
+
+                R.id.confirm -> {
+                    binding.receiptImage.croppedImageAsync()
+                    Navigation.findNavController(requireView())
+                        .navigate(R.id.action_imageImportFragment_to_addReceiptFragment)
                     true
                 }
 
@@ -89,13 +96,6 @@ class ImageImportFragment : Fragment() {
                 .navigate(R.id.action_imageImportFragment_to_addReceiptFragment)
         }
 
-        binding.analyzeButton.setOnClickListener {
-            binding.receiptImage.croppedImageAsync()
-            Navigation.findNavController(requireView())
-                .navigate(R.id.action_imageImportFragment_to_addReceiptFragment)
-
-        }
-
     }
 
 
@@ -103,11 +103,13 @@ class ImageImportFragment : Fragment() {
         imageViewModel.bitmapOriginal.observe(viewLifecycleOwner) {
             if (it != null) {
                 binding.receiptImage.visibility = View.VISIBLE
-                binding.toolbar.visibility = View.VISIBLE
+                binding.toolbar.menu.findItem(R.id.confirm).isVisible = true
+                binding.toolbar.menu.findItem(R.id.rotate).isVisible = true
                 binding.receiptImage.setImageBitmap(it)
             } else {
                 binding.receiptImage.visibility = View.GONE
-                binding.toolbar.visibility = View.GONE
+                binding.toolbar.menu.findItem(R.id.confirm).isVisible = false
+                binding.toolbar.menu.findItem(R.id.rotate).isVisible = false
             }
         }
 
