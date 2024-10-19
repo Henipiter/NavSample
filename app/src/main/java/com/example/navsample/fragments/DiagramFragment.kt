@@ -17,18 +17,19 @@ import com.example.navsample.chart.data.LineDataCreator
 import com.example.navsample.chart.data.PieDataCreator
 import com.example.navsample.chart.data.RadarDataCreator
 import com.example.navsample.databinding.FragmentDiagramBinding
-import com.example.navsample.viewmodels.ReceiptDataViewModel
+import com.example.navsample.viewmodels.ChartDataViewModel
 import com.google.android.material.tabs.TabLayout
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Date
+import java.util.Locale
 
 
 class DiagramFragment : Fragment() {
     private var _binding: FragmentDiagramBinding? = null
     private val binding get() = _binding!!
 
-    private val receiptDataViewModel: ReceiptDataViewModel by activityViewModels()
+    private val chartDataViewModel: ChartDataViewModel by activityViewModels()
 
     private var mode = ChartMode.PIE
 
@@ -89,22 +90,23 @@ class DiagramFragment : Fragment() {
     }
 
     private fun updateData(monthsAgo: Int) {
-        val dateFormat = SimpleDateFormat("yyyy-MM-dd")
+        val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
         val calendar = Calendar.getInstance()
         calendar.set(Calendar.DAY_OF_MONTH, 1)
         val threeMonthsAgo = calendar.apply { add(Calendar.MONTH, -monthsAgo) }.time
 
-        if (sumLastMonths) {
-            today = dateFormat.format(Date())
+        today = if (sumLastMonths) {
+            dateFormat.format(Date())
         } else {
             calendar.set(Calendar.DAY_OF_MONTH, calendar.getActualMaximum(Calendar.DAY_OF_MONTH))
-            today = dateFormat.format(calendar.time)
+            dateFormat.format(calendar.time)
         }
         ago = dateFormat.format(threeMonthsAgo)
-        binding.rangeText.text = "$ago - $today"
+        val rangeText = "$ago - $today"
+        binding.rangeText.text = rangeText
         updateRangeOfTimelineChart(today, ago)
-        receiptDataViewModel.getChartDataCategory(ago, today)
-        receiptDataViewModel.getChartDataTimeline(ago, today)
+        chartDataViewModel.getChartDataCategory(ago, today)
+        chartDataViewModel.getChartDataTimeline(ago, today)
 
     }
 
@@ -115,12 +117,12 @@ class DiagramFragment : Fragment() {
 
 
     private fun initObserver() {
-        receiptDataViewModel.categoryChartData.observe(viewLifecycleOwner) {
+        chartDataViewModel.categoryChartData.observe(viewLifecycleOwner) {
             if (mode == ChartMode.PIE || mode == ChartMode.RADAR) {
                 refreshChart()
             }
         }
-        receiptDataViewModel.timelineChartData.observe(viewLifecycleOwner) {
+        chartDataViewModel.timelineChartData.observe(viewLifecycleOwner) {
             if (mode == ChartMode.BAR || mode == ChartMode.LINE) {
                 refreshChart()
             }
@@ -130,7 +132,7 @@ class DiagramFragment : Fragment() {
     private fun refreshChart() {
         when (mode) {
             ChartMode.PIE -> {
-                receiptDataViewModel.categoryChartData.value?.let {
+                chartDataViewModel.categoryChartData.value?.let {
                     val data = pieDataCreator.getData(it)
                     val legend = pieDataCreator.getLegend(it)
                     pieChartCreator.drawChart(binding.pieChart, data, legend)
@@ -138,7 +140,7 @@ class DiagramFragment : Fragment() {
             }
 
             ChartMode.RADAR -> {
-                receiptDataViewModel.categoryChartData.value?.let {
+                chartDataViewModel.categoryChartData.value?.let {
                     val data = radarDataCreator.getData(it)
                     val legend = radarDataCreator.getLegend(it)
                     radarChartCreator.drawChart(binding.radarChart, data, legend)
@@ -146,7 +148,7 @@ class DiagramFragment : Fragment() {
             }
 
             ChartMode.BAR -> {
-                receiptDataViewModel.timelineChartData.value?.let {
+                chartDataViewModel.timelineChartData.value?.let {
                     val data = barDataCreator.getData(it)
                     val legend = barDataCreator.getLegend()
                     barChartCreator.drawChart(binding.barChart, data, legend)
@@ -154,7 +156,7 @@ class DiagramFragment : Fragment() {
             }
 
             ChartMode.LINE -> {
-                receiptDataViewModel.timelineChartData.value?.let {
+                chartDataViewModel.timelineChartData.value?.let {
                     val data = lineDataCreator.getData(it)
                     val legend = lineDataCreator.getLegend()
                     lineChartCreator.drawChart(binding.lineChart, data, legend)

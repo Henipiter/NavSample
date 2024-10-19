@@ -7,7 +7,7 @@
         android:icon="@drawable/setting" />
 
     <item
-        android:title="Appointment"
+        android:title="List"
         android:id="@+id/listingFragment"
         android:icon="@drawable/list" />
     <item

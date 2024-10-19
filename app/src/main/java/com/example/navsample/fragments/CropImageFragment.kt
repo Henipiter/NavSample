@@ -9,23 +9,22 @@ import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.navigation.Navigation
+import androidx.navigation.fragment.navArgs
 import com.example.navsample.R
 import com.example.navsample.databinding.FragmentCropImageBinding
-import com.example.navsample.exception.NoReceiptIdException
-import com.example.navsample.exception.NoStoreIdException
 import com.example.navsample.viewmodels.ImageAnalyzerViewModel
-import com.example.navsample.viewmodels.ReceiptDataViewModel
-import com.example.navsample.viewmodels.ReceiptImageViewModel
+import com.example.navsample.viewmodels.ImageViewModel
+import com.example.navsample.viewmodels.ListingViewModel
 
 
 class CropImageFragment : Fragment() {
 
     private var _binding: FragmentCropImageBinding? = null
     private val binding get() = _binding!!
-
+    private val navArgs: CropImageFragmentArgs by navArgs()
     private val imageAnalyzerViewModel: ImageAnalyzerViewModel by activityViewModels()
-    private val receiptImageViewModel: ReceiptImageViewModel by activityViewModels()
-    private val receiptDataViewModel: ReceiptDataViewModel by activityViewModels()
+    private val imageViewModel: ImageViewModel by activityViewModels()
+    private val listingViewModel: ListingViewModel by activityViewModels()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?,
@@ -41,7 +40,7 @@ class CropImageFragment : Fragment() {
 
         binding.toolbar.title = "Crop only products section"
 
-        receiptImageViewModel.bitmapCroppedReceipt.value.let { bitmap ->
+        imageViewModel.bitmapCroppedReceipt.value.let { bitmap ->
             if (bitmap != null) {
                 binding.receiptImage.setImageBitmap(bitmap)
             } else {
@@ -70,7 +69,7 @@ class CropImageFragment : Fragment() {
         }
         binding.receiptImage.setOnCropImageCompleteListener { _, result ->
             result.getBitmap(requireContext())?.let { bitmap ->
-                receiptImageViewModel.bitmapCroppedProduct.value = bitmap
+                imageViewModel.bitmapCroppedProduct.value = bitmap
                 analyzeImage(bitmap)
                 Navigation.findNavController(requireView()).popBackStack()
             }
@@ -78,14 +77,9 @@ class CropImageFragment : Fragment() {
     }
 
     private fun analyzeImage(bitmap: Bitmap) {
-        val receiptId = receiptDataViewModel.receipt.value?.id ?: throw NoReceiptIdException()
-        val categoryId =
-            receiptDataViewModel.store.value?.defaultCategoryId ?: throw NoStoreIdException()
-
-        imageAnalyzerViewModel.uid = receiptImageViewModel.uid.value ?: "temp"
-
+        imageAnalyzerViewModel.uid = imageViewModel.uid.value ?: "temp"
         imageAnalyzerViewModel.analyzeProductList(
-            bitmap, receiptId, categoryId, receiptDataViewModel.categoryList.value
+            bitmap, navArgs.receiptId, navArgs.categoryId, listingViewModel.categoryList.value
         )
 
     }

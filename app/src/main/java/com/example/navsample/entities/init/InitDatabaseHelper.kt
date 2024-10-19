@@ -7,6 +7,8 @@ import com.example.navsample.entities.Receipt
 import com.example.navsample.entities.Store
 
 class InitDatabaseHelper {
+
+
     companion object {
         fun getProducts(): List<List<Product>> {
             return listOf(

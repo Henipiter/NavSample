@@ -5,7 +5,6 @@ package com.example.navsample.fragments
 import android.animation.ArgbEvaluator
 import android.animation.ValueAnimator
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -14,7 +13,6 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.navigation.Navigation
 import androidx.navigation.fragment.navArgs
-import com.example.navsample.BuildConfig
 import com.example.navsample.R
 import com.example.navsample.adapters.sorting.AlgorithmItemListAdapter
 import com.example.navsample.adapters.sorting.SortingItemListAdapter
@@ -27,15 +25,12 @@ import com.example.navsample.dto.analyzer.AnalyzedProductsData
 import com.example.navsample.dto.sorting.AlgorithmItemAdapterArgument
 import com.example.navsample.dto.sorting.ItemAdapterArgument
 import com.example.navsample.dto.sorting.UserItemAdapterArgument
-import com.example.navsample.exception.NoIdException
-import com.example.navsample.exception.NoReceiptIdException
-import com.example.navsample.exception.NoStoreIdException
 import com.example.navsample.imageanalyzer.ReceiptParser
 import com.example.navsample.sorting.NonScrollableGridLayoutManager
 import com.example.navsample.sorting.operation.ElementOperationHelper
+import com.example.navsample.viewmodels.ExperimentalDataViewModel
 import com.example.navsample.viewmodels.ImageAnalyzerViewModel
-import com.example.navsample.viewmodels.ReceiptDataViewModel
-import com.example.navsample.viewmodels.ReceiptImageViewModel
+import com.example.navsample.viewmodels.ImageViewModel
 
 
 open class ExperimentRecycleFragment : Fragment() {
@@ -43,10 +38,10 @@ open class ExperimentRecycleFragment : Fragment() {
 
     private val binding get() = _binding!!
 
-    private val receiptImageViewModel: ReceiptImageViewModel by activityViewModels()
-    private val receiptDataViewModel: ReceiptDataViewModel by activityViewModels()
+    private val args: ExperimentRecycleFragmentArgs by navArgs()
+    private val imageViewModel: ImageViewModel by activityViewModels()
+    private val experimentalDataViewModel: ExperimentalDataViewModel by activityViewModels()
     private val imageAnalyzerViewModel: ImageAnalyzerViewModel by activityViewModels()
-    val args: ExperimentRecycleFragmentArgs by navArgs()
     private lateinit var algorithmOrderedPricesAdapter: AlgorithmItemListAdapter
     private lateinit var algorithmOrderedNamesAdapter: AlgorithmItemListAdapter
     private lateinit var userOrderedPricesAdapter: UserItemListAdapter
@@ -75,17 +70,16 @@ open class ExperimentRecycleFragment : Fragment() {
     }
 
     private fun configureReceiptParser() {
-        try {
+        if (args.receiptId != -1 && args.categoryId != -1) {
             receiptParser = ReceiptParser(
-                receiptDataViewModel.receipt.value?.id ?: throw NoReceiptIdException(),
-                receiptDataViewModel.store.value?.defaultCategoryId ?: throw NoStoreIdException()
+                args.receiptId,
+                args.categoryId
             )
-        } catch (exception: NoIdException) {
-            Log.e("ExperimentRecycleFragment", exception.message ?: "NoIdException")
-            Toast.makeText(requireContext(), exception.message, Toast.LENGTH_SHORT).show()
-            if (!BuildConfig.DEVELOPER) {
-                Navigation.findNavController(requireView()).popBackStack()
-            }
+        } else {
+            Toast.makeText(requireContext(), "RECEIPT OR CATEGORY ID NOT SET", Toast.LENGTH_SHORT)
+                .show()
+            Navigation.findNavController(requireView()).popBackStack()
+
         }
     }
 
@@ -124,10 +118,10 @@ open class ExperimentRecycleFragment : Fragment() {
 
         binding.resetButton.setOnClickListener {
             algorithmOrderedPricesAdapter.setNewData(
-                createDeepCopyOfAlgorithmElements(receiptDataViewModel.algorithmOrderedPrices.value)
+                createDeepCopyOfAlgorithmElements(experimentalDataViewModel.algorithmOrderedPrices.value)
             )
             algorithmOrderedNamesAdapter.setNewData(
-                createDeepCopyOfAlgorithmElements(receiptDataViewModel.algorithmOrderedNames.value)
+                createDeepCopyOfAlgorithmElements(experimentalDataViewModel.algorithmOrderedNames.value)
             )
             userOrderedNamesAdapter.setNewData(arrayListOf())
             userOrderedPricesAdapter.setNewData(arrayListOf())
@@ -173,12 +167,10 @@ open class ExperimentRecycleFragment : Fragment() {
 
             val names = elementOperationHelper.userNames.map { it.value }
             val prices = elementOperationHelper.userPrices.map { it.value }
-            receiptDataViewModel.algorithmOrderedNames.value =
+            experimentalDataViewModel.algorithmOrderedNames.value =
                 createAlgorithmElementsFromUserElements(recycleListUserNames)
-            receiptDataViewModel.algorithmOrderedPrices.value =
+            experimentalDataViewModel.algorithmOrderedPrices.value =
                 createAlgorithmElementsFromUserElements(recycleListUserPrices)
-            receiptDataViewModel.product.value = receiptParser.parseToProducts(names, prices)
-
 
             val productsData =
                 AnalyzedProductsData(
@@ -186,17 +178,20 @@ open class ExperimentRecycleFragment : Fragment() {
                     ArrayList(prices),
                     receiptParser.parseToProducts(names, prices)
                 )
-            imageAnalyzerViewModel.aiAnalyze(productsData, receiptDataViewModel.categoryList.value)
+            imageAnalyzerViewModel.aiAnalyze(
+                productsData,
+                experimentalDataViewModel.categoryList.value
+            )
 
             Navigation.findNavController(binding.root).popBackStack()
         }
     }
 
     private fun initObserver() {
-        receiptImageViewModel.bitmapCroppedProduct.observe(viewLifecycleOwner) {
+        imageViewModel.bitmapCroppedProduct.observe(viewLifecycleOwner) {
             if (it != null) {
                 binding.receiptImage.visibility = View.VISIBLE
-                binding.receiptImage.setImageBitmap(receiptImageViewModel.bitmapCroppedProduct.value)
+                binding.receiptImage.setImageBitmap(imageViewModel.bitmapCroppedProduct.value)
             } else {
                 binding.receiptImage.visibility = View.GONE
             }
@@ -367,13 +362,14 @@ open class ExperimentRecycleFragment : Fragment() {
 
     private fun readList() {
         recycleListAlgorithmNames =
-            createDeepCopyOfAlgorithmElements(receiptDataViewModel.algorithmOrderedNames.value)
+            createDeepCopyOfAlgorithmElements(experimentalDataViewModel.algorithmOrderedNames.value)
         recycleListAlgorithmPrices =
-            createDeepCopyOfAlgorithmElements(receiptDataViewModel.algorithmOrderedPrices.value)
+            createDeepCopyOfAlgorithmElements(experimentalDataViewModel.algorithmOrderedPrices.value)
         recycleListUserNames =
-            receiptDataViewModel.userOrderedName.value?.let { ArrayList(it) } ?: arrayListOf()
+            experimentalDataViewModel.userOrderedName.value?.let { ArrayList(it) } ?: arrayListOf()
         recycleListUserPrices =
-            receiptDataViewModel.userOrderedPrices.value?.let { ArrayList(it) } ?: arrayListOf()
+            experimentalDataViewModel.userOrderedPrices.value?.let { ArrayList(it) }
+                ?: arrayListOf()
     }
 
     private fun setupRecycleViews() {

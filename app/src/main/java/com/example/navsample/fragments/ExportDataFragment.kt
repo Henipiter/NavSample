@@ -1,5 +1,6 @@
 package com.example.navsample.fragments
 
+import android.annotation.SuppressLint
 import android.content.ContentValues
 import android.os.Bundle
 import android.os.Environment
@@ -17,7 +18,7 @@ import com.example.navsample.R
 import com.example.navsample.adapters.TableCountListAdapter
 import com.example.navsample.databinding.FragmentExportDataBinding
 import com.example.navsample.entities.relations.TableCounts
-import com.example.navsample.viewmodels.ReceiptDataViewModel
+import com.example.navsample.viewmodels.ExportDataViewModel
 import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException
@@ -28,7 +29,7 @@ class ExportDataFragment : Fragment() {
     private var _binding: FragmentExportDataBinding? = null
 
     private val binding get() = _binding!!
-    private val receiptDataViewModel: ReceiptDataViewModel by activityViewModels()
+    private val exportDataViewModel: ExportDataViewModel by activityViewModels()
 
     private lateinit var recycleViewEvent: RecyclerView
     private lateinit var listAdapter: TableCountListAdapter
@@ -48,10 +49,10 @@ class ExportDataFragment : Fragment() {
         binding.toolbar.setNavigationIcon(R.drawable.back)
         binding.toolbar.title = "Export data"
 
-        receiptDataViewModel.getTableCounts()
-        receiptDataViewModel.getAllData()
+        exportDataViewModel.getTableCounts()
+        exportDataViewModel.getAllData()
 
-        recycleList = receiptDataViewModel.tableCounts.value ?: arrayListOf()
+        recycleList = exportDataViewModel.tableCounts.value ?: arrayListOf()
         recycleViewEvent = binding.recycleView
         listAdapter = TableCountListAdapter(recycleList)
         recycleViewEvent.adapter = listAdapter
@@ -79,7 +80,7 @@ class ExportDataFragment : Fragment() {
     }
 
     private fun isDataExist(): Boolean {
-        return receiptDataViewModel.allData.value?.isEmpty() ?: false
+        return exportDataViewModel.allData.value?.isEmpty() ?: false
     }
 
     private fun prepareFileContents(): String {
@@ -89,7 +90,7 @@ class ExportDataFragment : Fragment() {
                     "productRaw;categoryName;categoryColor\n"
         )
 
-        receiptDataViewModel.allData.value?.forEach { products ->
+        exportDataViewModel.allData.value?.forEach { products ->
             data.append(products.storeName).append(";")
             data.append(products.storeNip).append(";")
             data.append(products.receiptPln).append(";")
@@ -148,8 +149,9 @@ class ExportDataFragment : Fragment() {
         }
     }
 
+    @SuppressLint("NotifyDataSetChanged")
     private fun initObserver() {
-        receiptDataViewModel.tableCounts.observe(viewLifecycleOwner) {
+        exportDataViewModel.tableCounts.observe(viewLifecycleOwner) {
             it?.let {
                 listAdapter.recycleList = it
                 listAdapter.notifyDataSetChanged()

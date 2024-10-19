@@ -28,13 +28,23 @@
         tools:layout="@layout/fragment_add_product_list">
         <action
             android:id="@+id/action_addProductListFragment_to_addProductFragment"
-            app:destination="@id/addProductFragment" />
+            app:destination="@id/addProductFragment">
+            <argument
+                android:name="inputType"
+                android:defaultValue="INDEX" />
+        </action>
         <action
             android:id="@+id/action_addProductListFragment_to_experimentRecycleFragment"
             app:destination="@id/experimentRecycleFragment" />
         <action
             android:id="@+id/action_addProductListFragment_to_cropImageFragment"
             app:destination="@id/cropImageFragment" />
+        <argument
+            android:name="receiptId"
+            app:argType="integer" />
+        <argument
+            android:name="storeId"
+            app:argType="integer" />
     </fragment>
     <fragment
         android:id="@+id/addProductFragment"
@@ -42,15 +52,26 @@
         android:label="fragment_add_product"
         tools:layout="@layout/fragment_add_product">
         <argument
+            android:name="inputType"
+            android:defaultValue="EMPTY"
+            app:argType="string" />
+        <argument
             android:name="productIndex"
+            android:defaultValue="-1"
+            app:argType="integer" />
+        <action
+            android:id="@+id/action_addProductFragment_to_addCategoryFragment"
+            app:destination="@id/addCategoryFragment">
+            <argument android:name="inputType" />
+        </action>
+        <argument
+            android:name="receiptId"
             app:argType="integer"
             android:defaultValue="-1" />
         <argument
-            android:name="saveProduct"
-            app:argType="boolean" />
-        <action
-            android:id="@+id/action_addProductFragment_to_addCategoryFragment"
-            app:destination="@id/addCategoryFragment" />
+            android:name="storeId"
+            app:argType="integer"
+            android:defaultValue="-1" />
     </fragment>
     <fragment
         android:id="@+id/addReceiptFragment"
@@ -61,8 +82,20 @@
             android:id="@+id/action_addReceiptFragment_to_addProductListFragment"
             app:destination="@id/addProductListFragment" />
         <action
-            android:id="@+id/action_addReceiptFragment_to_editStoreFragment"
-            app:destination="@id/addStoreFragment" />
+            android:id="@+id/action_addReceiptFragment_to_addStoreFragment"
+            app:destination="@id/addStoreFragment">
+            <argument
+                android:name="inputType"
+                android:defaultValue="EMPTY" />
+        </action>
+        <argument
+            android:name="inputType"
+            android:defaultValue="EMPTY"
+            app:argType="string" />
+        <argument
+            android:name="receiptId"
+            android:defaultValue="-1"
+            app:argType="integer" />
     </fragment>
     <fragment
         android:id="@+id/imageImportFragment"
@@ -71,7 +104,11 @@
         tools:layout="@layout/fragment_image_import">
         <action
             android:id="@+id/action_imageImportFragment_to_addReceiptFragment"
-            app:destination="@id/addReceiptFragment" />
+            app:destination="@id/addReceiptFragment">
+            <argument
+                android:name="inputType"
+                android:defaultValue="EMPTY" />
+        </action>
     </fragment>
     <fragment
         android:id="@+id/experimentRecycleFragment"
@@ -80,8 +117,14 @@
         tools:layout="@layout/fragment_experiment_recycle">
         <argument
             android:name="developerMode"
-            app:argType="boolean"
-            android:defaultValue="false" />
+            android:defaultValue="false"
+            app:argType="boolean" />
+        <argument
+            android:name="categoryId"
+            app:argType="integer" />
+        <argument
+            android:name="receiptId"
+            app:argType="integer" />
     </fragment>
     <fragment
         android:id="@+id/addStoreFragment"
@@ -89,12 +132,26 @@
         android:label="fragment_edit_store"
         tools:layout="@layout/fragment_add_store">
         <argument
-            android:name="storeIndex"
+            android:name="inputType"
+            android:defaultValue="EMPTY"
+            app:argType="string" />
+        <argument
+            android:name="storeId"
             android:defaultValue="-1"
             app:argType="integer" />
         <action
             android:id="@+id/action_addStoreFragment_to_addCategoryFragment"
-            app:destination="@id/addCategoryFragment" />
+            app:destination="@id/addCategoryFragment">
+            <argument android:name="inputType" />
+        </action>
+        <argument
+            android:name="storeName"
+            app:argType="string"
+            app:nullable="true" />
+        <argument
+            android:name="storeNip"
+            app:argType="string"
+            app:nullable="true" />
     </fragment>
     <fragment
         android:id="@+id/diagramFragment"
@@ -108,16 +165,25 @@
         tools:layout="@layout/fragment_listing">
         <action
             android:id="@+id/action_listingFragment_to_addReceiptFragment"
-            app:destination="@id/addReceiptFragment" />
+            app:destination="@id/addReceiptFragment">
+            <argument
+                android:name="inputType"
+                android:defaultValue="EMPTY" />
+        </action>
         <action
             android:id="@+id/action_listingFragment_to_addStoreFragment"
-            app:destination="@id/addStoreFragment" />
-        <action
-            android:id="@+id/action_listingFragment_to_addCategoryFragment"
-            app:destination="@id/addCategoryFragment" />
+            app:destination="@id/addStoreFragment">
+            <argument
+                android:name="inputType"
+                android:defaultValue="EMPTY" />
+        </action>
         <action
             android:id="@+id/action_listingFragment_to_addProductFragment"
-            app:destination="@id/addProductFragment" />
+            app:destination="@id/addProductFragment">
+            <argument
+                android:name="inputType"
+                android:defaultValue="ID" />
+        </action>
         <action
             android:id="@+id/action_listingFragment_to_filterProductListFragment"
             app:destination="@id/filterProductListFragment" />
@@ -127,11 +193,27 @@
         <action
             android:id="@+id/action_listingFragment_to_imageImportFragment"
             app:destination="@id/imageImportFragment" />
+        <action
+            android:id="@+id/action_listingFragment_to_addCategoryFragment"
+            app:destination="@id/addCategoryFragment">
+            <argument
+                android:name="inputType"
+                android:defaultValue="EMPTY" />
+        </action>
     </fragment>
     <fragment
         android:id="@+id/addCategoryFragment"
         android:name="com.example.navsample.fragments.saving.AddCategoryFragment"
-        android:label="AddCategoryFragment" />
+        android:label="AddCategoryFragment">
+        <argument
+            android:name="inputType"
+            android:defaultValue="EMPTY"
+            app:argType="string" />
+        <argument
+            android:name="id"
+            android:defaultValue="-1"
+            app:argType="integer" />
+    </fragment>
     <fragment
         android:id="@+id/exportDataFragment"
         android:name="com.example.navsample.fragments.ExportDataFragment"
@@ -151,5 +233,12 @@
         android:id="@+id/cropImageFragment"
         android:name="com.example.navsample.fragments.CropImageFragment"
         android:label="fragment_crop_image"
-        tools:layout="@layout/fragment_crop_image" />
+        tools:layout="@layout/fragment_crop_image">
+        <argument
+            android:name="receiptId"
+            app:argType="integer" />
+        <argument
+            android:name="categoryId"
+            app:argType="integer" />
+    </fragment>
 </navigation>

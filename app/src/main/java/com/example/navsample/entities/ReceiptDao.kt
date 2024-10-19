@@ -58,6 +58,11 @@ interface ReceiptDao {
     suspend fun deleteCategory(category: Category)
 
     @Transaction
+    @Query("delete from store where id = :id")
+    suspend fun deleteStoreById(id: Int)
+
+
+    @Transaction
     @Query("delete from product where id = :id")
     suspend fun deleteProductById(id: Int)
 
@@ -88,6 +93,10 @@ interface ReceiptDao {
     suspend fun getReceipt(id: Int): Receipt
 
     @Transaction
+    @Query("SELECT * FROM category WHERE id = :id")
+    suspend fun getCategoryById(id: Int): Category
+
+    @Transaction
     @Query("SELECT uuid FROM user WHERE id = 0")
     suspend fun getUserUuid(): String?
 
@@ -114,6 +123,14 @@ interface ReceiptDao {
     @Transaction
     @Query("SELECT * FROM store WHERE id = :id")
     suspend fun getStoreById(id: Int): Store
+
+    @Transaction
+    @Query("SELECT * FROM product WHERE id = :id")
+    suspend fun getProductById(id: Int): Product
+
+    @Transaction
+    @Query("SELECT * FROM receipt WHERE id = :id")
+    suspend fun getReceiptById(id: Int): Receipt
 
     @Transaction
     @Query("SELECT * FROM store order by name")

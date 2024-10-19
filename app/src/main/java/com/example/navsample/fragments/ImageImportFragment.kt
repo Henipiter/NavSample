@@ -12,15 +12,11 @@ import androidx.activity.result.contract.ActivityResultContracts.PickVisualMedia
 import androidx.camera.core.ExperimentalGetImage
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
-import androidx.lifecycle.MutableLiveData
 import androidx.navigation.Navigation
 import com.example.navsample.R
 import com.example.navsample.databinding.FragmentImageImportBinding
-import com.example.navsample.entities.Receipt
-import com.example.navsample.entities.Store
 import com.example.navsample.viewmodels.ImageAnalyzerViewModel
-import com.example.navsample.viewmodels.ReceiptDataViewModel
-import com.example.navsample.viewmodels.ReceiptImageViewModel
+import com.example.navsample.viewmodels.ImageViewModel
 import com.google.mlkit.vision.common.InputImage
 
 
@@ -31,15 +27,14 @@ class ImageImportFragment : Fragment() {
     private val binding get() = _binding!!
 
     private val imageAnalyzerViewModel: ImageAnalyzerViewModel by activityViewModels()
-    private val receiptImageViewModel: ReceiptImageViewModel by activityViewModels()
-    private val receiptDataViewModel: ReceiptDataViewModel by activityViewModels()
+    private val imageViewModel: ImageViewModel by activityViewModels()
 
     private val pickMedia = registerForActivityResult(PickVisualMedia()) { uri ->
         if (uri != null) {
-            receiptImageViewModel.uri.value = uri
+            imageViewModel.uri.value = uri
             val source = ImageDecoder.createSource(requireContext().contentResolver, uri)
             val bitmap = ImageDecoder.decodeBitmap(source)
-            receiptImageViewModel.bitmapOriginal.value = bitmap
+            imageViewModel.bitmapOriginal.value = bitmap
             binding.receiptImage.setImageBitmap(bitmap)
         } else {
             Log.d("PhotoPicker", "No media selected")
@@ -62,7 +57,7 @@ class ImageImportFragment : Fragment() {
         binding.toolbar.visibility = View.GONE
         binding.toolbar.setNavigationIcon(R.drawable.back)
         binding.toolbar.menu.findItem(R.id.confirm).isVisible = false
-        imageAnalyzerViewModel.uid = receiptImageViewModel.uid.value ?: "temp"
+        imageAnalyzerViewModel.uid = imageViewModel.uid.value ?: "temp"
         binding.toolbar.setNavigationOnClickListener {
             Navigation.findNavController(it).popBackStack()
         }
@@ -82,16 +77,14 @@ class ImageImportFragment : Fragment() {
 
         binding.receiptImage.setOnCropImageCompleteListener { _, result ->
             result.getBitmap(requireContext())?.let { bitmap ->
-                receiptImageViewModel.bitmapCroppedReceipt.value = bitmap
+                imageViewModel.bitmapCroppedReceipt.value = bitmap
                 val analyzedImage = InputImage.fromBitmap(bitmap, 0)
                 imageAnalyzerViewModel.analyzeReceipt(analyzedImage)
             }
         }
 
         binding.manualButton.setOnClickListener {
-            receiptDataViewModel.store = MutableLiveData<Store>(null)
-            receiptDataViewModel.receipt = MutableLiveData<Receipt>(null)
-            receiptImageViewModel.clearData()
+            imageViewModel.clearData()
             Navigation.findNavController(requireView())
                 .navigate(R.id.action_imageImportFragment_to_addReceiptFragment)
         }
@@ -107,7 +100,7 @@ class ImageImportFragment : Fragment() {
 
 
     private fun initObserver() {
-        receiptImageViewModel.bitmapOriginal.observe(viewLifecycleOwner) {
+        imageViewModel.bitmapOriginal.observe(viewLifecycleOwner) {
             if (it != null) {
                 binding.receiptImage.visibility = View.VISIBLE
                 binding.toolbar.visibility = View.VISIBLE

@@ -13,7 +13,9 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.camera.core.ExperimentalGetImage
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
+import androidx.lifecycle.MutableLiveData
 import androidx.navigation.Navigation
+import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.navsample.ItemClickListener
@@ -21,11 +23,15 @@ import com.example.navsample.R
 import com.example.navsample.adapters.ProductListAdapter
 import com.example.navsample.databinding.FragmentAddProductListBinding
 import com.example.navsample.dto.Utils.Companion.roundDouble
+import com.example.navsample.dto.inputmode.AddingInputType
 import com.example.navsample.dto.sorting.AlgorithmItemAdapterArgument
+import com.example.navsample.entities.Product
 import com.example.navsample.fragments.dialogs.ConfirmDialog
+import com.example.navsample.viewmodels.ExperimentalDataViewModel
 import com.example.navsample.viewmodels.ImageAnalyzerViewModel
-import com.example.navsample.viewmodels.ReceiptDataViewModel
-import com.example.navsample.viewmodels.ReceiptImageViewModel
+import com.example.navsample.viewmodels.ImageViewModel
+import com.example.navsample.viewmodels.ListingViewModel
+import com.example.navsample.viewmodels.fragment.AddProductDataViewModel
 
 
 @ExperimentalGetImage
@@ -33,12 +39,15 @@ class AddProductListFragment : Fragment(), ItemClickListener {
 
     private var _binding: FragmentAddProductListBinding? = null
     private val binding get() = _binding!!
+    private val navArgs: AddProductListFragmentArgs by navArgs()
 
     private lateinit var myPref: SharedPreferences
     private val imageAnalyzerViewModel: ImageAnalyzerViewModel by activityViewModels()
-    private val receiptImageViewModel: ReceiptImageViewModel by activityViewModels()
-    private val receiptDataViewModel: ReceiptDataViewModel by activityViewModels()
-
+    private val imageViewModel: ImageViewModel by activityViewModels()
+    private val experimentalDataViewModel: ExperimentalDataViewModel by activityViewModels()
+    private val addProductDataViewModel: AddProductDataViewModel by activityViewModels()
+    private val listingViewModel: ListingViewModel by activityViewModels()
+    private val reorderedProductTiles = MutableLiveData(false)
     private lateinit var recyclerViewEvent: RecyclerView
     private lateinit var productListAdapter: ProductListAdapter
     private var onStart = true
@@ -53,88 +62,6 @@ class AddProductListFragment : Fragment(), ItemClickListener {
 
 
     @SuppressLint("NotifyDataSetChanged")
-    private fun initObserver() {
-        receiptImageViewModel.bitmapCroppedProduct.observe(viewLifecycleOwner) {
-            if (it != null) {
-                binding.receiptImage.visibility = View.VISIBLE
-                binding.receiptImage.setImageBitmap(receiptImageViewModel.bitmapCroppedProduct.value)
-                binding.toolbar.menu.findItem(R.id.reorder).isVisible = true
-            } else {
-                binding.receiptImage.visibility = View.GONE
-                binding.toolbar.menu.findItem(R.id.reorder).isVisible = false
-            }
-        }
-        receiptDataViewModel.product.observe(viewLifecycleOwner) {
-            it?.let {
-                productListAdapter.productList = it
-                productListAdapter.notifyDataSetChanged()
-                recalculateSumOfPrices()
-            }
-        }
-
-        receiptDataViewModel.receipt.observe(viewLifecycleOwner) {
-            binding.receiptValueText.text = receiptDataViewModel.receipt.value?.pln.toString()
-        }
-
-        receiptDataViewModel.reorderedProductTiles.observe(viewLifecycleOwner) {
-            if (myPref.getBoolean(OPEN_REORDER_FRAGMENT, false) && it == true) {
-                receiptDataViewModel.reorderedProductTiles.value = false
-                reorderTilesWithProducts()
-            }
-        }
-
-        imageAnalyzerViewModel.isGeminiWorking.observe(viewLifecycleOwner) {
-            if (it) {
-                binding.geminiWorkingView.visibility = View.VISIBLE
-            } else {
-                binding.geminiWorkingView.visibility = View.INVISIBLE
-            }
-        }
-
-        imageAnalyzerViewModel.geminiResponse.observe(viewLifecycleOwner) {
-            Toast.makeText(requireContext(), "'$it'", Toast.LENGTH_SHORT).show()
-            binding.geminiResponse.text = it
-        }
-
-        imageAnalyzerViewModel.productAnalyzed.observe(viewLifecycleOwner) { it ->
-            if (it == null) {
-                return@observe
-            }
-            receiptDataViewModel.product.value = it.productList
-            receiptDataViewModel.algorithmOrderedNames.value =
-                it.receiptNameLines.map { AlgorithmItemAdapterArgument(it) } as ArrayList<AlgorithmItemAdapterArgument>
-            receiptDataViewModel.algorithmOrderedPrices.value =
-                it.receiptPriceLines.map { AlgorithmItemAdapterArgument(it) } as ArrayList<AlgorithmItemAdapterArgument>
-
-            receiptDataViewModel.reorderedProductTiles.value = true
-
-        }
-    }
-
-    private fun recalculateSumOfPrices() {
-        var sum = 0.0
-        productListAdapter.productList.forEach {
-            sum += it.finalPrice
-        }
-        sum = roundDouble(sum)
-        binding.cartValueText.text = sum.toString()
-
-        val final = receiptDataViewModel.receipt.value?.pln
-        if (final != sum) {
-            isPricesSumValid = false
-            binding.cartValueText.setTextColor(Color.RED)
-        } else {
-            isPricesSumValid = true
-            binding.cartValueText.setTextColor(
-                resources.getColor(
-                    R.color.basic_text_grey, requireContext().theme
-                )
-            )
-        }
-        binding.countText.text = productListAdapter.productList.size.toString()
-    }
-
-    @SuppressLint("NotifyDataSetChanged")
     @ExperimentalGetImage
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -142,35 +69,39 @@ class AddProductListFragment : Fragment(), ItemClickListener {
         binding.toolbar.setNavigationIcon(R.drawable.back)
         binding.toolbar.menu.findItem(R.id.edit).isVisible = false
 
+        addProductDataViewModel.refreshCategoryList()
+        initObserver()
+        consumeNavArgs()
         myPref =
             requireContext().getSharedPreferences("preferences", AppCompatActivity.MODE_PRIVATE)
 
-        if (onStart && receiptImageViewModel.uriCroppedProduct.value == null) {
+        if (onStart && imageViewModel.uriCroppedProduct.value == null) {
             onStart = false
             Navigation.findNavController(requireView())
                 .navigate(R.id.action_addProductListFragment_to_cropImageFragment)
         }
-        initObserver()
+
         recyclerViewEvent = binding.recyclerViewEvent
         productListAdapter = ProductListAdapter(
             requireContext(),
-            receiptDataViewModel.product.value ?: arrayListOf(),
-            receiptDataViewModel.categoryList.value ?: arrayListOf(),
+            addProductDataViewModel.productList.value ?: mutableListOf(),
+            addProductDataViewModel.categoryList.value ?: listOf(),
             this
         ) { i: Int ->
-            receiptDataViewModel.product.value?.get(i)?.let {
+            addProductDataViewModel.productList.value?.let { productList ->
+                val product = productList[i]
                 ConfirmDialog(
                     "Delete",
-                    "Are you sure you want to delete the product??\n\n" + "Name: " + it.name + "\nPLN: " + it.subtotalPrice
+                    "Are you sure you want to delete the product??\n\n" +
+                            "Name: ${product.name}\nPLN: ${product.subtotalPrice}"
                 ) {
-                    if (it.id != null && it.id!! >= 0) {
-                        receiptDataViewModel.deleteProduct(it.id!!)
+                    if (product.id != null && product.id!! >= 0) {
+                        addProductDataViewModel.deleteProduct(product.id!!)
                     }
-                    receiptDataViewModel.product.value?.removeAt(i)
-                    productListAdapter.productList =
-                        receiptDataViewModel.product.value ?: arrayListOf()
+                    productList.removeAt(i)
+                    productListAdapter.productList = productList
                     productListAdapter.notifyDataSetChanged()
-                    recalculateSumOfPrices()
+                    calculateSumOfProductPrices(productList)
                 }.show(childFragmentManager, "TAG")
             }
         }
@@ -181,7 +112,6 @@ class AddProductListFragment : Fragment(), ItemClickListener {
                 .navigate(R.id.action_addProductListFragment_to_cropImageFragment)
             true
         }
-        binding.toolbar.title = receiptDataViewModel.store.value?.name
         recyclerViewEvent.adapter = productListAdapter
         recyclerViewEvent.layoutManager =
             LinearLayoutManager(requireContext(), LinearLayoutManager.VERTICAL, false)
@@ -202,7 +132,9 @@ class AddProductListFragment : Fragment(), ItemClickListener {
                 R.id.add_new -> {
                     val action =
                         AddProductListFragmentDirections.actionAddProductListFragmentToAddProductFragment(
-                            false, -1
+                            inputType = AddingInputType.EMPTY.name,
+                            receiptId = navArgs.receiptId,
+                            storeId = navArgs.storeId,
                         )
                     Navigation.findNavController(requireView()).navigate(action)
                     true
@@ -227,18 +159,57 @@ class AddProductListFragment : Fragment(), ItemClickListener {
 
     }
 
+
+    private fun consumeNavArgs() {
+        if (navArgs.storeId != -1) {
+            addProductDataViewModel.getStoreById(navArgs.storeId)
+        } else {
+            throw Exception("NO STORE ID SET: " + navArgs.storeId)
+        }
+        if (navArgs.receiptId != -1) {
+            addProductDataViewModel.getReceiptById(navArgs.receiptId)
+            addProductDataViewModel.getProductsByReceiptId(navArgs.receiptId)
+        } else {
+            throw Exception("NO RECEIPT ID SET: " + navArgs.receiptId)
+        }
+
+    }
+
+    private fun calculateSumOfProductPrices(productList: List<Product>) {
+        var sum = 0.0
+        productList.forEach {
+            sum += it.finalPrice
+        }
+        sum = roundDouble(sum)
+        binding.cartValueText.text = sum.toString()
+
+
+        val receiptPrice = binding.receiptValueText.text
+        if (receiptPrice != sum.toString()) {
+            isPricesSumValid = false
+            binding.cartValueText.setTextColor(Color.RED)
+        } else {
+            isPricesSumValid = true
+            binding.cartValueText.setTextColor(
+                resources.getColor(
+                    R.color.basic_text_grey, requireContext().theme
+                )
+            )
+        }
+        binding.countText.text = productList.size.toString()
+    }
+
     private fun save() {
         if (!isPricesSumValid) {
-            receiptDataViewModel.receipt.value?.let {
+            addProductDataViewModel.receiptById.value?.let {
                 it.validPrice = false
-
-                receiptDataViewModel.updateReceipt(it)
+                addProductDataViewModel.updateReceipt(it)
             }
         }
-        receiptDataViewModel.insertProducts(
-            receiptDataViewModel.product.value?.toList() ?: listOf()
+        addProductDataViewModel.insertProducts(
+            addProductDataViewModel.productList.value?.toList() ?: listOf()
         )
-        receiptDataViewModel.loadDataByProductFilter()
+        listingViewModel.loadDataByProductFilter()
         imageAnalyzerViewModel.clearData()
         Navigation.findNavController(binding.root).popBackStack(R.id.settingsFragment, false)
     }
@@ -261,9 +232,79 @@ class AddProductListFragment : Fragment(), ItemClickListener {
     override fun onItemClick(index: Int) {
         val action =
             AddProductListFragmentDirections.actionAddProductListFragmentToAddProductFragment(
-                false, index
-            )
+                inputType = AddingInputType.INDEX.name,
+                productIndex = index,
+                receiptId = navArgs.receiptId,
+                storeId = navArgs.storeId,
+
+                )
         Navigation.findNavController(requireView()).navigate(action)
+
+    }
+
+    @SuppressLint("NotifyDataSetChanged")
+    private fun initObserver() {
+        imageViewModel.bitmapCroppedProduct.observe(viewLifecycleOwner) {
+            if (it != null) {
+                binding.receiptImage.visibility = View.VISIBLE
+                binding.receiptImage.setImageBitmap(imageViewModel.bitmapCroppedProduct.value)
+                binding.toolbar.menu.findItem(R.id.reorder).isVisible = true
+            } else {
+                binding.receiptImage.visibility = View.GONE
+                binding.toolbar.menu.findItem(R.id.reorder).isVisible = false
+            }
+        }
+
+
+        reorderedProductTiles.observe(viewLifecycleOwner) {
+            if (myPref.getBoolean(OPEN_REORDER_FRAGMENT, false) && it == true) {
+                reorderedProductTiles.value = false
+                reorderTilesWithProducts()
+            }
+        }
+
+        imageAnalyzerViewModel.isGeminiWorking.observe(viewLifecycleOwner) {
+            if (it) {
+                binding.geminiWorkingView.visibility = View.VISIBLE
+            } else {
+                binding.geminiWorkingView.visibility = View.INVISIBLE
+            }
+        }
+
+        imageAnalyzerViewModel.geminiResponse.observe(viewLifecycleOwner) {
+            Toast.makeText(requireContext(), "'$it'", Toast.LENGTH_SHORT).show()
+            binding.geminiResponse.text = it
+        }
+
+        imageAnalyzerViewModel.productAnalyzed.observe(viewLifecycleOwner) { it ->
+            if (it == null) {
+                return@observe
+            }
+            addProductDataViewModel.productList.value = it.productList
+            experimentalDataViewModel.algorithmOrderedNames.value =
+                it.receiptNameLines.map { AlgorithmItemAdapterArgument(it) } as ArrayList<AlgorithmItemAdapterArgument>
+            experimentalDataViewModel.algorithmOrderedPrices.value =
+                it.receiptPriceLines.map { AlgorithmItemAdapterArgument(it) } as ArrayList<AlgorithmItemAdapterArgument>
+
+            reorderedProductTiles.value = true
+
+        }
+
+        addProductDataViewModel.storeById.observe(viewLifecycleOwner) { store ->
+            store?.let {
+                binding.toolbar.title = store.name
+            }
+        }
+        addProductDataViewModel.receiptById.observe(viewLifecycleOwner) { receipt ->
+            receipt?.let {
+                binding.receiptValueText.text = receipt.pln.toString()
+            }
+        }
+        addProductDataViewModel.productList.observe(viewLifecycleOwner) { productList ->
+            productListAdapter.productList = productList
+            productListAdapter.notifyDataSetChanged()
+            calculateSumOfProductPrices(productList)
+        }
 
     }
 

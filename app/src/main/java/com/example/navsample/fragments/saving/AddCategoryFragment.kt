@@ -11,22 +11,27 @@ import androidx.core.widget.doOnTextChanged
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.navigation.Navigation
+import androidx.navigation.fragment.navArgs
 import com.example.navsample.R
 import com.example.navsample.chart.ChartColors
 import com.example.navsample.databinding.FragmentAddCategoryBinding
 import com.example.navsample.dto.DataMode
+import com.example.navsample.dto.inputmode.AddingInputType
 import com.example.navsample.entities.Category
 import com.example.navsample.fragments.dialogs.ColorPickerDialog
-import com.example.navsample.viewmodels.ReceiptDataViewModel
+import com.example.navsample.viewmodels.ListingViewModel
+import com.example.navsample.viewmodels.fragment.AddCategoryDataViewModel
 
 
 class AddCategoryFragment : Fragment() {
     private var _binding: FragmentAddCategoryBinding? = null
     private val binding get() = _binding!!
-    private val receiptDataViewModel: ReceiptDataViewModel by activityViewModels()
+    private val navArgs: AddCategoryFragmentArgs by navArgs()
 
-    private var baseCategoryName: String = ""
-    private var mode = DataMode.DISPLAY
+    private val addCategoryDataViewModel: AddCategoryDataViewModel by activityViewModels()
+    private val listingViewModel: ListingViewModel by activityViewModels()
+
+    private var mode = DataMode.NEW
     private var pickedColor: Int = ChartColors.DEFAULT_CATEGORY_COLOR_INT
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -38,47 +43,20 @@ class AddCategoryFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
         binding.toolbar.inflateMenu(R.menu.top_menu_basic_add)
         binding.toolbar.setNavigationIcon(R.drawable.back)
+        binding.toolbar.menu.findItem(R.id.confirm).isVisible = true
+        binding.toolbar.menu.findItem(R.id.edit).isVisible = false
 
-
+        addCategoryDataViewModel.categoryById.value = null
         binding.colorSquare.setBackgroundColor(pickedColor)
-        receiptDataViewModel.refreshCategoryList()
-        receiptDataViewModel.category.value?.let {
-            baseCategoryName = it.name
-            binding.categoryNameInput.setText(it.name)
-            binding.categoryColorInput.setText(it.color)
-            try {
-                binding.colorSquare.setBackgroundColor(Color.parseColor(it.color))
-            } catch (e: Exception) {
-                Log.e(
-                    "AddCategoryFragment",
-                    "cannot parse category color" + it.color,
-                )
-            }
-        }
-        receiptDataViewModel.category.value = null
-        if (receiptDataViewModel.savedCategory.value != null) {
-            changeViewToDisplayMode()
-        } else {
-            mode = DataMode.NEW
-            binding.categoryNameInput.setText("")
-
-            binding.toolbar.title = "New category"
-            binding.toolbar.menu.findItem(R.id.confirm).isVisible = true
-            binding.toolbar.setNavigationIcon(R.drawable.back)
-            binding.toolbar.menu.findItem(R.id.edit).isVisible = false
-
-        }
-
+        initObserver()
+        addCategoryDataViewModel.refreshCategoryList()
+        consumeNavArgs()
 
         binding.toolbar.setOnMenuItemClickListener {
             when (it.itemId) {
-                R.id.edit -> {
-                    changeViewToEditMode()
-                    true
-                }
-
                 R.id.confirm -> {
                     if (binding.categoryColorLayout.error != null || binding.categoryNameLayout.error != null) {
                         Toast.makeText(
@@ -89,12 +67,9 @@ class AddCategoryFragment : Fragment() {
                         return@setOnMenuItemClickListener true
                     }
                     saveChangesToDatabase()
-                    changeViewToDisplayMode()
-                    receiptDataViewModel.category.value = Category(
-                        binding.categoryNameInput.text.toString(),
-                        binding.categoryColorInput.text.toString()
-                    )
-                    receiptDataViewModel.loadDataByCategoryFilter()
+                    //TODO zoptymalizować - odswiezać w zależnosci czy bylo dodane czy zupdatowane
+                    listingViewModel.loadDataByProductFilter()
+                    listingViewModel.loadDataByCategoryFilter()
                     Navigation.findNavController(requireView()).popBackStack()
                 }
 
@@ -103,13 +78,7 @@ class AddCategoryFragment : Fragment() {
         }
 
         binding.toolbar.setNavigationOnClickListener {
-            if (mode == DataMode.EDIT) {
-                changeViewToDisplayMode()
-                binding.categoryNameInput.setText(receiptDataViewModel.savedCategory.value?.name)
-                binding.categoryColorInput.setText(receiptDataViewModel.savedCategory.value?.color)
-            } else {
-                Navigation.findNavController(it).popBackStack()
-            }
+            Navigation.findNavController(it).popBackStack()
         }
         binding.colorView.setOnClickListener { _ ->
             colorPicker()
@@ -133,13 +102,34 @@ class AddCategoryFragment : Fragment() {
         binding.categoryNameInput.doOnTextChanged { text, _, _, count ->
             if (count == 0) {
                 binding.categoryNameLayout.error = "Cannot be empty"
-            } else if (receiptDataViewModel.categoryList.value?.map { it.name }
-                    ?.contains(text.toString()) == true && text.toString() != baseCategoryName) {
+            } else if (text.toString() == addCategoryDataViewModel.categoryById.value?.name) {
+                binding.categoryNameLayout.error = null
+            } else if (addCategoryDataViewModel.categoryList.value?.find { it.name == text.toString() } != null) {
                 binding.categoryNameLayout.error = "Category name already defined"
             } else {
                 binding.categoryNameLayout.error = null
             }
 
+        }
+    }
+
+    private fun consumeNavArgs() {
+        val inputType = AddingInputType.getByName(navArgs.inputType)
+        if (inputType == AddingInputType.EMPTY) {
+            mode = DataMode.NEW
+            binding.categoryNameInput.setText("")
+            binding.toolbar.title = "New category"
+
+        } else if (inputType == AddingInputType.ID) {
+            if (navArgs.id >= 0) {
+                binding.toolbar.title = "Edit category"
+                mode = DataMode.EDIT
+                addCategoryDataViewModel.getCategoryById(navArgs.id)
+            } else {
+                throw Exception("NO CATEGORY ID SET: " + navArgs.id)
+            }
+        } else {
+            throw Exception("BAD INPUT TYPE: " + navArgs.inputType)
         }
     }
 
@@ -159,35 +149,30 @@ class AddCategoryFragment : Fragment() {
                 binding.categoryNameInput.text.toString(),
                 binding.categoryColorInput.text.toString()
             )
-            receiptDataViewModel.insertCategory(category)
+            addCategoryDataViewModel.insertCategory(category)
         }
         if (mode == DataMode.EDIT) {
-            val category = receiptDataViewModel.savedCategory.value!!
+            val category = addCategoryDataViewModel.categoryById.value!!
             category.name = binding.categoryNameInput.text.toString()
             category.color = binding.categoryColorInput.text.toString()
-            receiptDataViewModel.updateCategory(category)
+            addCategoryDataViewModel.updateCategory(category)
         }
     }
 
-    private fun changeViewToDisplayMode() {
-        mode = DataMode.DISPLAY
-        binding.categoryNameLayout.isEnabled = false
-        binding.categoryColorLayout.isEnabled = false
-        binding.colorView.isEnabled = false
-        binding.toolbar.title = "Category"
-        binding.toolbar.menu.findItem(R.id.confirm).isVisible = false
-        binding.toolbar.setNavigationIcon(R.drawable.back)
-        binding.toolbar.menu.findItem(R.id.edit).isVisible = true
-    }
-
-    private fun changeViewToEditMode() {
-        mode = DataMode.EDIT
-        binding.toolbar.title = "Edit category"
-        binding.categoryNameLayout.isEnabled = true
-        binding.categoryColorLayout.isEnabled = true
-        binding.colorView.isEnabled = true
-        binding.toolbar.menu.findItem(R.id.confirm).isVisible = true
-        binding.toolbar.setNavigationIcon(R.drawable.clear)
-        binding.toolbar.menu.findItem(R.id.edit).isVisible = false
+    private fun initObserver() {
+        addCategoryDataViewModel.categoryById.observe(viewLifecycleOwner) {
+            it?.let {
+                binding.categoryNameInput.setText(it.name)
+                binding.categoryColorInput.setText(it.color)
+                try {
+                    binding.colorSquare.setBackgroundColor(Color.parseColor(it.color))
+                } catch (e: Exception) {
+                    Log.e(
+                        "AddCategoryFragment",
+                        "cannot parse category color" + it.color,
+                    )
+                }
+            }
+        }
     }
 }

@@ -16,17 +16,20 @@ import com.example.navsample.ItemClickListener
 import com.example.navsample.R
 import com.example.navsample.adapters.StoreListAdapter
 import com.example.navsample.databinding.FragmentStoreListBinding
+import com.example.navsample.dto.inputmode.AddingInputType
 import com.example.navsample.dto.sort.SortProperty
 import com.example.navsample.dto.sort.StoreSort
 import com.example.navsample.fragments.dialogs.ConfirmDialog
 import com.example.navsample.fragments.dialogs.SortingDialog
-import com.example.navsample.viewmodels.ReceiptDataViewModel
+import com.example.navsample.viewmodels.ListingViewModel
+import com.example.navsample.viewmodels.fragment.AddStoreDataViewModel
 
 
 class StoreListFragment : Fragment(), ItemClickListener {
     private var _binding: FragmentStoreListBinding? = null
     private val binding get() = _binding!!
-    private val receiptDataViewModel: ReceiptDataViewModel by activityViewModels()
+    private val addStoreDataViewModel: AddStoreDataViewModel by activityViewModels()
+    private val listingViewModel: ListingViewModel by activityViewModels()
 
     private lateinit var recyclerViewEvent: RecyclerView
     private lateinit var storeListAdapter: StoreListAdapter
@@ -50,15 +53,15 @@ class StoreListFragment : Fragment(), ItemClickListener {
             when (it.itemId) {
                 R.id.sort -> {
                     //TODO Connect Dialog with DB
-                    val selected = receiptDataViewModel.storeSort.value
-                        ?: receiptDataViewModel.defaultStoreSort
+                    val selected = listingViewModel.storeSort.value
+                        ?: listingViewModel.defaultStoreSort
 
                     SortingDialog(
                         selected,
                         StoreSort.entries.map { sort -> sort.friendlyNameKey }) { name, dir ->
                         val appliedSort = SortProperty(StoreSort::class, name, dir)
-                        receiptDataViewModel.storeSort.value = appliedSort
-                        receiptDataViewModel.updateSorting(appliedSort)
+                        listingViewModel.storeSort.value = appliedSort
+                        listingViewModel.updateSorting(appliedSort)
                         Toast.makeText(requireContext(), "$appliedSort", Toast.LENGTH_SHORT).show()
                     }.show(childFragmentManager, "Test")
                     true
@@ -70,24 +73,28 @@ class StoreListFragment : Fragment(), ItemClickListener {
         recyclerViewEvent = binding.recyclerViewEventReceipts
         storeListAdapter = StoreListAdapter(
             requireContext(),
-            receiptDataViewModel.storeList.value ?: arrayListOf(), this
+            listingViewModel.storeList.value ?: arrayListOf(), this
         ) { i: Int ->
-            receiptDataViewModel.storeList.value?.get(i)?.let {
-                ConfirmDialog(
-                    "Delete",
-                    "$i Are you sure you want to delete the store with dependent receipts and" +
-                            " products??\n\n" + "Name: " + it.name + "\nNIP: " + it.nip
-                ) {
-                    receiptDataViewModel.deleteStore(it)
-                    receiptDataViewModel.storeList.value?.let { storeList ->
-                        storeList.removeAt(i)
-                        storeListAdapter.storeList = storeList
-                        storeListAdapter.notifyItemRemoved(i)
-                        storeListAdapter.notifyItemRangeChanged(i, storeListAdapter.storeList.size)
-
-                    }
-
-                }.show(childFragmentManager, "TAG")
+            listingViewModel.storeList.value?.get(i)?.let {
+                if (it.id == null) {
+                    Toast.makeText(requireContext(), "STORE HAS NOT ID", Toast.LENGTH_SHORT).show()
+                } else {
+                    ConfirmDialog(
+                        "Delete",
+                        "$i Are you sure you want to delete the store with dependent receipts and" +
+                                " products??\n\n" + "Name: " + it.name + "\nNIP: " + it.nip
+                    ) {
+                        addStoreDataViewModel.deleteStore(it.id!!)
+                        listingViewModel.storeList.value?.let { storeList ->
+                            storeList.removeAt(i)
+                            storeListAdapter.storeList = storeList
+                            storeListAdapter.notifyItemRemoved(i)
+                            storeListAdapter.notifyItemRangeChanged(
+                                i, storeListAdapter.storeList.size
+                            )
+                        }
+                    }.show(childFragmentManager, "TAG")
+                }
             }
         }
         recyclerViewEvent.adapter = storeListAdapter
@@ -95,45 +102,55 @@ class StoreListFragment : Fragment(), ItemClickListener {
             LinearLayoutManager(requireContext(), LinearLayoutManager.VERTICAL, false)
 
         binding.storeNameInput.doOnTextChanged { text, _, _, _ ->
-            receiptDataViewModel.filterStoreList.value?.store = text.toString()
-            receiptDataViewModel.loadDataByStoreFilter()
+            listingViewModel.filterStoreList.value?.store = text.toString()
+            listingViewModel.loadDataByStoreFilter()
         }
         binding.storeNIPInput.doOnTextChanged { text, _, _, _ ->
-            receiptDataViewModel.filterStoreList.value?.nip = text.toString()
-            receiptDataViewModel.loadDataByStoreFilter()
+            listingViewModel.filterStoreList.value?.nip = text.toString()
+            listingViewModel.loadDataByStoreFilter()
         }
         binding.storeNameLayout.setStartIconOnClickListener {
             binding.storeNameInput.setText("")
-            receiptDataViewModel.filterStoreList.value?.store = ""
+            listingViewModel.filterStoreList.value?.store = ""
         }
         binding.storeNIPLayout.setStartIconOnClickListener {
             binding.storeNIPInput.setText("")
-            receiptDataViewModel.filterStoreList.value?.nip = ""
+            listingViewModel.filterStoreList.value?.nip = ""
         }
 
         binding.newButton.setOnClickListener {
-            receiptDataViewModel.savedStore.value = null
             val action =
-                ListingFragmentDirections.actionListingFragmentToAddStoreFragment()
+                ListingFragmentDirections.actionListingFragmentToAddStoreFragment(
+                    storeName = null,
+                    storeNip = null
+                )
             Navigation.findNavController(requireView()).navigate(action)
         }
     }
 
     override fun onItemClick(index: Int) {
-        receiptDataViewModel.storeList.value?.let { storeList ->
-            val store = storeList[index]
-            receiptDataViewModel.savedStore.value = store
-            receiptDataViewModel.store.value = store
-            val action =
-                ListingFragmentDirections.actionListingFragmentToAddStoreFragment()
-            Navigation.findNavController(requireView()).navigate(action)
+        listingViewModel.storeList.value?.let { storeList ->
+            val storeId = storeList[index].id
+            if (storeId == null) {
+                Toast.makeText(requireContext(), "STORE ID IS NULL", Toast.LENGTH_SHORT).show()
+
+            } else {
+                val action =
+                    ListingFragmentDirections.actionListingFragmentToAddStoreFragment(
+                        inputType = AddingInputType.ID.name,
+                        storeId = storeId,
+                        storeName = null,
+                        storeNip = null
+                    )
+                Navigation.findNavController(requireView()).navigate(action)
+            }
         }
 
 
     }
 
     private fun putFilterDefinitionIntoInputs() {
-        receiptDataViewModel.filterStoreList.value?.let {
+        listingViewModel.filterStoreList.value?.let {
             if (binding.storeNameInput.text.toString() != it.store) {
                 binding.storeNameInput.setText(it.store)
             }
@@ -146,13 +163,13 @@ class StoreListFragment : Fragment(), ItemClickListener {
 
     @SuppressLint("NotifyDataSetChanged")
     private fun initObserver() {
-        receiptDataViewModel.storeList.observe(viewLifecycleOwner) {
+        listingViewModel.storeList.observe(viewLifecycleOwner) {
             it?.let {
                 storeListAdapter.storeList = it
                 storeListAdapter.notifyDataSetChanged()
             }
         }
-        receiptDataViewModel.filterStoreList.observe(viewLifecycleOwner) {
+        listingViewModel.filterStoreList.observe(viewLifecycleOwner) {
             putFilterDefinitionIntoInputs()
         }
     }

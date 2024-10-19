@@ -15,16 +15,16 @@ import com.example.navsample.R
 import com.example.navsample.activity.GuideActivity
 import com.example.navsample.databinding.FragmentSettingsBinding
 import com.example.navsample.entities.init.InitDatabaseHelper
-import com.example.navsample.viewmodels.ReceiptDataViewModel
-import com.example.navsample.viewmodels.ReceiptImageViewModel
+import com.example.navsample.viewmodels.ImageViewModel
+import com.example.navsample.viewmodels.InitDatabaseViewModel
 import java.util.UUID
 
 class SettingsFragment : Fragment() {
     private var _binding: FragmentSettingsBinding? = null
 
     private val binding get() = _binding!!
-    private val receiptDataViewModel: ReceiptDataViewModel by activityViewModels()
-    private val receiptImageViewModel: ReceiptImageViewModel by activityViewModels()
+    private val initDatabaseViewModel: InitDatabaseViewModel by activityViewModels()
+    private val imageViewModel: ImageViewModel by activityViewModels()
 
 
     companion object {
@@ -50,12 +50,11 @@ class SettingsFragment : Fragment() {
             Navigation.findNavController(it)
                 .navigate(R.id.action_settingsFragment_to_exportDataFragment)
         }
-        receiptDataViewModel.clearData()
-        receiptImageViewModel.clearData()
+        imageViewModel.clearData()
 
         val myUuid = UUID.randomUUID()
-        receiptDataViewModel.imageUuid.value = myUuid.toString()
-        receiptImageViewModel.uid.value = myUuid.toString()
+        initDatabaseViewModel.imageUuid.value = myUuid.toString()
+        imageViewModel.uid.value = myUuid.toString()
 
         if (BuildConfig.DEVELOPER) {
             devButton()
@@ -69,7 +68,7 @@ class SettingsFragment : Fragment() {
             initDatabase()
             myPref.edit().putString(FILLED_DB, "true").apply()
         } else {
-            receiptDataViewModel.setUserUuid()
+            initDatabaseViewModel.setUserUuid()
         }
     }
 
@@ -90,22 +89,22 @@ class SettingsFragment : Fragment() {
     }
 
     private fun observeUserUUid() {
-        receiptDataViewModel.setUserUuid()
-        receiptDataViewModel.userUuid.observe(viewLifecycleOwner) {
+        initDatabaseViewModel.setUserUuid()
+        initDatabaseViewModel.userUuid.observe(viewLifecycleOwner) {
             if (it != null && it != "") {
                 InitDatabaseHelper.getStores().forEach { store ->
-                    receiptDataViewModel.insertStore(store)
+                    initDatabaseViewModel.insertStore(store)
                 }
                 InitDatabaseHelper.getCategories().forEach { category ->
-                    receiptDataViewModel.insertCategoryList(category)
+                    initDatabaseViewModel.insertCategoryList(category)
                 }
                 InitDatabaseHelper.getReceipts().forEach { receipt ->
-                    receiptDataViewModel.insertReceipt(receipt)
+                    initDatabaseViewModel.insertReceipt(receipt)
                 }
                 InitDatabaseHelper.getProducts().forEach { product ->
-                    receiptDataViewModel.insertProducts(product)
+                    initDatabaseViewModel.insertProducts(product)
                 }
-                receiptDataViewModel.userUuid.removeObserver { }
+                initDatabaseViewModel.userUuid.removeObserver { }
             }
         }
     }

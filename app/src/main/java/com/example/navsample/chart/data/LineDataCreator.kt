@@ -10,10 +10,11 @@ import com.github.mikephil.charting.interfaces.datasets.ILineDataSet
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Date
+import java.util.Locale
 
 class LineDataCreator : LinearDataFactory<Entry, LineDataSet, ILineDataSet, LineData> {
 
-    private val dateFormat = SimpleDateFormat("yyyy-MM-dd")
+    private val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
     private val threeMonthsAgo = Calendar.getInstance().apply { add(Calendar.MONTH, -3) }.time
     private var today = dateFormat.format(Date())
     private var ago = dateFormat.format(threeMonthsAgo)
