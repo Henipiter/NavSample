@@ -158,9 +158,10 @@ class ProductListFragment : Fragment(), ItemClickListener {
 
             val action =
                 ListingFragmentDirections.actionListingFragmentToAddProductFragment(
-                    false,
-                    AddingInputType.ID.name,
-                    it.id
+                    inputType = AddingInputType.ID.name,
+                    productIndex = it.id,
+                    receiptId = it.receiptId,
+                    storeId = it.storeId
                 )
             Navigation.findNavController(requireView()).navigate(action)
         }

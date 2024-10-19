@@ -28,7 +28,11 @@
         tools:layout="@layout/fragment_add_product_list">
         <action
             android:id="@+id/action_addProductListFragment_to_addProductFragment"
-            app:destination="@id/addProductFragment" />
+            app:destination="@id/addProductFragment">
+            <argument
+                android:name="inputType"
+                android:defaultValue="INDEX" />
+        </action>
         <action
             android:id="@+id/action_addProductListFragment_to_experimentRecycleFragment"
             app:destination="@id/experimentRecycleFragment" />
@@ -55,9 +59,6 @@
             android:name="productIndex"
             android:defaultValue="-1"
             app:argType="integer" />
-        <argument
-            android:name="updateProduct"
-            app:argType="boolean" />
         <action
             android:id="@+id/action_addProductFragment_to_addCategoryFragment"
             app:destination="@id/addCategoryFragment">
@@ -65,6 +66,11 @@
         </action>
         <argument
             android:name="receiptId"
+            app:argType="integer"
+            android:defaultValue="-1" />
+        <argument
+            android:name="storeId"
+            app:argType="integer"
             android:defaultValue="-1" />
     </fragment>
     <fragment
@@ -167,7 +173,11 @@
         </action>
         <action
             android:id="@+id/action_listingFragment_to_addProductFragment"
-            app:destination="@id/addProductFragment" />
+            app:destination="@id/addProductFragment">
+            <argument
+                android:name="inputType"
+                android:defaultValue="ID" />
+        </action>
         <action
             android:id="@+id/action_listingFragment_to_filterProductListFragment"
             app:destination="@id/filterProductListFragment" />

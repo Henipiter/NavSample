@@ -85,7 +85,6 @@ class AddProductDataViewModel : ViewModel() {
         viewModelScope.launch {
             dao?.let { dao ->
                 productList.postValue(dao.getAllProducts(receiptId).toMutableList())
-
             }
         }
     }

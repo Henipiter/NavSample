@@ -132,7 +132,9 @@ class AddProductListFragment : Fragment(), ItemClickListener {
                 R.id.add_new -> {
                     val action =
                         AddProductListFragmentDirections.actionAddProductListFragmentToAddProductFragment(
-                            false, AddingInputType.EMPTY.name
+                            inputType = AddingInputType.EMPTY.name,
+                            receiptId = navArgs.receiptId,
+                            storeId = navArgs.storeId,
                         )
                     Navigation.findNavController(requireView()).navigate(action)
                     true
@@ -230,8 +232,12 @@ class AddProductListFragment : Fragment(), ItemClickListener {
     override fun onItemClick(index: Int) {
         val action =
             AddProductListFragmentDirections.actionAddProductListFragmentToAddProductFragment(
-                false, AddingInputType.ID.name, index
-            )
+                inputType = AddingInputType.INDEX.name,
+                productIndex = index,
+                receiptId = navArgs.receiptId,
+                storeId = navArgs.storeId,
+
+                )
         Navigation.findNavController(requireView()).navigate(action)
 
     }
