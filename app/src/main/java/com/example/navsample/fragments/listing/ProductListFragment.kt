@@ -23,12 +23,12 @@ import com.example.navsample.entities.Product
 import com.example.navsample.fragments.dialogs.ConfirmDialog
 import com.example.navsample.fragments.dialogs.SortingDialog
 import com.example.navsample.viewmodels.ListingViewModel
-import com.example.navsample.viewmodels.ReceiptDataViewModel
+import com.example.navsample.viewmodels.fragment.AddProductDataViewModel
 
 class ProductListFragment : Fragment(), ItemClickListener {
     private var _binding: FragmentProductListBinding? = null
     private val binding get() = _binding!!
-    private val receiptDataViewModel: ReceiptDataViewModel by activityViewModels()
+    private val addProductDataViewModel: AddProductDataViewModel by activityViewModels()
     private val listingViewModel: ListingViewModel by activityViewModels()
 
     private lateinit var recyclerViewEvent: RecyclerView
@@ -104,7 +104,7 @@ class ProductListFragment : Fragment(), ItemClickListener {
                             "\nPLN: " + it.subtotalPrice
                 ) {
                     if (it.id >= 0) {
-                        receiptDataViewModel.deleteProduct(it.id)
+                        addProductDataViewModel.deleteProduct(it.id)
                     }
                     listingViewModel.productRichList.value?.let { productRichList ->
                         productRichList.removeAt(i)
@@ -152,10 +152,6 @@ class ProductListFragment : Fragment(), ItemClickListener {
                 it.validPrice
             )
             chosenProduct.id = it.id
-            receiptDataViewModel.product.value = arrayListOf(chosenProduct)
-            receiptDataViewModel.getReceiptById(chosenProduct.receiptId)
-            receiptDataViewModel.getStoreById(it.storeId)
-
             val action =
                 ListingFragmentDirections.actionListingFragmentToAddProductFragment(
                     inputType = AddingInputType.ID.name,

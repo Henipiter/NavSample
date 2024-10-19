@@ -40,6 +40,14 @@ class AddCategoryDataViewModel : ViewModel() {
         }
     }
 
+
+    fun deleteCategory(category: Category) {
+        Log.i("Database", "delete category - id ${category.id}")
+        viewModelScope.launch {
+            dao?.deleteCategory(category)
+        }
+    }
+
     fun getCategoryById(id: Int) {
         Log.i("Database", "refresh category list")
         viewModelScope.launch {

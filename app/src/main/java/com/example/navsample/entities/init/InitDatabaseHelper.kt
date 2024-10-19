@@ -4,9 +4,12 @@ import com.example.navsample.chart.ChartColors
 import com.example.navsample.entities.Category
 import com.example.navsample.entities.Product
 import com.example.navsample.entities.Receipt
+import com.example.navsample.entities.ReceiptDao
 import com.example.navsample.entities.Store
 
-class InitDatabaseHelper {
+class InitDatabaseHelper(dao: ReceiptDao) {
+
+
     companion object {
         fun getProducts(): List<List<Product>> {
             return listOf(

@@ -14,7 +14,6 @@ import com.example.navsample.R
 import com.example.navsample.databinding.FragmentFilterReceiptListBinding
 import com.example.navsample.dto.filter.FilterReceiptList
 import com.example.navsample.viewmodels.ListingViewModel
-import com.example.navsample.viewmodels.ReceiptDataViewModel
 import com.google.android.material.datepicker.MaterialDatePicker
 import java.text.SimpleDateFormat
 import java.util.Calendar
@@ -24,7 +23,6 @@ import java.util.TimeZone
 class FilterReceiptListFragment : Fragment() {
     private var _binding: FragmentFilterReceiptListBinding? = null
     private val binding get() = _binding!!
-    private val receiptDataViewModel: ReceiptDataViewModel by activityViewModels()
     private val listingViewModel: ListingViewModel by activityViewModels()
 
     private var filterReceiptList = FilterReceiptList()
@@ -131,7 +129,7 @@ class FilterReceiptListFragment : Fragment() {
     }
 
     private fun initObserver() {
-        receiptDataViewModel.storeList.observe(viewLifecycleOwner) {
+        listingViewModel.storeList.observe(viewLifecycleOwner) {
             it?.let {
                 ArrayAdapter(
                     requireContext(),

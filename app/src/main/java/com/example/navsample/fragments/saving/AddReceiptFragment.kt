@@ -19,9 +19,8 @@ import com.example.navsample.dto.inputmode.AddingInputType
 import com.example.navsample.entities.Receipt
 import com.example.navsample.entities.Store
 import com.example.navsample.viewmodels.ImageAnalyzerViewModel
+import com.example.navsample.viewmodels.ImageViewModel
 import com.example.navsample.viewmodels.ListingViewModel
-import com.example.navsample.viewmodels.ReceiptDataViewModel
-import com.example.navsample.viewmodels.ReceiptImageViewModel
 import com.example.navsample.viewmodels.fragment.AddReceiptDataViewModel
 import com.google.android.material.datepicker.MaterialDatePicker
 import com.google.android.material.timepicker.MaterialTimePicker
@@ -36,8 +35,7 @@ class AddReceiptFragment : Fragment() {
     private val binding get() = _binding!!
     private val navArgs: AddReceiptFragmentArgs by navArgs()
     private val imageAnalyzerViewModel: ImageAnalyzerViewModel by activityViewModels()
-    private val receiptImageViewModel: ReceiptImageViewModel by activityViewModels()
-    private val receiptDataViewModel: ReceiptDataViewModel by activityViewModels()
+    private val imageViewModel: ImageViewModel by activityViewModels()
     private val addReceiptDataViewModel: AddReceiptDataViewModel by activityViewModels()
     private val listingViewModel: ListingViewModel by activityViewModels()
 
@@ -73,7 +71,7 @@ class AddReceiptFragment : Fragment() {
         addReceiptDataViewModel.refreshStoreList()
         consumeNavArgs()
 
-        receiptImageViewModel.bitmapCroppedReceipt.value?.let {
+        imageViewModel.bitmapCroppedReceipt.value?.let {
             binding.receiptImage.setImageBitmap(it)
         }
 
@@ -105,10 +103,10 @@ class AddReceiptFragment : Fragment() {
     }
 
     private fun initObserver() {
-        receiptImageViewModel.bitmapCroppedReceipt.observe(viewLifecycleOwner) {
+        imageViewModel.bitmapCroppedReceipt.observe(viewLifecycleOwner) {
             if (it != null) {
                 binding.receiptImage.visibility = View.VISIBLE
-                binding.receiptImage.setImageBitmap(receiptImageViewModel.bitmapCroppedReceipt.value)
+                binding.receiptImage.setImageBitmap(imageViewModel.bitmapCroppedReceipt.value)
             } else {
                 binding.receiptImage.visibility = View.GONE
             }
@@ -247,7 +245,7 @@ class AddReceiptFragment : Fragment() {
                 goNext = true
             }
         } else if (mode == DataMode.EDIT) {
-            receiptDataViewModel.receipt.value?.let {
+            addReceiptDataViewModel.receiptById.value?.let {
                 pickedStore?.id?.let { storeId ->
                     val receipt = Receipt(-1, -1.0, -1.0, "", "", true).apply {
                         this.id = it.id
@@ -311,7 +309,6 @@ class AddReceiptFragment : Fragment() {
         binding.storeNameInput.setOnItemClickListener { adapter, _, position, _ ->
             val store = adapter.getItemAtPosition(position) as Store
             if ("" == store.nip && binding.storeNameInput.adapter.count - 1 == position) {
-                receiptDataViewModel.savedStore.value = null
                 binding.storeNameInput.setText("")
 
                 val action =

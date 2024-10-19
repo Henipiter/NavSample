@@ -18,8 +18,8 @@ import com.example.navsample.dto.inputmode.AddingInputType
 import com.example.navsample.entities.Category
 import com.example.navsample.entities.Store
 import com.example.navsample.exception.NoCategoryIdException
+import com.example.navsample.viewmodels.ImageViewModel
 import com.example.navsample.viewmodels.ListingViewModel
-import com.example.navsample.viewmodels.ReceiptImageViewModel
 import com.example.navsample.viewmodels.fragment.AddStoreDataViewModel
 
 class AddStoreFragment : Fragment() {
@@ -27,7 +27,7 @@ class AddStoreFragment : Fragment() {
     private val binding get() = _binding!!
 
     private val navArgs: AddStoreFragmentArgs by navArgs()
-    private val receiptImageViewModel: ReceiptImageViewModel by activityViewModels()
+    private val imageViewModel: ImageViewModel by activityViewModels()
     private val listingViewModel: ListingViewModel by activityViewModels()
     private val addStoreDataViewModel: AddStoreDataViewModel by activityViewModels()
 
@@ -68,7 +68,7 @@ class AddStoreFragment : Fragment() {
 
 
 
-        receiptImageViewModel.bitmapCroppedReceipt.value?.let {
+        imageViewModel.bitmapCroppedReceipt.value?.let {
             binding.receiptImage.setImageBitmap(it)
         }
 
@@ -185,10 +185,10 @@ class AddStoreFragment : Fragment() {
     }
 
     private fun initObserver() {
-        receiptImageViewModel.bitmapCroppedReceipt.observe(viewLifecycleOwner) {
+        imageViewModel.bitmapCroppedReceipt.observe(viewLifecycleOwner) {
             if (it != null) {
                 binding.receiptImage.visibility = View.VISIBLE
-                binding.receiptImage.setImageBitmap(receiptImageViewModel.bitmapCroppedReceipt.value)
+                binding.receiptImage.setImageBitmap(imageViewModel.bitmapCroppedReceipt.value)
             } else {
                 binding.receiptImage.visibility = View.GONE
             }

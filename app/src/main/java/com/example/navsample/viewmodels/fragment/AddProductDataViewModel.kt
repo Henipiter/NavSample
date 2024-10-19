@@ -88,7 +88,6 @@ class AddProductDataViewModel : ViewModel() {
             }
         }
     }
-
     fun updateSingleProduct(product: Product) {
         viewModelScope.launch {
             dao?.let {

@@ -27,10 +27,10 @@ import com.example.navsample.dto.inputmode.AddingInputType
 import com.example.navsample.dto.sorting.AlgorithmItemAdapterArgument
 import com.example.navsample.entities.Product
 import com.example.navsample.fragments.dialogs.ConfirmDialog
+import com.example.navsample.viewmodels.ExperimentalDataViewModel
 import com.example.navsample.viewmodels.ImageAnalyzerViewModel
+import com.example.navsample.viewmodels.ImageViewModel
 import com.example.navsample.viewmodels.ListingViewModel
-import com.example.navsample.viewmodels.ReceiptDataViewModel
-import com.example.navsample.viewmodels.ReceiptImageViewModel
 import com.example.navsample.viewmodels.fragment.AddProductDataViewModel
 
 
@@ -43,8 +43,8 @@ class AddProductListFragment : Fragment(), ItemClickListener {
 
     private lateinit var myPref: SharedPreferences
     private val imageAnalyzerViewModel: ImageAnalyzerViewModel by activityViewModels()
-    private val receiptImageViewModel: ReceiptImageViewModel by activityViewModels()
-    private val receiptDataViewModel: ReceiptDataViewModel by activityViewModels()
+    private val imageViewModel: ImageViewModel by activityViewModels()
+    private val experimentalDataViewModel: ExperimentalDataViewModel by activityViewModels()
     private val addProductDataViewModel: AddProductDataViewModel by activityViewModels()
     private val listingViewModel: ListingViewModel by activityViewModels()
     private val reorderedProductTiles = MutableLiveData(false)
@@ -75,7 +75,7 @@ class AddProductListFragment : Fragment(), ItemClickListener {
         myPref =
             requireContext().getSharedPreferences("preferences", AppCompatActivity.MODE_PRIVATE)
 
-        if (onStart && receiptImageViewModel.uriCroppedProduct.value == null) {
+        if (onStart && imageViewModel.uriCroppedProduct.value == null) {
             onStart = false
             Navigation.findNavController(requireView())
                 .navigate(R.id.action_addProductListFragment_to_cropImageFragment)
@@ -244,10 +244,10 @@ class AddProductListFragment : Fragment(), ItemClickListener {
 
     @SuppressLint("NotifyDataSetChanged")
     private fun initObserver() {
-        receiptImageViewModel.bitmapCroppedProduct.observe(viewLifecycleOwner) {
+        imageViewModel.bitmapCroppedProduct.observe(viewLifecycleOwner) {
             if (it != null) {
                 binding.receiptImage.visibility = View.VISIBLE
-                binding.receiptImage.setImageBitmap(receiptImageViewModel.bitmapCroppedProduct.value)
+                binding.receiptImage.setImageBitmap(imageViewModel.bitmapCroppedProduct.value)
                 binding.toolbar.menu.findItem(R.id.reorder).isVisible = true
             } else {
                 binding.receiptImage.visibility = View.GONE
@@ -281,9 +281,9 @@ class AddProductListFragment : Fragment(), ItemClickListener {
                 return@observe
             }
             addProductDataViewModel.productList.value = it.productList
-            receiptDataViewModel.algorithmOrderedNames.value =
+            experimentalDataViewModel.algorithmOrderedNames.value =
                 it.receiptNameLines.map { AlgorithmItemAdapterArgument(it) } as ArrayList<AlgorithmItemAdapterArgument>
-            receiptDataViewModel.algorithmOrderedPrices.value =
+            experimentalDataViewModel.algorithmOrderedPrices.value =
                 it.receiptPriceLines.map { AlgorithmItemAdapterArgument(it) } as ArrayList<AlgorithmItemAdapterArgument>
 
             reorderedProductTiles.value = true

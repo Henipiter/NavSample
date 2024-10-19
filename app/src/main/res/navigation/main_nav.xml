@@ -119,6 +119,12 @@
             android:name="developerMode"
             android:defaultValue="false"
             app:argType="boolean" />
+        <argument
+            android:name="categoryId"
+            app:argType="integer" />
+        <argument
+            android:name="receiptId"
+            app:argType="integer" />
     </fragment>
     <fragment
         android:id="@+id/addStoreFragment"
@@ -227,5 +233,12 @@
         android:id="@+id/cropImageFragment"
         android:name="com.example.navsample.fragments.CropImageFragment"
         android:label="fragment_crop_image"
-        tools:layout="@layout/fragment_crop_image" />
+        tools:layout="@layout/fragment_crop_image">
+        <argument
+            android:name="receiptId"
+            app:argType="integer" />
+        <argument
+            android:name="categoryId"
+            app:argType="integer" />
+    </fragment>
 </navigation>

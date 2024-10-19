@@ -105,6 +105,7 @@ class ReceiptListFragment : Fragment(), ItemClickListener {
                             i, receiptListAdapter.receiptList.size
                         )
                     }
+                    listingViewModel.loadDataByProductFilter()
 
 
                 }.show(childFragmentManager, "TAG")

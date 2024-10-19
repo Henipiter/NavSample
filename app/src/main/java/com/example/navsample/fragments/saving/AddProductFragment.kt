@@ -24,8 +24,7 @@ import com.example.navsample.exception.NoCategoryIdException
 import com.example.navsample.exception.NoReceiptIdException
 import com.example.navsample.exception.NoStoreIdException
 import com.example.navsample.imageanalyzer.ReceiptParser
-import com.example.navsample.viewmodels.ReceiptDataViewModel
-import com.example.navsample.viewmodels.ReceiptImageViewModel
+import com.example.navsample.viewmodels.ImageViewModel
 import com.example.navsample.viewmodels.fragment.AddProductDataViewModel
 
 class AddProductFragment : Fragment() {
@@ -35,8 +34,7 @@ class AddProductFragment : Fragment() {
 
     private val navArgs: AddProductFragmentArgs by navArgs()
 
-    private val receiptImageViewModel: ReceiptImageViewModel by activityViewModels()
-    private val receiptDataViewModel: ReceiptDataViewModel by activityViewModels()
+    private val imageViewModel: ImageViewModel by activityViewModels()
     private val addProductDataViewModel: AddProductDataViewModel by activityViewModels()
 
     private var mode = DataMode.NEW
@@ -222,7 +220,6 @@ class AddProductFragment : Fragment() {
             chosenCategory = adapter.getItemAtPosition(position) as Category
 
             if ("" == chosenCategory?.color && binding.productCategoryInput.adapter.count - 1 == position) {
-                receiptDataViewModel.savedCategory.value = null
                 binding.productCategoryInput.setText("")
                 Navigation.findNavController(requireView())
                     .navigate(R.id.action_addProductFragment_to_addCategoryFragment)
@@ -284,8 +281,9 @@ class AddProductFragment : Fragment() {
         }
         binding.productOriginalInput.doOnTextChanged { actual, _, _, _ ->
             val receiptParser = ReceiptParser(
-                receiptDataViewModel.receipt.value?.id ?: throw NoReceiptIdException(),
-                receiptDataViewModel.store.value?.defaultCategoryId ?: throw NoStoreIdException()
+                addProductDataViewModel.receiptById.value?.id ?: throw NoReceiptIdException(),
+                addProductDataViewModel.storeById.value?.defaultCategoryId
+                    ?: throw NoStoreIdException()
             )
             val product = receiptParser.parseStringToProduct(actual.toString())
             chosenCategory = try {
@@ -446,12 +444,18 @@ class AddProductFragment : Fragment() {
             product.raw = binding.productOriginalInput.text.toString()
             product.validPrice = isValidPrices
 
-            if (navArgs.inputType == AddingInputType.ID.name) {
-                addProductDataViewModel.updateSingleProduct(product)
-            } else if (navArgs.inputType == AddingInputType.INDEX.name) {
-                addProductDataViewModel.productList.value!![navArgs.productIndex] = product
-            } else {
-                throw Exception("PRODUCT INDEX IS NOT SET")
+            when (navArgs.inputType) {
+                AddingInputType.ID.name -> {
+                    addProductDataViewModel.updateSingleProduct(product)
+                }
+
+                AddingInputType.INDEX.name -> {
+                    addProductDataViewModel.productList.value!![navArgs.productIndex] = product
+                }
+
+                else -> {
+                    throw Exception("PRODUCT INDEX IS NOT SET")
+                }
             }
         }
     }
@@ -463,10 +467,10 @@ class AddProductFragment : Fragment() {
     }
 
     private fun initObserver() {
-        receiptImageViewModel.bitmapCroppedProduct.observe(viewLifecycleOwner) {
+        imageViewModel.bitmapCroppedProduct.observe(viewLifecycleOwner) {
             if (it != null) {
                 binding.receiptImage.visibility = View.VISIBLE
-                binding.receiptImage.setImageBitmap(receiptImageViewModel.bitmapCroppedProduct.value)
+                binding.receiptImage.setImageBitmap(imageViewModel.bitmapCroppedProduct.value)
             } else {
                 binding.receiptImage.visibility = View.GONE
             }
@@ -496,7 +500,7 @@ class AddProductFragment : Fragment() {
                 binding.toolbar.title = it.name
             }
             val category =
-                receiptDataViewModel.categoryList.value?.first { it.id == store?.defaultCategoryId }
+                addProductDataViewModel.categoryList.value?.first { it.id == store?.defaultCategoryId }
             category?.let {
                 binding.productCategoryInput.setText(it.name)
             }

@@ -15,7 +15,6 @@ import com.example.navsample.databinding.FragmentFilterProductListBinding
 import com.example.navsample.dto.filter.FilterProductList
 import com.example.navsample.fragments.dialogs.PricePickerDialog
 import com.example.navsample.viewmodels.ListingViewModel
-import com.example.navsample.viewmodels.ReceiptDataViewModel
 import com.google.android.material.datepicker.MaterialDatePicker
 import java.text.SimpleDateFormat
 import java.util.Calendar
@@ -24,7 +23,6 @@ import java.util.Locale
 class FilterProductListFragment : Fragment() {
     private var _binding: FragmentFilterProductListBinding? = null
     private val binding get() = _binding!!
-    private val receiptDataViewModel: ReceiptDataViewModel by activityViewModels()
     private val listingViewModel: ListingViewModel by activityViewModels()
 
     private var filterProductList = FilterProductList()
@@ -186,7 +184,7 @@ class FilterProductListFragment : Fragment() {
     }
 
     private fun initObserver() {
-        receiptDataViewModel.storeList.observe(viewLifecycleOwner) {
+        listingViewModel.storeList.observe(viewLifecycleOwner) {
             it?.let {
                 ArrayAdapter(
                     requireContext(),
@@ -197,7 +195,7 @@ class FilterProductListFragment : Fragment() {
                 }
             }
         }
-        receiptDataViewModel.categoryList.observe(viewLifecycleOwner) {
+        listingViewModel.categoryList.observe(viewLifecycleOwner) {
             it?.let {
                 ArrayAdapter(
                     requireContext(),

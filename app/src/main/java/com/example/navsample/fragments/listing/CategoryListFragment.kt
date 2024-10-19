@@ -18,14 +18,14 @@ import com.example.navsample.databinding.FragmentCategoryListBinding
 import com.example.navsample.dto.inputmode.AddingInputType
 import com.example.navsample.fragments.dialogs.ConfirmDialog
 import com.example.navsample.viewmodels.ListingViewModel
-import com.example.navsample.viewmodels.ReceiptDataViewModel
+import com.example.navsample.viewmodels.fragment.AddCategoryDataViewModel
 
 
 class CategoryListFragment : Fragment(), ItemClickListener {
     private var _binding: FragmentCategoryListBinding? = null
     private val binding get() = _binding!!
-    private val receiptDataViewModel: ReceiptDataViewModel by activityViewModels()
     private val listingViewModel: ListingViewModel by activityViewModels()
+    private val addCategoryDataViewModel: AddCategoryDataViewModel by activityViewModels()
 
     private lateinit var recyclerViewEvent: RecyclerView
     private lateinit var categoryListAdapter: CategoryListAdapter
@@ -60,7 +60,7 @@ class CategoryListFragment : Fragment(), ItemClickListener {
                         ).show()
 
                     } else {
-                        receiptDataViewModel.deleteCategory(it)
+                        addCategoryDataViewModel.deleteCategory(it)
                         listingViewModel.categoryList.value?.let { categoryList ->
                             categoryList.removeAt(i)
                             categoryListAdapter.categoryList = categoryList
@@ -87,8 +87,6 @@ class CategoryListFragment : Fragment(), ItemClickListener {
             listingViewModel.filterCategoryList.value?.category = ""
         }
         binding.newButton.setOnClickListener {
-            receiptDataViewModel.savedCategory.value = null
-
             val action =
                 ListingFragmentDirections.actionListingFragmentToAddCategoryFragment(AddingInputType.EMPTY.name)
             Navigation.findNavController(requireView()).navigate(action)
@@ -119,8 +117,6 @@ class CategoryListFragment : Fragment(), ItemClickListener {
 
     override fun onItemClick(index: Int) {
         val category = listingViewModel.categoryList.value!![index]
-        receiptDataViewModel.savedCategory.value = category
-        receiptDataViewModel.category.value = category
         val action = ListingFragmentDirections.actionListingFragmentToAddCategoryFragment(
             id = category.id!!,
             inputType = AddingInputType.ID.name
