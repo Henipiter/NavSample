@@ -27,6 +27,7 @@ import com.example.navsample.viewmodels.ImageAnalyzerViewModel
 import com.example.navsample.viewmodels.ListingViewModel
 import com.example.navsample.viewmodels.ReceiptDataViewModel
 import com.example.navsample.viewmodels.ReceiptImageViewModel
+import com.example.navsample.viewmodels.fragment.AddProductDataViewModel
 
 
 @ExperimentalGetImage
@@ -39,6 +40,7 @@ class AddProductListFragment : Fragment(), ItemClickListener {
     private val imageAnalyzerViewModel: ImageAnalyzerViewModel by activityViewModels()
     private val receiptImageViewModel: ReceiptImageViewModel by activityViewModels()
     private val receiptDataViewModel: ReceiptDataViewModel by activityViewModels()
+    private val addProductDataViewModel: AddProductDataViewModel by activityViewModels()
     private val listingViewModel: ListingViewModel by activityViewModels()
 
     private lateinit var recyclerViewEvent: RecyclerView
