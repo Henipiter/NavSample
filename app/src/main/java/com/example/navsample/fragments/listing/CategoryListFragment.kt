@@ -89,7 +89,6 @@ class CategoryListFragment : Fragment(), ItemClickListener {
         binding.newButton.setOnClickListener {
             receiptDataViewModel.savedCategory.value = null
 
-//            val action = ListingFragmentDirections.actionListingFragmentToAddCategoryFragment(AddingInputType.EMPTY)
             val action =
                 ListingFragmentDirections.actionListingFragmentToAddCategoryFragment(AddingInputType.EMPTY.name)
             Navigation.findNavController(requireView()).navigate(action)

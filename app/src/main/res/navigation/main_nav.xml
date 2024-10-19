@@ -42,17 +42,24 @@
         android:label="fragment_add_product"
         tools:layout="@layout/fragment_add_product">
         <argument
+            android:name="inputType"
+            android:defaultValue="EMPTY"
+            app:argType="string" />
+        <argument
             android:name="productIndex"
             android:defaultValue="-1"
             app:argType="integer" />
         <argument
-            android:name="saveProduct"
+            android:name="updateProduct"
             app:argType="boolean" />
         <action
             android:id="@+id/action_addProductFragment_to_addCategoryFragment"
             app:destination="@id/addCategoryFragment">
             <argument android:name="inputType" />
         </action>
+        <argument
+            android:name="receiptId"
+            android:defaultValue="-1" />
     </fragment>
     <fragment
         android:id="@+id/addReceiptFragment"
@@ -71,12 +78,12 @@
         </action>
         <argument
             android:name="inputType"
-            app:argType="string"
-            android:defaultValue="EMPTY" />
+            android:defaultValue="EMPTY"
+            app:argType="string" />
         <argument
             android:name="receiptId"
-            app:argType="integer"
-            android:defaultValue="-1" />
+            android:defaultValue="-1"
+            app:argType="integer" />
     </fragment>
     <fragment
         android:id="@+id/imageImportFragment"

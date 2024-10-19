@@ -16,6 +16,7 @@ import com.example.navsample.ItemClickListener
 import com.example.navsample.R
 import com.example.navsample.adapters.RichProductListAdapter
 import com.example.navsample.databinding.FragmentProductListBinding
+import com.example.navsample.dto.inputmode.AddingInputType
 import com.example.navsample.dto.sort.RichProductSort
 import com.example.navsample.dto.sort.SortProperty
 import com.example.navsample.entities.Product
@@ -154,10 +155,15 @@ class ProductListFragment : Fragment(), ItemClickListener {
             receiptDataViewModel.product.value = arrayListOf(chosenProduct)
             receiptDataViewModel.getReceiptById(chosenProduct.receiptId)
             receiptDataViewModel.getStoreById(it.storeId)
+
+            val action =
+                ListingFragmentDirections.actionListingFragmentToAddProductFragment(
+                    false,
+                    AddingInputType.ID.name,
+                    it.id
+                )
+            Navigation.findNavController(requireView()).navigate(action)
         }
-        val action =
-            ListingFragmentDirections.actionListingFragmentToAddProductFragment(true, 0)
-        Navigation.findNavController(requireView()).navigate(action)
     }
 
 }
