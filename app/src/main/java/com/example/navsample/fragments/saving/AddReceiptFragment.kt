@@ -124,11 +124,12 @@ class AddReceiptFragment : Fragment() {
                 } catch (e: Exception) {
                     null
                 }
-                binding.storeNameInput.setText(store?.name)
                 binding.receiptPLNInput.setText(receipt.pln.toString())
                 binding.receiptPTUInput.setText(receipt.ptu.toString())
                 binding.receiptDateInput.setText(receipt.date)
                 binding.receiptTimeInput.setText(receipt.time)
+                binding.storeNameInput.setText(store?.name)
+                binding.storeNameInput.isEnabled = false
             }
         }
 
@@ -301,7 +302,6 @@ class AddReceiptFragment : Fragment() {
 
         binding.storeNameLayout.setStartIconOnClickListener {
             binding.storeNameInput.setText("")
-            binding.storeNameLayout.helperText = null
             binding.storeNameInput.isEnabled = true
             pickedStore = null
         }

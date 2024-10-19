@@ -225,6 +225,7 @@ class AddProductFragment : Fragment() {
                     .navigate(R.id.action_addProductFragment_to_addCategoryFragment)
             } else {
                 binding.productCategoryInput.setText(chosenCategory?.name)
+                binding.productCategoryInput.isEnabled = false
             }
         }
         binding.ptuTypeInput.setOnItemClickListener { adapter, _, i, _ ->
@@ -297,6 +298,7 @@ class AddProductFragment : Fragment() {
             binding.productQuantityInput.setText(product.quantity.toString())
             binding.ptuTypeInput.setText(product.ptuType)
             binding.productCategoryInput.setText(chosenCategory?.name)
+            binding.productCategoryInput.isEnabled = false
 
         }
         binding.toolbar.setNavigationOnClickListener {
@@ -492,6 +494,7 @@ class AddProductFragment : Fragment() {
                     addProductDataViewModel.categoryList.value?.first { it.id == product.categoryId }
                 category?.let {
                     binding.productCategoryInput.setText(it.name)
+                    binding.productCategoryInput.isEnabled = false
                 }
             }
         }
@@ -503,6 +506,7 @@ class AddProductFragment : Fragment() {
                 addProductDataViewModel.categoryList.value?.first { it.id == store?.defaultCategoryId }
             category?.let {
                 binding.productCategoryInput.setText(it.name)
+                binding.productCategoryInput.isEnabled = false
             }
 
         }

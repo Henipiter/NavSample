@@ -51,8 +51,6 @@ class AddStoreFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         binding.toolbar.inflateMenu(R.menu.top_menu_basic_add)
         binding.toolbar.setNavigationIcon(R.drawable.back)
-        binding.toolbar.menu.findItem(R.id.edit).isVisible = false
-        binding.toolbar.menu.findItem(R.id.confirm).isVisible = true
 
         dropdownAdapter = CategoryDropdownAdapter(
             requireContext(), R.layout.array_adapter_row, arrayListOf()
@@ -110,12 +108,14 @@ class AddStoreFragment : Fragment() {
                     .navigate(R.id.action_addStoreFragment_to_addCategoryFragment)
             } else {
                 binding.storeDefaultCategoryInput.setText(chosenCategory?.name)
+                binding.storeDefaultCategoryInput.isEnabled = false
             }
         }
 
         binding.storeDefaultCategoryLayout.setStartIconOnClickListener {
             binding.storeDefaultCategoryInput.setText("")
             chosenCategory = null
+            binding.storeDefaultCategoryInput.isEnabled = true
         }
     }
 
@@ -218,6 +218,7 @@ class AddStoreFragment : Fragment() {
                 binding.storeNameInput.setText(store.name)
                 binding.storeNIPInput.setText(store.nip)
                 binding.storeDefaultCategoryInput.setText(chosenCategory?.name)
+                binding.storeDefaultCategoryInput.isEnabled = false
 
                 validateNip(store.nip)
 
