@@ -50,7 +50,8 @@ class AddProductListFragment : Fragment(), ItemClickListener {
     private val reorderedProductTiles = MutableLiveData(false)
     private lateinit var recyclerViewEvent: RecyclerView
     private lateinit var productListAdapter: ProductListAdapter
-    private var onStart = true
+    private var shouldOpenCropFragment = true
+    private var firstEntry = true
     private var isPricesSumValid = true
 
     override fun onCreateView(
@@ -70,11 +71,14 @@ class AddProductListFragment : Fragment(), ItemClickListener {
 
         addProductDataViewModel.refreshCategoryList()
         initObserver()
-        consumeNavArgs()
+        if (firstEntry) {
+            firstEntry = false
+            consumeNavArgs()
+        }
         myPref =
             requireContext().getSharedPreferences("preferences", AppCompatActivity.MODE_PRIVATE)
-        if (onStart && imageViewModel.uriCroppedProduct.value == null) {
-            onStart = false
+        if (shouldOpenCropFragment && imageViewModel.uriCroppedProduct.value == null) {
+            shouldOpenCropFragment = false
             val action =
                 AddProductListFragmentDirections.actionAddProductListFragmentToCropImageFragment(
                     receiptId = navArgs.receiptId,
@@ -123,7 +127,7 @@ class AddProductListFragment : Fragment(), ItemClickListener {
 
 
         binding.toolbar.setNavigationOnClickListener {
-            onStart = true
+            shouldOpenCropFragment = true
             Navigation.findNavController(it).popBackStack()
         }
 
@@ -152,7 +156,9 @@ class AddProductListFragment : Fragment(), ItemClickListener {
                             "Invalid prices",
                             "Some products have invalid prices. Continue?"
                         )
-                        { save() }.show(childFragmentManager, "TAG")
+                        {
+                            save()
+                        }.show(childFragmentManager, "TAG")
                     } else {
                         save()
                     }
@@ -215,9 +221,10 @@ class AddProductListFragment : Fragment(), ItemClickListener {
         addProductDataViewModel.insertProducts(
             addProductDataViewModel.productList.value?.toList() ?: listOf()
         )
-        listingViewModel.loadDataByProductFilter()
         imageAnalyzerViewModel.clearData()
         imageViewModel.clearData()
+        listingViewModel.loadDataByProductFilter()
+        listingViewModel.loadDataByReceiptFilter()
         addProductDataViewModel.cropImageFragmentOnStart = true
         Navigation.findNavController(binding.root).popBackStack(R.id.listingFragment, false)
     }

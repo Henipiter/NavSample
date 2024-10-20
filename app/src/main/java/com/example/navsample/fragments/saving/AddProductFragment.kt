@@ -295,6 +295,9 @@ class AddProductFragment : Fragment() {
             binding.productSubtotalPriceInput.setText(product.subtotalPrice.toString())
             binding.productUnitPriceInput.setText(product.unitPrice.toString())
             binding.productQuantityInput.setText(product.quantity.toString())
+            binding.productFinalPriceInput.setText(product.finalPrice.toString())
+            binding.productDiscountInput.setText(product.discount.toString())
+
             binding.ptuTypeInput.setText(product.ptuType)
             binding.productCategoryInput.setText(chosenCategory?.name)
             binding.productCategoryInput.isEnabled = false
@@ -370,6 +373,8 @@ class AddProductFragment : Fragment() {
                 binding.productSubtotalPriceInput.setText("")
                 binding.productUnitPriceInput.setText("")
                 binding.productQuantityInput.setText("")
+                binding.productFinalPriceInput.setText("")
+                binding.productDiscountInput.setText("")
                 binding.ptuTypeInput.setText("")
                 binding.productCategoryInput.setText("")
                 binding.toolbar.title = "Add product"
@@ -429,7 +434,10 @@ class AddProductFragment : Fragment() {
                 binding.productOriginalInput.text.toString(),
                 isValidPrices
             )
-            addProductDataViewModel.productList.value?.add(product)
+            val newList =
+                addProductDataViewModel.productList.value?.let { ArrayList(it) } ?: arrayListOf()
+            newList.add(product)
+            addProductDataViewModel.productList.value = newList
 
 
         } else if (mode == DataMode.EDIT) {
@@ -488,6 +496,8 @@ class AddProductFragment : Fragment() {
                 binding.productSubtotalPriceInput.setText(product.subtotalPrice.toString())
                 binding.productUnitPriceInput.setText(product.unitPrice.toString())
                 binding.productQuantityInput.setText(product.quantity.toString())
+                binding.productFinalPriceInput.setText(product.finalPrice.toString())
+                binding.productDiscountInput.setText(product.discount.toString())
                 binding.ptuTypeInput.setText(product.ptuType)
                 val category =
                     addProductDataViewModel.categoryList.value?.first { it.id == product.categoryId }

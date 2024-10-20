@@ -43,7 +43,7 @@ class ReceiptListFragment : Fragment(), ItemClickListener {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         initObserver()
-        listingViewModel.refreshCategoryList()
+
         binding.toolbar.inflateMenu(R.menu.top_menu_list_filter)
         binding.toolbar.menu.findItem(R.id.collapse).isVisible = false
         binding.toolbar.menu.findItem(R.id.expand).isVisible = false
@@ -95,7 +95,6 @@ class ReceiptListFragment : Fragment(), ItemClickListener {
                             + "\nDate: " + it.date
                             + "\nTime: " + it.time
                 ) {
-
                     addReceiptDataViewModel.deleteReceipt(it.id)
                     listingViewModel.receiptList.value?.let { receiptList ->
                         receiptList.removeAt(i)

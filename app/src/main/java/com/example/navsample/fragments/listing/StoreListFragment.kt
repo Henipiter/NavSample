@@ -93,6 +93,8 @@ class StoreListFragment : Fragment(), ItemClickListener {
                                 i, storeListAdapter.storeList.size
                             )
                         }
+                        listingViewModel.loadDataByProductFilter()
+                        listingViewModel.loadDataByReceiptFilter()
                     }.show(childFragmentManager, "TAG")
                 }
             }
