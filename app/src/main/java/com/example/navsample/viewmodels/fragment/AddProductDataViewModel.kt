@@ -31,6 +31,7 @@ class AddProductDataViewModel : ViewModel() {
     var productById = MutableLiveData<Product?>()
     var storeById = MutableLiveData<Store?>()
     private var userUuid = MutableLiveData<String?>(null)
+    var cropImageFragmentOnStart = true
 
     init {
         setUserUuid()

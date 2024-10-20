@@ -45,6 +45,13 @@
         <argument
             android:name="storeId"
             app:argType="integer" />
+        <argument
+            android:name="categoryId"
+            app:argType="integer" />
+        <action
+            android:id="@+id/action_addProductListFragment_to_addReceiptFragment"
+            app:destination="@id/addReceiptFragment"
+            app:popUpTo="@id/addReceiptFragment" />
     </fragment>
     <fragment
         android:id="@+id/addProductFragment"

@@ -73,13 +73,15 @@ class AddProductListFragment : Fragment(), ItemClickListener {
         consumeNavArgs()
         myPref =
             requireContext().getSharedPreferences("preferences", AppCompatActivity.MODE_PRIVATE)
-
         if (onStart && imageViewModel.uriCroppedProduct.value == null) {
             onStart = false
-            Navigation.findNavController(requireView())
-                .navigate(R.id.action_addProductListFragment_to_cropImageFragment)
+            val action =
+                AddProductListFragmentDirections.actionAddProductListFragmentToCropImageFragment(
+                    receiptId = navArgs.receiptId,
+                    categoryId = navArgs.categoryId
+                )
+            Navigation.findNavController(requireView()).navigate(action)
         }
-
         recyclerViewEvent = binding.recyclerViewEvent
         productListAdapter = ProductListAdapter(
             requireContext(),
@@ -107,8 +109,12 @@ class AddProductListFragment : Fragment(), ItemClickListener {
 
 
         binding.receiptImage.setOnLongClickListener {
-            Navigation.findNavController(requireView())
-                .navigate(R.id.action_addProductListFragment_to_cropImageFragment)
+            val action =
+                AddProductListFragmentDirections.actionAddProductListFragmentToCropImageFragment(
+                    receiptId = navArgs.receiptId,
+                    categoryId = navArgs.categoryId
+                )
+            Navigation.findNavController(requireView()).navigate(action)
             true
         }
         recyclerViewEvent.adapter = productListAdapter
@@ -117,6 +123,7 @@ class AddProductListFragment : Fragment(), ItemClickListener {
 
 
         binding.toolbar.setNavigationOnClickListener {
+            onStart = true
             Navigation.findNavController(it).popBackStack()
         }
 
@@ -210,7 +217,9 @@ class AddProductListFragment : Fragment(), ItemClickListener {
         )
         listingViewModel.loadDataByProductFilter()
         imageAnalyzerViewModel.clearData()
-        Navigation.findNavController(binding.root).popBackStack(R.id.settingsFragment, false)
+        imageViewModel.clearData()
+        addProductDataViewModel.cropImageFragmentOnStart = true
+        Navigation.findNavController(binding.root).popBackStack(R.id.listingFragment, false)
     }
 
     private fun isProductsAreValid(): Boolean {

@@ -1,6 +1,8 @@
 package com.example.navsample.fragments
 
+import android.graphics.Bitmap
 import android.graphics.ImageDecoder
+import android.graphics.Matrix
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -64,6 +66,9 @@ class ImageImportFragment : Fragment() {
         binding.toolbar.setOnMenuItemClickListener {
             when (it.itemId) {
                 R.id.rotate -> {
+                    imageViewModel.bitmapOriginal.value?.let {
+                        imageViewModel.bitmapOriginal.value = rotateBitmap(it)
+                    }
                     Toast.makeText(requireContext(), "ROTATE", Toast.LENGTH_SHORT).show()
                     true
                 }
@@ -113,6 +118,12 @@ class ImageImportFragment : Fragment() {
             }
         }
 
+    }
+
+    private fun rotateBitmap(original: Bitmap): Bitmap {
+        val matrix = Matrix()
+        matrix.preRotate(90F)
+        return Bitmap.createBitmap(original, 0, 0, original.width, original.height, matrix, true)
     }
 
 }

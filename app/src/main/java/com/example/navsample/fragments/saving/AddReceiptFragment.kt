@@ -46,6 +46,7 @@ class AddReceiptFragment : Fragment() {
     private var mode = DataMode.NEW
     private var pickedStore: Store? = null
     private var goNext = true
+    private var firstEntry = true
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?,
     ): View {
@@ -66,6 +67,12 @@ class AddReceiptFragment : Fragment() {
             binding.storeNameInput.setAdapter(adapter)
         }
 
+        if (firstEntry) {
+            firstEntry = false
+            addReceiptDataViewModel.inputType = navArgs.inputType
+            addReceiptDataViewModel.receiptId = navArgs.receiptId
+        }
+
         addReceiptDataViewModel.receiptById.value = null
         initObserver()
         addReceiptDataViewModel.refreshStoreList()
@@ -79,7 +86,7 @@ class AddReceiptFragment : Fragment() {
     }
 
     private fun consumeNavArgs() {
-        val inputType = AddingInputType.getByName(navArgs.inputType)
+        val inputType = AddingInputType.getByName(addReceiptDataViewModel.inputType)
         if (inputType == AddingInputType.EMPTY) {
             mode = DataMode.NEW
             binding.storeNameInput.setText("")
@@ -88,17 +95,19 @@ class AddReceiptFragment : Fragment() {
             binding.receiptDateInput.setText("")
             binding.receiptTimeInput.setText("")
             binding.toolbar.title = "Add receipt"
+            binding.toolbar.menu.findItem(R.id.add_new).isVisible = false
 
         } else if (inputType == AddingInputType.ID) {
-            if (navArgs.receiptId >= 0) {
+            if (addReceiptDataViewModel.receiptId >= 0) {
                 binding.toolbar.title = "Edit receipt"
                 mode = DataMode.EDIT
-                addReceiptDataViewModel.getReceiptById(navArgs.receiptId)
+                addReceiptDataViewModel.getReceiptById(addReceiptDataViewModel.receiptId)
+                binding.toolbar.menu.findItem(R.id.add_new).isVisible = true
             } else {
-                throw Exception("NO RECEIPT ID SET: " + navArgs.receiptId)
+                throw Exception("NO RECEIPT ID SET: " + addReceiptDataViewModel.receiptId)
             }
         } else {
-            throw Exception("BAD INPUT TYPE: " + navArgs.inputType)
+            throw Exception("BAD INPUT TYPE: " + addReceiptDataViewModel.inputType)
         }
     }
 
@@ -172,12 +181,18 @@ class AddReceiptFragment : Fragment() {
         }
         addReceiptDataViewModel.savedReceipt.observe(viewLifecycleOwner) {
             it?.let {
-                val action =
-                    AddReceiptFragmentDirections.actionAddReceiptFragmentToAddProductListFragment(
-                        receiptId = it.id!!,
-                        storeId = it.storeId
-                    )
-                Navigation.findNavController(requireView()).navigate(action)
+                addReceiptDataViewModel.receiptId = it.id ?: -1
+                addReceiptDataViewModel.inputType = AddingInputType.ID.name
+                if (goNext && pickedStore?.defaultCategoryId != null) {
+                    goNext = false
+                    val action =
+                        AddReceiptFragmentDirections.actionAddReceiptFragmentToAddProductListFragment(
+                            receiptId = it.id!!,
+                            storeId = it.storeId,
+                            categoryId = pickedStore?.defaultCategoryId!!
+                        )
+                    Navigation.findNavController(requireView()).navigate(action)
+                }
             }
         }
     }
@@ -258,7 +273,7 @@ class AddReceiptFragment : Fragment() {
                     }
                     addReceiptDataViewModel.updateReceipt(receipt)
                     listingViewModel.loadDataByReceiptFilter()
-                    goNext = false
+                    goNext = true
                 }
             }
 
@@ -282,7 +297,8 @@ class AddReceiptFragment : Fragment() {
                         val action =
                             AddReceiptFragmentDirections.actionAddReceiptFragmentToAddProductListFragment(
                                 receiptId = receipt.id!!,
-                                storeId = receipt.storeId
+                                storeId = receipt.storeId,
+                                categoryId = pickedStore?.defaultCategoryId!!
                             )
                         Navigation.findNavController(requireView()).navigate(action)
                         return@setOnMenuItemClickListener true
