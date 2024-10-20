@@ -299,7 +299,6 @@ class AddProductListFragment : Fragment(), ItemClickListener {
                 it.receiptPriceLines.map { AlgorithmItemAdapterArgument(it) } as ArrayList<AlgorithmItemAdapterArgument>
 
             reorderedProductTiles.value = true
-
         }
 
         addProductDataViewModel.storeById.observe(viewLifecycleOwner) { store ->
@@ -314,10 +313,17 @@ class AddProductListFragment : Fragment(), ItemClickListener {
         }
         addProductDataViewModel.productList.observe(viewLifecycleOwner) { productList ->
             productListAdapter.productList = productList
-            productListAdapter.notifyDataSetChanged()
             calculateSumOfProductPrices(productList)
+            if (productListAdapter.categoryList.isNotEmpty()) {
+                productListAdapter.notifyDataSetChanged()
+            }
         }
-
+        addProductDataViewModel.categoryList.observe(viewLifecycleOwner) { categoryList ->
+            productListAdapter.categoryList = categoryList
+            if (productListAdapter.productList.isNotEmpty()) {
+                productListAdapter.notifyDataSetChanged()
+            }
+        }
     }
 
     companion object {

@@ -429,7 +429,7 @@ class AddProductFragment : Fragment() {
                 binding.productOriginalInput.text.toString(),
                 isValidPrices
             )
-            addProductDataViewModel.productList.value!!.add(product)
+            addProductDataViewModel.productList.value?.add(product)
 
 
         } else if (mode == DataMode.EDIT) {

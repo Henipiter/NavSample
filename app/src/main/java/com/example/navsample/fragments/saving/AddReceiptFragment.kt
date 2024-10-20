@@ -128,7 +128,7 @@ class AddReceiptFragment : Fragment() {
         }
         addReceiptDataViewModel.receiptById.observe(viewLifecycleOwner) {
             it?.let { receipt ->
-                val store = try {
+                pickedStore = try {
                     addReceiptDataViewModel.storeList.value?.first { store -> store.id == receipt.storeId }
                 } catch (e: Exception) {
                     null
@@ -137,7 +137,7 @@ class AddReceiptFragment : Fragment() {
                 binding.receiptPTUInput.setText(receipt.ptu.toString())
                 binding.receiptDateInput.setText(receipt.date)
                 binding.receiptTimeInput.setText(receipt.time)
-                binding.storeNameInput.setText(store?.name)
+                binding.storeNameInput.setText(pickedStore?.name)
                 binding.storeNameInput.isEnabled = false
             }
         }
