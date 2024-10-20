@@ -232,8 +232,12 @@ class AddProductListFragment : Fragment(), ItemClickListener {
     }
 
     private fun reorderTilesWithProducts() {
-        Navigation.findNavController(requireView())
-            .navigate(R.id.action_addProductListFragment_to_experimentRecycleFragment)
+        val action =
+            AddProductListFragmentDirections.actionAddProductListFragmentToExperimentRecycleFragment(
+                receiptId = navArgs.receiptId,
+                categoryId = navArgs.categoryId
+            )
+        Navigation.findNavController(requireView()).navigate(action)
 
     }
 
