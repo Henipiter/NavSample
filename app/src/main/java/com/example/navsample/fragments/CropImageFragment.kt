@@ -51,7 +51,7 @@ class CropImageFragment : Fragment() {
         }
 
         binding.toolbar.setNavigationOnClickListener {
-            Navigation.findNavController(it).popBackStack()
+            Navigation.findNavController(requireView()).popBackStack(R.id.addReceiptFragment, false)
         }
         binding.toolbar.setOnMenuItemClickListener {
             when (it.itemId) {
