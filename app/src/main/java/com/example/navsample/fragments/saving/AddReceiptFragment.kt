@@ -15,6 +15,8 @@ import com.example.navsample.R
 import com.example.navsample.adapters.StoreDropdownAdapter
 import com.example.navsample.databinding.FragmentAddReceiptBinding
 import com.example.navsample.dto.DataMode
+import com.example.navsample.dto.PriceUtils.Companion.doublePriceTextToInt
+import com.example.navsample.dto.PriceUtils.Companion.intPriceToString
 import com.example.navsample.dto.inputmode.AddingInputType
 import com.example.navsample.entities.Receipt
 import com.example.navsample.entities.Store
@@ -128,16 +130,16 @@ class AddReceiptFragment : Fragment() {
         }
         addReceiptDataViewModel.receiptById.observe(viewLifecycleOwner) {
             it?.let { receipt ->
-                val store = try {
+                pickedStore = try {
                     addReceiptDataViewModel.storeList.value?.first { store -> store.id == receipt.storeId }
                 } catch (e: Exception) {
                     null
                 }
-                binding.receiptPLNInput.setText(receipt.pln.toString())
-                binding.receiptPTUInput.setText(receipt.ptu.toString())
+                binding.receiptPLNInput.setText(intPriceToString(receipt.pln))
+                binding.receiptPTUInput.setText(intPriceToString(receipt.ptu))
                 binding.receiptDateInput.setText(receipt.date)
                 binding.receiptTimeInput.setText(receipt.time)
-                binding.storeNameInput.setText(store?.name)
+                binding.storeNameInput.setText(pickedStore?.name)
                 binding.storeNameInput.isEnabled = false
             }
         }
@@ -197,15 +199,6 @@ class AddReceiptFragment : Fragment() {
         }
     }
 
-    private fun transformToDouble(value: String): Double {
-        return try {
-            value.replace(",", ".").toDouble()
-        } catch (t: Throwable) {
-            0.0
-        }
-    }
-
-
     private fun validateObligatoryFields(): Boolean {
         var succeedValidation = true
         if (binding.receiptPLNInput.text.isNullOrEmpty()) {
@@ -240,14 +233,14 @@ class AddReceiptFragment : Fragment() {
     }
 
     private fun saveChangesToDatabase() {
-        val pln = transformToDouble(binding.receiptPLNInput.text.toString())
-        val ptu = transformToDouble(binding.receiptPTUInput.text.toString())
+        val pln = doublePriceTextToInt(binding.receiptPLNInput.text.toString())
+        val ptu = doublePriceTextToInt(binding.receiptPTUInput.text.toString())
         val date = binding.receiptDateInput.text.toString()
         val time = binding.receiptTimeInput.text.toString()
 
         if (mode == DataMode.NEW) {
             pickedStore?.id?.let { storeId ->
-                val receipt = Receipt(-1, -1.0, -1.0, "", "", true).apply {
+                val receipt = Receipt(-1, -1, -1, "", "", true).apply {
                     this.storeId = storeId
                     this.pln = pln
                     this.ptu = ptu
@@ -263,7 +256,7 @@ class AddReceiptFragment : Fragment() {
         } else if (mode == DataMode.EDIT) {
             addReceiptDataViewModel.receiptById.value?.let {
                 pickedStore?.id?.let { storeId ->
-                    val receipt = Receipt(-1, -1.0, -1.0, "", "", true).apply {
+                    val receipt = Receipt(-1, -1, -1, "", "", true).apply {
                         this.id = it.id
                         this.storeId = storeId
                         this.pln = pln

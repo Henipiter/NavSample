@@ -22,7 +22,7 @@ import com.example.navsample.ItemClickListener
 import com.example.navsample.R
 import com.example.navsample.adapters.ProductListAdapter
 import com.example.navsample.databinding.FragmentAddProductListBinding
-import com.example.navsample.dto.Utils.Companion.roundDouble
+import com.example.navsample.dto.PriceUtils.Companion.intPriceToString
 import com.example.navsample.dto.inputmode.AddingInputType
 import com.example.navsample.dto.sorting.AlgorithmItemAdapterArgument
 import com.example.navsample.entities.Product
@@ -182,16 +182,16 @@ class AddProductListFragment : Fragment(), ItemClickListener {
     }
 
     private fun calculateSumOfProductPrices(productList: List<Product>) {
-        var sum = 0.0
+        var sum = 0
         productList.forEach {
             sum += it.finalPrice
         }
-        sum = roundDouble(sum)
-        binding.cartValueText.text = sum.toString()
+        val textSum = intPriceToString(sum)
+        binding.cartValueText.text = textSum
 
 
         val receiptPrice = binding.receiptValueText.text
-        if (receiptPrice != sum.toString()) {
+        if (receiptPrice != textSum) {
             isPricesSumValid = false
             binding.cartValueText.setTextColor(Color.RED)
         } else {
@@ -309,7 +309,7 @@ class AddProductListFragment : Fragment(), ItemClickListener {
         }
         addProductDataViewModel.receiptById.observe(viewLifecycleOwner) { receipt ->
             receipt?.let {
-                binding.receiptValueText.text = receipt.pln.toString()
+                binding.receiptValueText.text = intPriceToString(receipt.pln)
             }
         }
         addProductDataViewModel.productList.observe(viewLifecycleOwner) { productList ->

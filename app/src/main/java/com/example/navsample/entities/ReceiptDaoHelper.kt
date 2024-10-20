@@ -58,8 +58,8 @@ class ReceiptDaoHelper {
             categoryName: String,
             dateFrom: String,
             dateTo: String,
-            lowerPrice: Double,
-            higherPrice: Double,
+            lowerPrice: Int,
+            higherPrice: Int,
             orderBy: SortProperty<RichProductSort>
         ): List<ProductRichData>? {
             val sql = StringBuilder()
@@ -71,7 +71,7 @@ class ReceiptDaoHelper {
                 .append("AND r.date >= '$dateFrom' ")
                 .append("AND r.date <= '$dateTo' ")
                 .append("AND p.subtotalPrice >= $lowerPrice ")
-            if (higherPrice != -1.0) {
+            if (higherPrice != -1) {
                 sql.append("AND p.subtotalPrice <= $higherPrice ")
             }
             sql.append("ORDER BY $orderBy")
