@@ -26,7 +26,7 @@ class AddProductDataViewModel : ViewModel() {
     private val dao = ApplicationContext.context?.let { ReceiptDatabase.getInstance(it).receiptDao }
 
     var categoryList = MutableLiveData<List<Category>>()
-    var productList = MutableLiveData<MutableList<Product>>()
+    var productList = MutableLiveData<ArrayList<Product>>()
     var receiptById = MutableLiveData<Receipt?>()
     var productById = MutableLiveData<Product?>()
     var storeById = MutableLiveData<Store?>()
@@ -85,7 +85,7 @@ class AddProductDataViewModel : ViewModel() {
         Log.i("Database", "get store with id $receiptId")
         viewModelScope.launch {
             dao?.let { dao ->
-                productList.postValue(dao.getAllProducts(receiptId).toMutableList())
+                productList.postValue(dao.getAllProducts(receiptId) as ArrayList)
             }
         }
     }

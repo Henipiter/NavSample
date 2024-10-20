@@ -23,6 +23,7 @@ import com.example.navsample.R
 import com.example.navsample.adapters.ProductListAdapter
 import com.example.navsample.databinding.FragmentAddProductListBinding
 import com.example.navsample.dto.Utils.Companion.roundDouble
+import com.example.navsample.dto.analyzer.AnalyzedProductsData
 import com.example.navsample.dto.inputmode.AddingInputType
 import com.example.navsample.dto.sorting.AlgorithmItemAdapterArgument
 import com.example.navsample.entities.Product
@@ -133,6 +134,20 @@ class AddProductListFragment : Fragment(), ItemClickListener {
 
         binding.toolbar.setOnMenuItemClickListener {
             when (it.itemId) {
+                R.id.aiParser -> {
+                    val productsData = AnalyzedProductsData(
+                        ArrayList(addProductDataViewModel.productList.value?.map { it.name }
+                            ?: arrayListOf()),
+                        ArrayList(),
+                        addProductDataViewModel.productList.value ?: arrayListOf()
+                    )
+
+                    imageAnalyzerViewModel.aiAnalyze(
+                        productsData, addProductDataViewModel.categoryList.value ?: listOf()
+                    )
+                    true
+                }
+
                 R.id.reorder -> {
                     imageAnalyzerViewModel.productAnalyzed.value = null
                     reorderTilesWithProducts()
@@ -291,8 +306,16 @@ class AddProductListFragment : Fragment(), ItemClickListener {
         }
 
         imageAnalyzerViewModel.geminiResponse.observe(viewLifecycleOwner) {
-            Toast.makeText(requireContext(), "'$it'", Toast.LENGTH_SHORT).show()
-            binding.geminiResponse.text = it
+            it?.let {
+                binding.geminiResponse.text = it
+                imageAnalyzerViewModel.geminiResponse.value = null
+            }
+        }
+        imageAnalyzerViewModel.geminiError.observe(viewLifecycleOwner) {
+            it?.let {
+                Toast.makeText(requireContext(), "ERROR: '$it'", Toast.LENGTH_SHORT).show()
+                imageAnalyzerViewModel.geminiError.value = null
+            }
         }
 
         imageAnalyzerViewModel.productAnalyzed.observe(viewLifecycleOwner) { it ->

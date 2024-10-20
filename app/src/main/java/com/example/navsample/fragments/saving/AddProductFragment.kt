@@ -181,6 +181,7 @@ class AddProductFragment : Fragment() {
         binding.toolbar.setNavigationIcon(R.drawable.back)
         binding.toolbar.menu.findItem(R.id.reorder).isVisible = false
         binding.toolbar.menu.findItem(R.id.add_new).isVisible = false
+        binding.toolbar.menu.findItem(R.id.aiParser).isVisible = false
 
 
         dropdownAdapter = CategoryDropdownAdapter(
