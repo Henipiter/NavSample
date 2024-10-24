@@ -75,8 +75,11 @@ class ImageImportFragment : Fragment() {
 
                 R.id.confirm -> {
                     binding.receiptImage.croppedImageAsync()
-                    Navigation.findNavController(requireView())
-                        .navigate(R.id.action_imageImportFragment_to_addReceiptFragment)
+                    val action =
+                        ImageImportFragmentDirections.actionImageImportFragmentToAddReceiptFragment(
+                            sourceFragment = FRAGMENT_NAME
+                        )
+                    Navigation.findNavController(requireView()).navigate(action)
                     true
                 }
 
@@ -97,8 +100,11 @@ class ImageImportFragment : Fragment() {
 
         binding.manualButton.setOnClickListener {
             imageViewModel.clearData()
-            Navigation.findNavController(requireView())
-                .navigate(R.id.action_imageImportFragment_to_addReceiptFragment)
+            val action =
+                ImageImportFragmentDirections.actionImageImportFragmentToAddReceiptFragment(
+                    sourceFragment = FRAGMENT_NAME
+                )
+            Navigation.findNavController(requireView()).navigate(action)
         }
 
     }
@@ -124,6 +130,10 @@ class ImageImportFragment : Fragment() {
         val matrix = Matrix()
         matrix.preRotate(90F)
         return Bitmap.createBitmap(original, 0, 0, original.width, original.height, matrix, true)
+    }
+
+    companion object {
+        const val FRAGMENT_NAME = "ImageImportFragment"
     }
 
 }

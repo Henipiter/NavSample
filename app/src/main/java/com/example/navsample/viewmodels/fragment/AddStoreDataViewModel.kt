@@ -24,10 +24,16 @@ class AddStoreDataViewModel : ViewModel() {
     private val firestore = Firebase.firestore
     private val dao = ApplicationContext.context?.let { ReceiptDatabase.getInstance(it).receiptDao }
 
+
+    var inputType = "EMPTY"
+    var storeId = -1
+    var storeName: String? = null
+    var storeNip: String? = null
+
     var storeList = MutableLiveData<ArrayList<Store>>()
     var categoryList = MutableLiveData<ArrayList<Category>>()
     var storeById = MutableLiveData<Store?>()
-    private var savedStore = MutableLiveData<Store>()
+    var savedStore = MutableLiveData<Store>()
     private var userUuid = MutableLiveData<String?>(null)
 
     init {
@@ -78,10 +84,10 @@ class AddStoreDataViewModel : ViewModel() {
                 }
                 Log.i("Database", "inserted receipt with id ${newStore.id}")
                 addFirestore(newStore)
+                savedStore.postValue(newStore)
             } catch (e: Exception) {
                 Log.e("Insert store to DB", e.message.toString())
             }
-            savedStore.postValue(newStore)
         }
     }
 

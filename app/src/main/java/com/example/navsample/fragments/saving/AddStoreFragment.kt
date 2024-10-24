@@ -35,6 +35,9 @@ class AddStoreFragment : Fragment() {
 
     private var chosenCategory: Category? = null
     private var isDuplicatedNIP = false
+    private var firstEntry = true
+    private var stateAfterSave = false
+
     private lateinit var dropdownAdapter: CategoryDropdownAdapter
 
 
@@ -62,6 +65,15 @@ class AddStoreFragment : Fragment() {
         initObserver()
         addStoreDataViewModel.refreshStoreList()
         addStoreDataViewModel.refreshCategoryList()
+
+
+        if (firstEntry) {
+            firstEntry = false
+            addStoreDataViewModel.inputType = navArgs.inputType
+            addStoreDataViewModel.storeId = navArgs.storeId
+            addStoreDataViewModel.storeName = navArgs.storeName
+            addStoreDataViewModel.storeNip = navArgs.storeNip
+        }
         consumeNavArgs()
 
 
@@ -82,17 +94,17 @@ class AddStoreFragment : Fragment() {
                     if (!isStoreInputValid()) {
                         return@setOnMenuItemClickListener false
                     }
+
                     saveChangesToDatabase()
+                    stateAfterSave = true
                     //TODO zoptymalizować - odswiezać w zależnosci czy bylo dodane czy zupdatowane
-                    listingViewModel.loadDataByStoreFilter()
-                    listingViewModel.loadDataByReceiptFilter()
-                    Navigation.findNavController(requireView()).popBackStack()
+
+                    true
                 }
 
                 else -> false
             }
         }
-
 
 
         binding.toolbar.setNavigationOnClickListener {
@@ -120,7 +132,7 @@ class AddStoreFragment : Fragment() {
     }
 
     private fun consumeNavArgs() {
-        val inputType = AddingInputType.getByName(navArgs.inputType)
+        val inputType = AddingInputType.getByName(addStoreDataViewModel.inputType)
         if (inputType == AddingInputType.EMPTY) {
             mode = DataMode.NEW
             binding.storeNIPInput.setText("")
@@ -129,19 +141,19 @@ class AddStoreFragment : Fragment() {
             binding.toolbar.title = "Add store"
 
         } else if (inputType == AddingInputType.ID) {
-            if (navArgs.storeId >= 0) {
+            if (addStoreDataViewModel.storeId >= 0) {
                 binding.toolbar.title = "Edit store"
                 mode = DataMode.EDIT
-                addStoreDataViewModel.getStoreById(navArgs.storeId)
+                addStoreDataViewModel.getStoreById(addStoreDataViewModel.storeId)
             } else {
-                throw Exception("NO STORE ID SET: " + navArgs.storeId)
+                throw Exception("NO STORE ID SET: " + addStoreDataViewModel.storeId)
             }
         } else if (inputType == AddingInputType.FIELD) {
-            binding.storeNameInput.setText(navArgs.storeName)
-            binding.storeNIPInput.setText(navArgs.storeNip)
+            binding.storeNameInput.setText(addStoreDataViewModel.storeName)
+            binding.storeNIPInput.setText(addStoreDataViewModel.storeNip)
             binding.storeDefaultCategoryInput.setText("")
         } else {
-            throw Exception("BAD INPUT TYPE: " + navArgs.inputType)
+            throw Exception("BAD INPUT TYPE: " + addStoreDataViewModel.inputType)
         }
     }
 
@@ -224,6 +236,28 @@ class AddStoreFragment : Fragment() {
 
             }
         }
+
+        addStoreDataViewModel.savedStore.observe(viewLifecycleOwner) {
+            if (!stateAfterSave) {
+                return@observe
+            }
+            stateAfterSave = false
+            listingViewModel.loadDataByStoreFilter()
+            listingViewModel.loadDataByReceiptFilter()
+            if (navArgs.sourceFragment == "AddReceiptFragment") {
+
+                val action =
+                    AddStoreFragmentDirections.actionAddStoreFragmentToAddReceiptFragment(
+                        inputType = AddingInputType.ID.name,
+                        receiptId = -2,
+                        storeId = it.id ?: -1,
+                        sourceFragment = FRAGMENT_NAME
+                    )
+                Navigation.findNavController(requireView()).navigate(action)
+            } else {
+                Navigation.findNavController(requireView()).popBackStack()
+            }
+        }
     }
 
     private fun isNIPUnique(text: String): Boolean {
@@ -272,5 +306,9 @@ class AddStoreFragment : Fragment() {
             }
         }
         return true
+    }
+
+    companion object {
+        const val FRAGMENT_NAME = "AddStoreFragment"
     }
 }

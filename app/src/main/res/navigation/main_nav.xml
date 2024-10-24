@@ -103,6 +103,13 @@
             android:name="receiptId"
             android:defaultValue="-1"
             app:argType="integer" />
+        <argument
+            android:name="storeId"
+            app:argType="integer"
+            android:defaultValue="-1" />
+        <argument
+            android:name="sourceFragment"
+            app:argType="string" />
     </fragment>
     <fragment
         android:id="@+id/imageImportFragment"
@@ -159,6 +166,14 @@
             android:name="storeNip"
             app:argType="string"
             app:nullable="true" />
+        <action
+            android:id="@+id/action_addStoreFragment_to_addReceiptFragment"
+            app:destination="@id/addReceiptFragment"
+            app:popUpTo="@id/addReceiptFragment"
+            app:popUpToInclusive="true" />
+        <argument
+            android:name="sourceFragment"
+            app:argType="string" />
     </fragment>
     <fragment
         android:id="@+id/diagramFragment"

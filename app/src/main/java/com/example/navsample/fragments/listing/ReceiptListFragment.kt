@@ -132,10 +132,15 @@ class ReceiptListFragment : Fragment(), ItemClickListener {
             val action =
                 ListingFragmentDirections.actionListingFragmentToAddReceiptFragment(
                     inputType = AddingInputType.ID.name,
-                    receiptId = receiptId
+                    receiptId = receiptId,
+                    sourceFragment = FRAGMENT_NAME
                 )
             Navigation.findNavController(requireView()).navigate(action)
 
         }
+    }
+
+    companion object {
+        const val FRAGMENT_NAME = "ReceiptListFragment"
     }
 }

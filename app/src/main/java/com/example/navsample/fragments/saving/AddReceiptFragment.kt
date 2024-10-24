@@ -67,11 +67,18 @@ class AddReceiptFragment : Fragment() {
         ).also { adapter ->
             binding.storeNameInput.setAdapter(adapter)
         }
+        Toast.makeText(requireContext(), navArgs.sourceFragment, Toast.LENGTH_SHORT).show()
 
-        if (firstEntry) {
+        if (firstEntry && navArgs.sourceFragment != "AddStoreFragment") {
             firstEntry = false
             addReceiptDataViewModel.inputType = navArgs.inputType
-            addReceiptDataViewModel.receiptId = navArgs.receiptId
+            if (navArgs.receiptId != -2) {
+                addReceiptDataViewModel.receiptId = navArgs.receiptId
+            }
+        } else if (navArgs.sourceFragment == "AddStoreFragment") {
+            if (navArgs.storeId >= 0) {
+                addReceiptDataViewModel.storeId = navArgs.storeId
+            }
         }
 
         addReceiptDataViewModel.receiptById.value = null
@@ -126,6 +133,16 @@ class AddReceiptFragment : Fragment() {
                 dropdownAdapter.storeList = storeList
                 dropdownAdapter.notifyDataSetChanged()
             }
+            if (addReceiptDataViewModel.storeId >= 0) {
+                pickedStore =
+                    addReceiptDataViewModel.storeList.value?.find { it.id == navArgs.storeId }
+                addReceiptDataViewModel.receiptById.value?.let {
+                    it.storeId = navArgs.storeId
+                }
+                binding.storeNameInput.setText(pickedStore?.name)
+                binding.storeNameInput.isEnabled = false
+            }
+
         }
         addReceiptDataViewModel.receiptById.observe(viewLifecycleOwner) {
             it?.let { receipt ->
@@ -169,7 +186,8 @@ class AddReceiptFragment : Fragment() {
                     AddReceiptFragmentDirections.actionAddReceiptFragmentToAddStoreFragment(
                         inputType = AddingInputType.FIELD.name,
                         storeName = analyzedReceipt.companyName,
-                        storeNip = analyzedReceipt.valueNIP
+                        storeNip = analyzedReceipt.valueNIP,
+                        sourceFragment = FRAGMENT_NAME
                     )
                 Navigation.findNavController(requireView()).navigate(action)
             } else {
@@ -331,7 +349,8 @@ class AddReceiptFragment : Fragment() {
                 val action =
                     AddReceiptFragmentDirections.actionAddReceiptFragmentToAddStoreFragment(
                         storeName = null,
-                        storeNip = null
+                        storeNip = null,
+                        sourceFragment = FRAGMENT_NAME
                     )
                 Navigation.findNavController(requireView()).navigate(action)
             } else {
@@ -402,5 +421,9 @@ class AddReceiptFragment : Fragment() {
                 SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(calendarDate.time)
             binding.receiptDateInput.setText(date)
         }
+    }
+
+    companion object {
+        const val FRAGMENT_NAME = "AddReceiptFragment"
     }
 }

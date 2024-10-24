@@ -124,7 +124,8 @@ class StoreListFragment : Fragment(), ItemClickListener {
             val action =
                 ListingFragmentDirections.actionListingFragmentToAddStoreFragment(
                     storeName = null,
-                    storeNip = null
+                    storeNip = null,
+                    sourceFragment = FRAGMENT_NAME
                 )
             Navigation.findNavController(requireView()).navigate(action)
         }
@@ -142,7 +143,8 @@ class StoreListFragment : Fragment(), ItemClickListener {
                         inputType = AddingInputType.ID.name,
                         storeId = storeId,
                         storeName = null,
-                        storeNip = null
+                        storeNip = null,
+                        sourceFragment = FRAGMENT_NAME
                     )
                 Navigation.findNavController(requireView()).navigate(action)
             }
@@ -174,5 +176,9 @@ class StoreListFragment : Fragment(), ItemClickListener {
         listingViewModel.filterStoreList.observe(viewLifecycleOwner) {
             putFilterDefinitionIntoInputs()
         }
+    }
+
+    companion object {
+        const val FRAGMENT_NAME = "StoreListFragment"
     }
 }
