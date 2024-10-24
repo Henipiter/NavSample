@@ -18,6 +18,7 @@ import com.example.navsample.dto.inputmode.AddingInputType
 import com.example.navsample.entities.Category
 import com.example.navsample.entities.Store
 import com.example.navsample.exception.NoCategoryIdException
+import com.example.navsample.fragments.dialogs.ConfirmDialog
 import com.example.navsample.viewmodels.ImageViewModel
 import com.example.navsample.viewmodels.ListingViewModel
 import com.example.navsample.viewmodels.fragment.AddStoreDataViewModel
@@ -34,7 +35,7 @@ class AddStoreFragment : Fragment() {
     private var mode = DataMode.NEW
 
     private var chosenCategory: Category? = null
-    private var isDuplicatedNIP = false
+    private var isUniqueNIP = false
     private var firstEntry = true
     private var stateAfterSave = false
 
@@ -83,10 +84,8 @@ class AddStoreFragment : Fragment() {
         }
 
         binding.storeNIPInput.doOnTextChanged { text, _, _, _ ->
-
-            isNIPUnique(text.toString())
-
             validateNip(text.toString())
+            isUniqueNIP = isNIPUnique(text.toString())
         }
         binding.toolbar.setOnMenuItemClickListener {
             when (it.itemId) {
@@ -95,10 +94,16 @@ class AddStoreFragment : Fragment() {
                         return@setOnMenuItemClickListener false
                     }
 
-                    saveChangesToDatabase()
-                    stateAfterSave = true
-                    //TODO zoptymalizować - odswiezać w zależnosci czy bylo dodane czy zupdatowane
-
+                    if (binding.storeNIPLayout.error != null) {
+                        ConfirmDialog("Invalid NIP", "Continue?")
+                        {
+                            stateAfterSave = true
+                            saveChangesToDatabase()
+                        }.show(childFragmentManager, "TAG")
+                    } else {
+                        stateAfterSave = true
+                        saveChangesToDatabase()
+                    }
                     true
                 }
 
@@ -242,6 +247,7 @@ class AddStoreFragment : Fragment() {
                 return@observe
             }
             stateAfterSave = false
+            //TODO zoptymalizować - odswiezać w zależnosci czy bylo dodane czy zupdatowane
             listingViewModel.loadDataByStoreFilter()
             listingViewModel.loadDataByReceiptFilter()
             if (navArgs.sourceFragment == "AddReceiptFragment") {
@@ -275,35 +281,21 @@ class AddStoreFragment : Fragment() {
     }
 
     private fun isStoreInputValid(): Boolean {
-        if (isDuplicatedNIP) {
-            Toast.makeText(
-                requireContext(),
-                "NIP cannot be duplicated",
-                Toast.LENGTH_SHORT
-            )
-                .show()
+        if (binding.storeNameInput.text.toString() == "") {
+            Toast.makeText(requireContext(), "Name cannot be empty", Toast.LENGTH_SHORT).show()
             return false
         }
         if (binding.storeNIPInput.text.toString() == "") {
-            Toast.makeText(requireContext(), "NIP cannot be empty", Toast.LENGTH_SHORT)
-                .show()
+            Toast.makeText(requireContext(), "NIP cannot be empty", Toast.LENGTH_SHORT).show()
             return false
         }
         if (chosenCategory?.id == null || chosenCategory?.id == -1) {
-            Toast.makeText(
-                requireContext(),
-                "Category cannot be empty",
-                Toast.LENGTH_SHORT
-            )
-                .show()
+            Toast.makeText(requireContext(), "Category cannot be empty", Toast.LENGTH_SHORT).show()
             return false
-
         }
-        if (binding.storeNIPInput.text.toString() == "") {
-            if (binding.storeNIPLayout.error != null) {
-                Toast.makeText(requireContext(), "Incorrect nip", Toast.LENGTH_SHORT)
-                    .show()
-            }
+        if (!isUniqueNIP) {
+            Toast.makeText(requireContext(), "NIP cannot be duplicated", Toast.LENGTH_SHORT).show()
+            return false
         }
         return true
     }
