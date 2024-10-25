@@ -15,6 +15,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.navsample.ItemClickListener
 import com.example.navsample.adapters.CategoryListAdapter
 import com.example.navsample.databinding.FragmentCategoryListBinding
+import com.example.navsample.dto.FragmentName
 import com.example.navsample.dto.inputmode.AddingInputType
 import com.example.navsample.fragments.dialogs.ConfirmDialog
 import com.example.navsample.viewmodels.ListingViewModel
@@ -118,8 +119,9 @@ class CategoryListFragment : Fragment(), ItemClickListener {
     override fun onItemClick(index: Int) {
         val category = listingViewModel.categoryList.value!![index]
         val action = ListingFragmentDirections.actionListingFragmentToAddCategoryFragment(
-            id = category.id!!,
-            inputType = AddingInputType.ID.name
+            categoryId = category.id!!,
+            inputType = AddingInputType.ID.name,
+            sourceFragment = FragmentName.CATEGORY_LIST_FRAGMENT
         )
         Navigation.findNavController(requireView()).navigate(action)
     }

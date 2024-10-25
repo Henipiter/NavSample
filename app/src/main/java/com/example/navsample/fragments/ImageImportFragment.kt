@@ -17,6 +17,7 @@ import androidx.fragment.app.activityViewModels
 import androidx.navigation.Navigation
 import com.example.navsample.R
 import com.example.navsample.databinding.FragmentImageImportBinding
+import com.example.navsample.dto.FragmentName
 import com.example.navsample.viewmodels.ImageAnalyzerViewModel
 import com.example.navsample.viewmodels.ImageViewModel
 import com.google.mlkit.vision.common.InputImage
@@ -75,8 +76,11 @@ class ImageImportFragment : Fragment() {
 
                 R.id.confirm -> {
                     binding.receiptImage.croppedImageAsync()
-                    Navigation.findNavController(requireView())
-                        .navigate(R.id.action_imageImportFragment_to_addReceiptFragment)
+                    val action =
+                        ImageImportFragmentDirections.actionImageImportFragmentToAddReceiptFragment(
+                            sourceFragment = FragmentName.IMAGE_IMPORT_FRAGMENT
+                        )
+                    Navigation.findNavController(requireView()).navigate(action)
                     true
                 }
 
@@ -97,8 +101,11 @@ class ImageImportFragment : Fragment() {
 
         binding.manualButton.setOnClickListener {
             imageViewModel.clearData()
-            Navigation.findNavController(requireView())
-                .navigate(R.id.action_imageImportFragment_to_addReceiptFragment)
+            val action =
+                ImageImportFragmentDirections.actionImageImportFragmentToAddReceiptFragment(
+                    sourceFragment = FragmentName.IMAGE_IMPORT_FRAGMENT
+                )
+            Navigation.findNavController(requireView()).navigate(action)
         }
 
     }

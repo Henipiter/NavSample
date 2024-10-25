@@ -26,6 +26,7 @@ class AddReceiptDataViewModel : ViewModel() {
 
     var inputType = "EMPTY"
     var receiptId = -1
+    var storeId = -1
 
     var storeList = MutableLiveData<ArrayList<Store>>()
     var receiptById = MutableLiveData<Receipt?>()

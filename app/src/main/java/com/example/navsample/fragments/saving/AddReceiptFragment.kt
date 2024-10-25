@@ -15,6 +15,7 @@ import com.example.navsample.R
 import com.example.navsample.adapters.StoreDropdownAdapter
 import com.example.navsample.databinding.FragmentAddReceiptBinding
 import com.example.navsample.dto.DataMode
+import com.example.navsample.dto.FragmentName
 import com.example.navsample.dto.inputmode.AddingInputType
 import com.example.navsample.entities.Receipt
 import com.example.navsample.entities.Store
@@ -67,17 +68,13 @@ class AddReceiptFragment : Fragment() {
         ).also { adapter ->
             binding.storeNameInput.setAdapter(adapter)
         }
+        Toast.makeText(requireContext(), navArgs.sourceFragment, Toast.LENGTH_SHORT).show()
 
-        if (firstEntry) {
-            firstEntry = false
-            addReceiptDataViewModel.inputType = navArgs.inputType
-            addReceiptDataViewModel.receiptId = navArgs.receiptId
-        }
+        consumeNavArgs()
 
-        addReceiptDataViewModel.receiptById.value = null
         initObserver()
         addReceiptDataViewModel.refreshStoreList()
-        consumeNavArgs()
+        applyInputParameters()
 
         imageViewModel.bitmapCroppedReceipt.value?.let {
             binding.receiptImage.setImageBitmap(it)
@@ -87,8 +84,23 @@ class AddReceiptFragment : Fragment() {
     }
 
     private fun consumeNavArgs() {
+        if (firstEntry && navArgs.sourceFragment != FragmentName.ADD_STORE_FRAGMENT) {
+            firstEntry = false
+            addReceiptDataViewModel.inputType = navArgs.inputType
+            if (navArgs.receiptId != -2) {
+                addReceiptDataViewModel.receiptId = navArgs.receiptId
+            }
+        } else if (navArgs.sourceFragment == FragmentName.ADD_STORE_FRAGMENT) {
+            if (navArgs.storeId >= 0) {
+                addReceiptDataViewModel.storeId = navArgs.storeId
+            }
+        }
+    }
+
+    private fun applyInputParameters() {
         val inputType = AddingInputType.getByName(addReceiptDataViewModel.inputType)
         if (inputType == AddingInputType.EMPTY) {
+            addReceiptDataViewModel.receiptById.value = null
             mode = DataMode.NEW
             binding.storeNameInput.setText("")
             binding.receiptPLNInput.setText("")
@@ -126,20 +138,22 @@ class AddReceiptFragment : Fragment() {
                 dropdownAdapter.storeList = storeList
                 dropdownAdapter.notifyDataSetChanged()
             }
+            if (addReceiptDataViewModel.storeId >= 0) {
+                setStore()
+            }
+
         }
         addReceiptDataViewModel.receiptById.observe(viewLifecycleOwner) {
             it?.let { receipt ->
-                pickedStore = try {
-                    addReceiptDataViewModel.storeList.value?.first { store -> store.id == receipt.storeId }
-                } catch (e: Exception) {
-                    null
+
+                if (navArgs.sourceFragment != FragmentName.ADD_STORE_FRAGMENT) {
+                    addReceiptDataViewModel.storeId = it.storeId
+                    setStore()
                 }
                 binding.receiptPLNInput.setText(receipt.pln.toString())
                 binding.receiptPTUInput.setText(receipt.ptu.toString())
                 binding.receiptDateInput.setText(receipt.date)
                 binding.receiptTimeInput.setText(receipt.time)
-                binding.storeNameInput.setText(pickedStore?.name)
-                binding.storeNameInput.isEnabled = false
             }
         }
 
@@ -169,7 +183,8 @@ class AddReceiptFragment : Fragment() {
                     AddReceiptFragmentDirections.actionAddReceiptFragmentToAddStoreFragment(
                         inputType = AddingInputType.FIELD.name,
                         storeName = analyzedReceipt.companyName,
-                        storeNip = analyzedReceipt.valueNIP
+                        storeNip = analyzedReceipt.valueNIP,
+                        sourceFragment = FragmentName.ADD_RECEIPT_FRAGMENT
                     )
                 Navigation.findNavController(requireView()).navigate(action)
             } else {
@@ -194,6 +209,7 @@ class AddReceiptFragment : Fragment() {
                         )
                     Navigation.findNavController(requireView()).navigate(action)
                 }
+                addReceiptDataViewModel.savedReceipt.value = null
             }
         }
     }
@@ -331,7 +347,8 @@ class AddReceiptFragment : Fragment() {
                 val action =
                     AddReceiptFragmentDirections.actionAddReceiptFragmentToAddStoreFragment(
                         storeName = null,
-                        storeNip = null
+                        storeNip = null,
+                        sourceFragment = FragmentName.ADD_RECEIPT_FRAGMENT
                     )
                 Navigation.findNavController(requireView()).navigate(action)
             } else {
@@ -402,5 +419,16 @@ class AddReceiptFragment : Fragment() {
                 SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(calendarDate.time)
             binding.receiptDateInput.setText(date)
         }
+    }
+
+    private fun setStore() {
+        pickedStore =
+            addReceiptDataViewModel.storeList.value?.find { it.id == addReceiptDataViewModel.storeId }
+
+        addReceiptDataViewModel.receiptById.value?.let {
+            it.storeId = addReceiptDataViewModel.storeId
+        }
+        binding.storeNameInput.setText(pickedStore?.name)
+        binding.storeNameInput.isEnabled = false
     }
 }

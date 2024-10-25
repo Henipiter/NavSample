@@ -16,6 +16,7 @@ import com.example.navsample.R
 import com.example.navsample.chart.ChartColors
 import com.example.navsample.databinding.FragmentAddCategoryBinding
 import com.example.navsample.dto.DataMode
+import com.example.navsample.dto.FragmentName
 import com.example.navsample.dto.inputmode.AddingInputType
 import com.example.navsample.entities.Category
 import com.example.navsample.fragments.dialogs.ColorPickerDialog
@@ -31,6 +32,8 @@ class AddCategoryFragment : Fragment() {
     private val addCategoryDataViewModel: AddCategoryDataViewModel by activityViewModels()
     private val listingViewModel: ListingViewModel by activityViewModels()
 
+    private var firstEntry = true
+    private var stateAfterSave = false
     private var mode = DataMode.NEW
     private var pickedColor: Int = ChartColors.DEFAULT_CATEGORY_COLOR_INT
     override fun onCreateView(
@@ -48,28 +51,23 @@ class AddCategoryFragment : Fragment() {
         binding.toolbar.setNavigationIcon(R.drawable.back)
         binding.toolbar.menu.findItem(R.id.confirm).isVisible = true
 
-        addCategoryDataViewModel.categoryById.value = null
-        binding.colorSquare.setBackgroundColor(pickedColor)
         initObserver()
+        binding.colorSquare.setBackgroundColor(pickedColor)
         addCategoryDataViewModel.refreshCategoryList()
+
         consumeNavArgs()
+        applyInputParameters()
 
         binding.toolbar.setOnMenuItemClickListener {
             when (it.itemId) {
                 R.id.confirm -> {
-                    if (binding.categoryColorLayout.error != null || binding.categoryNameLayout.error != null) {
-                        Toast.makeText(
-                            requireContext(),
-                            "Incorrect input values",
-                            Toast.LENGTH_SHORT
-                        ).show()
-                        return@setOnMenuItemClickListener true
+                    if (!isCategoryInputValid()) {
+                        return@setOnMenuItemClickListener false
                     }
+
+                    stateAfterSave = true
                     saveChangesToDatabase()
-                    //TODO zoptymalizować - odswiezać w zależnosci czy bylo dodane czy zupdatowane
-                    listingViewModel.loadDataByProductFilter()
-                    listingViewModel.loadDataByCategoryFilter()
-                    Navigation.findNavController(requireView()).popBackStack()
+                    true
                 }
 
                 else -> false
@@ -108,27 +106,35 @@ class AddCategoryFragment : Fragment() {
             } else {
                 binding.categoryNameLayout.error = null
             }
-
         }
     }
 
     private fun consumeNavArgs() {
-        val inputType = AddingInputType.getByName(navArgs.inputType)
+        if (firstEntry) {
+            firstEntry = false
+            addCategoryDataViewModel.inputType = navArgs.inputType
+            addCategoryDataViewModel.categoryId = navArgs.categoryId
+        }
+    }
+
+    private fun applyInputParameters() {
+        val inputType = AddingInputType.getByName(addCategoryDataViewModel.inputType)
         if (inputType == AddingInputType.EMPTY) {
+            addCategoryDataViewModel.categoryById.value = null
             mode = DataMode.NEW
             binding.categoryNameInput.setText("")
             binding.toolbar.title = "New category"
 
         } else if (inputType == AddingInputType.ID) {
-            if (navArgs.id >= 0) {
+            if (addCategoryDataViewModel.categoryId >= 0) {
                 binding.toolbar.title = "Edit category"
                 mode = DataMode.EDIT
-                addCategoryDataViewModel.getCategoryById(navArgs.id)
+                addCategoryDataViewModel.getCategoryById(addCategoryDataViewModel.categoryId)
             } else {
-                throw Exception("NO CATEGORY ID SET: " + navArgs.id)
+                throw Exception("NO CATEGORY ID SET: " + addCategoryDataViewModel.categoryId)
             }
         } else {
-            throw Exception("BAD INPUT TYPE: " + navArgs.inputType)
+            throw Exception("BAD INPUT TYPE: " + addCategoryDataViewModel.inputType)
         }
     }
 
@@ -138,8 +144,7 @@ class AddCategoryFragment : Fragment() {
             binding.colorSquare.setBackgroundColor(it)
             binding.categoryColorInput.setText(String.format("#%06X", 0xBBBBBB and it))
             binding.categoryColorLayout.error = null
-        }
-            .show(childFragmentManager, "TAG")
+        }.show(childFragmentManager, "TAG")
     }
 
     private fun saveChangesToDatabase() {
@@ -158,6 +163,14 @@ class AddCategoryFragment : Fragment() {
         }
     }
 
+    private fun isCategoryInputValid(): Boolean {
+        if (binding.categoryColorLayout.error != null || binding.categoryNameLayout.error != null) {
+            Toast.makeText(requireContext(), "Incorrect input values", Toast.LENGTH_SHORT).show()
+            return false
+        }
+        return true
+    }
+
     private fun initObserver() {
         addCategoryDataViewModel.categoryById.observe(viewLifecycleOwner) {
             it?.let {
@@ -171,6 +184,39 @@ class AddCategoryFragment : Fragment() {
                         "cannot parse category color" + it.color,
                     )
                 }
+            }
+        }
+        addCategoryDataViewModel.savedCategory.observe(viewLifecycleOwner) {
+            it?.let {
+                //TODO zoptymalizować - odswiezać w zależnosci czy bylo dodane czy zupdatowane
+                listingViewModel.loadDataByProductFilter()
+                listingViewModel.loadDataByCategoryFilter()
+                when (navArgs.sourceFragment) {
+                    FragmentName.ADD_STORE_FRAGMENT -> {
+                        val action =
+                            AddCategoryFragmentDirections.actionAddCategoryFragmentToAddStoreFragment(
+                                sourceFragment = FragmentName.ADD_CATEGORY_FRAGMENT,
+                                categoryId = it.id ?: -2,
+                                storeName = null,
+                                storeNip = null
+                            )
+                        Navigation.findNavController(requireView()).navigate(action)
+                    }
+
+                    FragmentName.ADD_PRODUCT_FRAGMENT -> {
+                        val action =
+                            AddCategoryFragmentDirections.actionAddCategoryFragmentToAddProductFragment(
+                                sourceFragment = FragmentName.ADD_CATEGORY_FRAGMENT,
+                                categoryId = it.id ?: -2
+                            )
+                        Navigation.findNavController(requireView()).navigate(action)
+                    }
+
+                    else -> {
+                        Navigation.findNavController(requireView()).popBackStack()
+                    }
+                }
+                addCategoryDataViewModel.savedCategory.value = null
             }
         }
     }

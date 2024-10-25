@@ -22,6 +22,7 @@ import com.example.navsample.ItemClickListener
 import com.example.navsample.R
 import com.example.navsample.adapters.ProductListAdapter
 import com.example.navsample.databinding.FragmentAddProductListBinding
+import com.example.navsample.dto.FragmentName
 import com.example.navsample.dto.Utils.Companion.roundDouble
 import com.example.navsample.dto.analyzer.AnalyzedProductsData
 import com.example.navsample.dto.inputmode.AddingInputType
@@ -160,6 +161,7 @@ class AddProductListFragment : Fragment(), ItemClickListener {
                             inputType = AddingInputType.EMPTY.name,
                             receiptId = navArgs.receiptId,
                             storeId = navArgs.storeId,
+                            sourceFragment = FragmentName.ADD_PRODUCT_LIST_FRAGMENT
                         )
                     Navigation.findNavController(requireView()).navigate(action)
                     true
@@ -270,8 +272,8 @@ class AddProductListFragment : Fragment(), ItemClickListener {
                 productIndex = index,
                 receiptId = navArgs.receiptId,
                 storeId = navArgs.storeId,
-
-                )
+                sourceFragment = FragmentName.ADD_PRODUCT_LIST_FRAGMENT
+            )
         Navigation.findNavController(requireView()).navigate(action)
 
     }
