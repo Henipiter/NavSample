@@ -139,28 +139,21 @@ class AddReceiptFragment : Fragment() {
                 dropdownAdapter.notifyDataSetChanged()
             }
             if (addReceiptDataViewModel.storeId >= 0) {
-                pickedStore = storeList.find { it.id == addReceiptDataViewModel.storeId }
-                addReceiptDataViewModel.receiptById.value?.let {
-                    it.storeId = addReceiptDataViewModel.storeId
-                }
-                binding.storeNameInput.setText(pickedStore?.name)
-                binding.storeNameInput.isEnabled = false
+                setStore()
             }
 
         }
         addReceiptDataViewModel.receiptById.observe(viewLifecycleOwner) {
             it?.let { receipt ->
-                pickedStore = try {
-                    addReceiptDataViewModel.storeList.value?.first { store -> store.id == receipt.storeId }
-                } catch (e: Exception) {
-                    null
+
+                if (navArgs.sourceFragment != FragmentName.ADD_STORE_FRAGMENT) {
+                    addReceiptDataViewModel.storeId = it.storeId
+                    setStore()
                 }
                 binding.receiptPLNInput.setText(receipt.pln.toString())
                 binding.receiptPTUInput.setText(receipt.ptu.toString())
                 binding.receiptDateInput.setText(receipt.date)
                 binding.receiptTimeInput.setText(receipt.time)
-                binding.storeNameInput.setText(pickedStore?.name)
-                binding.storeNameInput.isEnabled = false
             }
         }
 
@@ -426,5 +419,16 @@ class AddReceiptFragment : Fragment() {
                 SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(calendarDate.time)
             binding.receiptDateInput.setText(date)
         }
+    }
+
+    private fun setStore() {
+        pickedStore =
+            addReceiptDataViewModel.storeList.value?.find { it.id == addReceiptDataViewModel.storeId }
+
+        addReceiptDataViewModel.receiptById.value?.let {
+            it.storeId = addReceiptDataViewModel.storeId
+        }
+        binding.storeNameInput.setText(pickedStore?.name)
+        binding.storeNameInput.isEnabled = false
     }
 }
