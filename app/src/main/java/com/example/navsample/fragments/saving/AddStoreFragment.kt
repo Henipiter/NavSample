@@ -241,24 +241,17 @@ class AddStoreFragment : Fragment() {
 
         addStoreDataViewModel.storeById.observe(viewLifecycleOwner) {
             it?.let { store ->
-                val category = try {
+                pickedCategory = try {
                     addStoreDataViewModel.categoryList.value?.first { category -> category.id == store.defaultCategoryId }
-                } catch (e: Exception) {
+                } catch (exception: Exception) {
                     null
                 }
-                pickedCategory =
-                    category ?: (addStoreDataViewModel.categoryList.value?.get(0) ?: Category(
-                        "",
-                        ""
-                    ))
-
                 binding.storeNameInput.setText(store.name)
                 binding.storeNIPInput.setText(store.nip)
                 binding.storeDefaultCategoryInput.setText(pickedCategory?.name)
-                binding.storeDefaultCategoryInput.isEnabled = false
+                binding.storeDefaultCategoryInput.isEnabled = pickedCategory != null
 
                 validateNip(store.nip)
-
             }
         }
 

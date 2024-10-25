@@ -191,17 +191,30 @@ class AddCategoryFragment : Fragment() {
                 //TODO zoptymalizować - odswiezać w zależnosci czy bylo dodane czy zupdatowane
                 listingViewModel.loadDataByProductFilter()
                 listingViewModel.loadDataByCategoryFilter()
-                if (navArgs.sourceFragment == FragmentName.ADD_STORE_FRAGMENT) {
-                    val action =
-                        AddCategoryFragmentDirections.actionAddCategoryFragmentToAddStoreFragment(
-                            sourceFragment = FragmentName.ADD_CATEGORY_FRAGMENT,
-                            categoryId = it.id ?: -2,
-                            storeName = null,
-                            storeNip = null
-                        )
-                    Navigation.findNavController(requireView()).navigate(action)
-                } else {
-                    Navigation.findNavController(requireView()).popBackStack()
+                when (navArgs.sourceFragment) {
+                    FragmentName.ADD_STORE_FRAGMENT -> {
+                        val action =
+                            AddCategoryFragmentDirections.actionAddCategoryFragmentToAddStoreFragment(
+                                sourceFragment = FragmentName.ADD_CATEGORY_FRAGMENT,
+                                categoryId = it.id ?: -2,
+                                storeName = null,
+                                storeNip = null
+                            )
+                        Navigation.findNavController(requireView()).navigate(action)
+                    }
+
+                    FragmentName.ADD_PRODUCT_FRAGMENT -> {
+                        val action =
+                            AddCategoryFragmentDirections.actionAddCategoryFragmentToAddProductFragment(
+                                sourceFragment = FragmentName.ADD_CATEGORY_FRAGMENT,
+                                categoryId = it.id ?: -2
+                            )
+                        Navigation.findNavController(requireView()).navigate(action)
+                    }
+
+                    else -> {
+                        Navigation.findNavController(requireView()).popBackStack()
+                    }
                 }
                 addCategoryDataViewModel.savedCategory.value = null
             }

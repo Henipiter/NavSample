@@ -82,6 +82,10 @@
         <argument
             android:name="sourceFragment"
             app:argType="string" />
+        <argument
+            android:name="categoryId"
+            app:argType="integer"
+            android:defaultValue="-1" />
     </fragment>
     <fragment
         android:id="@+id/addReceiptFragment"
