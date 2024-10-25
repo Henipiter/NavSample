@@ -229,27 +229,19 @@ class AddStoreFragment : Fragment() {
                 dropdownAdapter.notifyDataSetChanged()
             }
             if (addStoreDataViewModel.categoryId >= 0) {
-                pickedCategory = categoryList.find { it.id == addStoreDataViewModel.categoryId }
-                addStoreDataViewModel.storeById.value?.let {
-                    it.defaultCategoryId = addStoreDataViewModel.categoryId
-                }
-                binding.storeDefaultCategoryInput.setText(pickedCategory?.name)
-                binding.storeDefaultCategoryInput.isEnabled = false
+                setCategory()
             }
 
         }
 
         addStoreDataViewModel.storeById.observe(viewLifecycleOwner) {
             it?.let { store ->
-                pickedCategory = try {
-                    addStoreDataViewModel.categoryList.value?.first { category -> category.id == store.defaultCategoryId }
-                } catch (exception: Exception) {
-                    null
+                if (navArgs.sourceFragment != FragmentName.ADD_CATEGORY_FRAGMENT) {
+                    addStoreDataViewModel.categoryId = store.defaultCategoryId!!
+                    setCategory()
                 }
                 binding.storeNameInput.setText(store.name)
                 binding.storeNIPInput.setText(store.nip)
-                binding.storeDefaultCategoryInput.setText(pickedCategory?.name)
-                binding.storeDefaultCategoryInput.isEnabled = pickedCategory != null
 
                 validateNip(store.nip)
             }
@@ -310,5 +302,17 @@ class AddStoreFragment : Fragment() {
             return false
         }
         return true
+    }
+
+    private fun setCategory() {
+        pickedCategory = try {
+            addStoreDataViewModel.categoryList.value?.first { category -> category.id == addStoreDataViewModel.categoryId }
+        } catch (exception: Exception) {
+            null
+        }
+        pickedCategory?.let {
+            binding.storeDefaultCategoryInput.setText(it.name)
+            binding.storeDefaultCategoryInput.isEnabled = false
+        }
     }
 }
