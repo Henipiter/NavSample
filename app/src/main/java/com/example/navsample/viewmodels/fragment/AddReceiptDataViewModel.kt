@@ -23,6 +23,11 @@ class AddReceiptDataViewModel : ViewModel() {
     private val firestore = Firebase.firestore
     private val dao = ApplicationContext.context?.let { ReceiptDatabase.getInstance(it).receiptDao }
 
+
+    var inputType = "EMPTY"
+    var receiptId = -1
+    var storeId = -1
+
     var storeList = MutableLiveData<ArrayList<Store>>()
     var receiptById = MutableLiveData<Receipt?>()
     var savedReceipt = MutableLiveData<Receipt>()

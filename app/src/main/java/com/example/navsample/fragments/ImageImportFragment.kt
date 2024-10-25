@@ -1,6 +1,8 @@
 package com.example.navsample.fragments
 
+import android.graphics.Bitmap
 import android.graphics.ImageDecoder
+import android.graphics.Matrix
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -15,6 +17,7 @@ import androidx.fragment.app.activityViewModels
 import androidx.navigation.Navigation
 import com.example.navsample.R
 import com.example.navsample.databinding.FragmentImageImportBinding
+import com.example.navsample.dto.FragmentName
 import com.example.navsample.viewmodels.ImageAnalyzerViewModel
 import com.example.navsample.viewmodels.ImageViewModel
 import com.google.mlkit.vision.common.InputImage
@@ -54,9 +57,9 @@ class ImageImportFragment : Fragment() {
         initObserver()
 
         binding.toolbar.inflateMenu(R.menu.top_menu_crop)
-        binding.toolbar.visibility = View.GONE
         binding.toolbar.setNavigationIcon(R.drawable.back)
         binding.toolbar.menu.findItem(R.id.confirm).isVisible = false
+        binding.toolbar.menu.findItem(R.id.rotate).isVisible = false
         imageAnalyzerViewModel.uid = imageViewModel.uid.value ?: "temp"
         binding.toolbar.setNavigationOnClickListener {
             Navigation.findNavController(it).popBackStack()
@@ -64,7 +67,20 @@ class ImageImportFragment : Fragment() {
         binding.toolbar.setOnMenuItemClickListener {
             when (it.itemId) {
                 R.id.rotate -> {
+                    imageViewModel.bitmapOriginal.value?.let {
+                        imageViewModel.bitmapOriginal.value = rotateBitmap(it)
+                    }
                     Toast.makeText(requireContext(), "ROTATE", Toast.LENGTH_SHORT).show()
+                    true
+                }
+
+                R.id.confirm -> {
+                    binding.receiptImage.croppedImageAsync()
+                    val action =
+                        ImageImportFragmentDirections.actionImageImportFragmentToAddReceiptFragment(
+                            sourceFragment = FragmentName.IMAGE_IMPORT_FRAGMENT
+                        )
+                    Navigation.findNavController(requireView()).navigate(action)
                     true
                 }
 
@@ -85,15 +101,11 @@ class ImageImportFragment : Fragment() {
 
         binding.manualButton.setOnClickListener {
             imageViewModel.clearData()
-            Navigation.findNavController(requireView())
-                .navigate(R.id.action_imageImportFragment_to_addReceiptFragment)
-        }
-
-        binding.analyzeButton.setOnClickListener {
-            binding.receiptImage.croppedImageAsync()
-            Navigation.findNavController(requireView())
-                .navigate(R.id.action_imageImportFragment_to_addReceiptFragment)
-
+            val action =
+                ImageImportFragmentDirections.actionImageImportFragmentToAddReceiptFragment(
+                    sourceFragment = FragmentName.IMAGE_IMPORT_FRAGMENT
+                )
+            Navigation.findNavController(requireView()).navigate(action)
         }
 
     }
@@ -103,14 +115,22 @@ class ImageImportFragment : Fragment() {
         imageViewModel.bitmapOriginal.observe(viewLifecycleOwner) {
             if (it != null) {
                 binding.receiptImage.visibility = View.VISIBLE
-                binding.toolbar.visibility = View.VISIBLE
+                binding.toolbar.menu.findItem(R.id.confirm).isVisible = true
+                binding.toolbar.menu.findItem(R.id.rotate).isVisible = true
                 binding.receiptImage.setImageBitmap(it)
             } else {
                 binding.receiptImage.visibility = View.GONE
-                binding.toolbar.visibility = View.GONE
+                binding.toolbar.menu.findItem(R.id.confirm).isVisible = false
+                binding.toolbar.menu.findItem(R.id.rotate).isVisible = false
             }
         }
 
+    }
+
+    private fun rotateBitmap(original: Bitmap): Bitmap {
+        val matrix = Matrix()
+        matrix.preRotate(90F)
+        return Bitmap.createBitmap(original, 0, 0, original.width, original.height, matrix, true)
     }
 
 }

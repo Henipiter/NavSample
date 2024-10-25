@@ -1,6 +1,7 @@
 package com.example.navsample.fragments
 
 import android.graphics.Bitmap
+import android.graphics.Matrix
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -50,11 +51,16 @@ class CropImageFragment : Fragment() {
         }
 
         binding.toolbar.setNavigationOnClickListener {
-            Navigation.findNavController(it).popBackStack()
+            Navigation.findNavController(requireView()).popBackStack(R.id.addReceiptFragment, false)
         }
         binding.toolbar.setOnMenuItemClickListener {
             when (it.itemId) {
                 R.id.rotate -> {
+                    imageViewModel.bitmapCroppedReceipt.value?.let {
+                        val rotatedBitmap = rotateBitmap(it)
+                        imageViewModel.bitmapCroppedReceipt.value = rotatedBitmap
+                        binding.receiptImage.setImageBitmap(rotatedBitmap)
+                    }
                     Toast.makeText(requireContext(), "ROTATE", Toast.LENGTH_SHORT).show()
                     true
                 }
@@ -82,5 +88,11 @@ class CropImageFragment : Fragment() {
             bitmap, navArgs.receiptId, navArgs.categoryId, listingViewModel.categoryList.value
         )
 
+    }
+
+    private fun rotateBitmap(original: Bitmap): Bitmap {
+        val matrix = Matrix()
+        matrix.preRotate(90F)
+        return Bitmap.createBitmap(original, 0, 0, original.width, original.height, matrix, true)
     }
 }

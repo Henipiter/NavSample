@@ -45,6 +45,13 @@
         <argument
             android:name="storeId"
             app:argType="integer" />
+        <argument
+            android:name="categoryId"
+            app:argType="integer" />
+        <action
+            android:id="@+id/action_addProductListFragment_to_addReceiptFragment"
+            app:destination="@id/addReceiptFragment"
+            app:popUpTo="@id/addReceiptFragment" />
     </fragment>
     <fragment
         android:id="@+id/addProductFragment"
@@ -72,6 +79,13 @@
             android:name="storeId"
             app:argType="integer"
             android:defaultValue="-1" />
+        <argument
+            android:name="sourceFragment"
+            app:argType="string" />
+        <argument
+            android:name="categoryId"
+            app:argType="integer"
+            android:defaultValue="-1" />
     </fragment>
     <fragment
         android:id="@+id/addReceiptFragment"
@@ -96,6 +110,13 @@
             android:name="receiptId"
             android:defaultValue="-1"
             app:argType="integer" />
+        <argument
+            android:name="storeId"
+            app:argType="integer"
+            android:defaultValue="-1" />
+        <argument
+            android:name="sourceFragment"
+            app:argType="string" />
     </fragment>
     <fragment
         android:id="@+id/imageImportFragment"
@@ -152,6 +173,18 @@
             android:name="storeNip"
             app:argType="string"
             app:nullable="true" />
+        <action
+            android:id="@+id/action_addStoreFragment_to_addReceiptFragment"
+            app:destination="@id/addReceiptFragment"
+            app:popUpTo="@id/addReceiptFragment"
+            app:popUpToInclusive="true" />
+        <argument
+            android:name="sourceFragment"
+            app:argType="string" />
+        <argument
+            android:name="categoryId"
+            app:argType="integer"
+            android:defaultValue="-1" />
     </fragment>
     <fragment
         android:id="@+id/diagramFragment"
@@ -210,9 +243,22 @@
             android:defaultValue="EMPTY"
             app:argType="string" />
         <argument
-            android:name="id"
+            android:name="categoryId"
             android:defaultValue="-1"
             app:argType="integer" />
+        <action
+            android:id="@+id/action_addCategoryFragment_to_addStoreFragment"
+            app:destination="@id/addStoreFragment"
+            app:popUpTo="@id/addStoreFragment"
+            app:popUpToInclusive="true" />
+        <action
+            android:id="@+id/action_addCategoryFragment_to_addProductFragment"
+            app:destination="@id/addProductFragment"
+            app:popUpTo="@id/addProductFragment"
+            app:popUpToInclusive="true" />
+        <argument
+            android:name="sourceFragment"
+            app:argType="string" />
     </fragment>
     <fragment
         android:id="@+id/exportDataFragment"

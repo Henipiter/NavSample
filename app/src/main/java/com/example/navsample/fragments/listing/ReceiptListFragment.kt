@@ -15,6 +15,7 @@ import com.example.navsample.ItemClickListener
 import com.example.navsample.R
 import com.example.navsample.adapters.ReceiptListAdapter
 import com.example.navsample.databinding.FragmentReceiptListBinding
+import com.example.navsample.dto.FragmentName
 import com.example.navsample.dto.inputmode.AddingInputType
 import com.example.navsample.dto.sort.ReceiptWithStoreSort
 import com.example.navsample.dto.sort.SortProperty
@@ -43,7 +44,7 @@ class ReceiptListFragment : Fragment(), ItemClickListener {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         initObserver()
-        listingViewModel.refreshCategoryList()
+
         binding.toolbar.inflateMenu(R.menu.top_menu_list_filter)
         binding.toolbar.menu.findItem(R.id.collapse).isVisible = false
         binding.toolbar.menu.findItem(R.id.expand).isVisible = false
@@ -95,7 +96,6 @@ class ReceiptListFragment : Fragment(), ItemClickListener {
                             + "\nDate: " + it.date
                             + "\nTime: " + it.time
                 ) {
-
                     addReceiptDataViewModel.deleteReceipt(it.id)
                     listingViewModel.receiptList.value?.let { receiptList ->
                         receiptList.removeAt(i)
@@ -133,7 +133,8 @@ class ReceiptListFragment : Fragment(), ItemClickListener {
             val action =
                 ListingFragmentDirections.actionListingFragmentToAddReceiptFragment(
                     inputType = AddingInputType.ID.name,
-                    receiptId = receiptId
+                    receiptId = receiptId,
+                    sourceFragment = FragmentName.RECEIPT_LIST_FRAGMENT
                 )
             Navigation.findNavController(requireView()).navigate(action)
 

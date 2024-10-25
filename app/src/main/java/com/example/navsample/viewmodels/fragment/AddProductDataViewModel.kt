@@ -25,12 +25,19 @@ class AddProductDataViewModel : ViewModel() {
     private val firestore = Firebase.firestore
     private val dao = ApplicationContext.context?.let { ReceiptDatabase.getInstance(it).receiptDao }
 
+    var inputType = "EMPTY"
+    var productIndex = -1
+    var receiptId = -1
+    var storeId = -1
+    var categoryId = -1
+
     var categoryList = MutableLiveData<List<Category>>()
-    var productList = MutableLiveData<MutableList<Product>>()
+    var productList = MutableLiveData<ArrayList<Product>>()
     var receiptById = MutableLiveData<Receipt?>()
     var productById = MutableLiveData<Product?>()
     var storeById = MutableLiveData<Store?>()
     private var userUuid = MutableLiveData<String?>(null)
+    var cropImageFragmentOnStart = true
 
     init {
         setUserUuid()
@@ -84,7 +91,7 @@ class AddProductDataViewModel : ViewModel() {
         Log.i("Database", "get store with id $receiptId")
         viewModelScope.launch {
             dao?.let { dao ->
-                productList.postValue(dao.getAllProducts(receiptId).toMutableList())
+                productList.postValue(dao.getAllProducts(receiptId) as ArrayList)
             }
         }
     }

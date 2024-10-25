@@ -22,9 +22,12 @@ class AddCategoryDataViewModel : ViewModel() {
     private val firestore = Firebase.firestore
     private val dao = ApplicationContext.context?.let { ReceiptDatabase.getInstance(it).receiptDao }
 
+    var inputType = "EMPTY"
+    var categoryId = -1
+
     var categoryList = MutableLiveData<ArrayList<Category>>()
     var categoryById = MutableLiveData<Category?>()
-    private var savedCategory = MutableLiveData<Category>()
+    var savedCategory = MutableLiveData<Category>()
     private var userUuid = MutableLiveData<String?>(null)
 
     init {

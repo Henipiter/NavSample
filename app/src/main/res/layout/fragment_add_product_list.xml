@@ -19,16 +19,7 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="@+id/geminiWorkingView" />
 
-        <View
-            android:visibility="invisible"
-            android:id="@+id/geminiWorkingView"
-            android:background="@drawable/ic_flip_24"
-            android:layout_width="50dp"
-            android:layout_height="50dp"
-            android:layout_marginTop="50dp"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent" />
+
 
         <androidx.appcompat.widget.Toolbar
             android:id="@+id/toolbar"
@@ -63,13 +54,32 @@
             android:id="@+id/recycler_view_event"
             android:layout_width="match_parent"
             android:layout_height="0dp"
-            android:layout_marginBottom="10dp"
             android:layout_marginTop="10dp"
+            android:layout_marginBottom="10dp"
             android:paddingHorizontal="16dp"
             app:layout_constraintBottom_toTopOf="@+id/summaryLayout"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/relative_layout" />
+
+        <androidx.cardview.widget.CardView
+            android:visibility="invisible"
+            android:id="@+id/geminiWorkingView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="50dp"
+            android:padding="20dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:cardCornerRadius="10dp">
+
+            <View
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:background="@drawable/robot"
+                android:visibility="visible" />
+        </androidx.cardview.widget.CardView>
 
         <androidx.cardview.widget.CardView
             android:id="@+id/summaryLayout"
@@ -89,58 +99,58 @@
                 <TableRow>
 
                     <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:gravity="center"
                         android:text="Products"
-                        android:textSize="10sp"
+                        android:textSize="10sp" />
+
+                    <TextView
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
-                        android:gravity="center" />
-
-                    <TextView
+                        android:gravity="center"
                         android:text="Cart value"
-                        android:textSize="10sp"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:gravity="center" />
+                        android:textSize="10sp" />
 
                     <TextView
-                        android:text="Receipt value"
-                        android:textSize="10sp"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
-                        android:gravity="center" />
+                        android:gravity="center"
+                        android:text="Receipt value"
+                        android:textSize="10sp" />
                 </TableRow>
 
                 <TableRow>
 
                     <TextView
                         android:id="@+id/countText"
-                        android:text="0"
-                        android:textSize="20sp"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
-                        android:gravity="center" />
+                        android:gravity="center"
+                        android:text="0"
+                        android:textSize="20sp" />
 
                     <TextView
                         android:id="@+id/cartValueText"
-                        android:text="0"
-                        android:textSize="20sp"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
-                        android:gravity="center" />
+                        android:gravity="center"
+                        android:text="0"
+                        android:textSize="20sp" />
 
                     <TextView
                         android:id="@+id/receiptValueText"
-                        android:text="0"
-                        android:textSize="20sp"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
-                        android:gravity="center" />
+                        android:gravity="center"
+                        android:text="0"
+                        android:textSize="20sp" />
                 </TableRow>
 
             </TableLayout>

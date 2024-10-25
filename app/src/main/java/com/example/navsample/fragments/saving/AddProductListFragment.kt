@@ -22,7 +22,9 @@ import com.example.navsample.ItemClickListener
 import com.example.navsample.R
 import com.example.navsample.adapters.ProductListAdapter
 import com.example.navsample.databinding.FragmentAddProductListBinding
+import com.example.navsample.dto.FragmentName
 import com.example.navsample.dto.Utils.Companion.roundDouble
+import com.example.navsample.dto.analyzer.AnalyzedProductsData
 import com.example.navsample.dto.inputmode.AddingInputType
 import com.example.navsample.dto.sorting.AlgorithmItemAdapterArgument
 import com.example.navsample.entities.Product
@@ -50,7 +52,8 @@ class AddProductListFragment : Fragment(), ItemClickListener {
     private val reorderedProductTiles = MutableLiveData(false)
     private lateinit var recyclerViewEvent: RecyclerView
     private lateinit var productListAdapter: ProductListAdapter
-    private var onStart = true
+    private var shouldOpenCropFragment = true
+    private var firstEntry = true
     private var isPricesSumValid = true
 
     override fun onCreateView(
@@ -67,20 +70,24 @@ class AddProductListFragment : Fragment(), ItemClickListener {
         super.onViewCreated(view, savedInstanceState)
         binding.toolbar.inflateMenu(R.menu.top_menu_extended_add)
         binding.toolbar.setNavigationIcon(R.drawable.back)
-        binding.toolbar.menu.findItem(R.id.edit).isVisible = false
 
         addProductDataViewModel.refreshCategoryList()
         initObserver()
-        consumeNavArgs()
+        if (firstEntry) {
+            firstEntry = false
+            consumeNavArgs()
+        }
         myPref =
             requireContext().getSharedPreferences("preferences", AppCompatActivity.MODE_PRIVATE)
-
-        if (onStart && imageViewModel.uriCroppedProduct.value == null) {
-            onStart = false
-            Navigation.findNavController(requireView())
-                .navigate(R.id.action_addProductListFragment_to_cropImageFragment)
+        if (shouldOpenCropFragment && imageViewModel.uriCroppedProduct.value == null) {
+            shouldOpenCropFragment = false
+            val action =
+                AddProductListFragmentDirections.actionAddProductListFragmentToCropImageFragment(
+                    receiptId = navArgs.receiptId,
+                    categoryId = navArgs.categoryId
+                )
+            Navigation.findNavController(requireView()).navigate(action)
         }
-
         recyclerViewEvent = binding.recyclerViewEvent
         productListAdapter = ProductListAdapter(
             requireContext(),
@@ -108,8 +115,12 @@ class AddProductListFragment : Fragment(), ItemClickListener {
 
 
         binding.receiptImage.setOnLongClickListener {
-            Navigation.findNavController(requireView())
-                .navigate(R.id.action_addProductListFragment_to_cropImageFragment)
+            val action =
+                AddProductListFragmentDirections.actionAddProductListFragmentToCropImageFragment(
+                    receiptId = navArgs.receiptId,
+                    categoryId = navArgs.categoryId
+                )
+            Navigation.findNavController(requireView()).navigate(action)
             true
         }
         recyclerViewEvent.adapter = productListAdapter
@@ -118,11 +129,26 @@ class AddProductListFragment : Fragment(), ItemClickListener {
 
 
         binding.toolbar.setNavigationOnClickListener {
+            shouldOpenCropFragment = true
             Navigation.findNavController(it).popBackStack()
         }
 
         binding.toolbar.setOnMenuItemClickListener {
             when (it.itemId) {
+                R.id.aiParser -> {
+                    val productsData = AnalyzedProductsData(
+                        ArrayList(addProductDataViewModel.productList.value?.map { it.name }
+                            ?: arrayListOf()),
+                        ArrayList(),
+                        addProductDataViewModel.productList.value ?: arrayListOf()
+                    )
+
+                    imageAnalyzerViewModel.aiAnalyze(
+                        productsData, addProductDataViewModel.categoryList.value ?: listOf()
+                    )
+                    true
+                }
+
                 R.id.reorder -> {
                     imageAnalyzerViewModel.productAnalyzed.value = null
                     reorderTilesWithProducts()
@@ -135,6 +161,7 @@ class AddProductListFragment : Fragment(), ItemClickListener {
                             inputType = AddingInputType.EMPTY.name,
                             receiptId = navArgs.receiptId,
                             storeId = navArgs.storeId,
+                            sourceFragment = FragmentName.ADD_PRODUCT_LIST_FRAGMENT
                         )
                     Navigation.findNavController(requireView()).navigate(action)
                     true
@@ -146,7 +173,9 @@ class AddProductListFragment : Fragment(), ItemClickListener {
                             "Invalid prices",
                             "Some products have invalid prices. Continue?"
                         )
-                        { save() }.show(childFragmentManager, "TAG")
+                        {
+                            save()
+                        }.show(childFragmentManager, "TAG")
                     } else {
                         save()
                     }
@@ -209,9 +238,12 @@ class AddProductListFragment : Fragment(), ItemClickListener {
         addProductDataViewModel.insertProducts(
             addProductDataViewModel.productList.value?.toList() ?: listOf()
         )
-        listingViewModel.loadDataByProductFilter()
         imageAnalyzerViewModel.clearData()
-        Navigation.findNavController(binding.root).popBackStack(R.id.settingsFragment, false)
+        imageViewModel.clearData()
+        listingViewModel.loadDataByProductFilter()
+        listingViewModel.loadDataByReceiptFilter()
+        addProductDataViewModel.cropImageFragmentOnStart = true
+        Navigation.findNavController(binding.root).popBackStack(R.id.listingFragment, false)
     }
 
     private fun isProductsAreValid(): Boolean {
@@ -224,8 +256,12 @@ class AddProductListFragment : Fragment(), ItemClickListener {
     }
 
     private fun reorderTilesWithProducts() {
-        Navigation.findNavController(requireView())
-            .navigate(R.id.action_addProductListFragment_to_experimentRecycleFragment)
+        val action =
+            AddProductListFragmentDirections.actionAddProductListFragmentToExperimentRecycleFragment(
+                receiptId = navArgs.receiptId,
+                categoryId = navArgs.categoryId
+            )
+        Navigation.findNavController(requireView()).navigate(action)
 
     }
 
@@ -236,8 +272,8 @@ class AddProductListFragment : Fragment(), ItemClickListener {
                 productIndex = index,
                 receiptId = navArgs.receiptId,
                 storeId = navArgs.storeId,
-
-                )
+                sourceFragment = FragmentName.ADD_PRODUCT_LIST_FRAGMENT
+            )
         Navigation.findNavController(requireView()).navigate(action)
 
     }
@@ -272,8 +308,16 @@ class AddProductListFragment : Fragment(), ItemClickListener {
         }
 
         imageAnalyzerViewModel.geminiResponse.observe(viewLifecycleOwner) {
-            Toast.makeText(requireContext(), "'$it'", Toast.LENGTH_SHORT).show()
-            binding.geminiResponse.text = it
+            it?.let {
+                binding.geminiResponse.text = it
+                imageAnalyzerViewModel.geminiResponse.value = null
+            }
+        }
+        imageAnalyzerViewModel.geminiError.observe(viewLifecycleOwner) {
+            it?.let {
+                Toast.makeText(requireContext(), "ERROR: '$it'", Toast.LENGTH_SHORT).show()
+                imageAnalyzerViewModel.geminiError.value = null
+            }
         }
 
         imageAnalyzerViewModel.productAnalyzed.observe(viewLifecycleOwner) { it ->
@@ -287,7 +331,6 @@ class AddProductListFragment : Fragment(), ItemClickListener {
                 it.receiptPriceLines.map { AlgorithmItemAdapterArgument(it) } as ArrayList<AlgorithmItemAdapterArgument>
 
             reorderedProductTiles.value = true
-
         }
 
         addProductDataViewModel.storeById.observe(viewLifecycleOwner) { store ->
@@ -302,10 +345,17 @@ class AddProductListFragment : Fragment(), ItemClickListener {
         }
         addProductDataViewModel.productList.observe(viewLifecycleOwner) { productList ->
             productListAdapter.productList = productList
-            productListAdapter.notifyDataSetChanged()
             calculateSumOfProductPrices(productList)
+            if (productListAdapter.categoryList.isNotEmpty()) {
+                productListAdapter.notifyDataSetChanged()
+            }
         }
-
+        addProductDataViewModel.categoryList.observe(viewLifecycleOwner) { categoryList ->
+            productListAdapter.categoryList = categoryList
+            if (productListAdapter.productList.isNotEmpty()) {
+                productListAdapter.notifyDataSetChanged()
+            }
+        }
     }
 
     companion object {

@@ -16,6 +16,7 @@ import com.example.navsample.ItemClickListener
 import com.example.navsample.R
 import com.example.navsample.adapters.RichProductListAdapter
 import com.example.navsample.databinding.FragmentProductListBinding
+import com.example.navsample.dto.FragmentName
 import com.example.navsample.dto.inputmode.AddingInputType
 import com.example.navsample.dto.sort.RichProductSort
 import com.example.navsample.dto.sort.SortProperty
@@ -157,7 +158,8 @@ class ProductListFragment : Fragment(), ItemClickListener {
                     inputType = AddingInputType.ID.name,
                     productIndex = it.id,
                     receiptId = it.receiptId,
-                    storeId = it.storeId
+                    storeId = it.storeId,
+                    sourceFragment = FragmentName.PRODUCT_LIST_FRAGMENT
                 )
             Navigation.findNavController(requireView()).navigate(action)
         }

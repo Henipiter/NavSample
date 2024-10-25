@@ -117,8 +117,7 @@ class ListingViewModel : ViewModel() {
                 if (dateTo == "") "9" else dateTo,
                 receiptWithStoreSort.value ?: defaultReceiptWithStoreSort
             )
-            receiptList.postValue(//
-                list?.let { ArrayList(it) })
+            receiptList.postValue(list?.let { ArrayList(it) })
         }
     }
 

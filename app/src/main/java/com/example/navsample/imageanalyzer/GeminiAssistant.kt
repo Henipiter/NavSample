@@ -15,17 +15,20 @@ class GeminiAssistant {
         val model = getModel()
         val chatHistory = getChatHistory()
         val chat = model.startChat(chatHistory)
-
         return sendMessage(chat, prompt)
-
     }
 
     private suspend fun sendMessage(chat: Chat, prompt: String): String? {
 
         Log.i("Gemini", "Prompt:\n$prompt")
-        val response = chat.sendMessage(prompt).text
-        Log.i("Gemini", response ?: "EMPTY")
-        return response
+        try {
+            val response = chat.sendMessage(prompt).text
+            Log.i("Gemini", response ?: "EMPTY")
+            return response
+        } catch (exception: Exception) {
+            Log.e("GEMINI", "GEMINI FAILED", exception)
+        }
+        return ""
     }
 
     private fun getModel(): GenerativeModel {

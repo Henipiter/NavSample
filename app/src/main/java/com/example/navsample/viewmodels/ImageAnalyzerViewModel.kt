@@ -22,6 +22,7 @@ class ImageAnalyzerViewModel : ViewModel() {
     val productAnalyzed = MutableLiveData<AnalyzedProductsData?>(null)
     val receiptAnalyzed = MutableLiveData<AnalyzedReceiptData?>(null)
     val geminiResponse = MutableLiveData<String?>(null)
+    val geminiError = MutableLiveData<String?>(null)
     val isGeminiWorking = MutableLiveData(false)
 
     fun clearData() {
@@ -33,7 +34,7 @@ class ImageAnalyzerViewModel : ViewModel() {
 
     private fun aiProductCorrection(
         productList: ArrayList<Product>,
-        categories: ArrayList<Category>?,
+        categories: List<Category>?,
         onFinish: (ArrayList<Product>, String) -> Unit
     ) {
 
@@ -43,12 +44,27 @@ class ImageAnalyzerViewModel : ViewModel() {
         viewModelScope.launch {
             val geminiAssistant = GeminiAssistant()
 
-            val response = geminiAssistant.sendRequest(categoriesPrompt + "\n" + productNamesPrompt)
+            var response: String? = null
+            try {
+                response = geminiAssistant.sendRequest(categoriesPrompt + "\n" + productNamesPrompt)
+            } catch (exception: Exception) {
+                Log.e("Gemini", exception.message, exception)
+                geminiError.value = "Cannot get AI response. Check internet connection"
+                isGeminiWorking.value = false
+            }
+
+            if (response == null || response == "") {
+                geminiError.value = "Empty AI response"
+                isGeminiWorking.value = false
+                return@launch
+            }
             try {
                 val correctedProducts = parseGeminiResponse(productList, categories, response)
                 onFinish.invoke(correctedProducts, response ?: "EMPTY")
-            } catch (e: Exception) {
-                Log.e("Gemini", e.message, e)
+            } catch (exception: Exception) {
+                Log.e("Gemini", exception.message, exception)
+                geminiError.value = "Cannot parse AI response"
+                isGeminiWorking.value = false
                 onFinish.invoke(productList, response ?: "EMPTY")
             }
         }
@@ -58,7 +74,7 @@ class ImageAnalyzerViewModel : ViewModel() {
 
     private fun parseGeminiResponse(
         productList: ArrayList<Product>,
-        categories: ArrayList<Category>?,
+        categories: List<Category>?,
         response: String?
     ): ArrayList<Product> {
         if (response == null) {
@@ -108,7 +124,7 @@ class ImageAnalyzerViewModel : ViewModel() {
 
     fun aiAnalyze(
         analyzedProducts: AnalyzedProductsData,
-        categories: ArrayList<Category>?
+        categories: List<Category>?
     ) {
         productAnalyzed.value = analyzedProducts
         isGeminiWorking.value = true

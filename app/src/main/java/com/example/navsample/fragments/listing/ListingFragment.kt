@@ -24,11 +24,6 @@ class ListingFragment : Fragment() {
         return binding.root
     }
 
-    override fun onResume() {
-        super.onResume()
-        binding.viewPager.setCurrentItem(1, false)
-    }
-
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         viewPagerAdapter = ViewPagerAdapter(this)
