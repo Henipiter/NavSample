@@ -15,6 +15,7 @@ import com.example.navsample.ItemClickListener
 import com.example.navsample.R
 import com.example.navsample.adapters.ReceiptListAdapter
 import com.example.navsample.databinding.FragmentReceiptListBinding
+import com.example.navsample.dto.FragmentName
 import com.example.navsample.dto.inputmode.AddingInputType
 import com.example.navsample.dto.sort.ReceiptWithStoreSort
 import com.example.navsample.dto.sort.SortProperty
@@ -133,14 +134,10 @@ class ReceiptListFragment : Fragment(), ItemClickListener {
                 ListingFragmentDirections.actionListingFragmentToAddReceiptFragment(
                     inputType = AddingInputType.ID.name,
                     receiptId = receiptId,
-                    sourceFragment = FRAGMENT_NAME
+                    sourceFragment = FragmentName.RECEIPT_LIST_FRAGMENT
                 )
             Navigation.findNavController(requireView()).navigate(action)
 
         }
-    }
-
-    companion object {
-        const val FRAGMENT_NAME = "ReceiptListFragment"
     }
 }

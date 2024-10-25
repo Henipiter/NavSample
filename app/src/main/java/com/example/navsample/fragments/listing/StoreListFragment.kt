@@ -16,6 +16,7 @@ import com.example.navsample.ItemClickListener
 import com.example.navsample.R
 import com.example.navsample.adapters.StoreListAdapter
 import com.example.navsample.databinding.FragmentStoreListBinding
+import com.example.navsample.dto.FragmentName
 import com.example.navsample.dto.inputmode.AddingInputType
 import com.example.navsample.dto.sort.SortProperty
 import com.example.navsample.dto.sort.StoreSort
@@ -125,7 +126,7 @@ class StoreListFragment : Fragment(), ItemClickListener {
                 ListingFragmentDirections.actionListingFragmentToAddStoreFragment(
                     storeName = null,
                     storeNip = null,
-                    sourceFragment = FRAGMENT_NAME
+                    sourceFragment = FragmentName.STORE_LIST_FRAGMENT
                 )
             Navigation.findNavController(requireView()).navigate(action)
         }
@@ -144,7 +145,7 @@ class StoreListFragment : Fragment(), ItemClickListener {
                         storeId = storeId,
                         storeName = null,
                         storeNip = null,
-                        sourceFragment = FRAGMENT_NAME
+                        sourceFragment = FragmentName.STORE_LIST_FRAGMENT
                     )
                 Navigation.findNavController(requireView()).navigate(action)
             }
@@ -176,9 +177,5 @@ class StoreListFragment : Fragment(), ItemClickListener {
         listingViewModel.filterStoreList.observe(viewLifecycleOwner) {
             putFilterDefinitionIntoInputs()
         }
-    }
-
-    companion object {
-        const val FRAGMENT_NAME = "StoreListFragment"
     }
 }

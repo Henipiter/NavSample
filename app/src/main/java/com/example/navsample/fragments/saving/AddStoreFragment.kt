@@ -14,6 +14,7 @@ import com.example.navsample.R
 import com.example.navsample.adapters.CategoryDropdownAdapter
 import com.example.navsample.databinding.FragmentAddStoreBinding
 import com.example.navsample.dto.DataMode
+import com.example.navsample.dto.FragmentName
 import com.example.navsample.dto.inputmode.AddingInputType
 import com.example.navsample.entities.Category
 import com.example.navsample.entities.Store
@@ -34,10 +35,9 @@ class AddStoreFragment : Fragment() {
 
     private var mode = DataMode.NEW
 
-    private var chosenCategory: Category? = null
+    private var pickedCategory: Category? = null
     private var isUniqueNIP = false
     private var firstEntry = true
-    private var stateAfterSave = false
 
     private lateinit var dropdownAdapter: CategoryDropdownAdapter
 
@@ -62,22 +62,13 @@ class AddStoreFragment : Fragment() {
             binding.storeDefaultCategoryInput.setAdapter(adapter)
         }
 
-        addStoreDataViewModel.storeById.value = null
+
+        consumeNavArgs()
         initObserver()
         addStoreDataViewModel.refreshStoreList()
         addStoreDataViewModel.refreshCategoryList()
 
-
-        if (firstEntry) {
-            firstEntry = false
-            addStoreDataViewModel.inputType = navArgs.inputType
-            addStoreDataViewModel.storeId = navArgs.storeId
-            addStoreDataViewModel.storeName = navArgs.storeName
-            addStoreDataViewModel.storeNip = navArgs.storeNip
-        }
-        consumeNavArgs()
-
-
+        applyInputParameters()
 
         imageViewModel.bitmapCroppedReceipt.value?.let {
             binding.receiptImage.setImageBitmap(it)
@@ -97,11 +88,9 @@ class AddStoreFragment : Fragment() {
                     if (binding.storeNIPLayout.error != null) {
                         ConfirmDialog("Invalid NIP", "Continue?")
                         {
-                            stateAfterSave = true
                             saveChangesToDatabase()
                         }.show(childFragmentManager, "TAG")
                     } else {
-                        stateAfterSave = true
                         saveChangesToDatabase()
                     }
                     true
@@ -117,28 +106,51 @@ class AddStoreFragment : Fragment() {
         }
 
         binding.storeDefaultCategoryInput.setOnItemClickListener { adapter, _, position, _ ->
-            chosenCategory = adapter.getItemAtPosition(position) as Category
+            pickedCategory = adapter.getItemAtPosition(position) as Category
 
-            if ("" == chosenCategory?.color && binding.storeDefaultCategoryInput.adapter.count - 1 == position) {
+            if ("" == pickedCategory?.color && binding.storeDefaultCategoryInput.adapter.count - 1 == position) {
                 binding.storeDefaultCategoryInput.setText("")
-                Navigation.findNavController(requireView())
-                    .navigate(R.id.action_addStoreFragment_to_addCategoryFragment)
+
+                val action = AddStoreFragmentDirections.actionAddStoreFragmentToAddCategoryFragment(
+                    categoryId = -1,
+                    inputType = AddingInputType.EMPTY.name,
+                    sourceFragment = FragmentName.ADD_STORE_FRAGMENT
+                )
+                Navigation.findNavController(requireView()).navigate(action)
             } else {
-                binding.storeDefaultCategoryInput.setText(chosenCategory?.name)
+                binding.storeDefaultCategoryInput.setText(pickedCategory?.name)
                 binding.storeDefaultCategoryInput.isEnabled = false
             }
         }
 
         binding.storeDefaultCategoryLayout.setStartIconOnClickListener {
             binding.storeDefaultCategoryInput.setText("")
-            chosenCategory = null
+            pickedCategory = null
             binding.storeDefaultCategoryInput.isEnabled = true
         }
     }
 
     private fun consumeNavArgs() {
+        if (firstEntry && navArgs.sourceFragment != FragmentName.ADD_CATEGORY_FRAGMENT) {
+            firstEntry = false
+            addStoreDataViewModel.inputType = navArgs.inputType
+            addStoreDataViewModel.storeId = navArgs.storeId
+            addStoreDataViewModel.storeName = navArgs.storeName
+            addStoreDataViewModel.storeNip = navArgs.storeNip
+            if (navArgs.categoryId != -2) {
+                addStoreDataViewModel.categoryId = navArgs.categoryId
+            }
+        } else if (navArgs.sourceFragment == FragmentName.ADD_CATEGORY_FRAGMENT) {
+            if (navArgs.categoryId >= 0) {
+                addStoreDataViewModel.categoryId = navArgs.categoryId
+            }
+        }
+    }
+
+    private fun applyInputParameters() {
         val inputType = AddingInputType.getByName(addStoreDataViewModel.inputType)
         if (inputType == AddingInputType.EMPTY) {
+            addStoreDataViewModel.storeById.value = null
             mode = DataMode.NEW
             binding.storeNIPInput.setText("")
             binding.storeNameInput.setText("")
@@ -177,14 +189,14 @@ class AddStoreFragment : Fragment() {
             val store = Store("", "", null)
             store.nip = binding.storeNIPInput.text.toString()
             store.name = binding.storeNameInput.text.toString()
-            store.defaultCategoryId = chosenCategory?.id ?: throw NoCategoryIdException()
+            store.defaultCategoryId = pickedCategory?.id ?: throw NoCategoryIdException()
             addStoreDataViewModel.insertStore(store)
         }
         if (mode == DataMode.EDIT) {
             val store = addStoreDataViewModel.storeById.value!!
             store.nip = binding.storeNIPInput.text.toString()
             store.name = binding.storeNameInput.text.toString()
-            store.defaultCategoryId = chosenCategory?.id ?: throw NoCategoryIdException()
+            store.defaultCategoryId = pickedCategory?.id ?: throw NoCategoryIdException()
             addStoreDataViewModel.updateStore(store)
         }
     }
@@ -216,6 +228,14 @@ class AddStoreFragment : Fragment() {
                 dropdownAdapter.categoryList = it
                 dropdownAdapter.notifyDataSetChanged()
             }
+            if (addStoreDataViewModel.categoryId >= 0) {
+                pickedCategory = categoryList.find { it.id == addStoreDataViewModel.categoryId }
+                addStoreDataViewModel.storeById.value?.let {
+                    it.defaultCategoryId = addStoreDataViewModel.categoryId
+                }
+                binding.storeDefaultCategoryInput.setText(pickedCategory?.name)
+                binding.storeDefaultCategoryInput.isEnabled = false
+            }
 
         }
 
@@ -226,7 +246,7 @@ class AddStoreFragment : Fragment() {
                 } catch (e: Exception) {
                     null
                 }
-                chosenCategory =
+                pickedCategory =
                     category ?: (addStoreDataViewModel.categoryList.value?.get(0) ?: Category(
                         "",
                         ""
@@ -234,7 +254,7 @@ class AddStoreFragment : Fragment() {
 
                 binding.storeNameInput.setText(store.name)
                 binding.storeNIPInput.setText(store.nip)
-                binding.storeDefaultCategoryInput.setText(chosenCategory?.name)
+                binding.storeDefaultCategoryInput.setText(pickedCategory?.name)
                 binding.storeDefaultCategoryInput.isEnabled = false
 
                 validateNip(store.nip)
@@ -243,25 +263,24 @@ class AddStoreFragment : Fragment() {
         }
 
         addStoreDataViewModel.savedStore.observe(viewLifecycleOwner) {
-            if (!stateAfterSave) {
-                return@observe
-            }
-            stateAfterSave = false
-            //TODO zoptymalizować - odswiezać w zależnosci czy bylo dodane czy zupdatowane
-            listingViewModel.loadDataByStoreFilter()
-            listingViewModel.loadDataByReceiptFilter()
-            if (navArgs.sourceFragment == "AddReceiptFragment") {
+            it?.let {
+                //TODO zoptymalizować - odswiezać w zależnosci czy bylo dodane czy zupdatowane
+                listingViewModel.loadDataByStoreFilter()
+                listingViewModel.loadDataByReceiptFilter()
+                if (navArgs.sourceFragment == FragmentName.ADD_RECEIPT_FRAGMENT) {
 
-                val action =
-                    AddStoreFragmentDirections.actionAddStoreFragmentToAddReceiptFragment(
-                        inputType = AddingInputType.ID.name,
-                        receiptId = -2,
-                        storeId = it.id ?: -1,
-                        sourceFragment = FRAGMENT_NAME
-                    )
-                Navigation.findNavController(requireView()).navigate(action)
-            } else {
-                Navigation.findNavController(requireView()).popBackStack()
+                    val action =
+                        AddStoreFragmentDirections.actionAddStoreFragmentToAddReceiptFragment(
+                            inputType = AddingInputType.ID.name,
+                            receiptId = -2,
+                            storeId = it.id ?: -1,
+                            sourceFragment = FragmentName.ADD_STORE_FRAGMENT
+                        )
+                    Navigation.findNavController(requireView()).navigate(action)
+                } else {
+                    Navigation.findNavController(requireView()).popBackStack()
+                }
+                addStoreDataViewModel.savedStore.value = null
             }
         }
     }
@@ -289,7 +308,7 @@ class AddStoreFragment : Fragment() {
             Toast.makeText(requireContext(), "NIP cannot be empty", Toast.LENGTH_SHORT).show()
             return false
         }
-        if (chosenCategory?.id == null || chosenCategory?.id == -1) {
+        if (pickedCategory?.id == null || pickedCategory?.id == -1) {
             Toast.makeText(requireContext(), "Category cannot be empty", Toast.LENGTH_SHORT).show()
             return false
         }
@@ -298,9 +317,5 @@ class AddStoreFragment : Fragment() {
             return false
         }
         return true
-    }
-
-    companion object {
-        const val FRAGMENT_NAME = "AddStoreFragment"
     }
 }

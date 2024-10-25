@@ -14,6 +14,7 @@ import com.example.navsample.adapters.CategoryDropdownAdapter
 import com.example.navsample.adapters.PtuTypeDropdownAdapter
 import com.example.navsample.databinding.FragmentAddProductBinding
 import com.example.navsample.dto.DataMode
+import com.example.navsample.dto.FragmentName
 import com.example.navsample.dto.Utils.Companion.doubleToString
 import com.example.navsample.dto.Utils.Companion.quantityToString
 import com.example.navsample.dto.Utils.Companion.roundDouble
@@ -221,8 +222,13 @@ class AddProductFragment : Fragment() {
 
             if ("" == chosenCategory?.color && binding.productCategoryInput.adapter.count - 1 == position) {
                 binding.productCategoryInput.setText("")
-                Navigation.findNavController(requireView())
-                    .navigate(R.id.action_addProductFragment_to_addCategoryFragment)
+                val action =
+                    AddProductFragmentDirections.actionAddProductFragmentToAddCategoryFragment(
+                        categoryId = -1,
+                        inputType = AddingInputType.EMPTY.name,
+                        sourceFragment = FragmentName.ADD_PRODUCT_FRAGMENT
+                    )
+                Navigation.findNavController(requireView()).navigate(action)
             } else {
                 binding.productCategoryInput.setText(chosenCategory?.name)
                 binding.productCategoryInput.isEnabled = false

@@ -79,6 +79,9 @@
             android:name="storeId"
             app:argType="integer"
             android:defaultValue="-1" />
+        <argument
+            android:name="sourceFragment"
+            app:argType="string" />
     </fragment>
     <fragment
         android:id="@+id/addReceiptFragment"
@@ -174,6 +177,10 @@
         <argument
             android:name="sourceFragment"
             app:argType="string" />
+        <argument
+            android:name="categoryId"
+            app:argType="integer"
+            android:defaultValue="-1" />
     </fragment>
     <fragment
         android:id="@+id/diagramFragment"
@@ -232,9 +239,22 @@
             android:defaultValue="EMPTY"
             app:argType="string" />
         <argument
-            android:name="id"
+            android:name="categoryId"
             android:defaultValue="-1"
             app:argType="integer" />
+        <action
+            android:id="@+id/action_addCategoryFragment_to_addStoreFragment"
+            app:destination="@id/addStoreFragment"
+            app:popUpTo="@id/addStoreFragment"
+            app:popUpToInclusive="true" />
+        <action
+            android:id="@+id/action_addCategoryFragment_to_addProductFragment"
+            app:destination="@id/addProductFragment"
+            app:popUpTo="@id/addProductFragment"
+            app:popUpToInclusive="true" />
+        <argument
+            android:name="sourceFragment"
+            app:argType="string" />
     </fragment>
     <fragment
         android:id="@+id/exportDataFragment"

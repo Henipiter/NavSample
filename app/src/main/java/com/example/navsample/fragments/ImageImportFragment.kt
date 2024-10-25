@@ -17,6 +17,7 @@ import androidx.fragment.app.activityViewModels
 import androidx.navigation.Navigation
 import com.example.navsample.R
 import com.example.navsample.databinding.FragmentImageImportBinding
+import com.example.navsample.dto.FragmentName
 import com.example.navsample.viewmodels.ImageAnalyzerViewModel
 import com.example.navsample.viewmodels.ImageViewModel
 import com.google.mlkit.vision.common.InputImage
@@ -77,7 +78,7 @@ class ImageImportFragment : Fragment() {
                     binding.receiptImage.croppedImageAsync()
                     val action =
                         ImageImportFragmentDirections.actionImageImportFragmentToAddReceiptFragment(
-                            sourceFragment = FRAGMENT_NAME
+                            sourceFragment = FragmentName.IMAGE_IMPORT_FRAGMENT
                         )
                     Navigation.findNavController(requireView()).navigate(action)
                     true
@@ -102,7 +103,7 @@ class ImageImportFragment : Fragment() {
             imageViewModel.clearData()
             val action =
                 ImageImportFragmentDirections.actionImageImportFragmentToAddReceiptFragment(
-                    sourceFragment = FRAGMENT_NAME
+                    sourceFragment = FragmentName.IMAGE_IMPORT_FRAGMENT
                 )
             Navigation.findNavController(requireView()).navigate(action)
         }
@@ -130,10 +131,6 @@ class ImageImportFragment : Fragment() {
         val matrix = Matrix()
         matrix.preRotate(90F)
         return Bitmap.createBitmap(original, 0, 0, original.width, original.height, matrix, true)
-    }
-
-    companion object {
-        const val FRAGMENT_NAME = "ImageImportFragment"
     }
 
 }

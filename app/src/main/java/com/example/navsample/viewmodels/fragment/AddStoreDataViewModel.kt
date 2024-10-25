@@ -27,6 +27,7 @@ class AddStoreDataViewModel : ViewModel() {
 
     var inputType = "EMPTY"
     var storeId = -1
+    var categoryId = -1
     var storeName: String? = null
     var storeNip: String? = null
 
