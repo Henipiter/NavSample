@@ -16,6 +16,7 @@ import com.example.navsample.R
 import com.example.navsample.adapters.ReceiptListAdapter
 import com.example.navsample.databinding.FragmentReceiptListBinding
 import com.example.navsample.dto.FragmentName
+import com.example.navsample.dto.PriceUtils.Companion.intPriceToString
 import com.example.navsample.dto.inputmode.AddingInputType
 import com.example.navsample.dto.sort.ReceiptWithStoreSort
 import com.example.navsample.dto.sort.SortProperty
@@ -91,8 +92,8 @@ class ReceiptListFragment : Fragment(), ItemClickListener {
                     "Delete",
                     "$i Are you sure you want to delete the receipt with dependent products??\n\n" +
                             "Store: " + it.name
-                            + "\nPLN: " + it.pln
-                            + "\nPTU: " + it.ptu
+                            + "\nPLN: " + intPriceToString(it.pln)
+                            + "\nPTU: " + intPriceToString(it.ptu)
                             + "\nDate: " + it.date
                             + "\nTime: " + it.time
                 ) {

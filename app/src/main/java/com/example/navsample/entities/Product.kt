@@ -8,11 +8,11 @@ data class Product(
     var receiptId: Int,
     var name: String,
     var categoryId: Int,
-    var quantity: Double,
-    var unitPrice: Double,
-    var subtotalPrice: Double,
-    var discount: Double,
-    var finalPrice: Double,
+    var quantity: Int, //divide by 1000
+    var unitPrice: Int,
+    var subtotalPrice: Int,
+    var discount: Int,
+    var finalPrice: Int,
     var ptuType: String,
     var raw: String,
     var validPrice: Boolean

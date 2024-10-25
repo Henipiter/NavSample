@@ -17,109 +17,109 @@ class InitDatabaseHelper {
                         1,
                         "D_JZN_ZIEMNIAKI JAD",
                         1,
-                        0.496,
-                        3.99,
-                        1.98,
-                        0.0,
-                        1.98,
+                        496,
+                        399,
+                        198,
+                        0,
+                        198,
                         "D",
                         "",
                         true
                     ),
-                    Product(1, "D_WAFLE_SONKO 130G", 1, 1.0, 3.59, 3.59, 0.0, 3.59, "D", "", true),
-                    Product(1, "D_KAJZERKA 50G", 1, 6.0, 0.37, 2.22, 0.0, 2.22, "D", "", true)
+                    Product(1, "D_WAFLE_SONKO 130G", 1, 1000, 359, 359, 0, 359, "D", "", true),
+                    Product(1, "D_KAJZERKA 50G", 1, 6000, 37, 222, 0, 222, "D", "", true)
                 ),
                 listOf(
-                    Product(2, "D_KAJZERKA 50G", 1, 8.0, 0.37, 2.96, 0.0, 2.96, "D", "", true),
-                    Product(2, "D_SEREK_ALMETTE 150", 1, 1.0, 4.99, 4.99, 0.0, 4.99, "D", "", true),
-                    Product(2, "D_MC SALADA LODOWA", 1, 1.0, 4.99, 4.99, 0.0, 4.99, "D", "", true),
-                    Product(2, "D_RZODKIEWKA PECZEK", 1, 1.0, 2.29, 2.29, 0.0, 2.29, "D", "", true),
-                    Product(2, "D_SER MAGNAT", 1, 0.204, 39.90, 8.14, 0.0, 8.14, "D", "", true),
+                    Product(2, "D_KAJZERKA 50G", 1, 8000, 37, 296, 0, 296, "D", "", true),
+                    Product(2, "D_SEREK_ALMETTE 150", 1, 1000, 499, 499, 0, 499, "D", "", true),
+                    Product(2, "D_MC SALADA LODOWA", 1, 1000, 499, 499, 0, 499, "D", "", true),
+                    Product(2, "D_RZODKIEWKA PECZEK", 1, 1000, 229, 229, 0, 229, "D", "", true),
+                    Product(2, "D_SER MAGNAT", 1, 204, 3990, 814, 0, 814, "D", "", true),
                     Product(
                         2,
                         "D_GREJPFRUTY BIALE L",
                         1,
-                        0.348,
-                        7.69,
-                        2.68,
-                        0.0,
-                        2.68,
+                        348,
+                        769,
+                        268,
+                        0,
+                        268,
                         "D",
                         "",
                         true
                     ),
-                    Product(2, "D_MC CYTRYNY LUZ", 1, 0.258, 7.99, 2.06, 0.0, 2.06, "D", "", true)
+                    Product(2, "D_MC CYTRYNY LUZ", 1, 258, 799, 206, 0, 206, "D", "", true)
                 ),
                 listOf(
-                    Product(3, "ChlebWiel400g 50G", 1, 1.0, 3.59, 3.59, 0.0, 3.59, "D", "", true),
+                    Product(3, "ChlebWiel400g 50G", 1, 1000, 359, 359, 0, 359, "D", "", true),
                     Product(
                         3,
                         "Papier Queen 10r 150",
                         1,
-                        1.0,
-                        4.99,
-                        4.99,
-                        0.0,
-                        4.99,
+                        1000,
+                        499,
+                        499,
+                        0,
+                        499,
                         "D",
                         "",
                         true
                     ),
-                    Product(3, "Chust Delikat x150", 5, 1.0, 4.39, 4.39, 0.0, 4.39, "A", "", true),
-                    Product(3, "Chust Delikat x150", 5, 1.0, 4.39, 4.39, 0.0, 4.39, "A", "", true),
-                    Product(3, "Chust Delikat 10x10", 5, 1.0, 4.39, 4.39, 0.0, 4.39, "A", "", true),
-                    Product(3, "MakaronRyzAsia200g", 1, 1.0, 5.99, 5.99, 0.0, 5.99, "D", "", true),
-                    Product(3, "SmootZOwocLes0.75", 1, 1.0, 6.66, 6.66, 0.0, 6.66, "D", "", true),
-                    Product(3, "Marchew luz", 1, 0.335, 2.99, 1.0, 0.0, 1.0, "D", "", true),
+                    Product(3, "Chust Delikat x150", 5, 100, 439, 439, 0, 439, "A", "", true),
+                    Product(3, "Chust Delikat x150", 5, 100, 439, 439, 0, 439, "A", "", true),
+                    Product(3, "Chust Delikat 10x10", 5, 100, 439, 439, 0, 439, "A", "", true),
+                    Product(3, "MakaronRyzAsia200g", 1, 100, 599, 599, 0, 599, "D", "", true),
+                    Product(3, "SmootZOwocLes075", 1, 100, 666, 666, 0, 666, "D", "", true),
+                    Product(3, "Marchew luz", 1, 335, 299, 100, 0, 100, "D", "", true),
                     Product(
                         3,
                         "JablPolskieGalaLuz",
                         1,
-                        0.395,
-                        3.49,
-                        1.38,
-                        0.0,
-                        1.38,
+                        395,
+                        349,
+                        138,
+                        0,
+                        138,
                         "D",
                         "",
                         true
                     ),
-                    Product(3, "CebulaZolta Luz", 1, 0.08, 4.99, 0.4, 0.0, 0.4, "D", "", true)
+                    Product(3, "CebulaZolta Luz", 1, 8, 499, 40, 0, 40, "D", "", true)
                 ),
                 listOf(
                     Product(
                         4,
                         "IBUPROM 200MG 10 TABL",
                         2,
-                        1.0,
-                        8.24,
-                        3.59,
-                        0.0,
-                        3.59,
+                        1000,
+                        824,
+                        359,
+                        0,
+                        359,
                         "D",
                         "",
                         true
                     )
                 ),
                 listOf(
-                    Product(5, "KAPIELOWKI", 7, 1.0, 89.99, 89.99, 0.0, 89.99, "D", "", true),
-                    Product(5, "BUTY BIEGANIE", 7, 1.0, 299.99, 299.99, 0.0, 299.99, "D", "", true)
+                    Product(5, "KAPIELOWKI", 7, 1000, 8999, 8999, 0, 8999, "D", "", true),
+                    Product(5, "BUTY BIEGANIE", 7, 1000, 29999, 29999, 0, 29999, "D", "", true)
                 ),
                 listOf(
-                    Product(6, "KAPIELOWKI", 7, 1.0, 89.99, 89.99, 0.0, 89.99, "D", "", true),
-                    Product(6, "BUTY BIEGANIE", 7, 1.0, 299.99, 299.99, 0.0, 299.99, "D", "", true)
+                    Product(6, "KAPIELOWKI", 7, 1000, 8999, 8999, 0, 8999, "D", "", true),
+                    Product(6, "BUTY BIEGANIE", 7, 100, 29999, 29999, 0, 29999, "D", "", true)
                 )
             )
         }
 
         fun getReceipts(): List<Receipt> {
             return listOf(
-                Receipt(1, 7.79, 0.0, "2024-09-22", "17:33", true),
-                Receipt(1, 28.11, 0.0, "2024-09-21", "18:30", true),
-                Receipt(2, 60.17, 7.69, "2024-09-22", "14:17", true),
-                Receipt(4, 12.24, 0.01, "2024-09-18", "19:54", true),
-                Receipt(5, 8.24, 0.59, "2024-08-18", "19:54", true),
-                Receipt(5, 98.24, 0.61, "2024-07-18", "19:54", true)
+                Receipt(1, 779, 0, "2024-09-22", "17:33", true),
+                Receipt(1, 2811, 0, "2024-09-21", "18:30", true),
+                Receipt(2, 6017, 769, "2024-09-22", "14:17", true),
+                Receipt(4, 1224, 1, "2024-09-18", "19:54", true),
+                Receipt(5, 824, 59, "2024-08-18", "19:54", true),
+                Receipt(5, 9824, 61, "2024-07-18", "19:54", true)
             )
         }
 

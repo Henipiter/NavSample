@@ -7,7 +7,7 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.example.navsample.ItemClickListener
 import com.example.navsample.databinding.ReceiptRowBinding
-import com.example.navsample.dto.Utils.Companion.doubleToString
+import com.example.navsample.dto.PriceUtils.Companion.intPriceToString
 import com.example.navsample.entities.relations.ReceiptWithStore
 
 class ReceiptListAdapter(
@@ -32,7 +32,7 @@ class ReceiptListAdapter(
         holder.binding.storeName.text = receiptList[position].name
         holder.binding.date.text = receiptList[position].date
         holder.binding.time.text = receiptList[position].time
-        holder.binding.subtotalPrize.text = doubleToString(receiptList[position].pln)
+        holder.binding.subtotalPrize.text = intPriceToString(receiptList[position].pln)
         holder.binding.productCount.text = receiptList[position].productCount.toString()
 
         if (receiptList[position].validProductCount != receiptList[position].productCount) {

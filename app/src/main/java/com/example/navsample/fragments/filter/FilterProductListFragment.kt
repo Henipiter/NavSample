@@ -12,6 +12,8 @@ import androidx.fragment.app.activityViewModels
 import androidx.navigation.Navigation
 import com.example.navsample.R
 import com.example.navsample.databinding.FragmentFilterProductListBinding
+import com.example.navsample.dto.PriceUtils.Companion.doublePriceTextToInt
+import com.example.navsample.dto.PriceUtils.Companion.intPriceToString
 import com.example.navsample.dto.filter.FilterProductList
 import com.example.navsample.fragments.dialogs.PricePickerDialog
 import com.example.navsample.viewmodels.ListingViewModel
@@ -82,8 +84,8 @@ class FilterProductListFragment : Fragment() {
         binding.priceBetweenLayout.setStartIconOnClickListener {
             binding.priceBetweenInput.setText("-")
             listingViewModel.filterProductList.value?.let {
-                it.lowerPrice = -1.0
-                it.higherPrice = -1.0
+                it.lowerPrice = -1
+                it.higherPrice = -1
             }
         }
 
@@ -112,19 +114,19 @@ class FilterProductListFragment : Fragment() {
         }
     }
 
-    private fun convertTextToDouble(string: String): Double {
+    private fun convertTextToInt(string: String): Int {
         return try {
-            string.toDouble()
+            doublePriceTextToInt(string)
         } catch (e: NumberFormatException) {
-            -1.0
+            -1
         }
     }
 
-    private fun convertDoubleToText(double: Double): String {
-        if (double < 0.0) {
+    private fun convertIntToText(integer: Int): String {
+        if (integer < 0.0) {
             return ""
         }
-        return double.toString()
+        return intPriceToString(integer)
     }
 
     private fun showPricePicker() {
@@ -132,10 +134,10 @@ class FilterProductListFragment : Fragment() {
             binding.priceBetweenInput.text.toString().replace("\\s+".toRegex(), "").split("-")
         PricePickerDialog(priceBoundaries[0], priceBoundaries[1]) { lower, higher ->
             listingViewModel.filterProductList.value?.let {
-                it.lowerPrice = convertTextToDouble(lower)
-                it.higherPrice = convertTextToDouble(higher)
+                it.lowerPrice = convertTextToInt(lower)
+                it.higherPrice = convertTextToInt(higher)
                 val text =
-                    convertDoubleToText(it.lowerPrice) + " - " + convertDoubleToText(it.higherPrice)
+                    convertIntToText(it.lowerPrice) + " - " + convertIntToText(it.higherPrice)
                 binding.priceBetweenInput.setText(text)
             }
         }.show(childFragmentManager, "TAG")
@@ -170,10 +172,8 @@ class FilterProductListFragment : Fragment() {
     private fun putFilterDefinitionIntoInputs() {
         binding.storeInput.setText(filterProductList.store)
         binding.categoryNameInput.setText(filterProductList.category)
-        val priceText =
-            convertDoubleToText(filterProductList.lowerPrice) + " - " + convertDoubleToText(
-                filterProductList.higherPrice
-            )
+        val priceText = convertIntToText(filterProductList.lowerPrice) + " - " +
+                convertIntToText(filterProductList.higherPrice)
         binding.priceBetweenInput.setText(priceText)
         val dateText = filterProductList.dateFrom + " - " + filterProductList.dateTo
         binding.dateBetweenInput.setText(dateText)
