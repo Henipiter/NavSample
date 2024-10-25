@@ -3,6 +3,7 @@ package com.example.navsample.fragments
 import android.content.Intent
 import android.content.SharedPreferences
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -17,6 +18,7 @@ import com.example.navsample.databinding.FragmentSettingsBinding
 import com.example.navsample.entities.init.InitDatabaseHelper
 import com.example.navsample.viewmodels.ImageViewModel
 import com.example.navsample.viewmodels.InitDatabaseViewModel
+import com.example.navsample.viewmodels.TestDatabaseViewModel
 import java.util.UUID
 
 class SettingsFragment : Fragment() {
@@ -24,6 +26,7 @@ class SettingsFragment : Fragment() {
 
     private val binding get() = _binding!!
     private val initDatabaseViewModel: InitDatabaseViewModel by activityViewModels()
+    private val testDatabaseViewModel: TestDatabaseViewModel by activityViewModels()
     private val imageViewModel: ImageViewModel by activityViewModels()
 
 
@@ -45,6 +48,30 @@ class SettingsFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         binding.showReceipt.setOnClickListener {
+            testDatabaseViewModel.getAllUsers()
+        }
+        binding.showReceipt.setOnLongClickListener() {
+            val productListHeader = testDatabaseViewModel.productListHeader
+            val productList = testDatabaseViewModel.productList
+            val receiptListHeader = testDatabaseViewModel.receiptListHeader
+            val receiptList = testDatabaseViewModel.receiptList
+            val storeListHeader = testDatabaseViewModel.storeListHeader
+            val storeList = testDatabaseViewModel.storeList
+            val categoryListHeader = testDatabaseViewModel.categoryListHeader
+            val categoryList = testDatabaseViewModel.categoryList
+
+            val productListBuilder = StringBuilder(productListHeader).append("\n")
+            productList.forEach { x -> productListBuilder.append(x).append("\n") }
+            val receiptListBuilder = StringBuilder(receiptListHeader).append("\n")
+            receiptList.forEach { x -> receiptListBuilder.append(x).append("\n") }
+            val storeListBuilder = StringBuilder(storeListHeader).append("\n")
+            storeList.forEach { x -> storeListBuilder.append(x).append("\n") }
+            val categoryListBuilder = StringBuilder(categoryListHeader).append("\n")
+            categoryList.forEach { x -> categoryListBuilder.append(x).append("\n") }
+
+            Log.i("FirestoreData", "${productList.size}")
+
+            true
         }
         binding.exportDataButton.setOnClickListener {
             Navigation.findNavController(it)
