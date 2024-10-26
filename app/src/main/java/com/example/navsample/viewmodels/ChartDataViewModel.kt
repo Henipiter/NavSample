@@ -10,11 +10,6 @@ import kotlinx.coroutines.launch
 
 class ChartDataViewModel : ViewModel() {
 
-
-    //------------------------------
-    lateinit var imageUuid: MutableLiveData<String>
-
-
     var timelineChartData = MutableLiveData<List<PriceByCategory>>()
     var categoryChartData = MutableLiveData<List<PriceByCategory>>()
 

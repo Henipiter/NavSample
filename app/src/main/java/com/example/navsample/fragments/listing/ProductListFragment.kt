@@ -105,7 +105,7 @@ class ProductListFragment : Fragment(), ItemClickListener {
                     "$i Are you sure you want to delete the product??\n\nName: " + it.name +
                             "\nPLN: " + intPriceToString(it.subtotalPrice)
                 ) {
-                    if (it.id >= 0) {
+                    if (it.id.isNotEmpty()) {
                         addProductDataViewModel.deleteProduct(it.id)
                     }
                     listingViewModel.productRichList.value?.let { productRichList ->
@@ -157,10 +157,11 @@ class ProductListFragment : Fragment(), ItemClickListener {
             val action =
                 ListingFragmentDirections.actionListingFragmentToAddProductFragment(
                     inputType = AddingInputType.ID.name,
-                    productIndex = it.id,
+                    productId = it.id,
                     receiptId = it.receiptId,
                     storeId = it.storeId,
-                    sourceFragment = FragmentName.PRODUCT_LIST_FRAGMENT
+                    sourceFragment = FragmentName.PRODUCT_LIST_FRAGMENT,
+                    categoryId = ""
                 )
             Navigation.findNavController(requireView()).navigate(action)
         }

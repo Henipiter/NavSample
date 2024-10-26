@@ -23,8 +23,8 @@ class ImageAnalyzer(private var uid: String) {
 
     fun analyzeProductList(
         inputImage: InputImage,
-        receiptId: Int,
-        categoryId: Int,
+        receiptId: String,
+        categoryId: String,
         onFinish: (AnalyzedProductsData) -> Unit
     ) {
         imageWidth = inputImage.width / 10

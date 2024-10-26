@@ -59,28 +59,28 @@ interface ReceiptDao {
 
     @Transaction
     @Query("delete from store where id = :id")
-    suspend fun deleteStoreById(id: Int)
+    suspend fun deleteStoreById(id: String)
 
 
     @Transaction
     @Query("delete from product where id = :id")
-    suspend fun deleteProductById(id: Int)
+    suspend fun deleteProductById(id: String)
 
     @Transaction
     @Query("delete from receipt where id = :id")
-    suspend fun deleteReceiptById(id: Int)
+    suspend fun deleteReceiptById(id: String)
 
     @Transaction
     @Query("delete from product where id in (select p.id from product p, receipt r  where p.receiptId = r.id   and r.id = :id)")
-    suspend fun deleteProductsOfReceipt(id: Int)
+    suspend fun deleteProductsOfReceipt(id: String)
 
     @Transaction
     @Query("delete from receipt where id in  (select r.id from receipt r, store s where s.id = r.storeId and s.id = :id)")
-    suspend fun deleteReceiptsOfStore(id: Int)
+    suspend fun deleteReceiptsOfStore(id: String)
 
     @Transaction
     @Query("delete from product where id in (select p.id from product p, receipt r, store s where p.receiptId = r.id and s.id = r.storeId and s.id = :id)")
-    suspend fun deleteProductsOfStore(id: Int)
+    suspend fun deleteProductsOfStore(id: String)
 
     @Insert(onConflict = OnConflictStrategy.ABORT)
     suspend fun insertStore(store: Store): Long
@@ -90,31 +90,15 @@ interface ReceiptDao {
 
     @Transaction
     @Query("SELECT * FROM receipt WHERE id = :id")
-    suspend fun getReceipt(id: Int): Receipt
+    suspend fun getReceipt(id: String): Receipt
 
     @Transaction
     @Query("SELECT * FROM category WHERE id = :id")
-    suspend fun getCategoryById(id: Int): Category
+    suspend fun getCategoryById(id: String): Category
 
     @Transaction
     @Query("SELECT uuid FROM user WHERE id = 0")
     suspend fun getUserUuid(): String?
-
-    @Transaction
-    @Query("SELECT id FROM product WHERE rowId = :rowId")
-    suspend fun getProductId(rowId: Long): Int
-
-    @Transaction
-    @Query("SELECT id FROM receipt WHERE rowId = :rowId")
-    suspend fun getReceiptId(rowId: Long): Int
-
-    @Transaction
-    @Query("SELECT id FROM store WHERE rowId = :rowId")
-    suspend fun getStoreId(rowId: Long): Int
-
-    @Transaction
-    @Query("SELECT id FROM category WHERE rowId = :rowId")
-    suspend fun getCategoryId(rowId: Long): Int
 
     @Transaction
     @Query("SELECT * FROM store WHERE nip = :nip")
@@ -122,15 +106,15 @@ interface ReceiptDao {
 
     @Transaction
     @Query("SELECT * FROM store WHERE id = :id")
-    suspend fun getStoreById(id: Int): Store
+    suspend fun getStoreById(id: String): Store
 
     @Transaction
     @Query("SELECT * FROM product WHERE id = :id")
-    suspend fun getProductById(id: Int): Product
+    suspend fun getProductById(id: String): Product
 
     @Transaction
     @Query("SELECT * FROM receipt WHERE id = :id")
-    suspend fun getReceiptById(id: Int): Receipt
+    suspend fun getReceiptById(id: String): Receipt
 
     @Transaction
     @Query("SELECT * FROM store order by name")
@@ -154,7 +138,7 @@ interface ReceiptDao {
 
     @Transaction
     @Query("SELECT * FROM product WHERE receiptId=:receiptId")
-    suspend fun getAllProducts(receiptId: Int): List<Product>
+    suspend fun getAllProducts(receiptId: String): List<Product>
 
     @Transaction
     @RawQuery

@@ -5,10 +5,10 @@ import androidx.room.PrimaryKey
 
 @Entity
 data class Product(
-    var receiptId: Int,
+    var receiptId: String,
     var name: String,
-    var categoryId: Int,
-    var quantity: Int, //divide by 1000
+    var categoryId: String,
+    var quantity: Int,
     var unitPrice: Int,
     var subtotalPrice: Int,
     var discount: Int,
@@ -17,8 +17,8 @@ data class Product(
     var raw: String,
     var validPrice: Boolean
 ) : TranslateEntity {
-    @PrimaryKey(autoGenerate = true)
-    var id: Int? = null
+    @PrimaryKey
+    var id: String = ""
 
     override fun toMap(): HashMap<String, Any?> {
         return hashMapOf(

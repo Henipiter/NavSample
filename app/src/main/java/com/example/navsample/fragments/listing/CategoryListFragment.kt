@@ -89,7 +89,11 @@ class CategoryListFragment : Fragment(), ItemClickListener {
         }
         binding.newButton.setOnClickListener {
             val action =
-                ListingFragmentDirections.actionListingFragmentToAddCategoryFragment(AddingInputType.EMPTY.name)
+                ListingFragmentDirections.actionListingFragmentToAddCategoryFragment(
+                    inputType = AddingInputType.EMPTY.name,
+                    categoryId = "",
+                    sourceFragment = FragmentName.CATEGORY_LIST_FRAGMENT
+                )
             Navigation.findNavController(requireView()).navigate(action)
         }
 
@@ -119,7 +123,7 @@ class CategoryListFragment : Fragment(), ItemClickListener {
     override fun onItemClick(index: Int) {
         val category = listingViewModel.categoryList.value!![index]
         val action = ListingFragmentDirections.actionListingFragmentToAddCategoryFragment(
-            categoryId = category.id!!,
+            categoryId = category.id,
             inputType = AddingInputType.ID.name,
             sourceFragment = FragmentName.CATEGORY_LIST_FRAGMENT
         )

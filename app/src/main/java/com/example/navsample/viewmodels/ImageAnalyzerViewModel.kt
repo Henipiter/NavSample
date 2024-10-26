@@ -60,12 +60,12 @@ class ImageAnalyzerViewModel : ViewModel() {
             }
             try {
                 val correctedProducts = parseGeminiResponse(productList, categories, response)
-                onFinish.invoke(correctedProducts, response ?: "EMPTY")
+                onFinish.invoke(correctedProducts, response)
             } catch (exception: Exception) {
                 Log.e("Gemini", exception.message, exception)
                 geminiError.value = "Cannot parse AI response"
                 isGeminiWorking.value = false
-                onFinish.invoke(productList, response ?: "EMPTY")
+                onFinish.invoke(productList, response)
             }
         }
 
@@ -92,9 +92,9 @@ class ImageAnalyzerViewModel : ViewModel() {
                 Log.i("Gemini", "Category: '${split[1].trim()}'")
                 productList[i].name = split[0].trim()
                 categories?.find { it.name == split[1].trim() }?.let {
-                    if (it.id != null) {
+                    if (it.id.isNotEmpty()) {
                         Log.i("Gemini", "Name: '${it.id}'")
-                        productList[i].categoryId = it.id ?: 0
+                        productList[i].categoryId = it.id
                     }
                 }
             }
@@ -104,8 +104,8 @@ class ImageAnalyzerViewModel : ViewModel() {
 
     fun analyzeProductList(
         bitmap: Bitmap,
-        receiptId: Int,
-        categoryId: Int,
+        receiptId: String,
+        categoryId: String,
         categories: ArrayList<Category>?
     ) {
         productAnalyzed.value = null

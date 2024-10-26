@@ -4,7 +4,7 @@ import com.example.navsample.dto.PriceUtils.Companion.roundInt
 import com.example.navsample.entities.Product
 import kotlin.math.min
 
-class ReceiptParser(var receiptId: Int, var categoryId: Int) {
+class ReceiptParser(var receiptId: String, var categoryId: String) {
     companion object {
         private const val REGEX_PRICE = """-*(\d+\s*[,.]\s*\d\s*\d)|(\d+\s+\d\s*\d)"""
         private const val REGEX_QUANTITY = """(\d+[,.]\s*\d*\s*\d*\s*\d*)|(\d+\s*)"""

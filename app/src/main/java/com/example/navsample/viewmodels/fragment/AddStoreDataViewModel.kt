@@ -14,6 +14,7 @@ import com.google.firebase.firestore.CollectionReference
 import com.google.firebase.firestore.firestore
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import java.util.UUID
 
 class AddStoreDataViewModel : ViewModel() {
 
@@ -26,8 +27,8 @@ class AddStoreDataViewModel : ViewModel() {
 
 
     var inputType = "EMPTY"
-    var storeId = -1
-    var categoryId = -1
+    var storeId = ""
+    var categoryId = ""
     var storeName: String? = null
     var storeNip: String? = null
 
@@ -57,7 +58,7 @@ class AddStoreDataViewModel : ViewModel() {
         }
     }
 
-    fun deleteStore(storeId: Int) {
+    fun deleteStore(storeId: String) {
         Log.i("Database", "delete store - id $storeId")
         viewModelScope.launch {
             dao?.deleteProductsOfStore(storeId)
@@ -66,7 +67,7 @@ class AddStoreDataViewModel : ViewModel() {
         }
     }
 
-    fun getStoreById(id: Int) {
+    fun getStoreById(id: String) {
         Log.i("Database", "get store with id $id")
         viewModelScope.launch {
             dao?.let {
@@ -79,9 +80,9 @@ class AddStoreDataViewModel : ViewModel() {
         Log.i("Database", "insert store ${newStore.name}")
         viewModelScope.launch {
             try {
+                newStore.id = UUID.randomUUID().toString()
                 dao?.let {
-                    val rowId = dao.insertStore(newStore)
-                    newStore.id = dao.getStoreId(rowId)
+                    dao.insertStore(newStore)
                 }
                 Log.i("Database", "inserted receipt with id ${newStore.id}")
                 addFirestore(newStore)

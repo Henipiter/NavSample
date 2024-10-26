@@ -112,7 +112,7 @@ class AddStoreFragment : Fragment() {
                 binding.storeDefaultCategoryInput.setText("")
 
                 val action = AddStoreFragmentDirections.actionAddStoreFragmentToAddCategoryFragment(
-                    categoryId = -1,
+                    categoryId = "",
                     inputType = AddingInputType.EMPTY.name,
                     sourceFragment = FragmentName.ADD_STORE_FRAGMENT
                 )
@@ -137,11 +137,11 @@ class AddStoreFragment : Fragment() {
             addStoreDataViewModel.storeId = navArgs.storeId
             addStoreDataViewModel.storeName = navArgs.storeName
             addStoreDataViewModel.storeNip = navArgs.storeNip
-            if (navArgs.categoryId != -2) {
+            if (navArgs.categoryId.isNotEmpty()) {
                 addStoreDataViewModel.categoryId = navArgs.categoryId
             }
         } else if (navArgs.sourceFragment == FragmentName.ADD_CATEGORY_FRAGMENT) {
-            if (navArgs.categoryId >= 0) {
+            if (navArgs.categoryId.isNotEmpty()) {
                 addStoreDataViewModel.categoryId = navArgs.categoryId
             }
         }
@@ -158,12 +158,12 @@ class AddStoreFragment : Fragment() {
             binding.toolbar.title = "Add store"
 
         } else if (inputType == AddingInputType.ID) {
-            if (addStoreDataViewModel.storeId >= 0) {
+            if (addStoreDataViewModel.storeId.isNotEmpty()) {
                 binding.toolbar.title = "Edit store"
                 mode = DataMode.EDIT
                 addStoreDataViewModel.getStoreById(addStoreDataViewModel.storeId)
             } else {
-                throw Exception("NO STORE ID SET: " + addStoreDataViewModel.storeId)
+                throw Exception("NO STORE ID SET")
             }
         } else if (inputType == AddingInputType.FIELD) {
             binding.storeNameInput.setText(addStoreDataViewModel.storeName)
@@ -186,10 +186,11 @@ class AddStoreFragment : Fragment() {
 
     private fun saveChangesToDatabase() {
         if (mode == DataMode.NEW) {
-            val store = Store("", "", null)
-            store.nip = binding.storeNIPInput.text.toString()
-            store.name = binding.storeNameInput.text.toString()
-            store.defaultCategoryId = pickedCategory?.id ?: throw NoCategoryIdException()
+            val store = Store(
+                binding.storeNIPInput.text.toString(),
+                binding.storeNameInput.text.toString(),
+                pickedCategory?.id ?: throw NoCategoryIdException()
+            )
             addStoreDataViewModel.insertStore(store)
         }
         if (mode == DataMode.EDIT) {
@@ -228,7 +229,7 @@ class AddStoreFragment : Fragment() {
                 dropdownAdapter.categoryList = it
                 dropdownAdapter.notifyDataSetChanged()
             }
-            if (addStoreDataViewModel.categoryId >= 0) {
+            if (addStoreDataViewModel.categoryId.isNotEmpty()) {
                 setCategory()
             }
 
@@ -237,7 +238,7 @@ class AddStoreFragment : Fragment() {
         addStoreDataViewModel.storeById.observe(viewLifecycleOwner) {
             it?.let { store ->
                 if (navArgs.sourceFragment != FragmentName.ADD_CATEGORY_FRAGMENT) {
-                    addStoreDataViewModel.categoryId = store.defaultCategoryId!!
+                    addStoreDataViewModel.categoryId = store.defaultCategoryId
                     setCategory()
                 }
                 binding.storeNameInput.setText(store.name)
@@ -257,8 +258,8 @@ class AddStoreFragment : Fragment() {
                     val action =
                         AddStoreFragmentDirections.actionAddStoreFragmentToAddReceiptFragment(
                             inputType = AddingInputType.ID.name,
-                            receiptId = -2,
-                            storeId = it.id ?: -1,
+                            receiptId = "",
+                            storeId = it.id,
                             sourceFragment = FragmentName.ADD_STORE_FRAGMENT
                         )
                     Navigation.findNavController(requireView()).navigate(action)
@@ -293,7 +294,7 @@ class AddStoreFragment : Fragment() {
             Toast.makeText(requireContext(), "NIP cannot be empty", Toast.LENGTH_SHORT).show()
             return false
         }
-        if (pickedCategory?.id == null || pickedCategory?.id == -1) {
+        if (pickedCategory?.id == null || pickedCategory?.id?.isEmpty() == true) {
             Toast.makeText(requireContext(), "Category cannot be empty", Toast.LENGTH_SHORT).show()
             return false
         }

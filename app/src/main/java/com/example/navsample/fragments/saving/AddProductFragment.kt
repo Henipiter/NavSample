@@ -99,7 +99,7 @@ class AddProductFragment : Fragment() {
                 binding.productCategoryInput.setText("")
                 val action =
                     AddProductFragmentDirections.actionAddProductFragmentToAddCategoryFragment(
-                        categoryId = -1,
+                        categoryId = "",
                         inputType = AddingInputType.EMPTY.name,
                         sourceFragment = FragmentName.ADD_PRODUCT_FRAGMENT
                     )
@@ -168,10 +168,16 @@ class AddProductFragment : Fragment() {
             validateFinalPrice()
         }
         binding.productOriginalInput.doOnTextChanged { actual, _, _, _ ->
+            if (addProductDataViewModel.receiptById.value == null || addProductDataViewModel.receiptById.value?.id?.isEmpty() == true) {
+                throw NoReceiptIdException()
+            }
+            if (addProductDataViewModel.storeById.value == null || addProductDataViewModel.storeById.value?.defaultCategoryId?.isEmpty() == true) {
+                throw NoStoreIdException()
+            }
+
             val receiptParser = ReceiptParser(
-                addProductDataViewModel.receiptById.value?.id ?: throw NoReceiptIdException(),
-                addProductDataViewModel.storeById.value?.defaultCategoryId
-                    ?: throw NoStoreIdException()
+                addProductDataViewModel.receiptById.value!!.id,
+                addProductDataViewModel.storeById.value!!.defaultCategoryId
             )
             val product = receiptParser.parseStringToProduct(actual.toString())
             pickedCategory = try {
@@ -254,17 +260,17 @@ class AddProductFragment : Fragment() {
         }
     }
 
-
     private fun consumeNavArgs() {
         if (firstEntry && navArgs.sourceFragment != FragmentName.ADD_CATEGORY_FRAGMENT) {
             firstEntry = false
             addProductDataViewModel.inputType = navArgs.inputType
             addProductDataViewModel.productIndex = navArgs.productIndex
+            addProductDataViewModel.productId = navArgs.productId
             addProductDataViewModel.receiptId = navArgs.receiptId
             addProductDataViewModel.storeId = navArgs.storeId
             addProductDataViewModel.categoryId = navArgs.categoryId
         } else if (navArgs.sourceFragment == FragmentName.ADD_CATEGORY_FRAGMENT) {
-            if (navArgs.categoryId >= 0) {
+            if (navArgs.categoryId.isNotEmpty()) {
                 addProductDataViewModel.categoryId = navArgs.categoryId
             }
         }
@@ -304,8 +310,8 @@ class AddProductFragment : Fragment() {
             AddingInputType.ID -> {
                 mode = DataMode.EDIT
                 binding.toolbar.title = "Edit product"
-                isArgSetOrThrow(addProductDataViewModel.productIndex, "NO PRODUCT ID  SET: ") {
-                    addProductDataViewModel.getProductById(addProductDataViewModel.productIndex)
+                isArgSetOrThrow(addProductDataViewModel.productId, "NO PRODUCT ID  SET: ") {
+                    addProductDataViewModel.getProductById(addProductDataViewModel.productId)
                     if (addProductDataViewModel.storeById.value == null) {
                         isArgSetOrThrow(addProductDataViewModel.storeId, "NO STORE ID SET: ")
                         { addProductDataViewModel.getStoreById(addProductDataViewModel.storeId) }
@@ -322,7 +328,7 @@ class AddProductFragment : Fragment() {
     private fun saveChanges() {
         if (mode == DataMode.NEW) {
             val product = Product(
-                if (addProductDataViewModel.receiptId != -1) addProductDataViewModel.receiptId else throw NoReceiptIdException(),
+                addProductDataViewModel.receiptId.ifEmpty { throw NoReceiptIdException() },
                 binding.productNameInput.text.toString(),
                 pickedCategory?.id ?: throw NoCategoryIdException(),
                 doublePriceTextToInt(binding.productQuantityInput.text.toString()),
@@ -378,6 +384,14 @@ class AddProductFragment : Fragment() {
             execute.invoke()
         } else {
             throw Exception(errorMessage + arg)
+        }
+    }
+
+    private fun isArgSetOrThrow(arg: String?, errorMessage: String, execute: () -> Unit) {
+        if (arg != "") {
+            execute.invoke()
+        } else {
+            throw Exception(errorMessage)
         }
     }
 
@@ -588,7 +602,7 @@ class AddProductFragment : Fragment() {
                 dropdownAdapter.categoryList = it as ArrayList<Category>
                 dropdownAdapter.notifyDataSetChanged()
 
-                if (addProductDataViewModel.categoryId >= 0) {
+                if (addProductDataViewModel.categoryId.isNotEmpty()) {
                     setCategory()
                 }
             }
@@ -609,15 +623,14 @@ class AddProductFragment : Fragment() {
                 binding.ptuTypeInput.setText(product.ptuType)
             }
         }
-        addProductDataViewModel.storeById.observe(viewLifecycleOwner) { store ->
-            store?.let {
-                binding.toolbar.title = it.name
+        addProductDataViewModel.storeById.observe(viewLifecycleOwner) {
+            it?.let { store ->
+                binding.toolbar.title = store.name
+                if (addProductDataViewModel.receiptById.value == null && addProductDataViewModel.categoryId == "") {
+                    addProductDataViewModel.categoryId = store.defaultCategoryId
+                    setCategory()
+                }
             }
-            if (addProductDataViewModel.receiptById.value == null && addProductDataViewModel.categoryId < 0) {
-                addProductDataViewModel.categoryId = store?.defaultCategoryId!!
-                setCategory()
-            }
-
         }
     }
 

@@ -5,15 +5,15 @@ import androidx.room.PrimaryKey
 
 @Entity
 data class Receipt(
-    var storeId: Int,
+    var storeId: String,
     var pln: Int,
     var ptu: Int,
     var date: String,
     var time: String,
     var validPrice: Boolean
 ) : TranslateEntity {
-    @PrimaryKey(autoGenerate = true)
-    var id: Int? = null
+    @PrimaryKey
+    var id: String = ""
 
     override fun toMap(): HashMap<String, Any?> {
         return hashMapOf(

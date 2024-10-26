@@ -15,6 +15,7 @@ import com.google.firebase.Firebase
 import com.google.firebase.firestore.CollectionReference
 import com.google.firebase.firestore.firestore
 import kotlinx.coroutines.launch
+import java.util.UUID
 
 class AddProductDataViewModel : ViewModel() {
 
@@ -27,9 +28,10 @@ class AddProductDataViewModel : ViewModel() {
 
     var inputType = "EMPTY"
     var productIndex = -1
-    var receiptId = -1
-    var storeId = -1
-    var categoryId = -1
+    var productId = ""
+    var receiptId = ""
+    var storeId = ""
+    var categoryId = ""
 
     var categoryList = MutableLiveData<List<Category>>()
     var productList = MutableLiveData<ArrayList<Product>>()
@@ -53,14 +55,14 @@ class AddProductDataViewModel : ViewModel() {
     }
 
 
-    fun deleteProduct(productId: Int) {
+    fun deleteProduct(productId: String) {
         Log.i("Database", "delete product - id $productId")
         viewModelScope.launch {
             dao?.deleteProductById(productId)
         }
     }
 
-    fun getReceiptById(id: Int) {
+    fun getReceiptById(id: String) {
         Log.i("Database", "get store with id $id")
         viewModelScope.launch {
             dao?.let {
@@ -69,7 +71,7 @@ class AddProductDataViewModel : ViewModel() {
         }
     }
 
-    fun getStoreById(id: Int) {
+    fun getStoreById(id: String) {
         Log.i("Database", "get store with id $id")
         viewModelScope.launch {
             dao?.let {
@@ -78,7 +80,7 @@ class AddProductDataViewModel : ViewModel() {
         }
     }
 
-    fun getProductById(id: Int) {
+    fun getProductById(id: String) {
         Log.i("Database", "get store with id $id")
         viewModelScope.launch {
             dao?.let {
@@ -87,7 +89,7 @@ class AddProductDataViewModel : ViewModel() {
         }
     }
 
-    fun getProductsByReceiptId(receiptId: Int) {
+    fun getProductsByReceiptId(receiptId: String) {
         Log.i("Database", "get store with id $receiptId")
         viewModelScope.launch {
             dao?.let { dao ->
@@ -95,6 +97,7 @@ class AddProductDataViewModel : ViewModel() {
             }
         }
     }
+
     fun updateSingleProduct(product: Product) {
         viewModelScope.launch {
             dao?.let {
@@ -110,10 +113,10 @@ class AddProductDataViewModel : ViewModel() {
         viewModelScope.launch {
             dao?.let {
                 products.forEach { product ->
-                    if (product.id == null) {
+                    if (product.id.isEmpty()) {
+                        product.id = UUID.randomUUID().toString()
                         Log.i("Database", "insert product: ${product.name}")
-                        val rowId = dao.insertProduct(product)
-                        product.id = dao.getProductId(rowId)
+                        dao.insertProduct(product)
                         addFirestore(product)
                     } else {
                         Log.i("Database", "update product: ${product.name}")

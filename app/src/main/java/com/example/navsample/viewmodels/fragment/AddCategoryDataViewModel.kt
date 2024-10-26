@@ -12,6 +12,7 @@ import com.google.firebase.Firebase
 import com.google.firebase.firestore.CollectionReference
 import com.google.firebase.firestore.firestore
 import kotlinx.coroutines.launch
+import java.util.UUID
 
 class AddCategoryDataViewModel : ViewModel() {
 
@@ -23,7 +24,7 @@ class AddCategoryDataViewModel : ViewModel() {
     private val dao = ApplicationContext.context?.let { ReceiptDatabase.getInstance(it).receiptDao }
 
     var inputType = "EMPTY"
-    var categoryId = -1
+    var categoryId = ""
 
     var categoryList = MutableLiveData<ArrayList<Category>>()
     var categoryById = MutableLiveData<Category?>()
@@ -51,7 +52,7 @@ class AddCategoryDataViewModel : ViewModel() {
         }
     }
 
-    fun getCategoryById(id: Int) {
+    fun getCategoryById(id: String) {
         Log.i("Database", "refresh category list")
         viewModelScope.launch {
             categoryById.postValue(
@@ -63,9 +64,9 @@ class AddCategoryDataViewModel : ViewModel() {
     fun insertCategory(newCategory: Category) {
         Log.i("Database", "insert category: ${newCategory.name}")
         viewModelScope.launch {
+            newCategory.id = UUID.randomUUID().toString()
             dao?.let {
-                val rowId = dao.insertCategory(newCategory)
-                newCategory.id = dao.getCategoryId(rowId)
+                dao.insertCategory(newCategory)
             }
             Log.i("Database", "inserted category with id ${newCategory.id}")
             savedCategory.value = newCategory

@@ -41,13 +41,13 @@
             app:destination="@id/cropImageFragment" />
         <argument
             android:name="receiptId"
-            app:argType="integer" />
+            app:argType="string" />
         <argument
             android:name="storeId"
-            app:argType="integer" />
+            app:argType="string" />
         <argument
             android:name="categoryId"
-            app:argType="integer" />
+            app:argType="string" />
         <action
             android:id="@+id/action_addProductListFragment_to_addReceiptFragment"
             app:destination="@id/addReceiptFragment"
@@ -66,6 +66,9 @@
             android:name="productIndex"
             android:defaultValue="-1"
             app:argType="integer" />
+        <argument
+            android:name="productId"
+            app:argType="string" />
         <action
             android:id="@+id/action_addProductFragment_to_addCategoryFragment"
             app:destination="@id/addCategoryFragment">
@@ -73,19 +76,16 @@
         </action>
         <argument
             android:name="receiptId"
-            app:argType="integer"
-            android:defaultValue="-1" />
+            app:argType="string" />
         <argument
             android:name="storeId"
-            app:argType="integer"
-            android:defaultValue="-1" />
+            app:argType="string" />
         <argument
             android:name="sourceFragment"
             app:argType="string" />
         <argument
             android:name="categoryId"
-            app:argType="integer"
-            android:defaultValue="-1" />
+            app:argType="string" />
     </fragment>
     <fragment
         android:id="@+id/addReceiptFragment"
@@ -108,12 +108,10 @@
             app:argType="string" />
         <argument
             android:name="receiptId"
-            android:defaultValue="-1"
-            app:argType="integer" />
+            app:argType="string" />
         <argument
             android:name="storeId"
-            app:argType="integer"
-            android:defaultValue="-1" />
+            app:argType="string" />
         <argument
             android:name="sourceFragment"
             app:argType="string" />
@@ -142,10 +140,10 @@
             app:argType="boolean" />
         <argument
             android:name="categoryId"
-            app:argType="integer" />
+            app:argType="string" />
         <argument
             android:name="receiptId"
-            app:argType="integer" />
+            app:argType="string" />
     </fragment>
     <fragment
         android:id="@+id/addStoreFragment"
@@ -158,8 +156,7 @@
             app:argType="string" />
         <argument
             android:name="storeId"
-            android:defaultValue="-1"
-            app:argType="integer" />
+            app:argType="string" />
         <action
             android:id="@+id/action_addStoreFragment_to_addCategoryFragment"
             app:destination="@id/addCategoryFragment">
@@ -183,8 +180,7 @@
             app:argType="string" />
         <argument
             android:name="categoryId"
-            app:argType="integer"
-            android:defaultValue="-1" />
+            app:argType="string" />
     </fragment>
     <fragment
         android:id="@+id/diagramFragment"
@@ -244,8 +240,7 @@
             app:argType="string" />
         <argument
             android:name="categoryId"
-            android:defaultValue="-1"
-            app:argType="integer" />
+            app:argType="string" />
         <action
             android:id="@+id/action_addCategoryFragment_to_addStoreFragment"
             app:destination="@id/addStoreFragment"
@@ -282,9 +277,9 @@
         tools:layout="@layout/fragment_crop_image">
         <argument
             android:name="receiptId"
-            app:argType="integer" />
+            app:argType="string" />
         <argument
             android:name="categoryId"
-            app:argType="integer" />
+            app:argType="string" />
     </fragment>
 </navigation>

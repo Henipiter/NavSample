@@ -13,6 +13,7 @@ import com.google.firebase.Firebase
 import com.google.firebase.firestore.CollectionReference
 import com.google.firebase.firestore.firestore
 import kotlinx.coroutines.launch
+import java.util.UUID
 
 class AddReceiptDataViewModel : ViewModel() {
 
@@ -25,8 +26,8 @@ class AddReceiptDataViewModel : ViewModel() {
 
 
     var inputType = "EMPTY"
-    var receiptId = -1
-    var storeId = -1
+    var receiptId = ""
+    var storeId = ""
 
     var storeList = MutableLiveData<ArrayList<Store>>()
     var receiptById = MutableLiveData<Receipt?>()
@@ -44,7 +45,7 @@ class AddReceiptDataViewModel : ViewModel() {
         }
     }
 
-    fun getReceiptById(id: Int) {
+    fun getReceiptById(id: String) {
         Log.i("Database", "get store with id $id")
         viewModelScope.launch {
             dao?.let {
@@ -68,7 +69,7 @@ class AddReceiptDataViewModel : ViewModel() {
     }
 
 
-    fun deleteReceipt(receiptId: Int) {
+    fun deleteReceipt(receiptId: String) {
         Log.i("Database", "delete receipt - id $receiptId")
         viewModelScope.launch {
             dao?.deleteProductsOfReceipt(receiptId)
@@ -81,8 +82,8 @@ class AddReceiptDataViewModel : ViewModel() {
         viewModelScope.launch {
             dao?.let {
                 newReceipt.date = convertDateFormat(newReceipt.date)
-                val rowId = dao.insertReceipt(newReceipt)
-                newReceipt.id = dao.getReceiptId(rowId)
+                newReceipt.id = UUID.randomUUID().toString()
+                dao.insertReceipt(newReceipt)
             }
             Log.i("Database", "inserted receipt with id ${newReceipt.id}")
             savedReceipt.value = newReceipt

@@ -9,8 +9,8 @@ data class Category(
     var name: String,
     var color: String,
 ) : TranslateEntity {
-    @PrimaryKey(autoGenerate = true)
-    var id: Int? = null
+    @PrimaryKey
+    var id: String = ""
 
     override fun toMap(): HashMap<String, Any?> {
         return hashMapOf(

@@ -45,8 +45,8 @@ class InitDatabaseViewModel : ViewModel() {
             dao?.let {
                 products.forEach { product ->
                     Log.i("Database", "insert product: ${product.name}")
-                    val rowId = dao.insertProduct(product)
-                    product.id = dao.getProductId(rowId)
+                    product.id = UUID.randomUUID().toString()
+                    dao.insertProduct(product)
                     addFirestore(product)
 
                 }
@@ -60,8 +60,7 @@ class InitDatabaseViewModel : ViewModel() {
         viewModelScope.launch {
             dao?.let {
                 newReceipt.date = convertDateFormat(newReceipt.date)
-                val rowId = dao.insertReceipt(newReceipt)
-                newReceipt.id = dao.getReceiptId(rowId)
+                dao.insertReceipt(newReceipt)
             }
             Log.i("Database", "inserted receipt with id ${newReceipt.id}")
             addFirestore(newReceipt)
@@ -124,8 +123,7 @@ class InitDatabaseViewModel : ViewModel() {
         viewModelScope.launch {
             try {
                 dao?.let {
-                    val rowId = dao.insertStore(newStore)
-                    newStore.id = dao.getStoreId(rowId)
+                    dao.insertStore(newStore)
                 }
                 Log.i("Database", "inserted receipt with id ${newStore.id}")
                 addFirestore(newStore)

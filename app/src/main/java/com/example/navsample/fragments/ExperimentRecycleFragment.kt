@@ -70,17 +70,22 @@ open class ExperimentRecycleFragment : Fragment() {
     }
 
     private fun configureReceiptParser() {
-        if (args.receiptId != -1 && args.categoryId != -1) {
-            receiptParser = ReceiptParser(
-                args.receiptId,
-                args.categoryId
-            )
-        } else {
-            Toast.makeText(requireContext(), "RECEIPT OR CATEGORY ID NOT SET", Toast.LENGTH_SHORT)
-                .show()
+        args.receiptId.ifEmpty {
+            Toast.makeText(requireContext(), "NO RECEIPT ID", Toast.LENGTH_SHORT).show()
             Navigation.findNavController(requireView()).popBackStack()
-
+            return
         }
+        args.categoryId.ifEmpty {
+            Toast.makeText(requireContext(), "NO CATEGORY ID", Toast.LENGTH_SHORT).show()
+            Navigation.findNavController(requireView()).popBackStack()
+            return
+        }
+        receiptParser = ReceiptParser(
+            args.receiptId,
+            args.categoryId
+        )
+
+
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -209,10 +214,10 @@ open class ExperimentRecycleFragment : Fragment() {
         val deactivatePriceAnimation =
             ValueAnimator.ofObject(ArgbEvaluator(), activePriceColor, inactiveColor)
 
-        activateNameAnimation.setDuration(250)
-        deactivateNameAnimation.setDuration(250)
-        activatePriceAnimation.setDuration(250)
-        deactivatePriceAnimation.setDuration(250)
+        activateNameAnimation.duration = 250
+        deactivateNameAnimation.duration = 250
+        activatePriceAnimation.duration = 250
+        deactivatePriceAnimation.duration = 250
 
         activateNameAnimation.addUpdateListener { animator ->
             binding.cardViewUserName.setCardBackgroundColor(
