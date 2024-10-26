@@ -5,28 +5,22 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.navsample.ApplicationContext
+import com.example.navsample.dto.inputmode.AddingInputType
 import com.example.navsample.entities.Category
+import com.example.navsample.entities.FirebaseHelper
 import com.example.navsample.entities.ReceiptDatabase
 import com.example.navsample.entities.Store
-import com.example.navsample.entities.TranslateEntity
-import com.google.firebase.Firebase
-import com.google.firebase.firestore.CollectionReference
-import com.google.firebase.firestore.firestore
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import java.util.UUID
 
 class AddStoreDataViewModel : ViewModel() {
 
-    companion object {
-        private const val STORE_FIRESTORE_PATH = "stores"
-    }
-
-    private val firestore = Firebase.firestore
     private val dao = ApplicationContext.context?.let { ReceiptDatabase.getInstance(it).receiptDao }
+    private lateinit var firebaseHelper: FirebaseHelper
 
 
-    var inputType = "EMPTY"
+    var inputType = AddingInputType.EMPTY.name
     var storeId = ""
     var categoryId = ""
     var storeName: String? = null
@@ -85,7 +79,7 @@ class AddStoreDataViewModel : ViewModel() {
                     dao.insertStore(newStore)
                 }
                 Log.i("Database", "inserted receipt with id ${newStore.id}")
-                addFirestore(newStore)
+                firebaseHelper.addFirestore(newStore)
                 savedStore.postValue(newStore)
             } catch (e: Exception) {
                 Log.e("Insert store to DB", e.message.toString())
@@ -101,32 +95,17 @@ class AddStoreDataViewModel : ViewModel() {
             }
         }
         savedStore.value = newStore
-        updateFirestore(newStore)
+        firebaseHelper.updateFirestore(newStore)
 
     }
 
-    private fun <T : TranslateEntity> addFirestore(obj: T) {
-        getFirestoreUserPath().document(obj.getDescriptiveId()).set(obj)
-    }
-
-    private fun <T : TranslateEntity> updateFirestore(obj: T) {
-        getFirestoreUserPath()
-            .document(obj.getDescriptiveId())
-            .update(obj.toMap())
-
-    }
-
-    private fun getFirestoreUserPath(): CollectionReference {
-        return firestore.collection("user").document(userUuid.value.toString())
-            .collection(STORE_FIRESTORE_PATH)
-
-    }
 
     private fun setUserUuid() {
         viewModelScope.launch {
             dao?.let {
                 val uuid = dao.getUserUuid()
                 userUuid.postValue(uuid)
+                firebaseHelper = FirebaseHelper(uuid!!)
             }
         }
     }

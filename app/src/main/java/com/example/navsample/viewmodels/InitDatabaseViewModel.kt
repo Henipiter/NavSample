@@ -6,26 +6,19 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.navsample.ApplicationContext
 import com.example.navsample.entities.Category
+import com.example.navsample.entities.FirebaseHelper
 import com.example.navsample.entities.Product
 import com.example.navsample.entities.Receipt
 import com.example.navsample.entities.ReceiptDatabase
 import com.example.navsample.entities.Store
-import com.example.navsample.entities.TranslateEntity
 import com.example.navsample.entities.User
-import com.google.firebase.Firebase
-import com.google.firebase.firestore.CollectionReference
-import com.google.firebase.firestore.firestore
 import kotlinx.coroutines.launch
 import java.util.UUID
 
 class InitDatabaseViewModel : ViewModel() {
 
-    companion object {
-        private const val PRODUCT_FIRESTORE_PATH = "products"
-        private const val RECEIPT_FIRESTORE_PATH = "receipts"
-        private const val STORE_FIRESTORE_PATH = "stores"
-        private const val CATEGORY_FIRESTORE_PATH = "categories"
-    }
+    private val dao = ApplicationContext.context?.let { ReceiptDatabase.getInstance(it).receiptDao }
+    private lateinit var firebaseHelper: FirebaseHelper
 
 
     var userUuid = MutableLiveData<String?>()
@@ -36,9 +29,6 @@ class InitDatabaseViewModel : ViewModel() {
 
     lateinit var category: MutableLiveData<Category?>
 
-    private val dao = ApplicationContext.context?.let { ReceiptDatabase.getInstance(it).receiptDao }
-    private val firestore = Firebase.firestore
-
     fun insertProducts(products: List<Product>) {
         Log.i("Database", "insert products. Size: ${products.size}")
         viewModelScope.launch {
@@ -47,8 +37,7 @@ class InitDatabaseViewModel : ViewModel() {
                     Log.i("Database", "insert product: ${product.name}")
                     product.id = UUID.randomUUID().toString()
                     dao.insertProduct(product)
-                    addFirestore(product)
-
+                    firebaseHelper.addFirestore(product)
                 }
             }
         }
@@ -63,7 +52,7 @@ class InitDatabaseViewModel : ViewModel() {
                 dao.insertReceipt(newReceipt)
             }
             Log.i("Database", "inserted receipt with id ${newReceipt.id}")
-            addFirestore(newReceipt)
+            firebaseHelper.addFirestore(newReceipt)
         }
     }
 
@@ -85,6 +74,7 @@ class InitDatabaseViewModel : ViewModel() {
         val uuid = UUID.randomUUID().toString()
         val user = User(uuid)
         userUuid.value = user.uuid
+        firebaseHelper = FirebaseHelper(uuid)
         user.id = 0
         Log.i("Database", "insert user, uuid: ${user.uuid}")
         viewModelScope.launch {
@@ -102,6 +92,7 @@ class InitDatabaseViewModel : ViewModel() {
         Log.i("Database", "insert category ${category.name} - id ${category.id}")
         viewModelScope.launch {
             dao?.insertCategory(category)
+            firebaseHelper.addFirestore(category)
         }
     }
 
@@ -113,6 +104,7 @@ class InitDatabaseViewModel : ViewModel() {
                     insertUser()
                 } else {
                     userUuid.postValue(uuid)
+                    firebaseHelper = FirebaseHelper(uuid)
                 }
             }
         }
@@ -126,45 +118,12 @@ class InitDatabaseViewModel : ViewModel() {
                     dao.insertStore(newStore)
                 }
                 Log.i("Database", "inserted receipt with id ${newStore.id}")
-                addFirestore(newStore)
+                firebaseHelper.addFirestore(newStore)
             } catch (e: Exception) {
                 Log.e("Insert store to DB", e.message.toString())
             }
         }
     }
 
-
-    private fun getPath(obj: Any): String {
-        when (obj) {
-            is Store -> {
-                return STORE_FIRESTORE_PATH
-            }
-
-            is Category -> {
-                return CATEGORY_FIRESTORE_PATH
-            }
-
-            is Receipt -> {
-                return RECEIPT_FIRESTORE_PATH
-            }
-
-            is Product -> {
-                return PRODUCT_FIRESTORE_PATH
-            }
-        }
-        return "null"
-    }
-
-    private fun getFirestoreUserPath(path: String): CollectionReference {
-        return firestore.collection("user").document(userUuid.value.toString()).collection(path)
-
-    }
-
-    private fun <T : TranslateEntity> addFirestore(obj: T) {
-        getFirestoreUserPath(getPath(obj))
-            .document(obj.getDescriptiveId())
-            .set(obj)
-
-    }
 
 }

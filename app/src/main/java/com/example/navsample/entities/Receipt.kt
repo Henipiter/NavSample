@@ -10,7 +10,9 @@ data class Receipt(
     var ptu: Int,
     var date: String,
     var time: String,
-    var validPrice: Boolean
+    var validPrice: Boolean,
+    var createdAt: String = "",
+    var deletedAt: String = ""
 ) : TranslateEntity {
     @PrimaryKey
     var id: String = ""
@@ -22,7 +24,9 @@ data class Receipt(
             "pln" to this.pln,
             "ptu" to this.ptu,
             "date" to this.date,
-            "time" to this.time
+            "time" to this.time,
+            "createdAt" to this.createdAt,
+            "deletedAt" to this.deletedAt
         )
     }
 

@@ -5,28 +5,22 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.navsample.ApplicationContext
+import com.example.navsample.dto.inputmode.AddingInputType
 import com.example.navsample.entities.Category
+import com.example.navsample.entities.FirebaseHelper
 import com.example.navsample.entities.Product
 import com.example.navsample.entities.Receipt
 import com.example.navsample.entities.ReceiptDatabase
 import com.example.navsample.entities.Store
-import com.example.navsample.entities.TranslateEntity
-import com.google.firebase.Firebase
-import com.google.firebase.firestore.CollectionReference
-import com.google.firebase.firestore.firestore
 import kotlinx.coroutines.launch
 import java.util.UUID
 
 class AddProductDataViewModel : ViewModel() {
 
-    companion object {
-        private const val PRODUCT_FIRESTORE_PATH = "products"
-    }
-
-    private val firestore = Firebase.firestore
     private val dao = ApplicationContext.context?.let { ReceiptDatabase.getInstance(it).receiptDao }
+    private lateinit var firebaseHelper: FirebaseHelper
 
-    var inputType = "EMPTY"
+    var inputType = AddingInputType.EMPTY.name
     var productIndex = -1
     var productId = ""
     var receiptId = ""
@@ -103,7 +97,7 @@ class AddProductDataViewModel : ViewModel() {
             dao?.let {
                 Log.i("Database", "update product: ${product.name}")
                 dao.updateProduct(product)
-                updateFirestore(product)
+                firebaseHelper.updateFirestore(product)
             }
         }
     }
@@ -117,11 +111,11 @@ class AddProductDataViewModel : ViewModel() {
                         product.id = UUID.randomUUID().toString()
                         Log.i("Database", "insert product: ${product.name}")
                         dao.insertProduct(product)
-                        addFirestore(product)
+                        firebaseHelper.addFirestore(product)
                     } else {
                         Log.i("Database", "update product: ${product.name}")
                         dao.updateProduct(product)
-                        updateFirestore(product)
+                        firebaseHelper.updateFirestore(product)
                     }
                 }
             }
@@ -137,32 +131,17 @@ class AddProductDataViewModel : ViewModel() {
             dao?.let {
                 dao.updateReceipt(newReceipt)
             }
-            updateFirestore(newReceipt)
+            firebaseHelper.updateFirestore(newReceipt)
         }
     }
 
-    private fun <T : TranslateEntity> addFirestore(obj: T) {
-        getFirestoreUserPath().document(obj.getDescriptiveId()).set(obj)
-    }
-
-    private fun <T : TranslateEntity> updateFirestore(obj: T) {
-        getFirestoreUserPath()
-            .document(obj.getDescriptiveId())
-            .update(obj.toMap())
-
-    }
-
-    private fun getFirestoreUserPath(): CollectionReference {
-        return firestore.collection("user").document(userUuid.value.toString())
-            .collection(PRODUCT_FIRESTORE_PATH)
-
-    }
 
     private fun setUserUuid() {
         viewModelScope.launch {
             dao?.let {
                 val uuid = dao.getUserUuid()
                 userUuid.postValue(uuid)
+                firebaseHelper = FirebaseHelper(uuid!!)
             }
         }
     }

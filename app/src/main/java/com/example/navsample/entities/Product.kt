@@ -15,7 +15,9 @@ data class Product(
     var finalPrice: Int,
     var ptuType: String,
     var raw: String,
-    var validPrice: Boolean
+    var validPrice: Boolean,
+    var createdAt: String = "",
+    var deletedAt: String = ""
 ) : TranslateEntity {
     @PrimaryKey
     var id: String = ""
@@ -32,7 +34,9 @@ data class Product(
             "finalPrice" to this.finalPrice,
             "ptuType" to this.ptuType,
             "raw" to this.raw,
-            "validPrice" to this.validPrice
+            "validPrice" to this.validPrice,
+            "createdAt" to this.createdAt,
+            "deletedAt" to this.deletedAt
         )
     }
 

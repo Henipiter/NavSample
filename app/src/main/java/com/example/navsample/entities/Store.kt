@@ -8,7 +8,9 @@ import androidx.room.PrimaryKey
 data class Store(
     var nip: String,
     var name: String,
-    var defaultCategoryId: String
+    var defaultCategoryId: String,
+    var createdAt: String = "",
+    var deletedAt: String = ""
 ) : TranslateEntity {
     @PrimaryKey
     var id: String = ""
@@ -18,7 +20,9 @@ data class Store(
             "id" to this.id,
             "nip" to this.nip,
             "name" to this.name,
-            "defaultCategoryId" to this.defaultCategoryId
+            "defaultCategoryId" to this.defaultCategoryId,
+            "createdAt" to this.createdAt,
+            "deletedAt" to this.deletedAt
         )
     }
 

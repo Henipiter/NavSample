@@ -8,6 +8,8 @@ import androidx.room.PrimaryKey
 data class Category(
     var name: String,
     var color: String,
+    var createdAt: String = "",
+    var deletedAt: String = ""
 ) : TranslateEntity {
     @PrimaryKey
     var id: String = ""
@@ -16,7 +18,9 @@ data class Category(
         return hashMapOf(
             "id" to this.id,
             "name" to this.name,
-            "color" to this.color
+            "color" to this.color,
+            "createdAt" to this.createdAt,
+            "deletedAt" to this.deletedAt
         )
     }
 
