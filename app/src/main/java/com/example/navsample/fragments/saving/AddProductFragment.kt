@@ -121,6 +121,29 @@ class AddProductFragment : Fragment() {
         binding.productOriginalLayout.setEndIconOnClickListener {
             binding.productOriginalInput.setText(productOriginalInput)
         }
+
+        binding.productFinalPriceLayout.setEndIconOnClickListener {
+            binding.productFinalPriceInput.setText("")
+            validateFinalPrice()
+        }
+        binding.productDiscountLayout.setEndIconOnClickListener {
+            binding.productDiscountInput.setText("")
+            validateFinalPrice()
+        }
+        binding.productSubtotalPriceLayout.setEndIconOnClickListener {
+            binding.productSubtotalPriceInput.setText("")
+            validateFinalPrice()
+            validatePrices()
+        }
+        binding.productUnitPriceLayout.setEndIconOnClickListener {
+            binding.productUnitPriceInput.setText("")
+            validatePrices()
+        }
+        binding.productQuantityLayout.setEndIconOnClickListener {
+            binding.productQuantityInput.setText("")
+            validatePrices()
+        }
+
         binding.productNameInput.doOnTextChanged { actual, _, _, _ ->
             if (productOriginalInput != "" && !actual.isNullOrEmpty()) {
                 binding.productNameLayout.error = null
@@ -273,6 +296,8 @@ class AddProductFragment : Fragment() {
                 binding.ptuTypeInput.setText("")
                 binding.productCategoryInput.setText("")
                 binding.toolbar.title = "Add product"
+                binding.productQuantityHelperText.text = getSuggestionMessage("1")
+                binding.productDiscountHelperText.text = getSuggestionMessage("0.00")
                 if (addProductDataViewModel.storeById.value == null) {
                     isArgSetOrThrow(addProductDataViewModel.storeId, "NO STORE ID SET: ")
                     { addProductDataViewModel.getStoreById(addProductDataViewModel.storeId) }
@@ -389,9 +414,8 @@ class AddProductFragment : Fragment() {
         if (!isFinalPriceBlank) {
             finalPrice = doublePriceTextToInt(binding.productFinalPriceInput.text.toString())
         }
-        val checks = arrayOf(isDiscountPriceBlank, isFinalPriceBlank).count { !it }
 
-        if (checks == 2) {
+        if (!isSubtotalPriceBlank && !isDiscountPriceBlank && !isFinalPriceBlank) {
             if (subtotalPrice - discountPrice == finalPrice) {
                 isValidPrices = true
                 binding.productDiscountHelperText.text = ""
@@ -403,16 +427,17 @@ class AddProductFragment : Fragment() {
                 binding.productFinalPriceHelperText.text =
                     getSuggestionMessage(intPriceToString(subtotalPrice - discountPrice))
             }
-        } else if (checks == 1) {
+        } else if (!isSubtotalPriceBlank && isDiscountPriceBlank) {
             isValidPrices = false
-            if (isDiscountPriceBlank) {
-                binding.productDiscountHelperText.text =
-                    getSuggestionMessage(intPriceToString(subtotalPrice - finalPrice))
-            }
-            if (isFinalPriceBlank) {
-                binding.productFinalPriceHelperText.text =
-                    getSuggestionMessage(intPriceToString(subtotalPrice - discountPrice))
-            }
+            binding.productDiscountHelperText.text =
+                getSuggestionMessage(intPriceToString(subtotalPrice - finalPrice))
+        } else if (!isSubtotalPriceBlank) {
+            isValidPrices = false
+            binding.productFinalPriceHelperText.text =
+                getSuggestionMessage(intPriceToString(subtotalPrice - discountPrice))
+        } else if (isDiscountPriceBlank) {
+            isValidPrices = false
+            binding.productDiscountHelperText.text = getSuggestionMessage("0.00")
         } else {
             isValidPrices = true
             binding.productDiscountHelperText.text = ""
@@ -451,11 +476,11 @@ class AddProductFragment : Fragment() {
                     getSuggestionMessage(intPriceToString(roundInt(unitPrice * quantity)))
 
                 val unitPriceMessage =
-                    if (quantity != 0) intPriceToString(subtotalPrice / quantity) else "1"
+                    if (quantity != 0) intPriceToString(subtotalPrice / quantity) else "100"
                 binding.productUnitPriceHelperText.text = getSuggestionMessage(unitPriceMessage)
 
                 val unitQuantityMessage =
-                    if (quantity != 0) intQuantityToString(subtotalPrice / unitPrice) else "1"
+                    if (quantity != 0) intQuantityToString(subtotalPrice / unitPrice) else "1000"
                 binding.productQuantityHelperText.text = getSuggestionMessage(unitQuantityMessage)
             }
         } else if (checks == 2) {
@@ -466,14 +491,16 @@ class AddProductFragment : Fragment() {
             }
             if (isUnitPriceBlank) {
                 val unitPriceMessage =
-                    if (quantity != 0) intQuantityToString(subtotalPrice / quantity) else "1"
+                    if (quantity != 0) intPriceToString(subtotalPrice / quantity) else "100"
                 binding.productUnitPriceHelperText.text = getSuggestionMessage(unitPriceMessage)
             }
             if (isQuantityBlank) {
                 val unitQuantityMessage =
-                    if (unitPrice != 0) intQuantityToString(subtotalPrice / unitPrice) else "1"
+                    if (unitPrice != 0) intQuantityToString(subtotalPrice / unitPrice) else "1000"
                 binding.productQuantityHelperText.text = getSuggestionMessage(unitQuantityMessage)
             }
+        } else if (isQuantityBlank) {
+            binding.productQuantityHelperText.text = getSuggestionMessage("1")
         } else {
             isValidPrices = true
             binding.productSubtotalPriceHelperText.text = ""
