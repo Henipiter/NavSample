@@ -9,8 +9,8 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.navsample.ItemClickListener
 import com.example.navsample.R
 import com.example.navsample.databinding.ProductRowBinding
-import com.example.navsample.dto.Utils.Companion.doubleToString
-import com.example.navsample.dto.Utils.Companion.quantityToString
+import com.example.navsample.dto.PriceUtils.Companion.intPriceToString
+import com.example.navsample.dto.PriceUtils.Companion.intQuantityToString
 import com.example.navsample.entities.relations.ProductRichData
 
 
@@ -37,11 +37,11 @@ class RichProductListAdapter(
         holder.binding.categoryName.text = productList[position].categoryName
         holder.binding.categoryColor.setBackgroundColor(Color.parseColor(productList[position].categoryColor))
         holder.binding.ptuType.text = productList[position].ptuType
-        holder.binding.quantity.text = quantityToString(productList[position].quantity)
-        holder.binding.unitPrice.text = doubleToString(productList[position].unitPrice)
-        holder.binding.subtotalPrice.text = doubleToString(productList[position].subtotalPrice)
-        holder.binding.discountPrice.text = doubleToString(productList[position].discount)
-        holder.binding.finalPrice.text = doubleToString(productList[position].finalPrice)
+        holder.binding.quantity.text = intQuantityToString(productList[position].quantity)
+        holder.binding.unitPrice.text = intPriceToString(productList[position].unitPrice)
+        holder.binding.subtotalPrice.text = intPriceToString(productList[position].subtotalPrice)
+        holder.binding.discountPrice.text = intPriceToString(productList[position].discount)
+        holder.binding.finalPrice.text = intPriceToString(productList[position].finalPrice)
         holder.binding.productName.text = trimDescription(productList[position].name)
         setCollapseOrExpand(holder, position)
         holder.binding.mainLayout.setOnClickListener {

@@ -81,6 +81,7 @@ class PricePickerDialog(
         }
 
         binding.confirmButton.setOnClickListener {
+            //TODO mulitply by 100
             val lowerPrice = binding.lowerPriceInput.text.toString()
             val higherPrice = binding.higherPriceInput.text.toString()
             if (binding.lowerPriceLayout.error == null && binding.higherPriceLayout.error == null) {

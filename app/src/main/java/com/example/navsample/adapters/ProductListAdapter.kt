@@ -8,9 +8,8 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.example.navsample.ItemClickListener
 import com.example.navsample.databinding.ProductDtoRowBinding
-import com.example.navsample.dto.Utils.Companion.doubleToString
-import com.example.navsample.dto.Utils.Companion.quantityToString
-import com.example.navsample.dto.Utils.Companion.roundDouble
+import com.example.navsample.dto.PriceUtils.Companion.intPriceToString
+import com.example.navsample.dto.PriceUtils.Companion.intQuantityToString
 import com.example.navsample.entities.Category
 import com.example.navsample.entities.Product
 
@@ -36,18 +35,18 @@ class ProductListAdapter(
         } catch (exception: Exception) {
             null
         }
-        if (roundDouble(productList[position].discount) != 0.0) {
+        if (productList[position].discount != 0) {
             holder.binding.discountPrice.visibility = View.VISIBLE
             holder.binding.minusSign.visibility = View.VISIBLE
-            holder.binding.discountPrice.text = doubleToString(productList[position].discount)
+            holder.binding.discountPrice.text = intPriceToString(productList[position].discount)
         } else {
             holder.binding.discountPrice.visibility = View.GONE
             holder.binding.minusSign.visibility = View.GONE
         }
         holder.binding.ptuType.text = productList[position].ptuType
-        holder.binding.quantity.text = quantityToString(productList[position].quantity)
-        holder.binding.unitPrice.text = doubleToString(productList[position].unitPrice)
-        holder.binding.finalPrice.text = doubleToString(productList[position].finalPrice)
+        holder.binding.quantity.text = intQuantityToString(productList[position].quantity)
+        holder.binding.unitPrice.text = intPriceToString(productList[position].unitPrice)
+        holder.binding.finalPrice.text = intPriceToString(productList[position].finalPrice)
         holder.binding.categoryName.text = category?.name ?: "-"
         holder.binding.categoryColor.setBackgroundColor(
             Color.parseColor(

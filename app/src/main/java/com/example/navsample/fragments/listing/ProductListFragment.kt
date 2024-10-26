@@ -17,6 +17,7 @@ import com.example.navsample.R
 import com.example.navsample.adapters.RichProductListAdapter
 import com.example.navsample.databinding.FragmentProductListBinding
 import com.example.navsample.dto.FragmentName
+import com.example.navsample.dto.PriceUtils.Companion.intPriceToString
 import com.example.navsample.dto.inputmode.AddingInputType
 import com.example.navsample.dto.sort.RichProductSort
 import com.example.navsample.dto.sort.SortProperty
@@ -102,7 +103,7 @@ class ProductListFragment : Fragment(), ItemClickListener {
                 ConfirmDialog(
                     "Delete",
                     "$i Are you sure you want to delete the product??\n\nName: " + it.name +
-                            "\nPLN: " + it.subtotalPrice
+                            "\nPLN: " + intPriceToString(it.subtotalPrice)
                 ) {
                     if (it.id >= 0) {
                         addProductDataViewModel.deleteProduct(it.id)
@@ -146,7 +147,7 @@ class ProductListFragment : Fragment(), ItemClickListener {
                 it.quantity,
                 it.unitPrice,
                 it.subtotalPrice,
-                0.0,
+                0,
                 it.subtotalPrice,
                 it.ptuType,
                 it.raw,

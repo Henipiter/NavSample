@@ -161,8 +161,8 @@ class ListingViewModel : ViewModel() {
         categoryName: String,
         dateFrom: String,
         dateTo: String,
-        lowerPrice: Double,
-        higherPrice: Double,
+        lowerPrice: Int,
+        higherPrice: Int,
     ) {
 
         Log.i("Database", "refresh product list limited")
@@ -185,7 +185,7 @@ class ListingViewModel : ViewModel() {
         Log.i("Database", "refresh product list all")
         viewModelScope.launch {
             val list = ReceiptDaoHelper.getAllProductsOrdered(
-                dao, "", "", "0", "9", 0.0, -1.0, richProductSort.value ?: defaultRichProductSort
+                dao, "", "", "0", "9", 0, -1, richProductSort.value ?: defaultRichProductSort
             )
             productRichList.postValue(list?.let { ArrayList(it) })
         }

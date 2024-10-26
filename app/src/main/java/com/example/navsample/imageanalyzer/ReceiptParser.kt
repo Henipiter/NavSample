@@ -1,6 +1,6 @@
 package com.example.navsample.imageanalyzer
 
-import com.example.navsample.dto.Utils.Companion.roundDouble
+import com.example.navsample.dto.PriceUtils.Companion.roundInt
 import com.example.navsample.entities.Product
 import kotlin.math.min
 
@@ -33,13 +33,13 @@ class ReceiptParser(var receiptId: Int, var categoryId: Int) {
             if (parsedProduct.name == "") {
                 parsedProduct.name = names[i]
             }
-            if (parsedProduct.discount != 0.0) {
+            if (parsedProduct.discount != 0) {
                 val lastProduct = productList.last()
                 lastProduct.discount = parsedProduct.discount
                 lastProduct.finalPrice = parsedProduct.finalPrice
                 continue
             }
-            if (parsedProduct.name != "" || parsedProduct.subtotalPrice != 0.0) {
+            if (parsedProduct.name != "" || parsedProduct.subtotalPrice != 0) {
                 parsedProduct.validPrice = arePricesValid(parsedProduct)
                 productList.add(parsedProduct)
             }
@@ -51,8 +51,8 @@ class ReceiptParser(var receiptId: Int, var categoryId: Int) {
         val ptuType = findPtuType(productInformation)
         val subtotalPrice = findSubtotalPrice(productInformation)
         val unitPrice = findUnitPrice(productInformation, subtotalPrice.startIndex)
-        val fixedUnitPrice = fixPrize(unitPrice.data)
-        val fixedSubtotalPrice = fixPrize(subtotalPrice.data)
+        val fixedUnitPrice = roundInt(fixPrize(unitPrice.data), 100)
+        val fixedSubtotalPrice = roundInt(fixPrize(subtotalPrice.data), 100)
         val name: ReceiptElement
         if (fixedUnitPrice < 0) {
             name = findName(productInformation, unitPrice.startIndex)
@@ -60,9 +60,9 @@ class ReceiptParser(var receiptId: Int, var categoryId: Int) {
                 receiptId,
                 name.data.trim(),
                 categoryId,
-                0.0,
-                0.0,
-                0.0,
+                0,
+                0,
+                0,
                 -fixedUnitPrice,
                 fixedSubtotalPrice,
                 fixPtuType(ptuType.data),
@@ -76,10 +76,10 @@ class ReceiptParser(var receiptId: Int, var categoryId: Int) {
                 receiptId,
                 name.data.trim(),
                 categoryId,
-                fixPrize(quantity.data),
+                roundInt(fixPrize(quantity.data), 1000),
                 fixedUnitPrice,
                 fixedSubtotalPrice,
-                0.0,
+                0,
                 fixedSubtotalPrice,
                 fixPtuType(ptuType.data),
                 productInformation,
@@ -89,8 +89,7 @@ class ReceiptParser(var receiptId: Int, var categoryId: Int) {
     }
 
     private fun arePricesValid(product: Product): Boolean {
-        return roundDouble(product.quantity * product.unitPrice) == roundDouble(product.subtotalPrice) &&
-                roundDouble(product.subtotalPrice - product.discount) == roundDouble(product.finalPrice)
+        return product.quantity * product.unitPrice == product.subtotalPrice && product.subtotalPrice - product.discount == product.finalPrice
     }
 
     private fun fixPrize(price: String): Double {
@@ -102,7 +101,7 @@ class ReceiptParser(var receiptId: Int, var categoryId: Int) {
         newPrice = newPrice.replace("\\s*".toRegex(), "").trim()
 
         return try {
-            newPrice.toDouble()
+            newPrice.toDouble() * 100
         } catch (exception: Exception) {
             0.0
         }
