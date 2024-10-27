@@ -1,6 +1,7 @@
 package com.example.navsample.viewmodels
 
 import android.util.Log
+import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -10,18 +11,16 @@ import com.example.navsample.entities.FirebaseHelper
 import com.example.navsample.entities.Product
 import com.example.navsample.entities.Receipt
 import com.example.navsample.entities.ReceiptDatabase
+import com.example.navsample.entities.RoomDatabaseHelper
 import com.example.navsample.entities.Store
-import com.example.navsample.entities.User
 import kotlinx.coroutines.launch
 import java.util.UUID
 
 class InitDatabaseViewModel : ViewModel() {
 
-    private val dao = ApplicationContext.context?.let { ReceiptDatabase.getInstance(it).receiptDao }
-    private lateinit var firebaseHelper: FirebaseHelper
+    private var firebaseHelper: FirebaseHelper
+    private var roomDatabaseHelper: RoomDatabaseHelper
 
-
-    var userUuid = MutableLiveData<String?>()
     var imageUuid = MutableLiveData<String>()
     lateinit var store: MutableLiveData<Store>
     lateinit var receipt: MutableLiveData<Receipt>
@@ -29,99 +28,77 @@ class InitDatabaseViewModel : ViewModel() {
 
     lateinit var category: MutableLiveData<Category?>
 
+    init {
+        val myPref = ApplicationContext.context?.getSharedPreferences(
+            "preferences", AppCompatActivity.MODE_PRIVATE
+        )
+        if (myPref?.getString("userId", "") == "") {
+            myPref.edit().putString("userId", UUID.randomUUID().toString()).apply()
+        }
+        val userUuid = myPref?.getString("userId", null) ?: throw Exception("NOT SET userId")
+        firebaseHelper = FirebaseHelper(userUuid)
+
+        val dao = ApplicationContext.context?.let { ReceiptDatabase.getInstance(it).receiptDao }
+        roomDatabaseHelper = RoomDatabaseHelper(dao!!)
+    }
+
     fun insertProducts(products: List<Product>) {
         Log.i("Database", "insert products. Size: ${products.size}")
         viewModelScope.launch {
-            dao?.let {
-                products.forEach { product ->
-                    Log.i("Database", "insert product: ${product.name}")
-                    product.id = UUID.randomUUID().toString()
-                    dao.insertProduct(product)
-                    firebaseHelper.addFirestore(product)
+            products.forEach { product ->
+                val insertedProduct = roomDatabaseHelper.insertProduct(product)
+                firebaseHelper.addFirestore(product) {
+                    insertedProduct.id = it
+                    insertedProduct.fireStoreSync = true
+                    viewModelScope.launch {
+                        val updatedProduct = roomDatabaseHelper.updateProduct(insertedProduct)
+                        firebaseHelper.updateFirestore(updatedProduct)
+                    }
                 }
             }
         }
     }
-
 
     fun insertReceipt(newReceipt: Receipt) {
-        Log.i("Database", "insert receipt: ${newReceipt.date} ${newReceipt.pln}")
         viewModelScope.launch {
-            dao?.let {
-                newReceipt.date = convertDateFormat(newReceipt.date)
-                dao.insertReceipt(newReceipt)
-            }
-            Log.i("Database", "inserted receipt with id ${newReceipt.id}")
-            firebaseHelper.addFirestore(newReceipt)
-        }
-    }
-
-    private fun convertDateFormat(date: String): String {
-        val newDate = date.replace(".", "-")
-        val splitDate = newDate.split("-")
-        try {
-            if (splitDate[2].length == 4) {
-                return splitDate[2] + "-" + splitDate[1] + "-" + splitDate[0]
-            }
-            return newDate
-        } catch (e: Exception) {
-            Log.e("ConvertDate", "Cannot convert date: $splitDate")
-            return newDate
-        }
-    }
-
-    private fun insertUser() {
-        val uuid = UUID.randomUUID().toString()
-        val user = User(uuid)
-        userUuid.value = user.uuid
-        firebaseHelper = FirebaseHelper(uuid)
-        user.id = 0
-        Log.i("Database", "insert user, uuid: ${user.uuid}")
-        viewModelScope.launch {
-            try {
-                dao?.let {
-                    dao.insertUser(user)
+            val insertedReceipt = roomDatabaseHelper.insertReceipt(newReceipt, false)
+            firebaseHelper.addFirestore(newReceipt) {
+                insertedReceipt.id = it
+                insertedReceipt.fireStoreSync = true
+                viewModelScope.launch {
+                    val updatedReceipt = roomDatabaseHelper.updateReceipt(insertedReceipt)
+                    firebaseHelper.updateFirestore(updatedReceipt)
                 }
-            } catch (e: Exception) {
-                Log.e("Insert user to DB", e.message.toString())
             }
         }
     }
 
     fun insertCategoryList(category: Category) {
-        Log.i("Database", "insert category ${category.name} - id ${category.id}")
         viewModelScope.launch {
-            dao?.insertCategory(category)
-            firebaseHelper.addFirestore(category)
-        }
-    }
-
-    fun setUserUuid() {
-        viewModelScope.launch {
-            dao?.let {
-                val uuid = dao.getUserUuid()
-                if (uuid == null || uuid == "") {
-                    insertUser()
-                } else {
-                    userUuid.postValue(uuid)
-                    firebaseHelper = FirebaseHelper(uuid)
+            val insertedCategory = roomDatabaseHelper.insertCategory(category, false)
+            firebaseHelper.addFirestore(category) {
+                insertedCategory.id = it
+                insertedCategory.fireStoreSync = true
+                viewModelScope.launch {
+                    val updatedCategory = roomDatabaseHelper.updateCategory(insertedCategory)
+                    firebaseHelper.updateFirestore(updatedCategory)
                 }
             }
         }
     }
 
     fun insertStore(newStore: Store) {
-        Log.i("Database", "insert store ${newStore.name}")
         viewModelScope.launch {
-            try {
-                dao?.let {
-                    dao.insertStore(newStore)
+            val insertedStore = roomDatabaseHelper.insertStore(newStore, false)
+            firebaseHelper.addFirestore(newStore) {
+                insertedStore.id = it
+                insertedStore.fireStoreSync = true
+                viewModelScope.launch {
+                    val updatedStore = roomDatabaseHelper.updateStore(insertedStore)
+                    firebaseHelper.updateFirestore(updatedStore)
                 }
-                Log.i("Database", "inserted receipt with id ${newStore.id}")
-                firebaseHelper.addFirestore(newStore)
-            } catch (e: Exception) {
-                Log.e("Insert store to DB", e.message.toString())
             }
+
         }
     }
 

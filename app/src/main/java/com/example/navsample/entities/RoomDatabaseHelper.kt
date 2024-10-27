@@ -1,6 +1,7 @@
 package com.example.navsample.entities
 
 import android.util.Log
+import com.example.navsample.dto.DateUtil
 import com.example.navsample.dto.sort.ReceiptWithStoreSort
 import com.example.navsample.dto.sort.RichProductSort
 import com.example.navsample.dto.sort.SortProperty
@@ -156,81 +157,129 @@ class RoomDatabaseHelper(
     }
 
     // INSERT
-    suspend fun insertCategory(category: Category): Category {
-        category.id = UUID.randomUUID().toString()
+    suspend fun insertCategory(category: Category, generateId: Boolean = true): Category {
+        if (generateId) {
+            category.id = UUID.randomUUID().toString()
+        }
+        val timestamp = DateUtil.getCurrentUtcTime()
+        category.createdAt = timestamp
+        category.updatedAt = timestamp
         Log.i("Database", "Insert category '${category.name}' with id '${category.id}'")
         dao.insertCategory(category)
         return category
     }
 
-    suspend fun insertProduct(product: Product): Product {
-        product.id = UUID.randomUUID().toString()
+    suspend fun insertProduct(product: Product, generateId: Boolean = true): Product {
+        if (generateId) {
+            product.id = UUID.randomUUID().toString()
+        }
+        val timestamp = DateUtil.getCurrentUtcTime()
+        product.createdAt = timestamp
+        product.updatedAt = timestamp
         Log.i("Database", "Insert product '${product.name}' with id '${product.id}'")
         dao.insertProduct(product)
         return product
     }
 
-    suspend fun insertReceipt(receipt: Receipt): Receipt {
+    suspend fun insertReceipt(receipt: Receipt, generateId: Boolean = true): Receipt {
         receipt.date = convertDateFormat(receipt.date)
-        receipt.id = UUID.randomUUID().toString()
+        if (generateId) {
+            receipt.id = UUID.randomUUID().toString()
+        }
+        val timestamp = DateUtil.getCurrentUtcTime()
+        receipt.createdAt = timestamp
+        receipt.updatedAt = timestamp
         Log.i("Database", "Insert receipt with id '${receipt.id}'")
         dao.insertReceipt(receipt)
         return receipt
     }
 
-    suspend fun insertStore(store: Store): Store {
-        store.id = UUID.randomUUID().toString()
+    suspend fun insertStore(store: Store, generateId: Boolean = true): Store {
+        if (generateId) {
+            store.id = UUID.randomUUID().toString()
+        }
+        val timestamp = DateUtil.getCurrentUtcTime()
+        store.createdAt = timestamp
+        store.updatedAt = timestamp
         Log.i("Database", "Insert store with id '${store.id}'")
         dao.insertStore(store)
+
         return store
     }
 
     // UPDATE
-    suspend fun updateCategory(category: Category) {
+    suspend fun updateCategory(category: Category): Category {
         Log.i("Database", "Update category '${category.name}' with id '${category.id}'")
+        category.updatedAt = DateUtil.getCurrentUtcTime()
         dao.updateCategory(category)
+        return category
     }
 
-    suspend fun updateProduct(product: Product) {
+    suspend fun updateProduct(product: Product): Product {
         Log.i("Database", "Update product '${product.name}' with id '${product.id}'")
+        product.updatedAt = DateUtil.getCurrentUtcTime()
         dao.updateProduct(product)
+        return product
     }
 
-    suspend fun updateStore(store: Store) {
+    suspend fun updateStore(store: Store): Store {
         Log.i("Database", "Update store '${store.name}' with id '${store.id}'")
+        store.updatedAt = DateUtil.getCurrentUtcTime()
         dao.updateStore(store)
+        return store
     }
 
-    suspend fun updateReceipt(receipt: Receipt) {
+    suspend fun updateReceipt(receipt: Receipt): Receipt {
         Log.i(
             "Database",
             "Update receipt from ${receipt.date} payed ${receipt.pln} with id '${receipt.id}'"
         )
+        receipt.updatedAt = DateUtil.getCurrentUtcTime()
         dao.updateReceipt(receipt)
+        return receipt
     }
 
     // DELETE
-    suspend fun deleteCategory(category: Category) {
-        Log.i("Database", "Delete category '${category.name}' with id '${category.id}'")
-        dao.deleteCategory(category)
+    suspend fun deleteCategory(categoryId: String): Category {
+        Log.i("Database", "Delete category with id '${categoryId}'")
+        val deletedAt = DateUtil.getCurrentUtcTime()
+        return dao.deleteAndSelectCategoryById(categoryId, deletedAt)
     }
 
-    suspend fun deleteReceipt(receiptId: String) {
+    suspend fun deleteReceiptProducts(receiptId: String): List<Product> {
         Log.i("Database", "Delete receipt with id '$receiptId'")
-        dao.deleteProductsOfReceipt(receiptId)
-        dao.deleteReceiptById(receiptId)
+        val deletedAt = DateUtil.getCurrentUtcTime()
+        return dao.deleteAndSelectProductsOfReceipt(receiptId, deletedAt)
     }
 
-    suspend fun deleteStore(storeId: String) {
-        Log.i("Database", "Delete store with id '$storeId'")
-        dao.deleteProductsOfStore(storeId)
-        dao.deleteReceiptsOfStore(storeId)
-        dao.deleteStoreById(storeId)
+    suspend fun deleteReceipt(receiptId: String): Receipt {
+        Log.i("Database", "Delete receipt with id '$receiptId'")
+        val deletedAt = DateUtil.getCurrentUtcTime()
+        return dao.deleteAndSelectReceiptById(receiptId, deletedAt)
     }
 
-    suspend fun deleteProductById(productId: String) {
+    suspend fun deleteStoreReceipts(storeId: String): List<Receipt> {
+        Log.i("Database", "Delete store receipts with storeId '$storeId'")
+        val deletedAt = DateUtil.getCurrentUtcTime()
+        return dao.deleteAndSelectReceiptsOfStore(storeId, deletedAt)
+    }
+
+    suspend fun deleteStoreProducts(storeId: String): List<Product> {
+        Log.i("Database", "Delete store products with storeId '$storeId'")
+        val deletedAt = DateUtil.getCurrentUtcTime()
+        return dao.deleteAndSelectProductsOfStore(storeId, deletedAt)
+    }
+
+    suspend fun deleteStore(storeId: String): Store {
+        Log.i("Database", "Delete store with storeId '$storeId'")
+        val deletedAt = DateUtil.getCurrentUtcTime()
+        return dao.deleteAndSelectStore(storeId, deletedAt)
+    }
+
+    suspend fun deleteProductById(productId: String): Product {
         Log.i("Database", "Delete product with id '$productId'")
-        dao.deleteProductById(productId)
+        val deletedAt = DateUtil.getCurrentUtcTime()
+        return dao.deleteAndSelectProductById(productId, deletedAt)
     }
 
 

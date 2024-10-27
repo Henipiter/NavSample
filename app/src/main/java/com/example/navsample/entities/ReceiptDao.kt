@@ -1,7 +1,6 @@
 package com.example.navsample.entities
 
 import androidx.room.Dao
-import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
@@ -31,9 +30,6 @@ interface ReceiptDao {
     suspend fun updateReceipt(receipt: Receipt)
 
     @Update
-    suspend fun updateUser(user: User)
-
-    @Update
     suspend fun updateProduct(product: Product)
 
     @Insert(onConflict = OnConflictStrategy.IGNORE)
@@ -42,45 +38,129 @@ interface ReceiptDao {
     @Update
     suspend fun updateCategory(category: Category)
 
-    @Delete
-    suspend fun deleteUser(user: User)
-
-    @Delete
-    suspend fun deleteStore(store: Store)
-
-    @Delete
-    suspend fun deleteReceipt(receipt: Receipt)
-
-    @Delete
-    suspend fun deleteProduct(product: Product)
-
-    @Delete
-    suspend fun deleteCategory(category: Category)
+    @Transaction
+    @Query("UPDATE category SET deletedAt = :deletedAt WHERE id = :id")
+    suspend fun deleteCategoryById(id: String, deletedAt: String)
 
     @Transaction
-    @Query("delete from store where id = :id")
-    suspend fun deleteStoreById(id: String)
-
-
-    @Transaction
-    @Query("delete from product where id = :id")
-    suspend fun deleteProductById(id: String)
+    @Query("SELECT * FROM category WHERE deletedAt = :deletedAt AND id = :id")
+    suspend fun selectDeletedCategoryById(id: String, deletedAt: String): Category
 
     @Transaction
-    @Query("delete from receipt where id = :id")
-    suspend fun deleteReceiptById(id: String)
+    suspend fun deleteAndSelectCategoryById(id: String, deletedAt: String): Category {
+        deleteCategoryById(id, deletedAt)
+        return selectDeletedCategoryById(id, deletedAt)
+    }
 
     @Transaction
-    @Query("delete from product where id in (select p.id from product p, receipt r  where p.receiptId = r.id   and r.id = :id)")
-    suspend fun deleteProductsOfReceipt(id: String)
+    @Query("UPDATE store SET deletedAt = :deletedAt WHERE id = :id")
+    suspend fun deleteStoreById(id: String, deletedAt: String)
 
     @Transaction
-    @Query("delete from receipt where id in  (select r.id from receipt r, store s where s.id = r.storeId and s.id = :id)")
-    suspend fun deleteReceiptsOfStore(id: String)
+    @Query("SELECT * FROM store WHERE deletedAt = :deletedAt AND id = :id")
+    suspend fun selectDeletedStoreById(id: String, deletedAt: String): Store
 
     @Transaction
-    @Query("delete from product where id in (select p.id from product p, receipt r, store s where p.receiptId = r.id and s.id = r.storeId and s.id = :id)")
-    suspend fun deleteProductsOfStore(id: String)
+    suspend fun deleteAndSelectStore(id: String, deletedAt: String): Store {
+        deleteStoreById(id, deletedAt)
+        return selectDeletedStoreById(id, deletedAt)
+    }
+
+    @Transaction
+    @Query("UPDATE product SET deletedAt = :deletedAt WHERE id = :id")
+    suspend fun deleteProductById(id: String, deletedAt: String)
+
+    @Transaction
+    @Query("SELECT * FROM product WHERE deletedAt = :deletedAt AND id = :id")
+    suspend fun selectDeletedProductById(id: String, deletedAt: String): Product
+
+    @Transaction
+    suspend fun deleteAndSelectProductById(id: String, deletedAt: String): Product {
+        deleteProductById(id, deletedAt)
+        return selectDeletedProductById(id, deletedAt)
+    }
+
+    @Transaction
+    @Query("UPDATE receipt SET deletedAt = :deletedAt WHERE id = :id")
+    suspend fun deleteReceiptById(id: String, deletedAt: String)
+
+    @Transaction
+    @Query("SELECT * FROM receipt WHERE deletedAt = :deletedAt AND id = :id")
+    suspend fun selectDeletedReceiptById(id: String, deletedAt: String): Receipt
+    suspend fun deleteAndSelectReceiptById(id: String, deletedAt: String): Receipt {
+        deleteReceiptById(id, deletedAt)
+        return selectDeletedReceiptById(id, deletedAt)
+    }
+
+    @Transaction
+    @Query(
+        "UPDATE product SET deletedAt = :deletedAt WHERE id IN (" +
+                "SELECT p.id FROM product p, receipt r " +
+                "WHERE p.receiptId = r.id AND r.id = :id)"
+    )
+    suspend fun deleteProductsOfReceipt(id: String, deletedAt: String)
+
+    @Transaction
+    @Query(
+        "SELECT * FROM product WHERE deletedAt = :deletedAt AND id IN (" +
+                "SELECT p.id FROM product p, receipt r " +
+                "WHERE p.receiptId = r.id AND r.id = :id)"
+    )
+    suspend fun selectDeletedProductsOfReceipt(id: String, deletedAt: String): List<Product>
+
+    @Transaction
+    suspend fun deleteAndSelectProductsOfReceipt(id: String, deletedAt: String): List<Product> {
+        deleteProductsOfReceipt(id, deletedAt)
+        return selectDeletedProductsOfReceipt(id, deletedAt)
+    }
+
+    @Transaction
+    @Query(
+        "UPDATE receipt SET deletedAt = :deletedAt WHERE id IN (" +
+                "SELECT r.id FROM receipt r, store s " +
+                "WHERE s.id = r.storeId AND s.id = :id" +
+                ")"
+    )
+    suspend fun deleteReceiptsOfStore(id: String, deletedAt: String)
+
+    @Transaction
+    @Query(
+        "SELECT * FROM receipt WHERE deletedAt = :deletedAt AND id IN (" +
+                "SELECT r.id FROM receipt r, store s " +
+                "WHERE s.id = r.storeId AND s.id = :id" +
+                ")"
+    )
+    suspend fun selectDeletedReceiptsOfStore(id: String, deletedAt: String): List<Receipt>
+
+    @Transaction
+    suspend fun deleteAndSelectReceiptsOfStore(id: String, deletedAt: String): List<Receipt> {
+        deleteReceiptsOfStore(id, deletedAt)
+        return selectDeletedReceiptsOfStore(id, deletedAt)
+    }
+
+    @Transaction
+    @Query(
+        "UPDATE product SET deletedAt = :deletedAt WHERE id IN (" +
+                "SELECT p.id FROM product p, receipt r, store s " +
+                "WHERE p.receiptId = r.id AND s.id = r.storeId AND s.id = :id " +
+                ")"
+    )
+    suspend fun deleteProductsOfStore(id: String, deletedAt: String)
+
+    @Transaction
+    @Query(
+        "SELECT * FROM product WHERE deletedAt = :deletedAt AND id IN (" +
+                "SELECT p.id FROM product p, receipt r, store s " +
+                "WHERE p.receiptId = r.id AND s.id = r.storeId AND s.id = :id " +
+                ")"
+    )
+    suspend fun selectProductsOfStore(id: String, deletedAt: String): List<Product>
+
+    @Transaction
+    suspend fun deleteAndSelectProductsOfStore(id: String, deletedAt: String): List<Product> {
+        deleteProductsOfStore(id, deletedAt)
+        return selectProductsOfStore(id, deletedAt)
+    }
 
     @Insert(onConflict = OnConflictStrategy.ABORT)
     suspend fun insertStore(store: Store): Long
@@ -89,11 +169,11 @@ interface ReceiptDao {
     suspend fun updateStore(store: Store)
 
     @Transaction
-    @Query("SELECT * FROM receipt WHERE id = :id")
+    @Query("SELECT * FROM receipt WHERE id = :id AND deletedAt == ''")
     suspend fun getReceipt(id: String): Receipt
 
     @Transaction
-    @Query("SELECT * FROM category WHERE id = :id")
+    @Query("SELECT * FROM category WHERE id = :id AND deletedAt == ''")
     suspend fun getCategoryById(id: String): Category
 
     @Transaction
@@ -101,23 +181,23 @@ interface ReceiptDao {
     suspend fun getUserUuid(): String?
 
     @Transaction
-    @Query("SELECT * FROM store WHERE nip = :nip")
+    @Query("SELECT * FROM store WHERE nip = :nip AND deletedAt == ''")
     suspend fun getStoreByNip(nip: String): Store
 
     @Transaction
-    @Query("SELECT * FROM store WHERE id = :id")
+    @Query("SELECT * FROM store WHERE id = :id AND deletedAt == ''")
     suspend fun getStoreById(id: String): Store
 
     @Transaction
-    @Query("SELECT * FROM product WHERE id = :id")
+    @Query("SELECT * FROM product WHERE id = :id AND deletedAt == ''")
     suspend fun getProductById(id: String): Product
 
     @Transaction
-    @Query("SELECT * FROM receipt WHERE id = :id")
+    @Query("SELECT * FROM receipt WHERE id = :id AND deletedAt == ''")
     suspend fun getReceiptById(id: String): Receipt
 
     @Transaction
-    @Query("SELECT * FROM store order by name")
+    @Query("SELECT * FROM store WHERE deletedAt == '' ORDER BY name")
     suspend fun getAllStores(): List<Store>
 
     @Transaction
@@ -129,15 +209,15 @@ interface ReceiptDao {
     suspend fun getReceiptWithStoreOrdered(query: SupportSQLiteQuery): List<ReceiptWithStore>
 
     @Transaction
-    @Query("SELECT * FROM category order by name")
+    @Query("SELECT * FROM category WHERE deletedAt == '' ORDER BY name")
     suspend fun getAllCategories(): List<Category>
 
     @Transaction
-    @Query("SELECT * FROM category where name like '%'||:name||'%' order by name")
+    @Query("SELECT * FROM category WHERE name LIKE '%'||:name||'%' AND deletedAt == '' ORDER BY name")
     suspend fun getAllCategories(name: String): List<Category>
 
     @Transaction
-    @Query("SELECT * FROM product WHERE receiptId=:receiptId")
+    @Query("SELECT * FROM product WHERE receiptId=:receiptId AND deletedAt == ''")
     suspend fun getAllProducts(receiptId: String): List<Product>
 
     @Transaction
@@ -146,10 +226,10 @@ interface ReceiptDao {
 
     @Transaction
     @Query(
-        "select 'store' as 'tableName', count(*) as 'count' from store " +
-                "union all select 'product' as 'tableName', count(*)  as 'count' from product " +
-                "union all select 'category' as 'tableName', count(*) as 'count'  from category " +
-                "union all select 'receipt' as 'tableName', count(*) as 'count'  from receipt"
+        "SELECT 'store' AS 'tableName', count(*) AS 'count' FROM store WHERE deletedAt == '' " +
+                "UNION ALL SELECT 'product' AS 'tableName', count(*)  AS 'count' FROM product WHERE deletedAt == '' " +
+                "UNION ALL SELECT 'category' AS 'tableName', count(*) AS 'count' FROM category WHERE deletedAt == '' " +
+                "UNION ALL SELECT 'receipt' AS 'tableName', count(*) AS 'count' FROM receipt WHERE deletedAt == '' "
     )
     suspend fun getTableCounts(): List<TableCounts>
 
@@ -159,7 +239,8 @@ interface ReceiptDao {
         "SELECT sum(p.finalPrice) AS price, c.name AS category, substr(r.date,0,8) AS date " +
                 "FROM product p, receipt r, category c " +
                 "WHERE p.receiptId = r.id AND p.categoryId = c.id " +
-                "AND  date>=:dateFrom AND date<=:dateTo " +
+                "AND date>=:dateFrom AND date<=:dateTo " +
+                "AND p.deletedAt == '' AND r.deletedAt == '' AND c.deletedAt == '' " +
                 "GROUP BY categoryId, substr(r.date,0,8) " +
                 "ORDER BY date, pln DESC"
     )
@@ -174,6 +255,7 @@ interface ReceiptDao {
                 "FROM product p, receipt r, category c " +
                 "WHERE p.receiptId = r.id AND p.categoryId = c.id " +
                 "AND  date>=:dateFrom AND date<=:dateTo " +
+                "AND p.deletedAt == '' AND c.deletedAt == '' " +
                 "GROUP BY categoryId " +
                 "ORDER BY pln DESC"
     )
@@ -184,19 +266,18 @@ interface ReceiptDao {
 
     @Transaction
     @Query(
-        "select s.name as storeName, s.nip as storeNip, s.defaultCategoryId as storeDefaultCategoryId, " +
-                "r.pln as receiptPln, r.ptu as receiptPtu, " +
-                "r.date as receiptDate, r.time as receiptTime, " +
-                "p.name as productName, p.quantity as productQuantity, " +
-                "p.unitPrice as productUnitPrice, p.subtotalPrice as productSubtotalPrice, " +
-                "p.discount as productDiscount, p.finalPrice as productFinalPrice, " +
-                "p.ptuType as productPtuType, p.raw as productRaw, " +
-                "p.validPrice as productValidPrice, " +
-                "c.name as categoryName, c.color as categoryColor " +
-                "from product p, receipt r, store s, category c " +
-                "where p.receiptId = r.id and s.id =r.storeId and p.categoryId = c.id "
+        "SELECT s.name AS storeName, s.nip AS storeNip, s.defaultCategoryId AS storeDefaultCategoryId, " +
+                "r.pln AS receiptPln, r.ptu AS receiptPtu, " +
+                "r.date AS receiptDate, r.time AS receiptTime, " +
+                "p.name AS productName, p.quantity AS productQuantity, " +
+                "p.unitPrice AS productUnitPrice, p.subtotalPrice AS productSubtotalPrice, " +
+                "p.discount AS productDiscount, p.finalPrice AS productFinalPrice, " +
+                "p.ptuType AS productPtuType, p.raw AS productRaw, " +
+                "p.validPrice AS productValidPrice, " +
+                "c.name AS categoryName, c.color AS categoryColor " +
+                "FROM product p, receipt r, store s, category c " +
+                "WHERE p.receiptId = r.id AND s.id =r.storeId AND p.categoryId = c.id " +
+                "AND p.deletedAt == '' AND r.deletedAt == '' AND c.deletedAt == '' AND s.deletedAt == '' "
     )
     suspend fun getAllData(): List<AllData>
-
-
 }

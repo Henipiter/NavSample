@@ -9,11 +9,17 @@ data class Store(
     var nip: String,
     var name: String,
     var defaultCategoryId: String,
-    var createdAt: String = "",
-    var deletedAt: String = ""
+    override var createdAt: String = "",
+    override var updatedAt: String = "",
+    override var deletedAt: String = "",
+    override var fireStoreSync: Boolean = false
 ) : TranslateEntity {
     @PrimaryKey
     var id: String = ""
+
+    override fun getEntityId(): String {
+        return id
+    }
 
     override fun toMap(): HashMap<String, Any?> {
         return hashMapOf(
@@ -24,9 +30,5 @@ data class Store(
             "createdAt" to this.createdAt,
             "deletedAt" to this.deletedAt
         )
-    }
-
-    override fun getDescriptiveId(): String {
-        return "$id $name"
     }
 }

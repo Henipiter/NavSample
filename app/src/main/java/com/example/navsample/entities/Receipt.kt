@@ -11,11 +11,17 @@ data class Receipt(
     var date: String,
     var time: String,
     var validPrice: Boolean,
-    var createdAt: String = "",
-    var deletedAt: String = ""
+    override var createdAt: String = "",
+    override var updatedAt: String = "",
+    override var deletedAt: String = "",
+    override var fireStoreSync: Boolean = false
 ) : TranslateEntity {
     @PrimaryKey
     var id: String = ""
+
+    override fun getEntityId(): String {
+        return id
+    }
 
     override fun toMap(): HashMap<String, Any?> {
         return hashMapOf(
@@ -28,9 +34,5 @@ data class Receipt(
             "createdAt" to this.createdAt,
             "deletedAt" to this.deletedAt
         )
-    }
-
-    override fun getDescriptiveId(): String {
-        return "$id $date $time"
     }
 }

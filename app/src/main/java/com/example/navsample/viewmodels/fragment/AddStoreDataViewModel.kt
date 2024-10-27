@@ -1,5 +1,6 @@
 package com.example.navsample.viewmodels.fragment
 
+import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -14,9 +15,8 @@ import kotlinx.coroutines.launch
 
 class AddStoreDataViewModel : ViewModel() {
 
-    private val dao = ApplicationContext.context?.let { ReceiptDatabase.getInstance(it).receiptDao }
-    private lateinit var firebaseHelper: FirebaseHelper
-    private var roomDatabaseHelper = RoomDatabaseHelper(dao!!)
+    private var firebaseHelper: FirebaseHelper
+    private var roomDatabaseHelper: RoomDatabaseHelper
 
 
     var inputType = AddingInputType.EMPTY.name
@@ -29,10 +29,17 @@ class AddStoreDataViewModel : ViewModel() {
     var categoryList = MutableLiveData<ArrayList<Category>>()
     var storeById = MutableLiveData<Store?>()
     var savedStore = MutableLiveData<Store>()
-    private var userUuid = MutableLiveData<String?>(null)
 
     init {
-        setUserUuid()
+        val myPref = ApplicationContext.context?.getSharedPreferences(
+            "preferences", AppCompatActivity.MODE_PRIVATE
+        )
+        val userUuid = myPref?.getString("userId", null) ?: throw Exception("NOT SET userId")
+        firebaseHelper = FirebaseHelper(userUuid)
+
+        val dao = ApplicationContext.context?.let { ReceiptDatabase.getInstance(it).receiptDao }
+            ?: throw Exception("NOT SET DATABASE")
+        roomDatabaseHelper = RoomDatabaseHelper(dao)
     }
 
     fun refreshCategoryList() {
@@ -49,7 +56,12 @@ class AddStoreDataViewModel : ViewModel() {
 
     fun deleteStore(storeId: String) {
         viewModelScope.launch {
-            roomDatabaseHelper.deleteStore(storeId)
+            val deletedProducts = roomDatabaseHelper.deleteStoreProducts(storeId)
+            firebaseHelper.delete(deletedProducts)
+            val deletedReceipts = roomDatabaseHelper.deleteStoreReceipts(storeId)
+            firebaseHelper.delete(deletedReceipts)
+            val deletedStore = roomDatabaseHelper.deleteStore(storeId)
+            firebaseHelper.delete(deletedStore)
         }
     }
 
@@ -61,29 +73,22 @@ class AddStoreDataViewModel : ViewModel() {
 
     fun insertStore(newStore: Store) {
         viewModelScope.launch {
-            savedStore.postValue(roomDatabaseHelper.insertStore(newStore))
-            firebaseHelper.addFirestore(savedStore.value!!)
+            val insertedStore = roomDatabaseHelper.insertStore(newStore)
+            savedStore.postValue(insertedStore)
+            firebaseHelper.addFirestore(insertedStore) {
+                insertedStore.id = it
+                insertedStore.fireStoreSync = true
+                updateStore(insertedStore)
+            }
         }
     }
 
     fun updateStore(newStore: Store) {
         viewModelScope.launch {
-            roomDatabaseHelper.updateStore(newStore)
-            savedStore.postValue(newStore)
-            firebaseHelper.updateFirestore(newStore)
+            val updateStore = roomDatabaseHelper.updateStore(newStore)
+            savedStore.postValue(updateStore)
+            firebaseHelper.updateFirestore(updateStore)
 
-        }
-
-    }
-
-
-    private fun setUserUuid() {
-        viewModelScope.launch {
-            dao?.let {
-                val uuid = dao.getUserUuid()
-                userUuid.postValue(uuid)
-                firebaseHelper = FirebaseHelper(uuid!!)
-            }
         }
     }
 

@@ -8,11 +8,17 @@ import androidx.room.PrimaryKey
 data class Category(
     var name: String,
     var color: String,
-    var createdAt: String = "",
-    var deletedAt: String = ""
+    override var createdAt: String = "",
+    override var updatedAt: String = "",
+    override var deletedAt: String = "",
+    override var fireStoreSync: Boolean = false
 ) : TranslateEntity {
     @PrimaryKey
     var id: String = ""
+
+    override fun getEntityId(): String {
+        return id
+    }
 
     override fun toMap(): HashMap<String, Any?> {
         return hashMapOf(
@@ -22,9 +28,5 @@ data class Category(
             "createdAt" to this.createdAt,
             "deletedAt" to this.deletedAt
         )
-    }
-
-    override fun getDescriptiveId(): String {
-        return "$id $name"
     }
 }

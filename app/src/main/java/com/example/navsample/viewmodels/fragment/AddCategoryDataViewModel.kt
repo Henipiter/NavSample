@@ -1,6 +1,6 @@
 package com.example.navsample.viewmodels.fragment
 
-import android.util.Log
+import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -14,9 +14,8 @@ import kotlinx.coroutines.launch
 
 class AddCategoryDataViewModel : ViewModel() {
 
-    private val dao = ApplicationContext.context?.let { ReceiptDatabase.getInstance(it).receiptDao }
-    private lateinit var firebaseHelper: FirebaseHelper
-    private var roomDatabaseHelper = RoomDatabaseHelper(dao!!)
+    private var firebaseHelper: FirebaseHelper
+    private var roomDatabaseHelper: RoomDatabaseHelper
 
     var inputType = AddingInputType.EMPTY.name
     var categoryId = ""
@@ -24,10 +23,17 @@ class AddCategoryDataViewModel : ViewModel() {
     var categoryList = MutableLiveData<ArrayList<Category>>()
     var categoryById = MutableLiveData<Category?>()
     var savedCategory = MutableLiveData<Category>()
-    private var userUuid = MutableLiveData<String?>(null)
 
     init {
-        setUserUuid()
+        val myPref = ApplicationContext.context?.getSharedPreferences(
+            "preferences", AppCompatActivity.MODE_PRIVATE
+        )
+        val userUuid = myPref?.getString("userId", null) ?: throw Exception("NOT SET userId")
+        firebaseHelper = FirebaseHelper(userUuid)
+
+        val dao = ApplicationContext.context?.let { ReceiptDatabase.getInstance(it).receiptDao }
+            ?: throw Exception("NOT SET DATABASE")
+        roomDatabaseHelper = RoomDatabaseHelper(dao)
     }
 
     fun refreshCategoryList() {
@@ -36,9 +42,10 @@ class AddCategoryDataViewModel : ViewModel() {
         }
     }
 
-    fun deleteCategory(category: Category) {
+    fun deleteCategory(categoryId: String) {
         viewModelScope.launch {
-            roomDatabaseHelper.deleteCategory(category)
+            val deletedCategory = roomDatabaseHelper.deleteCategory(categoryId)
+            firebaseHelper.delete(deletedCategory)
         }
     }
 
@@ -49,30 +56,23 @@ class AddCategoryDataViewModel : ViewModel() {
     }
 
     fun insertCategory(newCategory: Category) {
-        Log.i("Database", "insert category: ${newCategory.name}")
         viewModelScope.launch {
-            savedCategory.postValue(roomDatabaseHelper.insertCategory(newCategory))
-            firebaseHelper.addFirestore(savedCategory.value!!)
+            val insertedCategory = roomDatabaseHelper.insertCategory(newCategory)
+            savedCategory.postValue(insertedCategory)
+            firebaseHelper.addFirestore(insertedCategory) {
+                insertedCategory.id = it
+                insertedCategory.fireStoreSync = true
+                updateCategory(insertedCategory)
+                firebaseHelper.updateFirestore(insertedCategory)
+            }
         }
     }
-
 
     fun updateCategory(newCategory: Category) {
         viewModelScope.launch {
-            roomDatabaseHelper.updateCategory(newCategory)
-            savedCategory.postValue(newCategory)
-            firebaseHelper.updateFirestore(newCategory)
-        }
-    }
-
-
-    private fun setUserUuid() {
-        viewModelScope.launch {
-            dao?.let {
-                val uuid = dao.getUserUuid()
-                userUuid.postValue(uuid)
-                firebaseHelper = FirebaseHelper(uuid!!)
-            }
+            val updatedCategory = roomDatabaseHelper.updateCategory(newCategory)
+            savedCategory.postValue(updatedCategory)
+            firebaseHelper.updateFirestore(updatedCategory)
         }
     }
 

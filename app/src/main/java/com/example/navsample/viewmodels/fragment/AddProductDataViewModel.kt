@@ -1,5 +1,6 @@
 package com.example.navsample.viewmodels.fragment
 
+import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -16,9 +17,8 @@ import kotlinx.coroutines.launch
 
 class AddProductDataViewModel : ViewModel() {
 
-    private val dao = ApplicationContext.context?.let { ReceiptDatabase.getInstance(it).receiptDao }
-    private lateinit var firebaseHelper: FirebaseHelper
-    private var roomDatabaseHelper = RoomDatabaseHelper(dao!!)
+    private var firebaseHelper: FirebaseHelper
+    private var roomDatabaseHelper: RoomDatabaseHelper
 
     var inputType = AddingInputType.EMPTY.name
     var productIndex = -1
@@ -32,11 +32,18 @@ class AddProductDataViewModel : ViewModel() {
     var receiptById = MutableLiveData<Receipt?>()
     var productById = MutableLiveData<Product?>()
     var storeById = MutableLiveData<Store?>()
-    private var userUuid = MutableLiveData<String?>(null)
     var cropImageFragmentOnStart = true
 
     init {
-        setUserUuid()
+        val myPref = ApplicationContext.context?.getSharedPreferences(
+            "preferences", AppCompatActivity.MODE_PRIVATE
+        )
+        val userUuid = myPref?.getString("userId", null) ?: throw Exception("NOT SET userId")
+        firebaseHelper = FirebaseHelper(userUuid)
+
+        val dao = ApplicationContext.context?.let { ReceiptDatabase.getInstance(it).receiptDao }
+            ?: throw Exception("NOT SET DATABASE")
+        roomDatabaseHelper = RoomDatabaseHelper(dao)
     }
 
     fun refreshCategoryList() {
@@ -45,10 +52,10 @@ class AddProductDataViewModel : ViewModel() {
         }
     }
 
-
     fun deleteProduct(productId: String) {
         viewModelScope.launch {
-            roomDatabaseHelper.deleteProductById(productId)
+            val deletedProduct = roomDatabaseHelper.deleteProductById(productId)
+            firebaseHelper.delete(deletedProduct)
         }
     }
 
@@ -78,8 +85,8 @@ class AddProductDataViewModel : ViewModel() {
 
     fun updateSingleProduct(product: Product) {
         viewModelScope.launch {
-            roomDatabaseHelper.updateProduct(product)
-            firebaseHelper.updateFirestore(product)
+            val updatedProduct = roomDatabaseHelper.updateProduct(product)
+            firebaseHelper.updateFirestore(updatedProduct)
         }
     }
 
@@ -88,12 +95,16 @@ class AddProductDataViewModel : ViewModel() {
             if (product.id.isEmpty()) {
                 viewModelScope.launch {
                     val savedProduct = roomDatabaseHelper.insertProduct(product)
-                    firebaseHelper.addFirestore(savedProduct)
+                    firebaseHelper.addFirestore(savedProduct) {
+                        savedProduct.id = it
+                        savedProduct.fireStoreSync = true
+                        updateSingleProduct(savedProduct)
+                    }
                 }
             } else {
                 viewModelScope.launch {
-                    roomDatabaseHelper.updateProduct(product)
-                    firebaseHelper.updateFirestore(product)
+                    val updatedProduct = roomDatabaseHelper.updateProduct(product)
+                    firebaseHelper.updateFirestore(updatedProduct)
                 }
             }
         }
@@ -101,19 +112,8 @@ class AddProductDataViewModel : ViewModel() {
 
     fun updateReceipt(newReceipt: Receipt) {
         viewModelScope.launch {
-            roomDatabaseHelper.updateReceipt(newReceipt)
-            firebaseHelper.updateFirestore(newReceipt)
-        }
-    }
-
-
-    private fun setUserUuid() {
-        viewModelScope.launch {
-            dao?.let {
-                val uuid = dao.getUserUuid()
-                userUuid.postValue(uuid)
-                firebaseHelper = FirebaseHelper(uuid!!)
-            }
+            val updatedReceipt = roomDatabaseHelper.updateReceipt(newReceipt)
+            firebaseHelper.updateFirestore(updatedReceipt)
         }
     }
 
