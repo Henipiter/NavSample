@@ -73,8 +73,7 @@ class AddReceiptDataViewModel : ViewModel() {
             val insertedReceipt = roomDatabaseHelper.insertReceipt(newReceipt)
             savedReceipt.postValue(insertedReceipt)
             firebaseHelper.addFirestore(insertedReceipt) {
-                insertedReceipt.id = it
-                insertedReceipt.fireStoreSync = true
+                insertedReceipt.firestoreId = it
                 updateReceipt(newReceipt)
             }
         }

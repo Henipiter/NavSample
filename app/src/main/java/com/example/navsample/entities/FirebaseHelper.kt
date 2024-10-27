@@ -15,7 +15,7 @@ class FirebaseHelper(
             .addOnSuccessListener { documentReference ->
                 Log.i(
                     "Firestore",
-                    "Entity document ${obj::class} with id ${obj.getEntityId()} wass added with id: ${documentReference.id}"
+                    "Entity document ${obj::class} with id ${obj.firestoreId} wass added with id: ${documentReference.id}"
                 )
                 addDocumentFunction.invoke(documentReference.id)
             }
@@ -26,7 +26,7 @@ class FirebaseHelper(
 
     fun <T : TranslateEntity> updateFirestore(obj: T) {
         getFirestoreUserPath(getPath(obj::class))
-            .document(obj.getEntityId())
+            .document(obj.firestoreId)
             .update(obj.toMap())
             .addOnSuccessListener {
                 Log.i("Firebase", "Updating entity ${obj::class} end successfully.")
@@ -37,9 +37,9 @@ class FirebaseHelper(
     }
 
     fun <T : TranslateEntity> delete(entity: T) {
-        if (entity.fireStoreSync) {
+        if (entity.firestoreId != "") {
             getFirestoreUserPath(getPath(entity::class))
-                .document(entity.getEntityId())
+                .document(entity.firestoreId)
                 .update("deletedAt", entity.deletedAt)
                 .addOnSuccessListener {
                     Log.i("Firebase", "Field deletedAt was successfully updated.")

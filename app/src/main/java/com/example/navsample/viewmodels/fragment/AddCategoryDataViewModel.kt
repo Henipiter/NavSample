@@ -60,8 +60,7 @@ class AddCategoryDataViewModel : ViewModel() {
             val insertedCategory = roomDatabaseHelper.insertCategory(newCategory)
             savedCategory.postValue(insertedCategory)
             firebaseHelper.addFirestore(insertedCategory) {
-                insertedCategory.id = it
-                insertedCategory.fireStoreSync = true
+                insertedCategory.firestoreId = it
                 updateCategory(insertedCategory)
                 firebaseHelper.updateFirestore(insertedCategory)
             }

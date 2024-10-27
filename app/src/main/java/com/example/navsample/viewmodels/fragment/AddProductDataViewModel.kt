@@ -96,8 +96,7 @@ class AddProductDataViewModel : ViewModel() {
                 viewModelScope.launch {
                     val savedProduct = roomDatabaseHelper.insertProduct(product)
                     firebaseHelper.addFirestore(savedProduct) {
-                        savedProduct.id = it
-                        savedProduct.fireStoreSync = true
+                        savedProduct.firestoreId = it
                         updateSingleProduct(savedProduct)
                     }
                 }

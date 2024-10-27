@@ -76,9 +76,9 @@ class AddStoreDataViewModel : ViewModel() {
             val insertedStore = roomDatabaseHelper.insertStore(newStore)
             savedStore.postValue(insertedStore)
             firebaseHelper.addFirestore(insertedStore) {
-                insertedStore.id = it
-                insertedStore.fireStoreSync = true
+                insertedStore.firestoreId = it
                 updateStore(insertedStore)
+                firebaseHelper.updateFirestore(insertedStore)
             }
         }
     }

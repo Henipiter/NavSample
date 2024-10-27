@@ -48,9 +48,8 @@ class InitDatabaseViewModel : ViewModel() {
             products.forEach { product ->
                 val insertedProduct = roomDatabaseHelper.insertProduct(product)
                 firebaseHelper.addFirestore(product) {
-                    insertedProduct.id = it
-                    insertedProduct.fireStoreSync = true
                     viewModelScope.launch {
+                        insertedProduct.firestoreId = it
                         val updatedProduct = roomDatabaseHelper.updateProduct(insertedProduct)
                         firebaseHelper.updateFirestore(updatedProduct)
                     }
@@ -63,9 +62,8 @@ class InitDatabaseViewModel : ViewModel() {
         viewModelScope.launch {
             val insertedReceipt = roomDatabaseHelper.insertReceipt(newReceipt, false)
             firebaseHelper.addFirestore(newReceipt) {
-                insertedReceipt.id = it
-                insertedReceipt.fireStoreSync = true
                 viewModelScope.launch {
+                    insertedReceipt.firestoreId = it
                     val updatedReceipt = roomDatabaseHelper.updateReceipt(insertedReceipt)
                     firebaseHelper.updateFirestore(updatedReceipt)
                 }
@@ -77,9 +75,8 @@ class InitDatabaseViewModel : ViewModel() {
         viewModelScope.launch {
             val insertedCategory = roomDatabaseHelper.insertCategory(category, false)
             firebaseHelper.addFirestore(category) {
-                insertedCategory.id = it
-                insertedCategory.fireStoreSync = true
                 viewModelScope.launch {
+                    insertedCategory.firestoreId = it
                     val updatedCategory = roomDatabaseHelper.updateCategory(insertedCategory)
                     firebaseHelper.updateFirestore(updatedCategory)
                 }
@@ -91,9 +88,8 @@ class InitDatabaseViewModel : ViewModel() {
         viewModelScope.launch {
             val insertedStore = roomDatabaseHelper.insertStore(newStore, false)
             firebaseHelper.addFirestore(newStore) {
-                insertedStore.id = it
-                insertedStore.fireStoreSync = true
                 viewModelScope.launch {
+                    insertedStore.firestoreId = it
                     val updatedStore = roomDatabaseHelper.updateStore(insertedStore)
                     firebaseHelper.updateFirestore(updatedStore)
                 }

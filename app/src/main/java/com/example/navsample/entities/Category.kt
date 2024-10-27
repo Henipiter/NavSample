@@ -11,14 +11,10 @@ data class Category(
     override var createdAt: String = "",
     override var updatedAt: String = "",
     override var deletedAt: String = "",
-    override var fireStoreSync: Boolean = false
+    override var firestoreId: String = ""
 ) : TranslateEntity {
     @PrimaryKey
     var id: String = ""
-
-    override fun getEntityId(): String {
-        return id
-    }
 
     override fun toMap(): HashMap<String, Any?> {
         return hashMapOf(
@@ -26,7 +22,9 @@ data class Category(
             "name" to this.name,
             "color" to this.color,
             "createdAt" to this.createdAt,
-            "deletedAt" to this.deletedAt
+            "updatedAt" to this.updatedAt,
+            "deletedAt" to this.deletedAt,
+            "firestoreId" to this.firestoreId
         )
     }
 }
