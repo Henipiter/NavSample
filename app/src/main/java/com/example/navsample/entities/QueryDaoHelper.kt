@@ -6,17 +6,14 @@ import com.example.navsample.dto.sort.ReceiptWithStoreSort
 import com.example.navsample.dto.sort.RichProductSort
 import com.example.navsample.dto.sort.SortProperty
 import com.example.navsample.dto.sort.StoreSort
-import com.example.navsample.entities.relations.ProductRichData
-import com.example.navsample.entities.relations.ReceiptWithStore
 
-class ReceiptDaoHelper {
+class QueryDaoHelper {
     companion object {
-        suspend fun getAllStoresOrdered(
-            dao: ReceiptDao?,
+        fun getAllStoresOrdered(
             name: String,
             nip: String,
             orderBy: SortProperty<StoreSort>
-        ): List<Store>? {
+        ): SupportSQLiteQuery {
             val sql = StringBuilder()
                 .append("SELECT * ")
                 .append("FROM store ")
@@ -25,17 +22,15 @@ class ReceiptDaoHelper {
                 .append("ORDER BY $orderBy")
                 .toString()
 
-            val query: SupportSQLiteQuery = SimpleSQLiteQuery(sql)
-            return dao?.getAllStoresOrdered(query)
+            return SimpleSQLiteQuery(sql)
         }
 
-        suspend fun getReceiptWithStore(
-            dao: ReceiptDao?,
+        fun getReceiptWithStore(
             name: String,
             dateFrom: String,
             dateTo: String,
             orderBy: SortProperty<ReceiptWithStoreSort>
-        ): List<ReceiptWithStore>? {
+        ): SupportSQLiteQuery {
 
             val sql = StringBuilder()
                 .append("SELECT r.id as id, storeId, nip, s.name, s.defaultCategoryId, pln, ptu, date, time, r.validPrice as validPriceSum, sum(p.validPrice)  as validProductCount , count(p.id)  as productCount ")
@@ -48,12 +43,10 @@ class ReceiptDaoHelper {
                 .append("GROUP BY r.id ")
                 .append("ORDER BY $orderBy")
                 .toString()
-            val query: SupportSQLiteQuery = SimpleSQLiteQuery(sql)
-            return dao?.getReceiptWithStoreOrdered(query)
+            return SimpleSQLiteQuery(sql)
         }
 
-        suspend fun getAllProductsOrdered(
-            dao: ReceiptDao?,
+        fun getAllProductsOrdered(
             storeName: String,
             categoryName: String,
             dateFrom: String,
@@ -61,7 +54,7 @@ class ReceiptDaoHelper {
             lowerPrice: Int,
             higherPrice: Int,
             orderBy: SortProperty<RichProductSort>
-        ): List<ProductRichData>? {
+        ): SupportSQLiteQuery {
             val sql = StringBuilder()
                 .append("SELECT s.id as storeId, s.name as storeName, r.date, c.name as categoryName, c.color as categoryColor, p.* ")
                 .append("FROM product p, receipt r, store s, category c ")
@@ -75,10 +68,7 @@ class ReceiptDaoHelper {
                 sql.append("AND p.subtotalPrice <= $higherPrice ")
             }
             sql.append("ORDER BY $orderBy")
-            val query: SupportSQLiteQuery = SimpleSQLiteQuery(sql.toString())
-            return dao?.getAllProductsOrderedWithHigherPrice(query)
-
+            return SimpleSQLiteQuery(sql.toString())
         }
     }
-
 }

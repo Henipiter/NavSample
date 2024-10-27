@@ -1,6 +1,5 @@
 package com.example.navsample.viewmodels
 
-import android.util.Log
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -16,8 +15,8 @@ import com.example.navsample.dto.sort.RichProductSort
 import com.example.navsample.dto.sort.SortProperty
 import com.example.navsample.dto.sort.StoreSort
 import com.example.navsample.entities.Category
-import com.example.navsample.entities.ReceiptDaoHelper
 import com.example.navsample.entities.ReceiptDatabase
+import com.example.navsample.entities.RoomDatabaseHelper
 import com.example.navsample.entities.Store
 import com.example.navsample.entities.relations.ProductRichData
 import com.example.navsample.entities.relations.ReceiptWithStore
@@ -25,7 +24,7 @@ import kotlinx.coroutines.launch
 
 class ListingViewModel : ViewModel() {
     private val dao = ApplicationContext.context?.let { ReceiptDatabase.getInstance(it).receiptDao }
-
+    private var roomDatabaseHelper = RoomDatabaseHelper(dao!!)
 
     val defaultStoreSort = SortProperty<StoreSort>(StoreSort.NAME, Direction.ASCENDING)
     val defaultRichProductSort =
@@ -108,51 +107,45 @@ class ListingViewModel : ViewModel() {
     }
 
     private fun refreshReceiptList(name: String, dateFrom: String, dateTo: String) {
-        Log.i("Database", "refresh receipt for store $name")
         viewModelScope.launch {
-            val list = ReceiptDaoHelper.getReceiptWithStore(
-                dao,
-                name,
-                if (dateFrom == "") "0" else dateFrom,
-                if (dateTo == "") "9" else dateTo,
-                receiptWithStoreSort.value ?: defaultReceiptWithStoreSort
+            receiptList.postValue(
+                roomDatabaseHelper.getReceiptWithStoreOrdered(
+                    name,
+                    dateFrom,
+                    dateTo,
+                    receiptWithStoreSort.value ?: defaultReceiptWithStoreSort
+                ) as ArrayList<ReceiptWithStore>?
             )
-            receiptList.postValue(list?.let { ArrayList(it) })
         }
     }
 
     fun refreshCategoryList() {
-        Log.i("Database", "refresh category list")
         viewModelScope.launch {
-            categoryList.postValue(
-                dao?.getAllCategories() as ArrayList<Category>
-            )
+            categoryList.postValue(roomDatabaseHelper.getAllCategories() as ArrayList<Category>)
         }
     }
 
     private fun refreshCategoryList(categoryName: String) {
-        Log.i("Database", "refresh category list")
         viewModelScope.launch {
-            categoryList.postValue(
-                dao?.getAllCategories(categoryName) as ArrayList<Category>
-            )
+            categoryList.postValue(roomDatabaseHelper.getAllCategories(categoryName) as ArrayList<Category>)
         }
     }
 
     fun refreshStoreList() {
-        Log.i("Database", "refresh store list")
         viewModelScope.launch {
-            storeList.postValue(dao?.getAllStores()?.let { ArrayList(it) })
+            storeList.postValue(roomDatabaseHelper.getAllStores() as ArrayList<Store>)
         }
     }
 
     private fun refreshStoreList(name: String, nip: String) {
-        Log.i("Database", "refresh store list")
         viewModelScope.launch {
-            val list = ReceiptDaoHelper.getAllStoresOrdered(
-                dao, name, nip, storeSort.value ?: defaultStoreSort
+            storeList.postValue(
+                roomDatabaseHelper.getAllStoresOrdered(
+                    name,
+                    nip,
+                    storeSort.value ?: defaultStoreSort
+                ) as ArrayList<Store>
             )
-            storeList.postValue(list?.let { ArrayList(it) })
         }
     }
 
@@ -162,32 +155,30 @@ class ListingViewModel : ViewModel() {
         dateFrom: String,
         dateTo: String,
         lowerPrice: Int,
-        higherPrice: Int,
+        higherPrice: Int
     ) {
-
-        Log.i("Database", "refresh product list limited")
         viewModelScope.launch {
-            val list = ReceiptDaoHelper.getAllProductsOrdered(
-                dao,
-                storeName,
-                categoryName,
-                if (dateFrom == "") "0" else dateFrom,
-                if (dateTo == "") "9" else dateTo,
-                lowerPrice,
-                higherPrice,
-                richProductSort.value ?: defaultRichProductSort
+            productRichList.postValue(
+                roomDatabaseHelper.getAllProductsOrderedWithHigherPrice(
+                    storeName,
+                    categoryName,
+                    dateFrom,
+                    dateTo,
+                    lowerPrice,
+                    higherPrice,
+                    richProductSort.value ?: defaultRichProductSort
+                ) as ArrayList<ProductRichData>
             )
-            productRichList.postValue(list?.let { ArrayList(it) })
         }
     }
 
     fun refreshProductList() {
-        Log.i("Database", "refresh product list all")
         viewModelScope.launch {
-            val list = ReceiptDaoHelper.getAllProductsOrdered(
-                dao, "", "", "0", "9", 0, -1, richProductSort.value ?: defaultRichProductSort
+            productRichList.postValue(
+                roomDatabaseHelper.getAllProductsOrderedWithHigherPrice(
+                    richProductSort.value ?: defaultRichProductSort
+                ) as ArrayList<ProductRichData>
             )
-            productRichList.postValue(list?.let { ArrayList(it) })
         }
     }
 }

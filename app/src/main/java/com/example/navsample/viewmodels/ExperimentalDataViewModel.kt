@@ -1,6 +1,5 @@
 package com.example.navsample.viewmodels
 
-import android.util.Log
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -9,6 +8,7 @@ import com.example.navsample.dto.sorting.AlgorithmItemAdapterArgument
 import com.example.navsample.dto.sorting.UserItemAdapterArgument
 import com.example.navsample.entities.Category
 import com.example.navsample.entities.ReceiptDatabase
+import com.example.navsample.entities.RoomDatabaseHelper
 import kotlinx.coroutines.launch
 
 class ExperimentalDataViewModel : ViewModel() {
@@ -20,24 +20,18 @@ class ExperimentalDataViewModel : ViewModel() {
     lateinit var algorithmOrderedNames: MutableLiveData<ArrayList<AlgorithmItemAdapterArgument>>
     lateinit var algorithmOrderedPrices: MutableLiveData<ArrayList<AlgorithmItemAdapterArgument>>
 
-
     private val dao = ApplicationContext.context?.let { ReceiptDatabase.getInstance(it).receiptDao }
-
+    private var roomDatabaseHelper = RoomDatabaseHelper(dao!!)
 
     init {
         clearData()
     }
 
-
     fun refreshCategoryList() {
-        Log.i("Database", "refresh category list")
         viewModelScope.launch {
-            categoryList.postValue(
-                dao?.getAllCategories() as ArrayList<Category>
-            )
+            categoryList.postValue(roomDatabaseHelper.getAllCategories() as ArrayList<Category>)
         }
     }
-
 
     private fun clearData() {
         userOrderedName = MutableLiveData(arrayListOf())
@@ -90,8 +84,5 @@ class ExperimentalDataViewModel : ViewModel() {
                 AlgorithmItemAdapterArgument("Price19"),
             )
         )
-
     }
-
-
 }

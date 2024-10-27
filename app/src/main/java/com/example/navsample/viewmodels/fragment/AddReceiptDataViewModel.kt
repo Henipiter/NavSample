@@ -1,6 +1,5 @@
 package com.example.navsample.viewmodels.fragment
 
-import android.util.Log
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -9,14 +8,15 @@ import com.example.navsample.dto.inputmode.AddingInputType
 import com.example.navsample.entities.FirebaseHelper
 import com.example.navsample.entities.Receipt
 import com.example.navsample.entities.ReceiptDatabase
+import com.example.navsample.entities.RoomDatabaseHelper
 import com.example.navsample.entities.Store
 import kotlinx.coroutines.launch
-import java.util.UUID
 
 class AddReceiptDataViewModel : ViewModel() {
 
     private val dao = ApplicationContext.context?.let { ReceiptDatabase.getInstance(it).receiptDao }
     private lateinit var firebaseHelper: FirebaseHelper
+    private var roomDatabaseHelper = RoomDatabaseHelper(dao!!)
 
     var inputType = AddingInputType.EMPTY.name
     var receiptId = ""
@@ -32,30 +32,20 @@ class AddReceiptDataViewModel : ViewModel() {
     }
 
     fun refreshStoreList() {
-        Log.i("Database", "refresh store list")
         viewModelScope.launch {
-            storeList.postValue(dao?.getAllStores()?.let { ArrayList(it) })
+            storeList.postValue(roomDatabaseHelper.getAllStores() as ArrayList)
         }
     }
 
     fun getReceiptById(id: String) {
-        Log.i("Database", "get store with id $id")
         viewModelScope.launch {
-            dao?.let {
-                receiptById.postValue(dao.getReceiptById(id))
-            }
+            receiptById.postValue(roomDatabaseHelper.getReceiptById(id))
         }
     }
 
     fun updateReceipt(newReceipt: Receipt) {
-        Log.i(
-            "Database",
-            "update receipt with id ${newReceipt.id}: ${newReceipt.date} ${newReceipt.pln}"
-        )
         viewModelScope.launch {
-            dao?.let {
-                dao.updateReceipt(newReceipt)
-            }
+            roomDatabaseHelper.updateReceipt(newReceipt)
             savedReceipt.postValue(newReceipt)
             firebaseHelper.updateFirestore(newReceipt)
         }
@@ -63,23 +53,14 @@ class AddReceiptDataViewModel : ViewModel() {
 
 
     fun deleteReceipt(receiptId: String) {
-        Log.i("Database", "delete receipt - id $receiptId")
         viewModelScope.launch {
-            dao?.deleteProductsOfReceipt(receiptId)
-            dao?.deleteReceiptById(receiptId)
+            roomDatabaseHelper.deleteReceipt(receiptId)
         }
     }
 
     fun insertReceipt(newReceipt: Receipt) {
-        Log.i("Database", "insert receipt: ${newReceipt.date} ${newReceipt.pln}")
         viewModelScope.launch {
-            dao?.let {
-                newReceipt.date = convertDateFormat(newReceipt.date)
-                newReceipt.id = UUID.randomUUID().toString()
-                dao.insertReceipt(newReceipt)
-            }
-            Log.i("Database", "inserted receipt with id ${newReceipt.id}")
-            savedReceipt.value = newReceipt
+            savedReceipt.postValue(roomDatabaseHelper.insertReceipt(newReceipt))
             firebaseHelper.addFirestore(newReceipt)
         }
     }
@@ -95,19 +76,5 @@ class AddReceiptDataViewModel : ViewModel() {
         }
     }
 
-
-    private fun convertDateFormat(date: String): String {
-        val newDate = date.replace(".", "-")
-        val splitDate = newDate.split("-")
-        try {
-            if (splitDate[2].length == 4) {
-                return splitDate[2] + "-" + splitDate[1] + "-" + splitDate[0]
-            }
-            return newDate
-        } catch (e: Exception) {
-            Log.e("ConvertDate", "Cannot convert date: $splitDate")
-            return newDate
-        }
-    }
 
 }

@@ -1,6 +1,5 @@
 package com.example.navsample.viewmodels.fragment
 
-import android.util.Log
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -11,14 +10,15 @@ import com.example.navsample.entities.FirebaseHelper
 import com.example.navsample.entities.Product
 import com.example.navsample.entities.Receipt
 import com.example.navsample.entities.ReceiptDatabase
+import com.example.navsample.entities.RoomDatabaseHelper
 import com.example.navsample.entities.Store
 import kotlinx.coroutines.launch
-import java.util.UUID
 
 class AddProductDataViewModel : ViewModel() {
 
     private val dao = ApplicationContext.context?.let { ReceiptDatabase.getInstance(it).receiptDao }
     private lateinit var firebaseHelper: FirebaseHelper
+    private var roomDatabaseHelper = RoomDatabaseHelper(dao!!)
 
     var inputType = AddingInputType.EMPTY.name
     var productIndex = -1
@@ -40,97 +40,68 @@ class AddProductDataViewModel : ViewModel() {
     }
 
     fun refreshCategoryList() {
-        Log.i("Database", "refresh category list")
         viewModelScope.launch {
-            categoryList.postValue(
-                dao?.getAllCategories()
-            )
+            categoryList.postValue(roomDatabaseHelper.getAllCategories())
         }
     }
 
 
     fun deleteProduct(productId: String) {
-        Log.i("Database", "delete product - id $productId")
         viewModelScope.launch {
-            dao?.deleteProductById(productId)
+            roomDatabaseHelper.deleteProductById(productId)
         }
     }
 
     fun getReceiptById(id: String) {
-        Log.i("Database", "get store with id $id")
         viewModelScope.launch {
-            dao?.let {
-                receiptById.postValue(dao.getReceiptById(id))
-            }
+            receiptById.postValue(roomDatabaseHelper.getReceiptById(id))
         }
     }
 
     fun getStoreById(id: String) {
-        Log.i("Database", "get store with id $id")
         viewModelScope.launch {
-            dao?.let {
-                storeById.postValue(dao.getStoreById(id))
-            }
+            storeById.postValue(roomDatabaseHelper.getStoreById(id))
         }
     }
 
     fun getProductById(id: String) {
-        Log.i("Database", "get store with id $id")
         viewModelScope.launch {
-            dao?.let {
-                productById.postValue(dao.getProductById(id))
-            }
+            productById.postValue(roomDatabaseHelper.getProductById(id))
         }
     }
 
     fun getProductsByReceiptId(receiptId: String) {
-        Log.i("Database", "get store with id $receiptId")
         viewModelScope.launch {
-            dao?.let { dao ->
-                productList.postValue(dao.getAllProducts(receiptId) as ArrayList)
-            }
+            productList.postValue(roomDatabaseHelper.getProductsByReceiptId(receiptId) as ArrayList)
         }
     }
 
     fun updateSingleProduct(product: Product) {
         viewModelScope.launch {
-            dao?.let {
-                Log.i("Database", "update product: ${product.name}")
-                dao.updateProduct(product)
-                firebaseHelper.updateFirestore(product)
-            }
+            roomDatabaseHelper.updateProduct(product)
+            firebaseHelper.updateFirestore(product)
         }
     }
 
     fun insertProducts(products: List<Product>) {
-        Log.i("Database", "insert products. Size: ${products.size}")
-        viewModelScope.launch {
-            dao?.let {
-                products.forEach { product ->
-                    if (product.id.isEmpty()) {
-                        product.id = UUID.randomUUID().toString()
-                        Log.i("Database", "insert product: ${product.name}")
-                        dao.insertProduct(product)
-                        firebaseHelper.addFirestore(product)
-                    } else {
-                        Log.i("Database", "update product: ${product.name}")
-                        dao.updateProduct(product)
-                        firebaseHelper.updateFirestore(product)
-                    }
+        products.forEach { product ->
+            if (product.id.isEmpty()) {
+                viewModelScope.launch {
+                    val savedProduct = roomDatabaseHelper.insertProduct(product)
+                    firebaseHelper.addFirestore(savedProduct)
+                }
+            } else {
+                viewModelScope.launch {
+                    roomDatabaseHelper.updateProduct(product)
+                    firebaseHelper.updateFirestore(product)
                 }
             }
         }
     }
 
     fun updateReceipt(newReceipt: Receipt) {
-        Log.i(
-            "Database",
-            "update receipt with id ${newReceipt.id}: ${newReceipt.date} ${newReceipt.pln}"
-        )
         viewModelScope.launch {
-            dao?.let {
-                dao.updateReceipt(newReceipt)
-            }
+            roomDatabaseHelper.updateReceipt(newReceipt)
             firebaseHelper.updateFirestore(newReceipt)
         }
     }
