@@ -6,4 +6,5 @@ interface TranslateEntity {
     var updatedAt: String
     var deletedAt: String
     var firestoreId: String
+    var isSync: Boolean
 }

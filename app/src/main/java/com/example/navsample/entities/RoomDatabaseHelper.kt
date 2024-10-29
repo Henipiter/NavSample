@@ -6,6 +6,7 @@ import com.example.navsample.dto.sort.ReceiptWithStoreSort
 import com.example.navsample.dto.sort.RichProductSort
 import com.example.navsample.dto.sort.SortProperty
 import com.example.navsample.dto.sort.StoreSort
+import com.example.navsample.entities.dto.StoreFirebase
 import com.example.navsample.entities.relations.AllData
 import com.example.navsample.entities.relations.PriceByCategory
 import com.example.navsample.entities.relations.ProductRichData
@@ -129,6 +130,11 @@ class RoomDatabaseHelper(
         return dao.getAllProductsOrderedWithHigherPrice(query)
     }
 
+    //GET BY FIRESTORE ID
+    suspend fun getStoreForFirestore(id: String): StoreFirebase? {
+        Log.i("Database", "Get store by id '$id'")
+        return dao.getStoreForFirestore(id)
+    }
 
     // GET BY ID
     suspend fun getCategoryById(id: String): Category {
@@ -208,36 +214,96 @@ class RoomDatabaseHelper(
     }
 
     // UPDATE
-    suspend fun updateCategory(category: Category): Category {
+    suspend fun updateCategory(category: Category, update: Boolean = true): Category {
         Log.i("Database", "Update category '${category.name}' with id '${category.id}'")
-        category.updatedAt = DateUtil.getCurrentUtcTime()
+        if (update) {
+            category.updatedAt = DateUtil.getCurrentUtcTime()
+        }
         dao.updateCategory(category)
         return category
     }
 
-    suspend fun updateProduct(product: Product): Product {
+    suspend fun updateProduct(product: Product, update: Boolean = true): Product {
         Log.i("Database", "Update product '${product.name}' with id '${product.id}'")
-        product.updatedAt = DateUtil.getCurrentUtcTime()
+        if (update) {
+            product.updatedAt = DateUtil.getCurrentUtcTime()
+        }
         dao.updateProduct(product)
         return product
     }
 
-    suspend fun updateStore(store: Store): Store {
+    suspend fun updateStore(store: Store, update: Boolean = true): Store {
         Log.i("Database", "Update store '${store.name}' with id '${store.id}'")
-        store.updatedAt = DateUtil.getCurrentUtcTime()
+        if (update) {
+            store.updatedAt = DateUtil.getCurrentUtcTime()
+        }
         dao.updateStore(store)
         return store
     }
 
-    suspend fun updateReceipt(receipt: Receipt): Receipt {
+    suspend fun updateReceipt(receipt: Receipt, update: Boolean = true): Receipt {
         Log.i(
             "Database",
             "Update receipt from ${receipt.date} payed ${receipt.pln} with id '${receipt.id}'"
         )
-        receipt.updatedAt = DateUtil.getCurrentUtcTime()
+        if (update) {
+            receipt.updatedAt = DateUtil.getCurrentUtcTime()
+        }
         dao.updateReceipt(receipt)
         return receipt
     }
+//UPDATE FOREIGN KEY
+
+    suspend fun updateCategoryIdInStore(
+        oldCategoryId: String,
+        newCategoryId: String,
+        firebaseUpdate: (Store) -> Unit
+    ) {
+        val stores = dao.getAllStoresWithCategoryId(oldCategoryId)
+        stores.forEach {
+            if (it.id == it.firestoreId) {
+                it.isSync = true
+            }
+            it.defaultCategoryId = newCategoryId
+            it.updatedAt = DateUtil.getCurrentUtcTime()
+            updateStore(it)
+            if (it.firestoreId != "") {
+                firebaseUpdate.invoke(it)
+            }
+        }
+    }
+
+    suspend fun updateStoreIdInReceipt(
+        oldStoreId: String,
+        newStoreId: String,
+        firebaseUpdate: (Receipt) -> Unit
+    ) {
+        val receipts = dao.getAllReceiptWithStoreId(oldStoreId)
+        receipts.forEach {
+            if (it.id == it.firestoreId) {
+                it.isSync = true
+            }
+            it.storeId = newStoreId
+            it.updatedAt = DateUtil.getCurrentUtcTime()
+            updateReceipt(it)
+            if (it.firestoreId != "") {
+                firebaseUpdate.invoke(it)
+            }
+        }
+    }
+
+    // UPDATE ENTITY ID
+    suspend fun updateStoreId(store: Store) {
+        store.id = store.firestoreId
+        dao.updateStore(store)
+
+    }
+
+    // IS SYNC
+    suspend fun isCategorySynced(categoryId: String): Boolean {
+        return dao.isCategorySynced(categoryId)
+    }
+
 
     // DELETE
     suspend fun deleteCategory(categoryId: String): Category {

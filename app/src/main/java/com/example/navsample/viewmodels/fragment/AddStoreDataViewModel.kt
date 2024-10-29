@@ -5,13 +5,16 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.navsample.ApplicationContext
+import com.example.navsample.dto.DateUtil
 import com.example.navsample.dto.inputmode.AddingInputType
 import com.example.navsample.entities.Category
 import com.example.navsample.entities.FirebaseHelper
 import com.example.navsample.entities.ReceiptDatabase
 import com.example.navsample.entities.RoomDatabaseHelper
 import com.example.navsample.entities.Store
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 class AddStoreDataViewModel : ViewModel() {
 
@@ -54,6 +57,24 @@ class AddStoreDataViewModel : ViewModel() {
         }
     }
 
+    fun updateStoreIfNeeded(store: Store) {
+        if (store.firestoreId == "") {
+            return
+        }
+        viewModelScope.launch {
+            val localStoreData = roomDatabaseHelper.getStoreForFirestore(store.firestoreId)
+            if (localStoreData != null) {
+                if (store.isSync && store.updatedAt > localStoreData.updatedAt) {
+                    roomDatabaseHelper.updateStore(store, false)
+                }
+            } else {
+                if (store.isSync) {
+                    roomDatabaseHelper.insertStore(store, false)
+                }
+            }
+        }
+    }
+
     fun deleteStore(storeId: String) {
         viewModelScope.launch {
             val deletedProducts = roomDatabaseHelper.deleteStoreProducts(storeId)
@@ -71,15 +92,40 @@ class AddStoreDataViewModel : ViewModel() {
         }
     }
 
-    fun insertStore(newStore: Store) {
+    fun insertStore(newStore: Store, generateId: Boolean = true) {
         viewModelScope.launch {
-            val insertedStore = roomDatabaseHelper.insertStore(newStore)
+            val insertedStore = roomDatabaseHelper.insertStore(newStore, generateId)
             savedStore.postValue(insertedStore)
             firebaseHelper.addFirestore(insertedStore) {
-                insertedStore.firestoreId = it
-                updateStore(insertedStore)
-                firebaseHelper.updateFirestore(insertedStore)
+                viewModelScope.launch {
+                    updateStoreIdInReceipt(insertedStore.id, it)
+                    withContext(Dispatchers.IO) {
+                        val isCategorySynced =
+                            roomDatabaseHelper.isCategorySynced(insertedStore.defaultCategoryId)
+                        if (!insertedStore.isSync && isCategorySynced) {
+                            insertedStore.isSync = true
+                            insertedStore.updatedAt = DateUtil.getCurrentUtcTime()
+                        }
+                        insertedStore.id = it
+                        insertedStore.firestoreId = it
+                        updateStoreId(insertedStore)
+                        firebaseHelper.updateFirestore(insertedStore)
+                    }
+
+                }
             }
+        }
+    }
+
+    private suspend fun updateStoreIdInReceipt(oldCategoryId: String, newCategoryId: String) {
+        roomDatabaseHelper.updateStoreIdInReceipt(oldCategoryId, newCategoryId) {
+            firebaseHelper.updateFirestore(it)
+        }
+    }
+
+    private fun updateStoreId(store: Store) {
+        viewModelScope.launch {
+            roomDatabaseHelper.updateStoreId(store)
         }
     }
 

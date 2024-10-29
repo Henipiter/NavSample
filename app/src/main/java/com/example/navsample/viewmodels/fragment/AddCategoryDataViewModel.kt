@@ -5,6 +5,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.navsample.ApplicationContext
+import com.example.navsample.dto.DateUtil
 import com.example.navsample.dto.inputmode.AddingInputType
 import com.example.navsample.entities.Category
 import com.example.navsample.entities.FirebaseHelper
@@ -55,12 +56,16 @@ class AddCategoryDataViewModel : ViewModel() {
         }
     }
 
-    fun insertCategory(newCategory: Category) {
+    fun insertCategory(newCategory: Category, generateId: Boolean = true) {
         viewModelScope.launch {
-            val insertedCategory = roomDatabaseHelper.insertCategory(newCategory)
+            val insertedCategory = roomDatabaseHelper.insertCategory(newCategory, generateId)
             savedCategory.postValue(insertedCategory)
             firebaseHelper.addFirestore(insertedCategory) {
+                updateCategoryIdInStore(insertedCategory.id, it)
+                insertedCategory.id = it
                 insertedCategory.firestoreId = it
+                insertedCategory.isSync = true
+                insertedCategory.updatedAt = DateUtil.getCurrentUtcTime()
                 updateCategory(insertedCategory)
                 firebaseHelper.updateFirestore(insertedCategory)
             }
@@ -72,6 +77,14 @@ class AddCategoryDataViewModel : ViewModel() {
             val updatedCategory = roomDatabaseHelper.updateCategory(newCategory)
             savedCategory.postValue(updatedCategory)
             firebaseHelper.updateFirestore(updatedCategory)
+        }
+    }
+
+    private fun updateCategoryIdInStore(oldCategoryId: String, newCategoryId: String) {
+        viewModelScope.launch {
+            roomDatabaseHelper.updateCategoryIdInStore(oldCategoryId, newCategoryId) {
+                firebaseHelper.updateFirestore(it)
+            }
         }
     }
 

@@ -2,10 +2,12 @@ package com.example.navsample.fragments.listing
 
 import android.annotation.SuppressLint
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import androidx.appcompat.app.AppCompatActivity
 import androidx.core.widget.doOnTextChanged
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
@@ -20,10 +22,14 @@ import com.example.navsample.dto.FragmentName
 import com.example.navsample.dto.inputmode.AddingInputType
 import com.example.navsample.dto.sort.SortProperty
 import com.example.navsample.dto.sort.StoreSort
+import com.example.navsample.entities.Store
 import com.example.navsample.fragments.dialogs.ConfirmDialog
 import com.example.navsample.fragments.dialogs.SortingDialog
 import com.example.navsample.viewmodels.ListingViewModel
 import com.example.navsample.viewmodels.fragment.AddStoreDataViewModel
+import com.google.firebase.Firebase
+import com.google.firebase.firestore.DocumentChange
+import com.google.firebase.firestore.firestore
 
 
 class StoreListFragment : Fragment(), ItemClickListener {
@@ -46,6 +52,7 @@ class StoreListFragment : Fragment(), ItemClickListener {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         initObserver()
+//        defineListeners()
         binding.toolbar.inflateMenu(R.menu.top_menu_list_filter)
         binding.toolbar.menu.findItem(R.id.filter).isVisible = false
         binding.toolbar.menu.findItem(R.id.collapse).isVisible = false
@@ -180,5 +187,38 @@ class StoreListFragment : Fragment(), ItemClickListener {
         listingViewModel.filterStoreList.observe(viewLifecycleOwner) {
             putFilterDefinitionIntoInputs()
         }
+    }
+
+    private fun defineListeners() {
+        val myPref =
+            requireContext().getSharedPreferences("preferences", AppCompatActivity.MODE_PRIVATE)
+        Firebase.firestore.collection("userTest")
+            .document(myPref.getString("userId", "")!!)
+            .collection("stores")
+            .addSnapshotListener { snapshots, e ->
+                if (e != null) {
+                    println("Błąd podczas nasłuchiwania: ${e.message}")
+                    return@addSnapshotListener
+                }
+                if (snapshots != null) {
+                    for (docChange in snapshots.documentChanges) {
+                        when (docChange.type) {
+                            DocumentChange.Type.ADDED, DocumentChange.Type.MODIFIED -> {
+                                try {
+                                    val store = docChange.document.toObject(Store::class.java)
+                                    addStoreDataViewModel.updateStoreIfNeeded(store)
+                                    Log.d("Firebase", "Nowy dokument: ${docChange.document.data}")
+                                } catch (e: Exception) {
+                                    Log.e("Firebase", "Error", e)
+                                }
+                            }
+
+                            DocumentChange.Type.REMOVED -> {
+                                Log.d("Firebase", "Usunięty dokument: ${docChange.document.data}")
+                            }
+                        }
+                    }
+                }
+            }
     }
 }

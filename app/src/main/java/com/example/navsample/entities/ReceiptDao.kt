@@ -8,6 +8,8 @@ import androidx.room.RawQuery
 import androidx.room.Transaction
 import androidx.room.Update
 import androidx.sqlite.db.SupportSQLiteQuery
+import com.example.navsample.dto.DateUtil
+import com.example.navsample.entities.dto.StoreFirebase
 import com.example.navsample.entities.relations.AllData
 import com.example.navsample.entities.relations.PriceByCategory
 import com.example.navsample.entities.relations.ProductRichData
@@ -201,6 +203,29 @@ interface ReceiptDao {
     suspend fun getAllStores(): List<Store>
 
     @Transaction
+    @Query("SELECT * FROM store WHERE deletedAt == '' AND defaultCategoryId = :categoryId")
+    suspend fun getAllStoresWithCategoryId(categoryId: String): List<Store>
+
+    @Transaction
+    @Query("SELECT * FROM receipt WHERE deletedAt == '' AND storeId = :storeId")
+    suspend fun getAllReceiptWithStoreId(storeId: String): List<Receipt>
+
+    @Transaction
+    @Query("SELECT  s.id,s.updatedAt,s.isSync,  c.id as categoryId FROM store s INNER JOIN category c ON s.defaultCategoryId = c.id WHERE s.firestoreId == :firestoreId ")
+    suspend fun getStoreForFirestore(firestoreId: String): StoreFirebase?
+
+    @Transaction
+    suspend fun updateCategoryIdInStore(oldCategoryId: String, newCategoryId: String) {
+        val stores = getAllStoresWithCategoryId(oldCategoryId)
+        stores.forEach {
+            it.defaultCategoryId = newCategoryId
+            it.updatedAt = DateUtil.getCurrentUtcTime()
+            updateStore(it)
+            //TODO Firestore update if firestoreId = id && firestire!= ""
+        }
+    }
+
+    @Transaction
     @RawQuery
     suspend fun getAllStoresOrdered(query: SupportSQLiteQuery): List<Store>
 
@@ -280,4 +305,25 @@ interface ReceiptDao {
                 "AND p.deletedAt == '' AND r.deletedAt == '' AND c.deletedAt == '' AND s.deletedAt == '' "
     )
     suspend fun getAllData(): List<AllData>
+
+    @Transaction
+    @Query("delete from store where id = :id")
+    suspend fun deleteStoreById(id: String)
+
+    @Transaction
+    @Query("delete from product where id = :id")
+    suspend fun deleteProductById(id: String)
+
+    @Transaction
+    @Query("delete from receipt where id = :id")
+    suspend fun deleteReceiptById(id: String)
+
+    @Transaction
+    @Query("delete from category where id = :id")
+    suspend fun deleteCategoryById(id: String)
+
+    @Transaction
+    @Query("select isSync from category where id = :categoryId")
+    suspend fun isCategorySynced(categoryId: String): Boolean
+
 }
