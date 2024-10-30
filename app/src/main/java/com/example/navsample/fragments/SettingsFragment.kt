@@ -17,6 +17,8 @@ import com.example.navsample.databinding.FragmentSettingsBinding
 import com.example.navsample.entities.init.InitDatabaseHelper
 import com.example.navsample.viewmodels.ImageViewModel
 import com.example.navsample.viewmodels.InitDatabaseViewModel
+import com.example.navsample.viewmodels.fragment.AddCategoryDataViewModel
+import com.example.navsample.viewmodels.fragment.AddStoreDataViewModel
 import java.util.UUID
 
 class SettingsFragment : Fragment() {
@@ -24,6 +26,8 @@ class SettingsFragment : Fragment() {
 
     private val binding get() = _binding!!
     private val initDatabaseViewModel: InitDatabaseViewModel by activityViewModels()
+    private val addStoreDataViewModel: AddStoreDataViewModel by activityViewModels()
+    private val addCategoryDataViewModel: AddCategoryDataViewModel by activityViewModels()
     private val imageViewModel: ImageViewModel by activityViewModels()
 
 
@@ -73,17 +77,17 @@ class SettingsFragment : Fragment() {
 
     private fun initDatabase() {
         InitDatabaseHelper.getStores().forEach { store ->
-            initDatabaseViewModel.insertStore(store)
+            addStoreDataViewModel.insertStore(store, false)
         }
         InitDatabaseHelper.getCategories().forEach { category ->
-            initDatabaseViewModel.insertCategoryList(category)
+            addCategoryDataViewModel.insertCategory(category, false)
         }
         InitDatabaseHelper.getReceipts().forEach { receipt ->
             initDatabaseViewModel.insertReceipt(receipt)
         }
-        InitDatabaseHelper.getProducts().forEach { product ->
-            initDatabaseViewModel.insertProducts(product)
-        }
+//        InitDatabaseHelper.getProducts().forEach { product ->
+//            initDatabaseViewModel.insertProducts(product)
+//        }
     }
 
     private fun devButton() {

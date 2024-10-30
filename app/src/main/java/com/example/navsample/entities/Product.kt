@@ -19,7 +19,8 @@ data class Product(
     override var createdAt: String = "",
     override var updatedAt: String = "",
     override var deletedAt: String = "",
-    override var firestoreId: String = ""
+    override var firestoreId: String = "",
+    override var isSync: Boolean = false
 ) : TranslateEntity {
     @PrimaryKey
     var id: String = ""
@@ -40,7 +41,8 @@ data class Product(
             "createdAt" to this.createdAt,
             "updatedAt" to this.updatedAt,
             "deletedAt" to this.deletedAt,
-            "firestoreId" to this.firestoreId
+            "firestoreId" to this.firestoreId,
+            "isSync" to this.isSync
         )
     }
 }

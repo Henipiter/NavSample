@@ -8,6 +8,9 @@ import androidx.room.RawQuery
 import androidx.room.Transaction
 import androidx.room.Update
 import androidx.sqlite.db.SupportSQLiteQuery
+import com.example.navsample.entities.dto.ProductFirebase
+import com.example.navsample.entities.dto.ReceiptFirebase
+import com.example.navsample.entities.dto.StoreFirebase
 import com.example.navsample.entities.relations.AllData
 import com.example.navsample.entities.relations.PriceByCategory
 import com.example.navsample.entities.relations.ProductRichData
@@ -31,9 +34,6 @@ interface ReceiptDao {
 
     @Update
     suspend fun updateProduct(product: Product)
-
-    @Insert(onConflict = OnConflictStrategy.IGNORE)
-    suspend fun insertCategory(category: Category): Long
 
     @Update
     suspend fun updateCategory(category: Category)
@@ -200,6 +200,55 @@ interface ReceiptDao {
     @Query("SELECT * FROM store WHERE deletedAt == '' ORDER BY name")
     suspend fun getAllStores(): List<Store>
 
+    @Query("SELECT * FROM store WHERE deletedAt == '' AND defaultCategoryId = :categoryId ORDER BY name")
+    suspend fun getAllStoresWithCategory(categoryId: String): List<Store>
+
+    @Transaction
+    @Query("SELECT * FROM category WHERE isSync == 0")
+    suspend fun getAllNotSyncedCategories(): List<Category>
+
+    @Transaction
+    @Query("SELECT * FROM store WHERE isSync == 0")
+    suspend fun getAllNotSyncedStores(): List<Store>
+
+    @Transaction
+    @Query("SELECT * FROM product WHERE isSync == 0")
+    suspend fun getAllNotSyncedProducts(): List<Product>
+
+    @Transaction
+    @Query("SELECT * FROM receipt WHERE isSync == 0")
+    suspend fun getAllNotSyncedReceipts(): List<Receipt>
+
+
+    @Transaction
+    @Query("UPDATE category SET isSync = 1, updatedAt = :updatedAt WHERE id = :id")
+    suspend fun syncCategory(id: String, updatedAt: String)
+
+    @Transaction
+    @Query("UPDATE store SET isSync = 1, updatedAt = :updatedAt WHERE id = :id")
+    suspend fun syncStore(id: String, updatedAt: String)
+
+    @Transaction
+    @Query("UPDATE receipt SET isSync = 1, updatedAt = :updatedAt WHERE id = :id")
+    suspend fun syncReceipt(id: String, updatedAt: String)
+
+    @Transaction
+    @Query("UPDATE product SET isSync = 1, updatedAt = :updatedAt WHERE id = :id")
+    suspend fun syncProduct(id: String, updatedAt: String)
+
+    @Transaction
+    @Query("SELECT  s.id,s.firestoreId,s.isSync,  c.isSync as isCategorySync FROM store s INNER JOIN category c ON s.defaultCategoryId = c.id ")
+    suspend fun getStoreForFirestore(): List<StoreFirebase>
+
+    @Transaction
+    @Query("SELECT  r.id,r.firestoreId,r.isSync,  s.isSync as isStoreSync FROM receipt r INNER JOIN store s ON r.storeId = s.id ")
+    suspend fun getReceiptForFirestore(): List<ReceiptFirebase>
+
+    @Transaction
+    @Query("SELECT  p.id,p.firestoreId,p.isSync,  r.isSync as isReceiptSync FROM product p INNER JOIN receipt r ON p.receiptId = r.id ")
+    suspend fun getProductForFirestore(): List<ProductFirebase>
+
+
     @Transaction
     @RawQuery
     suspend fun getAllStoresOrdered(query: SupportSQLiteQuery): List<Store>
@@ -280,4 +329,25 @@ interface ReceiptDao {
                 "AND p.deletedAt == '' AND r.deletedAt == '' AND c.deletedAt == '' AND s.deletedAt == '' "
     )
     suspend fun getAllData(): List<AllData>
+
+
+    @Transaction
+    suspend fun replaceCategoryWithDependencies(oldId: String, newCategory: Category) {
+        deleteCategoryById(oldId)
+        updateDependentStoreByCategoryId(oldId, newCategory.id, newCategory.updatedAt)
+        insertCategory(newCategory)
+    }
+
+    @Query("DELETE FROM Category WHERE id = :id")
+    suspend fun deleteCategoryById(id: String)
+
+    @Query("UPDATE store SET defaultCategoryId = :newCategoryId, updatedAt = :timestamp WHERE defaultCategoryId = :oldCategoryId")
+    suspend fun updateDependentStoreByCategoryId(
+        oldCategoryId: String,
+        newCategoryId: String,
+        timestamp: String
+    )
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertCategory(category: Category)
 }

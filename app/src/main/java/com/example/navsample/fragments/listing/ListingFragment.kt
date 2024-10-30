@@ -5,9 +5,11 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.activityViewModels
 import androidx.viewpager2.widget.ViewPager2
 import com.example.navsample.adapters.ViewPagerAdapter
 import com.example.navsample.databinding.FragmentListingBinding
+import com.example.navsample.viewmodels.SyncDatabaseViewModel
 import com.google.android.material.tabs.TabLayout
 
 
@@ -15,6 +17,7 @@ class ListingFragment : Fragment() {
     private var _binding: FragmentListingBinding? = null
     private val binding get() = _binding!!
     private lateinit var viewPagerAdapter: ViewPagerAdapter
+    private val syncDatabaseViewModel: SyncDatabaseViewModel by activityViewModels()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -28,6 +31,8 @@ class ListingFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         viewPagerAdapter = ViewPagerAdapter(this)
         binding.viewPager.adapter = viewPagerAdapter
+        initObserver()
+        syncDatabaseViewModel.loadAllList()
         binding.tabLayout.addOnTabSelectedListener(object : TabLayout.OnTabSelectedListener {
 
             override fun onTabSelected(tab: TabLayout.Tab?) {
@@ -51,5 +56,21 @@ class ListingFragment : Fragment() {
             }
         })
 
+
+    }
+
+    private fun initObserver() {
+        syncDatabaseViewModel.categoryList.observe(viewLifecycleOwner) {
+            it?.forEach { category -> syncDatabaseViewModel.syncCategory(category) }
+        }
+        syncDatabaseViewModel.storeList.observe(viewLifecycleOwner) {
+            it?.forEach { store -> syncDatabaseViewModel.syncStore(store) }
+        }
+        syncDatabaseViewModel.receiptList.observe(viewLifecycleOwner) {
+            it?.forEach { receipt -> syncDatabaseViewModel.syncReceipt(receipt) }
+        }
+        syncDatabaseViewModel.productList.observe(viewLifecycleOwner) {
+            it?.forEach { product -> syncDatabaseViewModel.syncProduct(product) }
+        }
     }
 }
