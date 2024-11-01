@@ -71,14 +71,14 @@ class AddStoreDataViewModel : ViewModel() {
         }
     }
 
-    fun insertStore(newStore: Store) {
+    fun insertStore(newStore: Store, generateId: Boolean = true) {
         viewModelScope.launch {
-            val insertedStore = roomDatabaseHelper.insertStore(newStore)
+            val insertedStore = roomDatabaseHelper.insertStore(newStore, generateId)
             savedStore.postValue(insertedStore)
             firebaseHelper.addFirestore(insertedStore) {
-                insertedStore.firestoreId = it
-                updateStore(insertedStore)
-                firebaseHelper.updateFirestore(insertedStore)
+                viewModelScope.launch {
+                    roomDatabaseHelper.updateStoreFirestoreId(insertedStore.id, it)
+                }
             }
         }
     }
@@ -87,8 +87,9 @@ class AddStoreDataViewModel : ViewModel() {
         viewModelScope.launch {
             val updateStore = roomDatabaseHelper.updateStore(newStore)
             savedStore.postValue(updateStore)
-            firebaseHelper.updateFirestore(updateStore)
-
+            if (newStore.firestoreId.isNotEmpty()) {
+                firebaseHelper.updateFirestore(updateStore)
+            }
         }
     }
 

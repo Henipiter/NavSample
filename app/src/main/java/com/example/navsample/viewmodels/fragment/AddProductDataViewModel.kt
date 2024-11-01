@@ -86,7 +86,9 @@ class AddProductDataViewModel : ViewModel() {
     fun updateSingleProduct(product: Product) {
         viewModelScope.launch {
             val updatedProduct = roomDatabaseHelper.updateProduct(product)
-            firebaseHelper.updateFirestore(updatedProduct)
+            if (updatedProduct.firestoreId.isNotEmpty()) {
+                firebaseHelper.updateFirestore(updatedProduct)
+            }
         }
     }
 
@@ -110,9 +112,12 @@ class AddProductDataViewModel : ViewModel() {
     }
 
     fun updateReceipt(newReceipt: Receipt) {
+        //TODO UPDATE ONLY VALID
         viewModelScope.launch {
             val updatedReceipt = roomDatabaseHelper.updateReceipt(newReceipt)
-            firebaseHelper.updateFirestore(updatedReceipt)
+            if (newReceipt.firestoreId.isNotEmpty()) {
+                firebaseHelper.updateFirestore(updatedReceipt)
+            }
         }
     }
 

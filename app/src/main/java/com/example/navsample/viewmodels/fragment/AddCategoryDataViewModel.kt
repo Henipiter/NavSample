@@ -55,14 +55,14 @@ class AddCategoryDataViewModel : ViewModel() {
         }
     }
 
-    fun insertCategory(newCategory: Category) {
+    fun insertCategory(newCategory: Category, generateId: Boolean = true) {
         viewModelScope.launch {
-            val insertedCategory = roomDatabaseHelper.insertCategory(newCategory)
+            val insertedCategory = roomDatabaseHelper.insertCategory(newCategory, generateId)
             savedCategory.postValue(insertedCategory)
             firebaseHelper.addFirestore(insertedCategory) {
-                insertedCategory.firestoreId = it
-                updateCategory(insertedCategory)
-                firebaseHelper.updateFirestore(insertedCategory)
+                viewModelScope.launch {
+                    roomDatabaseHelper.updateCategoryFirestoreId(insertedCategory.id, it)
+                }
             }
         }
     }
@@ -71,7 +71,9 @@ class AddCategoryDataViewModel : ViewModel() {
         viewModelScope.launch {
             val updatedCategory = roomDatabaseHelper.updateCategory(newCategory)
             savedCategory.postValue(updatedCategory)
-            firebaseHelper.updateFirestore(updatedCategory)
+            if (newCategory.firestoreId.isNotEmpty()) {
+                firebaseHelper.updateFirestore(updatedCategory)
+            }
         }
     }
 

@@ -131,22 +131,22 @@ class RoomDatabaseHelper(
 
 
     // GET BY ID
-    suspend fun getCategoryById(id: String): Category {
+    suspend fun getCategoryById(id: String): Category? {
         Log.i("Database", "Get category by id '$id'")
         return dao.getCategoryById(id)
     }
 
-    suspend fun getReceiptById(id: String): Receipt {
+    suspend fun getReceiptById(id: String): Receipt? {
         Log.i("Database", "Get receipt by id '$id'")
         return dao.getReceiptById(id)
     }
 
-    suspend fun getStoreById(id: String): Store {
+    suspend fun getStoreById(id: String): Store? {
         Log.i("Database", "Get store by id '$id'")
         return dao.getStoreById(id)
     }
 
-    suspend fun getProductById(id: String): Product {
+    suspend fun getProductById(id: String): Product? {
         Log.i("Database", "Get product by id '$id'")
         return dao.getProductById(id)
     }
@@ -208,24 +208,65 @@ class RoomDatabaseHelper(
     }
 
     // UPDATE
+
+    suspend fun updateCategoryFirestoreId(categoryId: String, firestoreId: String) {
+        Log.i("Database", "Update category '${categoryId}' with firestore id '${firestoreId}'")
+        dao.updateCategoryFirestoreId(categoryId, firestoreId);
+    }
+
+    suspend fun updateStoreFirestoreId(storeId: String, firestoreId: String) {
+        Log.i("Database", "Update store '${storeId}' with firestore id '${firestoreId}'")
+        dao.updateStoreFirestoreId(storeId, firestoreId);
+    }
+
+    suspend fun updateReceiptFirestoreId(receiptId: String, firestoreId: String) {
+        Log.i("Database", "Update receipt '${receiptId}' with firestore id '${firestoreId}'")
+        dao.updateReceiptFirestoreId(receiptId, firestoreId);
+    }
+
+    suspend fun updateProductFirestoreId(productId: String, firestoreId: String) {
+        Log.i("Database", "Update product '${productId}' with firestore id '${firestoreId}'")
+        dao.updateProductFirestoreId(productId, firestoreId);
+    }
+
+
     suspend fun updateCategory(category: Category): Category {
         Log.i("Database", "Update category '${category.name}' with id '${category.id}'")
         category.updatedAt = DateUtil.getCurrentUtcTime()
-        dao.updateCategory(category)
+        dao.updateCategoryFields(category.id, category.name, category.color, category.updatedAt)
         return category
     }
 
     suspend fun updateProduct(product: Product): Product {
         Log.i("Database", "Update product '${product.name}' with id '${product.id}'")
         product.updatedAt = DateUtil.getCurrentUtcTime()
-        dao.updateProduct(product)
+        dao.updateProductFields(
+            product.id,
+            product.name,
+            product.categoryId,
+            product.quantity,
+            product.unitPrice,
+            product.subtotalPrice,
+            product.discount,
+            product.finalPrice,
+            product.raw,
+            product.ptuType,
+            product.validPrice,
+            product.updatedAt
+        )
         return product
     }
 
     suspend fun updateStore(store: Store): Store {
         Log.i("Database", "Update store '${store.name}' with id '${store.id}'")
         store.updatedAt = DateUtil.getCurrentUtcTime()
-        dao.updateStore(store)
+        dao.updateStoreFields(
+            store.id,
+            store.name,
+            store.nip,
+            store.defaultCategoryId,
+            store.updatedAt
+        )
         return store
     }
 
@@ -235,7 +276,15 @@ class RoomDatabaseHelper(
             "Update receipt from ${receipt.date} payed ${receipt.pln} with id '${receipt.id}'"
         )
         receipt.updatedAt = DateUtil.getCurrentUtcTime()
-        dao.updateReceipt(receipt)
+        dao.updateReceiptFields(
+            receipt.id,
+            receipt.date,
+            receipt.time,
+            receipt.pln,
+            receipt.ptu,
+            receipt.storeId,
+            receipt.updatedAt
+        )
         return receipt
     }
 

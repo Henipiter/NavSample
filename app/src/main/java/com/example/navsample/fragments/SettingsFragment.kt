@@ -83,7 +83,7 @@ class SettingsFragment : Fragment() {
             addCategoryDataViewModel.insertCategory(category, false)
         }
         InitDatabaseHelper.getReceipts().forEach { receipt ->
-            initDatabaseViewModel.insertReceipt(receipt)
+            initDatabaseViewModel.insertReceipt(receipt, false)
         }
 //        InitDatabaseHelper.getProducts().forEach { product ->
 //            initDatabaseViewModel.insertProducts(product)

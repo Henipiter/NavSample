@@ -54,7 +54,9 @@ class AddReceiptDataViewModel : ViewModel() {
         viewModelScope.launch {
             val updatedReceipt = roomDatabaseHelper.updateReceipt(newReceipt)
             savedReceipt.postValue(updatedReceipt)
-            firebaseHelper.updateFirestore(updatedReceipt)
+            if (newReceipt.firestoreId.isNotEmpty()) {
+                firebaseHelper.updateFirestore(updatedReceipt)
+            }
         }
     }
 

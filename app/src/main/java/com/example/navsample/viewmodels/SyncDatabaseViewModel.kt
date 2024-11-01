@@ -39,7 +39,7 @@ class SyncDatabaseViewModel : ViewModel() {
 
     fun loadStores() {
         viewModelScope.launch {
-            storeList.postValue(roomDatabaseHelper.getStoreForFirestore())
+            storeList.postValue(roomDatabaseHelper.getAllNotSyncedStores())
         }
     }
 
@@ -51,31 +51,49 @@ class SyncDatabaseViewModel : ViewModel() {
 
     fun loadReceipts() {
         viewModelScope.launch {
-            receiptList.postValue(roomDatabaseHelper.getReceiptForFirestore())
+            receiptList.postValue(roomDatabaseHelper.getAllNotSyncedReceipts())
         }
     }
 
     fun loadProducts() {
         viewModelScope.launch {
-            productList.postValue(roomDatabaseHelper.getProductForFirestore())
+            productList.postValue(roomDatabaseHelper.getAllNotSyncedProducts())
         }
     }
 
-    fun syncCategory(category: Category) {
-        if (category.id == category.firestoreId) {
-            val updatedAt = DateUtil.getCurrentUtcTime()
-            viewModelScope.launch {
-                roomDatabaseHelper.syncCategory(category.id, updatedAt)
-            }
+    fun categoryOperation(category: Category): Boolean {
+        if (category.firestoreId != "" && category.firestoreId != category.id) {
+            updateCategoryFirebaseIdWithDependentStores(category.id)
+        } else if (category.id == category.firestoreId) {
+            syncCategory(category)
+            //TODO UPDATE FIRESTORE
+            return true
+        }
+        return false
+    }
+
+    fun storeOperation(store: StoreFirebase): Boolean {
+        if (store.firestoreId != "" && store.firestoreId != store.id) {
+            updateStoreFirebaseIdWithDependentReceipts(store.id)
+        } else if (store.id == store.firestoreId && store.isCategorySync) {
+            syncStore(store)
+            //TODO UPDATE FIRESTORE
+            return true
+        }
+        return false
+    }
+
+    private fun syncCategory(category: Category) {
+        val updatedAt = DateUtil.getCurrentUtcTime()
+        viewModelScope.launch {
+            roomDatabaseHelper.syncCategory(category.id, updatedAt)
         }
     }
 
     fun syncStore(store: StoreFirebase) {
-        if (store.id == store.firestoreId && store.isCategorySync) {
-            val updatedAt = DateUtil.getCurrentUtcTime()
-            viewModelScope.launch {
-                roomDatabaseHelper.syncStore(store.id, updatedAt)
-            }
+        val updatedAt = DateUtil.getCurrentUtcTime()
+        viewModelScope.launch {
+            roomDatabaseHelper.syncStore(store.id, updatedAt)
         }
     }
 
@@ -97,13 +115,18 @@ class SyncDatabaseViewModel : ViewModel() {
         }
     }
 
-
-    fun updateCategoryFirebaseIdWithDependentStores(oldId: String, newCategory: Category) {
-
+    private fun updateCategoryFirebaseIdWithDependentStores(oldId: String) {
         viewModelScope.launch {
             withContext(Dispatchers.IO) {
-                roomDatabaseHelper.replaceCategoryWithDependencies(oldId, newCategory)
-                loadStores()
+                roomDatabaseHelper.replaceCategoryWithDependencies(oldId)
+            }
+        }
+    }
+
+    private fun updateStoreFirebaseIdWithDependentReceipts(oldId: String) {
+        viewModelScope.launch {
+            withContext(Dispatchers.IO) {
+                roomDatabaseHelper.replaceStoreWithDependencies(oldId)
             }
         }
     }

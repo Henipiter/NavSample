@@ -42,11 +42,11 @@ class InitDatabaseViewModel : ViewModel() {
         roomDatabaseHelper = RoomDatabaseHelper(dao!!)
     }
 
-    fun insertProducts(products: List<Product>) {
+    fun insertProducts(products: List<Product>, generateId: Boolean) {
         Log.i("Database", "insert products. Size: ${products.size}")
         viewModelScope.launch {
             products.forEach { product ->
-                val insertedProduct = roomDatabaseHelper.insertProduct(product)
+                val insertedProduct = roomDatabaseHelper.insertProduct(product, generateId)
                 firebaseHelper.addFirestore(product) {
                     viewModelScope.launch {
                         insertedProduct.firestoreId = it
@@ -58,9 +58,9 @@ class InitDatabaseViewModel : ViewModel() {
         }
     }
 
-    fun insertReceipt(newReceipt: Receipt) {
+    fun insertReceipt(newReceipt: Receipt, generateId: Boolean = true) {
         viewModelScope.launch {
-            val insertedReceipt = roomDatabaseHelper.insertReceipt(newReceipt, false)
+            val insertedReceipt = roomDatabaseHelper.insertReceipt(newReceipt, generateId)
             firebaseHelper.addFirestore(newReceipt) {
                 viewModelScope.launch {
                     insertedReceipt.firestoreId = it
@@ -77,8 +77,8 @@ class InitDatabaseViewModel : ViewModel() {
             firebaseHelper.addFirestore(category) {
                 viewModelScope.launch {
                     insertedCategory.firestoreId = it
-                    val updatedCategory = roomDatabaseHelper.updateCategory(insertedCategory)
-                    firebaseHelper.updateFirestore(updatedCategory)
+                    roomDatabaseHelper.updateCategoryFirestoreId(insertedCategory.id, it)
+
                 }
             }
         }
@@ -90,8 +90,7 @@ class InitDatabaseViewModel : ViewModel() {
             firebaseHelper.addFirestore(newStore) {
                 viewModelScope.launch {
                     insertedStore.firestoreId = it
-                    val updatedStore = roomDatabaseHelper.updateStore(insertedStore)
-                    firebaseHelper.updateFirestore(updatedStore)
+                    roomDatabaseHelper.updateStore(insertedStore)
                 }
             }
 

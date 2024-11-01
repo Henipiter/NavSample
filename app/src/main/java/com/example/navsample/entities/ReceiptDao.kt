@@ -1,5 +1,6 @@
 package com.example.navsample.entities
 
+import android.util.Log
 import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
@@ -8,6 +9,7 @@ import androidx.room.RawQuery
 import androidx.room.Transaction
 import androidx.room.Update
 import androidx.sqlite.db.SupportSQLiteQuery
+import com.example.navsample.dto.DateUtil
 import com.example.navsample.entities.dto.ProductFirebase
 import com.example.navsample.entities.dto.ReceiptFirebase
 import com.example.navsample.entities.dto.StoreFirebase
@@ -23,11 +25,17 @@ interface ReceiptDao {
     @Insert(onConflict = OnConflictStrategy.IGNORE)
     suspend fun insertUser(user: User): Long
 
-    @Insert(onConflict = OnConflictStrategy.IGNORE)
-    suspend fun insertProduct(product: Product): Long
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertCategory(category: Category)
 
-    @Insert(onConflict = OnConflictStrategy.IGNORE)
-    suspend fun insertReceipt(receipt: Receipt): Long
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertStore(store: Store)
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertProduct(product: Product)
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertReceipt(receipt: Receipt)
 
     @Update
     suspend fun updateReceipt(receipt: Receipt)
@@ -37,6 +45,94 @@ interface ReceiptDao {
 
     @Update
     suspend fun updateCategory(category: Category)
+
+
+    @Query(
+        "UPDATE category " +
+                "SET color = :color, " +
+                "name = :name, " +
+                "updatedAt = :updatedAt " +
+                "WHERE id = :id"
+    )
+    suspend fun updateCategoryFields(id: String, name: String, color: String, updatedAt: String)
+
+    @Query(
+        "UPDATE store " +
+                "SET nip = :nip, " +
+                "name = :name, " +
+                "defaultCategoryId= :defaultCategoryId, " +
+                "updatedAt = :updatedAt " +
+                "WHERE id = :id"
+    )
+    suspend fun updateStoreFields(
+        id: String,
+        name: String,
+        nip: String,
+        defaultCategoryId: String,
+        updatedAt: String
+    )
+
+    @Query(
+        "UPDATE receipt " +
+                "SET date = :date, " +
+                "time = :time, " +
+                "pln = :pln, " +
+                "ptu = :ptu, " +
+                "storeId = :storeId, " +
+                "updatedAt = :updatedAt " +
+                "WHERE id = :id"
+    )
+    suspend fun updateReceiptFields(
+        id: String,
+        date: String,
+        time: String,
+        pln: Int,
+        ptu: Int,
+        storeId: String,
+        updatedAt: String
+    )
+
+    @Query(
+        "UPDATE product " +
+                "SET name = :name, " +
+                "categoryId = :categoryId, " +
+                "quantity = :quantity, " +
+                "unitPrice = :unitPrice, " +
+                "subtotalPrice = :subtotalPrice, " +
+                "discount = :discount, " +
+                "finalPrice = :finalPrice, " +
+                "raw = :raw, " +
+                "ptuType = :ptuType, " +
+                "validPrice = :validPrice, " +
+                "updatedAt = :updatedAt " +
+                "WHERE id = :id"
+    )
+    suspend fun updateProductFields(
+        id: String,
+        name: String,
+        categoryId: String,
+        quantity: Int,
+        unitPrice: Int,
+        subtotalPrice: Int,
+        discount: Int,
+        finalPrice: Int,
+        raw: String,
+        ptuType: String,
+        validPrice: Boolean,
+        updatedAt: String
+    )
+
+    @Query("UPDATE category SET firestoreId = :firestoreId WHERE id = :id")
+    suspend fun updateCategoryFirestoreId(id: String, firestoreId: String)
+
+    @Query("UPDATE store SET firestoreId = :firestoreId WHERE id = :id")
+    suspend fun updateStoreFirestoreId(id: String, firestoreId: String)
+
+    @Query("UPDATE receipt SET firestoreId = :firestoreId WHERE id = :id")
+    suspend fun updateReceiptFirestoreId(id: String, firestoreId: String)
+
+    @Query("UPDATE product SET firestoreId = :firestoreId WHERE id = :id")
+    suspend fun updateProductFirestoreId(id: String, firestoreId: String)
 
     @Transaction
     @Query("UPDATE category SET deletedAt = :deletedAt WHERE id = :id")
@@ -162,8 +258,6 @@ interface ReceiptDao {
         return selectProductsOfStore(id, deletedAt)
     }
 
-    @Insert(onConflict = OnConflictStrategy.ABORT)
-    suspend fun insertStore(store: Store): Long
 
     @Update
     suspend fun updateStore(store: Store)
@@ -174,7 +268,7 @@ interface ReceiptDao {
 
     @Transaction
     @Query("SELECT * FROM category WHERE id = :id AND deletedAt == ''")
-    suspend fun getCategoryById(id: String): Category
+    suspend fun getCategoryById(id: String): Category?
 
     @Transaction
     @Query("SELECT uuid FROM user WHERE id = 0")
@@ -186,15 +280,15 @@ interface ReceiptDao {
 
     @Transaction
     @Query("SELECT * FROM store WHERE id = :id AND deletedAt == ''")
-    suspend fun getStoreById(id: String): Store
+    suspend fun getStoreById(id: String): Store?
 
     @Transaction
     @Query("SELECT * FROM product WHERE id = :id AND deletedAt == ''")
-    suspend fun getProductById(id: String): Product
+    suspend fun getProductById(id: String): Product?
 
     @Transaction
     @Query("SELECT * FROM receipt WHERE id = :id AND deletedAt == ''")
-    suspend fun getReceiptById(id: String): Receipt
+    suspend fun getReceiptById(id: String): Receipt?
 
     @Transaction
     @Query("SELECT * FROM store WHERE deletedAt == '' ORDER BY name")
@@ -237,16 +331,28 @@ interface ReceiptDao {
     suspend fun syncProduct(id: String, updatedAt: String)
 
     @Transaction
-    @Query("SELECT  s.id,s.firestoreId,s.isSync,  c.isSync as isCategorySync FROM store s INNER JOIN category c ON s.defaultCategoryId = c.id ")
-    suspend fun getStoreForFirestore(): List<StoreFirebase>
+    @Query(
+        "SELECT  s.id,s.firestoreId,s.isSync,  c.isSync as isCategorySync " +
+                "FROM store s INNER JOIN category c ON s.defaultCategoryId = c.id " +
+                "WHERE s.isSync = 0"
+    )
+    suspend fun getNotSyncedStoreForFirestore(): List<StoreFirebase>
 
     @Transaction
-    @Query("SELECT  r.id,r.firestoreId,r.isSync,  s.isSync as isStoreSync FROM receipt r INNER JOIN store s ON r.storeId = s.id ")
-    suspend fun getReceiptForFirestore(): List<ReceiptFirebase>
+    @Query(
+        "SELECT  r.id,r.firestoreId,r.isSync,  s.isSync as isStoreSync " +
+                "FROM receipt r INNER JOIN store s ON r.storeId = s.id " +
+                "WHERE r.isSync = 0"
+    )
+    suspend fun getNotSyncedReceiptForFirestore(): List<ReceiptFirebase>
 
     @Transaction
-    @Query("SELECT  p.id,p.firestoreId,p.isSync,  r.isSync as isReceiptSync FROM product p INNER JOIN receipt r ON p.receiptId = r.id ")
-    suspend fun getProductForFirestore(): List<ProductFirebase>
+    @Query(
+        "SELECT  p.id,p.firestoreId,p.isSync,  r.isSync as isReceiptSync " +
+                "FROM product p INNER JOIN receipt r ON p.receiptId = r.id " +
+                "WHERE p.isSync = 0"
+    )
+    suspend fun getNotSyncedProductForFirestore(): List<ProductFirebase>
 
 
     @Transaction
@@ -332,14 +438,38 @@ interface ReceiptDao {
 
 
     @Transaction
-    suspend fun replaceCategoryWithDependencies(oldId: String, newCategory: Category) {
-        deleteCategoryById(oldId)
-        updateDependentStoreByCategoryId(oldId, newCategory.id, newCategory.updatedAt)
-        insertCategory(newCategory)
+    suspend fun replaceCategoryWithDependencies(oldId: String) {
+        Log.d("Firestore", "Current category id: $oldId")
+        val category = getCategoryById(oldId)
+        Log.d("Firestore", "Current category: $category")
+        if (category != null) {
+            deleteCategoryById(oldId)
+            category.id = category.firestoreId
+            category.updatedAt = DateUtil.getCurrentUtcTime()
+            insertCategory(category)
+            updateDependentStoreByCategoryId(oldId, category.id, category.updatedAt)
+        } else {
+            Log.d("Firestore", "Current category id not found: $oldId")
+        }
+    }
+
+    @Transaction
+    suspend fun replaceStoreWithDependencies(oldId: String) {
+        val store = getStoreById(oldId)
+        if (store != null) {
+            deleteStoreById(oldId)
+            store.id = store.firestoreId
+            store.updatedAt = DateUtil.getCurrentUtcTime()
+            insertStore(store)
+            updateDependentReceiptByStoreId(oldId, store.id, store.updatedAt)
+        }
     }
 
     @Query("DELETE FROM Category WHERE id = :id")
     suspend fun deleteCategoryById(id: String)
+
+    @Query("DELETE FROM Store WHERE id = :id")
+    suspend fun deleteStoreById(id: String)
 
     @Query("UPDATE store SET defaultCategoryId = :newCategoryId, updatedAt = :timestamp WHERE defaultCategoryId = :oldCategoryId")
     suspend fun updateDependentStoreByCategoryId(
@@ -348,6 +478,11 @@ interface ReceiptDao {
         timestamp: String
     )
 
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insertCategory(category: Category)
+    @Query("UPDATE receipt SET storeId = :newStoreId, updatedAt = :timestamp WHERE storeId = :oldStoreId")
+    suspend fun updateDependentReceiptByStoreId(
+        oldStoreId: String,
+        newStoreId: String,
+        timestamp: String
+    )
+
 }

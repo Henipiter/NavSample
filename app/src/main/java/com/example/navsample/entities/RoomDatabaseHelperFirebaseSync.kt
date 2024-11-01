@@ -18,19 +18,19 @@ class RoomDatabaseHelperFirebaseSync(
         return dao.getAllNotSyncedCategories()
     }
 
-    suspend fun getAllNotSyncedStores(): List<Store> {
+    suspend fun getAllNotSyncedStores(): List<StoreFirebase> {
         Log.i("Database", "Refresh store list")
-        return dao.getAllNotSyncedStores()
+        return dao.getNotSyncedStoreForFirestore()
     }
 
-    suspend fun getAllNotSyncedProducts(): List<Product> {
+    suspend fun getAllNotSyncedProducts(): List<ProductFirebase> {
         Log.i("Database", "Refresh store list")
-        return dao.getAllNotSyncedProducts()
+        return dao.getNotSyncedProductForFirestore()
     }
 
-    suspend fun getAllNotSyncedReceipts(): List<Receipt> {
+    suspend fun getAllNotSyncedReceipts(): List<ReceiptFirebase> {
         Log.i("Database", "Refresh store list")
-        return dao.getAllNotSyncedReceipts()
+        return dao.getNotSyncedReceiptForFirestore()
     }
 
     suspend fun syncCategory(id: String, updatedAt: String) {
@@ -53,47 +53,20 @@ class RoomDatabaseHelperFirebaseSync(
         dao.syncProduct(id, updatedAt)
     }
 
-    suspend fun getStoreForFirestore(): List<StoreFirebase> {
-        return dao.getStoreForFirestore()
+    suspend fun replaceCategoryWithDependencies(oldId: String) {
+        return dao.replaceCategoryWithDependencies(oldId)
     }
 
-    suspend fun getReceiptForFirestore(): List<ReceiptFirebase> {
-        return dao.getReceiptForFirestore()
+    suspend fun replaceStoreWithDependencies(oldId: String) {
+        return dao.replaceStoreWithDependencies(oldId)
     }
+//    suspend fun replaceReceiptWithDependencies(oldId: String) {
+//        return dao.replaceReceiptWithDependencies(oldId)
+//    }
+//    suspend fun replaceProductWithDependencies(oldId: String) {
+//        return dao.replaceProductWithDependencies(oldId)
+//    }
 
-    suspend fun getProductForFirestore(): List<ProductFirebase> {
-        return dao.getProductForFirestore()
-    }
-
-    suspend fun replaceCategoryWithDependencies(oldId: String, newCategory: Category) {
-        return dao.replaceCategoryWithDependencies(oldId, newCategory)
-    }
-
-    suspend fun getAllStoresWithCategory(categoryId: String): List<Store> {
-        return dao.getAllStoresWithCategory(categoryId)
-    }
-
-
-    // GET BY ID
-    suspend fun getCategoryById(id: String): Category {
-        Log.i("Database", "Get category by id '$id'")
-        return dao.getCategoryById(id)
-    }
-
-    suspend fun getReceiptById(id: String): Receipt {
-        Log.i("Database", "Get receipt by id '$id'")
-        return dao.getReceiptById(id)
-    }
-
-    suspend fun getStoreById(id: String): Store {
-        Log.i("Database", "Get store by id '$id'")
-        return dao.getStoreById(id)
-    }
-
-    suspend fun getProductById(id: String): Product {
-        Log.i("Database", "Get product by id '$id'")
-        return dao.getProductById(id)
-    }
 
     suspend fun getProductsByReceiptId(receiptId: String): List<Product> {
         Log.i("Database", "Get products by receipt id '$receiptId'")

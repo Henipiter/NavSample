@@ -61,16 +61,33 @@ class ListingFragment : Fragment() {
 
     private fun initObserver() {
         syncDatabaseViewModel.categoryList.observe(viewLifecycleOwner) {
-            it?.forEach { category -> syncDatabaseViewModel.syncCategory(category) }
+            var operationPerformed = true
+            it?.forEach { category ->
+                if (!syncDatabaseViewModel.categoryOperation(category)) {
+                    operationPerformed = false
+                }
+            }
+            if (!operationPerformed) {
+                syncDatabaseViewModel.loadCategories()
+            }
         }
         syncDatabaseViewModel.storeList.observe(viewLifecycleOwner) {
-            it?.forEach { store -> syncDatabaseViewModel.syncStore(store) }
+            var operationPerformed = true
+            it?.forEach { store ->
+                if (!syncDatabaseViewModel.storeOperation(store)) {
+                    operationPerformed = false
+
+                }
+            }
+            if (!operationPerformed) {
+                syncDatabaseViewModel.loadStores()
+            }
         }
-        syncDatabaseViewModel.receiptList.observe(viewLifecycleOwner) {
-            it?.forEach { receipt -> syncDatabaseViewModel.syncReceipt(receipt) }
-        }
-        syncDatabaseViewModel.productList.observe(viewLifecycleOwner) {
-            it?.forEach { product -> syncDatabaseViewModel.syncProduct(product) }
-        }
+//        syncDatabaseViewModel.receiptList.observe(viewLifecycleOwner) {
+//            it?.forEach { receipt -> syncDatabaseViewModel.syncReceipt(receipt) }
+//        }
+//        syncDatabaseViewModel.productList.observe(viewLifecycleOwner) {
+//            it?.forEach { product -> syncDatabaseViewModel.syncProduct(product) }
+//        }
     }
 }
