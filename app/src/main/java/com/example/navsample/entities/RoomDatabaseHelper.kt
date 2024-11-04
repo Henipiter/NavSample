@@ -211,28 +211,29 @@ class RoomDatabaseHelper(
 
     suspend fun updateCategoryFirestoreId(categoryId: String, firestoreId: String) {
         Log.i("Database", "Update category '${categoryId}' with firestore id '${firestoreId}'")
-        dao.updateCategoryFirestoreId(categoryId, firestoreId);
+        dao.updateCategoryFirestoreId(categoryId, firestoreId)
     }
 
     suspend fun updateStoreFirestoreId(storeId: String, firestoreId: String) {
         Log.i("Database", "Update store '${storeId}' with firestore id '${firestoreId}'")
-        dao.updateStoreFirestoreId(storeId, firestoreId);
+        dao.updateStoreFirestoreId(storeId, firestoreId)
     }
 
     suspend fun updateReceiptFirestoreId(receiptId: String, firestoreId: String) {
         Log.i("Database", "Update receipt '${receiptId}' with firestore id '${firestoreId}'")
-        dao.updateReceiptFirestoreId(receiptId, firestoreId);
+        dao.updateReceiptFirestoreId(receiptId, firestoreId)
     }
 
     suspend fun updateProductFirestoreId(productId: String, firestoreId: String) {
         Log.i("Database", "Update product '${productId}' with firestore id '${firestoreId}'")
-        dao.updateProductFirestoreId(productId, firestoreId);
+        dao.updateProductFirestoreId(productId, firestoreId)
     }
 
 
     suspend fun updateCategory(category: Category): Category {
         Log.i("Database", "Update category '${category.name}' with id '${category.id}'")
         category.updatedAt = DateUtil.getCurrentUtcTime()
+        category.upToDate = false
         dao.updateCategoryFields(category.id, category.name, category.color, category.updatedAt)
         return category
     }
@@ -240,6 +241,7 @@ class RoomDatabaseHelper(
     suspend fun updateProduct(product: Product): Product {
         Log.i("Database", "Update product '${product.name}' with id '${product.id}'")
         product.updatedAt = DateUtil.getCurrentUtcTime()
+        product.upToDate = false
         dao.updateProductFields(
             product.id,
             product.name,
@@ -260,6 +262,7 @@ class RoomDatabaseHelper(
     suspend fun updateStore(store: Store): Store {
         Log.i("Database", "Update store '${store.name}' with id '${store.id}'")
         store.updatedAt = DateUtil.getCurrentUtcTime()
+        store.upToDate = false
         dao.updateStoreFields(
             store.id,
             store.name,
@@ -276,6 +279,7 @@ class RoomDatabaseHelper(
             "Update receipt from ${receipt.date} payed ${receipt.pln} with id '${receipt.id}'"
         )
         receipt.updatedAt = DateUtil.getCurrentUtcTime()
+        receipt.upToDate = false
         dao.updateReceiptFields(
             receipt.id,
             receipt.date,
@@ -330,7 +334,6 @@ class RoomDatabaseHelper(
         val deletedAt = DateUtil.getCurrentUtcTime()
         return dao.deleteAndSelectProductById(productId, deletedAt)
     }
-
 
     private fun convertDateFormat(date: String): String {
         val newDate = date.replace(".", "-")

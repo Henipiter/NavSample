@@ -1,11 +1,13 @@
 package com.example.navsample.viewmodels
 
+import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.navsample.ApplicationContext
 import com.example.navsample.dto.DateUtil
 import com.example.navsample.entities.Category
+import com.example.navsample.entities.FirebaseHelper
 import com.example.navsample.entities.ReceiptDatabase
 import com.example.navsample.entities.RoomDatabaseHelperFirebaseSync
 import com.example.navsample.entities.dto.ProductFirebase
@@ -16,8 +18,8 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 class SyncDatabaseViewModel : ViewModel() {
-    private val dao = ApplicationContext.context?.let { ReceiptDatabase.getInstance(it).receiptDao }
-    private var roomDatabaseHelper = RoomDatabaseHelperFirebaseSync(dao!!)
+    private var roomDatabaseHelper: RoomDatabaseHelperFirebaseSync
+    private var firebaseHelper: FirebaseHelper
 
 
     var productList = MutableLiveData<List<ProductFirebase>>()
@@ -26,6 +28,16 @@ class SyncDatabaseViewModel : ViewModel() {
     var storeList = MutableLiveData<List<StoreFirebase>>()
 
     init {
+        val myPref = ApplicationContext.context?.getSharedPreferences(
+            "preferences", AppCompatActivity.MODE_PRIVATE
+        )
+        val userUuid = myPref?.getString("userId", null) ?: throw Exception("NOT SET userId")
+        firebaseHelper = FirebaseHelper(userUuid)
+
+        val dao = ApplicationContext.context?.let { ReceiptDatabase.getInstance(it).receiptDao }
+            ?: throw Exception("NOT SET DATABASE")
+        roomDatabaseHelper = RoomDatabaseHelperFirebaseSync(dao)
+
         loadAllList()
     }
 
@@ -34,7 +46,6 @@ class SyncDatabaseViewModel : ViewModel() {
         loadReceipts()
         loadProducts()
         loadCategories()
-
     }
 
     fun loadStores() {
@@ -62,22 +73,54 @@ class SyncDatabaseViewModel : ViewModel() {
     }
 
     fun categoryOperation(category: Category): Boolean {
+//        if(category.isSync && !category.upToDate){
+//            //TODO UPDATE
+//        }
         if (category.firestoreId != "" && category.firestoreId != category.id) {
             updateCategoryFirebaseIdWithDependentStores(category.id)
         } else if (category.id == category.firestoreId) {
             syncCategory(category)
-            //TODO UPDATE FIRESTORE
+            firebaseHelper.synchronize(category)
             return true
         }
         return false
     }
 
     fun storeOperation(store: StoreFirebase): Boolean {
+//        if(store.isSync && !store.upToDate){
+//            //TODO UPDATE
+//        }
         if (store.firestoreId != "" && store.firestoreId != store.id) {
             updateStoreFirebaseIdWithDependentReceipts(store.id)
         } else if (store.id == store.firestoreId && store.isCategorySync) {
             syncStore(store)
-            //TODO UPDATE FIRESTORE
+            firebaseHelper.synchronize(store)
+            return true
+        }
+        return false
+    }
+
+    fun receiptOperation(receipt: ReceiptFirebase): Boolean {
+//        if(receipt.isSync && !receipt.upToDate){
+//            //TODO UPDATE
+//        }
+        if (receipt.firestoreId != "" && receipt.firestoreId != receipt.id) {
+            updateReceiptFirebaseIdWithDependentProducts(receipt.id)
+        } else if (receipt.id == receipt.firestoreId && receipt.isStoreSync) {
+            syncReceipt(receipt)
+            firebaseHelper.synchronize(receipt)
+            return true
+        }
+        return false
+    }
+
+    fun productOperation(product: ProductFirebase): Boolean {
+//        if(product.isSync && !product.upToDate){
+//            //TODO UPDATE
+//        }
+        if (product.id == product.firestoreId && product.isReceiptSync) {
+            syncProduct(product)
+            firebaseHelper.synchronize(product)
             return true
         }
         return false
@@ -90,28 +133,24 @@ class SyncDatabaseViewModel : ViewModel() {
         }
     }
 
-    fun syncStore(store: StoreFirebase) {
+    private fun syncStore(store: StoreFirebase) {
         val updatedAt = DateUtil.getCurrentUtcTime()
         viewModelScope.launch {
             roomDatabaseHelper.syncStore(store.id, updatedAt)
         }
     }
 
-    fun syncReceipt(receipt: ReceiptFirebase) {
-        if (receipt.id == receipt.firestoreId && receipt.isStoreSync) {
-            val updatedAt = DateUtil.getCurrentUtcTime()
-            viewModelScope.launch {
-                roomDatabaseHelper.syncReceipt(receipt.id, updatedAt)
-            }
+    private fun syncReceipt(receipt: ReceiptFirebase) {
+        val updatedAt = DateUtil.getCurrentUtcTime()
+        viewModelScope.launch {
+            roomDatabaseHelper.syncReceipt(receipt.id, updatedAt)
         }
     }
 
-    fun syncProduct(product: ProductFirebase) {
-        if (product.id == product.firestoreId && product.isReceiptSync) {
-            val updatedAt = DateUtil.getCurrentUtcTime()
-            viewModelScope.launch {
-                roomDatabaseHelper.syncProduct(product.id, updatedAt)
-            }
+    private fun syncProduct(product: ProductFirebase) {
+        val updatedAt = DateUtil.getCurrentUtcTime()
+        viewModelScope.launch {
+            roomDatabaseHelper.syncProduct(product.id, updatedAt)
         }
     }
 
@@ -127,6 +166,14 @@ class SyncDatabaseViewModel : ViewModel() {
         viewModelScope.launch {
             withContext(Dispatchers.IO) {
                 roomDatabaseHelper.replaceStoreWithDependencies(oldId)
+            }
+        }
+    }
+
+    private fun updateReceiptFirebaseIdWithDependentProducts(oldId: String) {
+        viewModelScope.launch {
+            withContext(Dispatchers.IO) {
+                roomDatabaseHelper.replaceReceiptWithDependencies(oldId)
             }
         }
     }

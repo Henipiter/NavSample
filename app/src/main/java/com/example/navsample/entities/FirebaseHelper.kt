@@ -1,6 +1,10 @@
 package com.example.navsample.entities
 
 import android.util.Log
+import com.example.navsample.entities.dto.ProductFirebase
+import com.example.navsample.entities.dto.ReceiptFirebase
+import com.example.navsample.entities.dto.StoreFirebase
+import com.example.navsample.entities.dto.TranslateFirebaseEntity
 import com.google.firebase.Firebase
 import com.google.firebase.firestore.CollectionReference
 import com.google.firebase.firestore.firestore
@@ -10,12 +14,12 @@ class FirebaseHelper(
     private var userUuid: String
 ) {
 
-    fun <T : TranslateEntity> addFirestore(obj: T, addDocumentFunction: (String) -> Unit) {
-        getFirestoreUserPath(getPath(obj::class)).add(obj)
+    fun <T : TranslateEntity> addFirestore(entity: T, addDocumentFunction: (String) -> Unit) {
+        getFirestoreUserPath(getPath(entity::class)).add(entity.insertData())
             .addOnSuccessListener { documentReference ->
                 Log.i(
                     "Firestore",
-                    "Entity document ${obj::class} with id ${obj.firestoreId} wass added with id: ${documentReference.id}"
+                    "Entity document ${entity::class} with id ${entity.firestoreId} was added with id: ${documentReference.id}"
                 )
                 addDocumentFunction.invoke(documentReference.id)
             }
@@ -24,15 +28,15 @@ class FirebaseHelper(
             }
     }
 
-    fun <T : TranslateEntity> updateFirestore(obj: T) {
-        getFirestoreUserPath(getPath(obj::class))
-            .document(obj.firestoreId)
-            .update(obj.toMap())
+    fun <T : TranslateEntity> updateFirestore(entity: T) {
+        getFirestoreUserPath(getPath(entity::class))
+            .document(entity.firestoreId)
+            .update(entity.updateData())
             .addOnSuccessListener {
-                Log.i("Firebase", "Updating entity ${obj::class} end successfully.")
+                Log.i("Firebase", "Updating entity ${entity::class} end successfully.")
             }
             .addOnFailureListener { e ->
-                Log.e("Firebase", "Error updating entity ${obj::class}: ${e.message}")
+                Log.e("Firebase", "Error updating entity ${entity::class}: ${e.message}")
             }
     }
 
@@ -40,7 +44,34 @@ class FirebaseHelper(
         if (entity.firestoreId != "") {
             getFirestoreUserPath(getPath(entity::class))
                 .document(entity.firestoreId)
-                .update("deletedAt", entity.deletedAt)
+                .update(entity.deleteData())
+                .addOnSuccessListener {
+                    Log.i("Firebase", "Field deletedAt was successfully updated.")
+                }
+                .addOnFailureListener { e ->
+                    Log.e("Firebase", "Updating field deletedAt error: ${e.message}")
+                }
+        }
+    }
+
+    fun <T : TranslateFirebaseEntity> synchronize(entity: T) {
+        synchronize(entity.firestoreId, entity::class, entity.synchronizeEntity())
+
+    }
+
+    fun <T : TranslateEntity> synchronize(entity: T) {
+        synchronize(entity.firestoreId, entity::class, entity.synchronizeEntity())
+    }
+
+    private fun synchronize(
+        firestoreId: String,
+        entity: KClass<out Any>,
+        synchronizeData: HashMap<String, Any?>
+    ) {
+        if (firestoreId != "") {
+            getFirestoreUserPath(getPath(entity))
+                .document(firestoreId)
+                .update(synchronizeData)
                 .addOnSuccessListener {
                     Log.i("Firebase", "Field deletedAt was successfully updated.")
                 }
@@ -62,9 +93,9 @@ class FirebaseHelper(
 
     }
 
-    private fun getPath(type: KClass<out TranslateEntity>): String {
+    private fun getPath(type: KClass<out Any>): String {
         when (type) {
-            Store::class -> {
+            Store::class, StoreFirebase::class -> {
                 return STORE_FIRESTORE_PATH
             }
 
@@ -72,11 +103,11 @@ class FirebaseHelper(
                 return CATEGORY_FIRESTORE_PATH
             }
 
-            Receipt::class -> {
+            Receipt::class, ReceiptFirebase::class -> {
                 return RECEIPT_FIRESTORE_PATH
             }
 
-            Product::class -> {
+            Product::class, ProductFirebase::class -> {
                 return PRODUCT_FIRESTORE_PATH
             }
         }

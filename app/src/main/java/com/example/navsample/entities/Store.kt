@@ -13,14 +13,15 @@ data class Store(
     override var updatedAt: String = "",
     override var deletedAt: String = "",
     override var firestoreId: String = "",
-    override var isSync: Boolean = false
+    override var isSync: Boolean = false,
+    override var upToDate: Boolean = false
 ) : TranslateEntity {
     @PrimaryKey
     var id: String = ""
 
     constructor() : this("", "", "")
 
-    override fun toMap(): HashMap<String, Any?> {
+    override fun insertData(): HashMap<String, Any?> {
         return hashMapOf(
             "id" to this.id,
             "nip" to this.nip,
@@ -31,6 +32,17 @@ data class Store(
             "deletedAt" to this.deletedAt,
             "firestoreId" to this.firestoreId,
             "isSync" to this.isSync
+        )
+    }
+
+    override fun updateData(): HashMap<String, Any?> {
+        return hashMapOf(
+            "id" to this.id,
+            "nip" to this.nip,
+            "name" to this.name,
+            "defaultCategoryId" to this.defaultCategoryId,
+            "createdAt" to this.createdAt,
+            "updatedAt" to this.updatedAt
         )
     }
 }

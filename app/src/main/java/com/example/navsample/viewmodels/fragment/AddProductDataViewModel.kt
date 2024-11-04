@@ -95,24 +95,15 @@ class AddProductDataViewModel : ViewModel() {
     fun insertProducts(products: List<Product>) {
         products.forEach { product ->
             if (product.id.isEmpty()) {
-                viewModelScope.launch {
-                    val savedProduct = roomDatabaseHelper.insertProduct(product)
-                    firebaseHelper.addFirestore(savedProduct) {
-                        savedProduct.firestoreId = it
-                        updateSingleProduct(savedProduct)
-                    }
-                }
+                insertSingleProduct(product)
             } else {
-                viewModelScope.launch {
-                    val updatedProduct = roomDatabaseHelper.updateProduct(product)
-                    firebaseHelper.updateFirestore(updatedProduct)
-                }
+                updateSingleProduct(product)
             }
         }
     }
 
     fun updateReceipt(newReceipt: Receipt) {
-        //TODO UPDATE ONLY VALID
+        //TODO UPDATE ONLY 'VALID' FIELD
         viewModelScope.launch {
             val updatedReceipt = roomDatabaseHelper.updateReceipt(newReceipt)
             if (newReceipt.firestoreId.isNotEmpty()) {
@@ -121,5 +112,14 @@ class AddProductDataViewModel : ViewModel() {
         }
     }
 
-
+    private fun insertSingleProduct(product: Product) {
+        viewModelScope.launch {
+            val savedProduct = roomDatabaseHelper.insertProduct(product)
+            firebaseHelper.addFirestore(savedProduct) {
+                viewModelScope.launch {
+                    roomDatabaseHelper.updateProductFirestoreId(savedProduct.id, it)
+                }
+            }
+        }
+    }
 }

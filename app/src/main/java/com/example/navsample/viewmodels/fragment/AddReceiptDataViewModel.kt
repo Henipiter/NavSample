@@ -50,16 +50,6 @@ class AddReceiptDataViewModel : ViewModel() {
         }
     }
 
-    fun updateReceipt(newReceipt: Receipt) {
-        viewModelScope.launch {
-            val updatedReceipt = roomDatabaseHelper.updateReceipt(newReceipt)
-            savedReceipt.postValue(updatedReceipt)
-            if (newReceipt.firestoreId.isNotEmpty()) {
-                firebaseHelper.updateFirestore(updatedReceipt)
-            }
-        }
-    }
-
 
     fun deleteReceipt(receiptId: String) {
         viewModelScope.launch {
@@ -70,13 +60,24 @@ class AddReceiptDataViewModel : ViewModel() {
         }
     }
 
-    fun insertReceipt(newReceipt: Receipt) {
+    fun insertReceipt(newReceipt: Receipt, generateId: Boolean = true) {
         viewModelScope.launch {
-            val insertedReceipt = roomDatabaseHelper.insertReceipt(newReceipt)
+            val insertedReceipt = roomDatabaseHelper.insertReceipt(newReceipt, generateId)
             savedReceipt.postValue(insertedReceipt)
             firebaseHelper.addFirestore(insertedReceipt) {
-                insertedReceipt.firestoreId = it
-                updateReceipt(newReceipt)
+                viewModelScope.launch {
+                    roomDatabaseHelper.updateReceiptFirestoreId(insertedReceipt.id, it)
+                }
+            }
+        }
+    }
+
+    fun updateReceipt(newReceipt: Receipt) {
+        viewModelScope.launch {
+            val updatedReceipt = roomDatabaseHelper.updateReceipt(newReceipt)
+            savedReceipt.postValue(updatedReceipt)
+            if (newReceipt.firestoreId.isNotEmpty()) {
+                firebaseHelper.updateFirestore(updatedReceipt)
             }
         }
     }

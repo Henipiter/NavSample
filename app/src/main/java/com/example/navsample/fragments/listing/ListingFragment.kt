@@ -83,11 +83,29 @@ class ListingFragment : Fragment() {
                 syncDatabaseViewModel.loadStores()
             }
         }
-//        syncDatabaseViewModel.receiptList.observe(viewLifecycleOwner) {
-//            it?.forEach { receipt -> syncDatabaseViewModel.syncReceipt(receipt) }
-//        }
-//        syncDatabaseViewModel.productList.observe(viewLifecycleOwner) {
-//            it?.forEach { product -> syncDatabaseViewModel.syncProduct(product) }
-//        }
+        syncDatabaseViewModel.receiptList.observe(viewLifecycleOwner) {
+            var operationPerformed = true
+            it?.forEach { receipt ->
+                if (syncDatabaseViewModel.receiptOperation(receipt)) {
+                    operationPerformed = false
+
+                }
+            }
+            if (!operationPerformed) {
+                syncDatabaseViewModel.loadReceipts()
+            }
+        }
+        syncDatabaseViewModel.productList.observe(viewLifecycleOwner) {
+            var operationPerformed = true
+            it?.forEach { product ->
+                if (syncDatabaseViewModel.productOperation(product)) {
+                    operationPerformed = false
+
+                }
+            }
+            if (!operationPerformed) {
+                syncDatabaseViewModel.loadProducts()
+            }
+        }
     }
 }

@@ -20,12 +20,13 @@ data class Product(
     override var updatedAt: String = "",
     override var deletedAt: String = "",
     override var firestoreId: String = "",
-    override var isSync: Boolean = false
+    override var isSync: Boolean = false,
+    override var upToDate: Boolean = false
 ) : TranslateEntity {
     @PrimaryKey
     var id: String = ""
 
-    override fun toMap(): HashMap<String, Any?> {
+    override fun insertData(): HashMap<String, Any?> {
         return hashMapOf(
             "receiptId" to this.receiptId,
             "name" to this.name,
@@ -41,8 +42,24 @@ data class Product(
             "createdAt" to this.createdAt,
             "updatedAt" to this.updatedAt,
             "deletedAt" to this.deletedAt,
-            "firestoreId" to this.firestoreId,
+            "firestoreId" to this.firestoreId, //TODO DELETE
             "isSync" to this.isSync
+        )
+    }
+
+    override fun updateData(): HashMap<String, Any?> {
+        return hashMapOf(
+            "receiptId" to this.receiptId,
+            "name" to this.name,
+            "categoryId" to this.categoryId,
+            "quantity" to this.quantity,
+            "unitPrice" to this.unitPrice,
+            "subtotalPrice" to this.subtotalPrice,
+            "discount" to this.discount,
+            "finalPrice" to this.finalPrice,
+            "ptuType" to this.ptuType,
+            "raw" to this.raw,
+            "validPrice" to this.validPrice
         )
     }
 }

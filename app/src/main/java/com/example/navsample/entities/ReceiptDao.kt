@@ -134,11 +134,9 @@ interface ReceiptDao {
     @Query("UPDATE product SET firestoreId = :firestoreId WHERE id = :id")
     suspend fun updateProductFirestoreId(id: String, firestoreId: String)
 
-    @Transaction
     @Query("UPDATE category SET deletedAt = :deletedAt WHERE id = :id")
     suspend fun deleteCategoryById(id: String, deletedAt: String)
 
-    @Transaction
     @Query("SELECT * FROM category WHERE deletedAt = :deletedAt AND id = :id")
     suspend fun selectDeletedCategoryById(id: String, deletedAt: String): Category
 
@@ -148,25 +146,20 @@ interface ReceiptDao {
         return selectDeletedCategoryById(id, deletedAt)
     }
 
-    @Transaction
     @Query("UPDATE store SET deletedAt = :deletedAt WHERE id = :id")
     suspend fun deleteStoreById(id: String, deletedAt: String)
 
-    @Transaction
     @Query("SELECT * FROM store WHERE deletedAt = :deletedAt AND id = :id")
     suspend fun selectDeletedStoreById(id: String, deletedAt: String): Store
 
-    @Transaction
     suspend fun deleteAndSelectStore(id: String, deletedAt: String): Store {
         deleteStoreById(id, deletedAt)
         return selectDeletedStoreById(id, deletedAt)
     }
 
-    @Transaction
     @Query("UPDATE product SET deletedAt = :deletedAt WHERE id = :id")
     suspend fun deleteProductById(id: String, deletedAt: String)
 
-    @Transaction
     @Query("SELECT * FROM product WHERE deletedAt = :deletedAt AND id = :id")
     suspend fun selectDeletedProductById(id: String, deletedAt: String): Product
 
@@ -176,19 +169,18 @@ interface ReceiptDao {
         return selectDeletedProductById(id, deletedAt)
     }
 
-    @Transaction
     @Query("UPDATE receipt SET deletedAt = :deletedAt WHERE id = :id")
     suspend fun deleteReceiptById(id: String, deletedAt: String)
 
-    @Transaction
     @Query("SELECT * FROM receipt WHERE deletedAt = :deletedAt AND id = :id")
     suspend fun selectDeletedReceiptById(id: String, deletedAt: String): Receipt
+
+    @Transaction
     suspend fun deleteAndSelectReceiptById(id: String, deletedAt: String): Receipt {
         deleteReceiptById(id, deletedAt)
         return selectDeletedReceiptById(id, deletedAt)
     }
 
-    @Transaction
     @Query(
         "UPDATE product SET deletedAt = :deletedAt WHERE id IN (" +
                 "SELECT p.id FROM product p, receipt r " +
@@ -196,7 +188,6 @@ interface ReceiptDao {
     )
     suspend fun deleteProductsOfReceipt(id: String, deletedAt: String)
 
-    @Transaction
     @Query(
         "SELECT * FROM product WHERE deletedAt = :deletedAt AND id IN (" +
                 "SELECT p.id FROM product p, receipt r " +
@@ -210,7 +201,6 @@ interface ReceiptDao {
         return selectDeletedProductsOfReceipt(id, deletedAt)
     }
 
-    @Transaction
     @Query(
         "UPDATE receipt SET deletedAt = :deletedAt WHERE id IN (" +
                 "SELECT r.id FROM receipt r, store s " +
@@ -219,7 +209,6 @@ interface ReceiptDao {
     )
     suspend fun deleteReceiptsOfStore(id: String, deletedAt: String)
 
-    @Transaction
     @Query(
         "SELECT * FROM receipt WHERE deletedAt = :deletedAt AND id IN (" +
                 "SELECT r.id FROM receipt r, store s " +
@@ -234,7 +223,6 @@ interface ReceiptDao {
         return selectDeletedReceiptsOfStore(id, deletedAt)
     }
 
-    @Transaction
     @Query(
         "UPDATE product SET deletedAt = :deletedAt WHERE id IN (" +
                 "SELECT p.id FROM product p, receipt r, store s " +
@@ -243,7 +231,6 @@ interface ReceiptDao {
     )
     suspend fun deleteProductsOfStore(id: String, deletedAt: String)
 
-    @Transaction
     @Query(
         "SELECT * FROM product WHERE deletedAt = :deletedAt AND id IN (" +
                 "SELECT p.id FROM product p, receipt r, store s " +
@@ -262,75 +249,58 @@ interface ReceiptDao {
     @Update
     suspend fun updateStore(store: Store)
 
-    @Transaction
     @Query("SELECT * FROM receipt WHERE id = :id AND deletedAt == ''")
     suspend fun getReceipt(id: String): Receipt
 
-    @Transaction
     @Query("SELECT * FROM category WHERE id = :id AND deletedAt == ''")
     suspend fun getCategoryById(id: String): Category?
 
-    @Transaction
     @Query("SELECT uuid FROM user WHERE id = 0")
     suspend fun getUserUuid(): String?
 
-    @Transaction
     @Query("SELECT * FROM store WHERE nip = :nip AND deletedAt == ''")
     suspend fun getStoreByNip(nip: String): Store
 
-    @Transaction
     @Query("SELECT * FROM store WHERE id = :id AND deletedAt == ''")
     suspend fun getStoreById(id: String): Store?
 
-    @Transaction
     @Query("SELECT * FROM product WHERE id = :id AND deletedAt == ''")
     suspend fun getProductById(id: String): Product?
 
-    @Transaction
     @Query("SELECT * FROM receipt WHERE id = :id AND deletedAt == ''")
     suspend fun getReceiptById(id: String): Receipt?
 
-    @Transaction
     @Query("SELECT * FROM store WHERE deletedAt == '' ORDER BY name")
     suspend fun getAllStores(): List<Store>
 
     @Query("SELECT * FROM store WHERE deletedAt == '' AND defaultCategoryId = :categoryId ORDER BY name")
     suspend fun getAllStoresWithCategory(categoryId: String): List<Store>
 
-    @Transaction
     @Query("SELECT * FROM category WHERE isSync == 0")
     suspend fun getAllNotSyncedCategories(): List<Category>
 
-    @Transaction
     @Query("SELECT * FROM store WHERE isSync == 0")
     suspend fun getAllNotSyncedStores(): List<Store>
 
-    @Transaction
     @Query("SELECT * FROM product WHERE isSync == 0")
     suspend fun getAllNotSyncedProducts(): List<Product>
 
-    @Transaction
     @Query("SELECT * FROM receipt WHERE isSync == 0")
     suspend fun getAllNotSyncedReceipts(): List<Receipt>
 
 
-    @Transaction
     @Query("UPDATE category SET isSync = 1, updatedAt = :updatedAt WHERE id = :id")
     suspend fun syncCategory(id: String, updatedAt: String)
 
-    @Transaction
     @Query("UPDATE store SET isSync = 1, updatedAt = :updatedAt WHERE id = :id")
     suspend fun syncStore(id: String, updatedAt: String)
 
-    @Transaction
     @Query("UPDATE receipt SET isSync = 1, updatedAt = :updatedAt WHERE id = :id")
     suspend fun syncReceipt(id: String, updatedAt: String)
 
-    @Transaction
     @Query("UPDATE product SET isSync = 1, updatedAt = :updatedAt WHERE id = :id")
     suspend fun syncProduct(id: String, updatedAt: String)
 
-    @Transaction
     @Query(
         "SELECT  s.id,s.firestoreId,s.isSync,  c.isSync as isCategorySync " +
                 "FROM store s INNER JOIN category c ON s.defaultCategoryId = c.id " +
@@ -338,7 +308,6 @@ interface ReceiptDao {
     )
     suspend fun getNotSyncedStoreForFirestore(): List<StoreFirebase>
 
-    @Transaction
     @Query(
         "SELECT  r.id,r.firestoreId,r.isSync,  s.isSync as isStoreSync " +
                 "FROM receipt r INNER JOIN store s ON r.storeId = s.id " +
@@ -346,7 +315,6 @@ interface ReceiptDao {
     )
     suspend fun getNotSyncedReceiptForFirestore(): List<ReceiptFirebase>
 
-    @Transaction
     @Query(
         "SELECT  p.id,p.firestoreId,p.isSync,  r.isSync as isReceiptSync " +
                 "FROM product p INNER JOIN receipt r ON p.receiptId = r.id " +
@@ -355,31 +323,24 @@ interface ReceiptDao {
     suspend fun getNotSyncedProductForFirestore(): List<ProductFirebase>
 
 
-    @Transaction
     @RawQuery
     suspend fun getAllStoresOrdered(query: SupportSQLiteQuery): List<Store>
 
-    @Transaction
     @RawQuery
     suspend fun getReceiptWithStoreOrdered(query: SupportSQLiteQuery): List<ReceiptWithStore>
 
-    @Transaction
     @Query("SELECT * FROM category WHERE deletedAt == '' ORDER BY name")
     suspend fun getAllCategories(): List<Category>
 
-    @Transaction
     @Query("SELECT * FROM category WHERE name LIKE '%'||:name||'%' AND deletedAt == '' ORDER BY name")
     suspend fun getAllCategories(name: String): List<Category>
 
-    @Transaction
     @Query("SELECT * FROM product WHERE receiptId=:receiptId AND deletedAt == ''")
     suspend fun getAllProducts(receiptId: String): List<Product>
 
-    @Transaction
     @RawQuery
     suspend fun getAllProductsOrderedWithHigherPrice(query: SupportSQLiteQuery): List<ProductRichData>
 
-    @Transaction
     @Query(
         "SELECT 'store' AS 'tableName', count(*) AS 'count' FROM store WHERE deletedAt == '' " +
                 "UNION ALL SELECT 'product' AS 'tableName', count(*)  AS 'count' FROM product WHERE deletedAt == '' " +
@@ -389,7 +350,6 @@ interface ReceiptDao {
     suspend fun getTableCounts(): List<TableCounts>
 
     //charts
-    @Transaction
     @Query(
         "SELECT sum(p.finalPrice) AS price, c.name AS category, substr(r.date,0,8) AS date " +
                 "FROM product p, receipt r, category c " +
@@ -404,7 +364,6 @@ interface ReceiptDao {
         dateTo: String = "9",
     ): List<PriceByCategory>
 
-    @Transaction
     @Query(
         "SELECT sum(p.finalPrice) AS price, c.name AS category, '' AS date " +
                 "FROM product p, receipt r, category c " +
@@ -419,7 +378,6 @@ interface ReceiptDao {
         dateTo: String = "9",
     ): List<PriceByCategory>
 
-    @Transaction
     @Query(
         "SELECT s.name AS storeName, s.nip AS storeNip, s.defaultCategoryId AS storeDefaultCategoryId, " +
                 "r.pln AS receiptPln, r.ptu AS receiptPtu, " +
@@ -465,11 +423,26 @@ interface ReceiptDao {
         }
     }
 
+    @Transaction
+    suspend fun replaceReceiptWithDependencies(oldId: String) {
+        val receipt = getReceiptById(oldId)
+        if (receipt != null) {
+            deleteReceiptById(oldId)
+            receipt.id = receipt.firestoreId
+            receipt.updatedAt = DateUtil.getCurrentUtcTime()
+            insertReceipt(receipt)
+            updateDependentProductByReceiptId(oldId, receipt.id, receipt.updatedAt)
+        }
+    }
+
     @Query("DELETE FROM Category WHERE id = :id")
     suspend fun deleteCategoryById(id: String)
 
     @Query("DELETE FROM Store WHERE id = :id")
     suspend fun deleteStoreById(id: String)
+
+    @Query("DELETE FROM Receipt WHERE id = :id")
+    suspend fun deleteReceiptById(id: String)
 
     @Query("UPDATE store SET defaultCategoryId = :newCategoryId, updatedAt = :timestamp WHERE defaultCategoryId = :oldCategoryId")
     suspend fun updateDependentStoreByCategoryId(
@@ -482,6 +455,13 @@ interface ReceiptDao {
     suspend fun updateDependentReceiptByStoreId(
         oldStoreId: String,
         newStoreId: String,
+        timestamp: String
+    )
+
+    @Query("UPDATE product SET receiptId = :newReceiptId, updatedAt = :timestamp WHERE receiptId = :oldReceiptId")
+    suspend fun updateDependentProductByReceiptId(
+        oldReceiptId: String,
+        newReceiptId: String,
         timestamp: String
     )
 

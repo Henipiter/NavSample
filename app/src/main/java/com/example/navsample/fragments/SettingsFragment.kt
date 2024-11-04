@@ -18,6 +18,8 @@ import com.example.navsample.entities.init.InitDatabaseHelper
 import com.example.navsample.viewmodels.ImageViewModel
 import com.example.navsample.viewmodels.InitDatabaseViewModel
 import com.example.navsample.viewmodels.fragment.AddCategoryDataViewModel
+import com.example.navsample.viewmodels.fragment.AddProductDataViewModel
+import com.example.navsample.viewmodels.fragment.AddReceiptDataViewModel
 import com.example.navsample.viewmodels.fragment.AddStoreDataViewModel
 import java.util.UUID
 
@@ -28,6 +30,8 @@ class SettingsFragment : Fragment() {
     private val initDatabaseViewModel: InitDatabaseViewModel by activityViewModels()
     private val addStoreDataViewModel: AddStoreDataViewModel by activityViewModels()
     private val addCategoryDataViewModel: AddCategoryDataViewModel by activityViewModels()
+    private val addReceiptDataViewModel: AddReceiptDataViewModel by activityViewModels()
+    private val addProductDataViewModel: AddProductDataViewModel by activityViewModels()
     private val imageViewModel: ImageViewModel by activityViewModels()
 
 
@@ -83,10 +87,10 @@ class SettingsFragment : Fragment() {
             addCategoryDataViewModel.insertCategory(category, false)
         }
         InitDatabaseHelper.getReceipts().forEach { receipt ->
-            initDatabaseViewModel.insertReceipt(receipt, false)
+            addReceiptDataViewModel.insertReceipt(receipt, false)
         }
 //        InitDatabaseHelper.getProducts().forEach { product ->
-//            initDatabaseViewModel.insertProducts(product)
+//            addProductDataViewModel.insertProducts(product)
 //        }
     }
 
