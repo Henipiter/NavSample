@@ -61,7 +61,8 @@ interface ReceiptDao {
                 "SET nip = :nip, " +
                 "name = :name, " +
                 "defaultCategoryId= :defaultCategoryId, " +
-                "updatedAt = :updatedAt " +
+                "updatedAt = :updatedAt, " +
+                "toUpdate = 1 " +
                 "WHERE id = :id"
     )
     suspend fun updateStoreFields(
@@ -79,7 +80,8 @@ interface ReceiptDao {
                 "pln = :pln, " +
                 "ptu = :ptu, " +
                 "storeId = :storeId, " +
-                "updatedAt = :updatedAt " +
+                "updatedAt = :updatedAt, " +
+                "toUpdate = 1 " +
                 "WHERE id = :id"
     )
     suspend fun updateReceiptFields(
@@ -104,7 +106,8 @@ interface ReceiptDao {
                 "raw = :raw, " +
                 "ptuType = :ptuType, " +
                 "validPrice = :validPrice, " +
-                "updatedAt = :updatedAt " +
+                "updatedAt = :updatedAt, " +
+                "toUpdate = 1 " +
                 "WHERE id = :id"
     )
     suspend fun updateProductFields(
@@ -134,7 +137,7 @@ interface ReceiptDao {
     @Query("UPDATE product SET firestoreId = :firestoreId WHERE id = :id")
     suspend fun updateProductFirestoreId(id: String, firestoreId: String)
 
-    @Query("UPDATE category SET deletedAt = :deletedAt WHERE id = :id")
+    @Query("UPDATE category SET deletedAt = :deletedAt, toDelete = 1 WHERE id = :id")
     suspend fun deleteCategoryById(id: String, deletedAt: String)
 
     @Query("SELECT * FROM category WHERE deletedAt = :deletedAt AND id = :id")
@@ -146,7 +149,7 @@ interface ReceiptDao {
         return selectDeletedCategoryById(id, deletedAt)
     }
 
-    @Query("UPDATE store SET deletedAt = :deletedAt WHERE id = :id")
+    @Query("UPDATE store SET deletedAt = :deletedAt, toDelete = 1 WHERE id = :id")
     suspend fun deleteStoreById(id: String, deletedAt: String)
 
     @Query("SELECT * FROM store WHERE deletedAt = :deletedAt AND id = :id")
@@ -157,7 +160,7 @@ interface ReceiptDao {
         return selectDeletedStoreById(id, deletedAt)
     }
 
-    @Query("UPDATE product SET deletedAt = :deletedAt WHERE id = :id")
+    @Query("UPDATE product SET deletedAt = :deletedAt, toDelete = 1 WHERE id = :id")
     suspend fun deleteProductById(id: String, deletedAt: String)
 
     @Query("SELECT * FROM product WHERE deletedAt = :deletedAt AND id = :id")
@@ -169,7 +172,7 @@ interface ReceiptDao {
         return selectDeletedProductById(id, deletedAt)
     }
 
-    @Query("UPDATE receipt SET deletedAt = :deletedAt WHERE id = :id")
+    @Query("UPDATE receipt SET deletedAt = :deletedAt, toDelete = 1 WHERE id = :id")
     suspend fun deleteReceiptById(id: String, deletedAt: String)
 
     @Query("SELECT * FROM receipt WHERE deletedAt = :deletedAt AND id = :id")
@@ -182,7 +185,7 @@ interface ReceiptDao {
     }
 
     @Query(
-        "UPDATE product SET deletedAt = :deletedAt WHERE id IN (" +
+        "UPDATE product SET deletedAt = :deletedAt, toDelete = 1 WHERE id IN (" +
                 "SELECT p.id FROM product p, receipt r " +
                 "WHERE p.receiptId = r.id AND r.id = :id)"
     )
@@ -202,7 +205,7 @@ interface ReceiptDao {
     }
 
     @Query(
-        "UPDATE receipt SET deletedAt = :deletedAt WHERE id IN (" +
+        "UPDATE receipt SET deletedAt = :deletedAt, toDelete = 1 WHERE id IN (" +
                 "SELECT r.id FROM receipt r, store s " +
                 "WHERE s.id = r.storeId AND s.id = :id" +
                 ")"
@@ -224,7 +227,7 @@ interface ReceiptDao {
     }
 
     @Query(
-        "UPDATE product SET deletedAt = :deletedAt WHERE id IN (" +
+        "UPDATE product SET deletedAt = :deletedAt, toDelete = 1 WHERE id IN (" +
                 "SELECT p.id FROM product p, receipt r, store s " +
                 "WHERE p.receiptId = r.id AND s.id = r.storeId AND s.id = :id " +
                 ")"

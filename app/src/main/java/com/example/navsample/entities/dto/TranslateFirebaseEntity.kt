@@ -12,6 +12,8 @@ interface TranslateFirebaseEntity {
 
     var firestoreId: String
     var isSync: Boolean
+    var toUpdate: Boolean
+    var toDelete: Boolean
 
 
 }

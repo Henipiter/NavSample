@@ -16,7 +16,8 @@ data class Receipt(
     override var deletedAt: String = "",
     override var firestoreId: String = "",
     override var isSync: Boolean = false,
-    override var upToDate: Boolean = false
+    override var toUpdate: Boolean = false,
+    override var toDelete: Boolean = false
 ) : TranslateEntity {
     @PrimaryKey
     var id: String = ""

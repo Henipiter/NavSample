@@ -25,7 +25,8 @@ interface TranslateEntity {
     var deletedAt: String
     var firestoreId: String
     var isSync: Boolean
-    var upToDate: Boolean
+    var toUpdate: Boolean
+    var toDelete: Boolean
 
 
 }

@@ -233,7 +233,7 @@ class RoomDatabaseHelper(
     suspend fun updateCategory(category: Category): Category {
         Log.i("Database", "Update category '${category.name}' with id '${category.id}'")
         category.updatedAt = DateUtil.getCurrentUtcTime()
-        category.upToDate = false
+        category.toUpdate = false
         dao.updateCategoryFields(category.id, category.name, category.color, category.updatedAt)
         return category
     }
@@ -241,7 +241,7 @@ class RoomDatabaseHelper(
     suspend fun updateProduct(product: Product): Product {
         Log.i("Database", "Update product '${product.name}' with id '${product.id}'")
         product.updatedAt = DateUtil.getCurrentUtcTime()
-        product.upToDate = false
+        product.toUpdate = false
         dao.updateProductFields(
             product.id,
             product.name,
@@ -262,7 +262,7 @@ class RoomDatabaseHelper(
     suspend fun updateStore(store: Store): Store {
         Log.i("Database", "Update store '${store.name}' with id '${store.id}'")
         store.updatedAt = DateUtil.getCurrentUtcTime()
-        store.upToDate = false
+        store.toUpdate = false
         dao.updateStoreFields(
             store.id,
             store.name,
@@ -279,7 +279,7 @@ class RoomDatabaseHelper(
             "Update receipt from ${receipt.date} payed ${receipt.pln} with id '${receipt.id}'"
         )
         receipt.updatedAt = DateUtil.getCurrentUtcTime()
-        receipt.upToDate = false
+        receipt.toUpdate = false
         dao.updateReceiptFields(
             receipt.id,
             receipt.date,
