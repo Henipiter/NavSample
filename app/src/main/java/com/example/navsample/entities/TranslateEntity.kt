@@ -11,15 +11,6 @@ interface TranslateEntity {
         )
     }
 
-    fun synchronizeEntity(): HashMap<String, Any?> {
-        return hashMapOf(
-            "updatedAt" to this.updatedAt,
-            "deletedAt" to this.deletedAt,
-            "firestoreId" to this.firestoreId, //TODO DELETE
-            "isSync" to this.isSync
-        )
-    }
-
     var createdAt: String
     var updatedAt: String
     var deletedAt: String

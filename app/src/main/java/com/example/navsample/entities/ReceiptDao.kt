@@ -10,6 +10,7 @@ import androidx.room.Transaction
 import androidx.room.Update
 import androidx.sqlite.db.SupportSQLiteQuery
 import com.example.navsample.dto.DateUtil
+import com.example.navsample.entities.dto.CategoryFirebase
 import com.example.navsample.entities.dto.ProductFirebase
 import com.example.navsample.entities.dto.ReceiptFirebase
 import com.example.navsample.entities.dto.StoreFirebase
@@ -276,21 +277,6 @@ interface ReceiptDao {
     @Query("SELECT * FROM store WHERE deletedAt == '' ORDER BY name")
     suspend fun getAllStores(): List<Store>
 
-    @Query("SELECT * FROM store WHERE deletedAt == '' AND defaultCategoryId = :categoryId ORDER BY name")
-    suspend fun getAllStoresWithCategory(categoryId: String): List<Store>
-
-    @Query("SELECT * FROM category WHERE isSync == 0")
-    suspend fun getAllNotSyncedCategories(): List<Category>
-
-    @Query("SELECT * FROM store WHERE isSync == 0")
-    suspend fun getAllNotSyncedStores(): List<Store>
-
-    @Query("SELECT * FROM product WHERE isSync == 0")
-    suspend fun getAllNotSyncedProducts(): List<Product>
-
-    @Query("SELECT * FROM receipt WHERE isSync == 0")
-    suspend fun getAllNotSyncedReceipts(): List<Receipt>
-
 
     @Query("UPDATE category SET isSync = 1, updatedAt = :updatedAt WHERE id = :id")
     suspend fun syncCategory(id: String, updatedAt: String)
@@ -304,22 +290,25 @@ interface ReceiptDao {
     @Query("UPDATE product SET isSync = 1, updatedAt = :updatedAt WHERE id = :id")
     suspend fun syncProduct(id: String, updatedAt: String)
 
+    @Query("SELECT id, firestoreId, isSync, toUpdate, toDelete FROM category WHERE isSync == 0")
+    suspend fun getAllNotSyncedCategories(): List<CategoryFirebase>
+
     @Query(
-        "SELECT  s.id, s.firestoreId, s.isSync, c.isSync as isCategorySync, s.toUpdate, s.toDelete " +
+        "SELECT  s.id, c.id as defaultCategoryId, s.firestoreId, s.isSync, c.isSync as isCategorySync, s.toUpdate, s.toDelete " +
                 "FROM store s INNER JOIN category c ON s.defaultCategoryId = c.id " +
                 "WHERE s.isSync = 0"
     )
     suspend fun getNotSyncedStoreForFirestore(): List<StoreFirebase>
 
     @Query(
-        "SELECT  r.id,r.firestoreId,r.isSync,  s.isSync as isStoreSync, r.toUpdate, r.toDelete " +
+        "SELECT r.id, s.id as storeId, r.firestoreId,r.isSync,  s.isSync as isStoreSync, r.toUpdate, r.toDelete " +
                 "FROM receipt r INNER JOIN store s ON r.storeId = s.id " +
                 "WHERE r.isSync = 0"
     )
     suspend fun getNotSyncedReceiptForFirestore(): List<ReceiptFirebase>
 
     @Query(
-        "SELECT  p.id,p.firestoreId,p.isSync, r.isSync as isReceiptSync, c.isSync as isCategorySync, p.toUpdate, p.toDelete " +
+        "SELECT  p.id,r.id as receiptId, c.id as categoryId,p.firestoreId,p.isSync, r.isSync as isReceiptSync, c.isSync as isCategorySync, p.toUpdate, p.toDelete " +
                 "FROM product p INNER JOIN receipt r ON p.receiptId = r.id " +
                 "INNER JOIN category c ON p.categoryId = c.id " +
                 "WHERE p.isSync = 0"

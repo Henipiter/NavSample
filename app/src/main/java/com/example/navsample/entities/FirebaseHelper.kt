@@ -46,20 +46,21 @@ class FirebaseHelper(
                 .document(entity.firestoreId)
                 .update(entity.deleteData())
                 .addOnSuccessListener {
-                    Log.i("Firebase", "Field deletedAt was successfully updated.")
+                    Log.i(
+                        "Firebase",
+                        "Field deletedAt was successfully updated for '${entity.javaClass.simpleName}'."
+                    )
                 }
                 .addOnFailureListener { e ->
-                    Log.e("Firebase", "Updating field deletedAt error: ${e.message}")
+                    Log.e(
+                        "Firebase",
+                        "Updating field deletedAt for '${entity.javaClass.simpleName} error: ${e.message}"
+                    )
                 }
         }
     }
 
     fun <T : TranslateFirebaseEntity> synchronize(entity: T) {
-        synchronize(entity.firestoreId, entity::class, entity.synchronizeEntity())
-
-    }
-
-    fun <T : TranslateEntity> synchronize(entity: T) {
         synchronize(entity.firestoreId, entity::class, entity.synchronizeEntity())
     }
 
@@ -73,10 +74,13 @@ class FirebaseHelper(
                 .document(firestoreId)
                 .update(synchronizeData)
                 .addOnSuccessListener {
-                    Log.i("Firebase", "Field deletedAt was successfully updated.")
+                    Log.i(
+                        "Firebase",
+                        "Field sync for '${entity.simpleName}' was successfully updated."
+                    )
                 }
                 .addOnFailureListener { e ->
-                    Log.e("Firebase", "Updating field deletedAt error: ${e.message}")
+                    Log.e("Firebase", "Sync error for '${entity.simpleName}': ${e.message}")
                 }
         }
     }

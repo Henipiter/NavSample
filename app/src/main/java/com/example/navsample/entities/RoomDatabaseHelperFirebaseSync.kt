@@ -1,6 +1,7 @@
 package com.example.navsample.entities
 
 import android.util.Log
+import com.example.navsample.entities.dto.CategoryFirebase
 import com.example.navsample.entities.dto.ProductFirebase
 import com.example.navsample.entities.dto.ReceiptFirebase
 import com.example.navsample.entities.dto.StoreFirebase
@@ -10,8 +11,7 @@ class RoomDatabaseHelperFirebaseSync(
 ) {
 
     // GET ALL
-
-    suspend fun getAllNotSyncedCategories(): List<Category> {
+    suspend fun getAllNotSyncedCategories(): List<CategoryFirebase> {
         Log.i("Database", "Refresh category list")
         return dao.getAllNotSyncedCategories()
     }

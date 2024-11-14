@@ -6,10 +6,10 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.navsample.ApplicationContext
 import com.example.navsample.dto.DateUtil
-import com.example.navsample.entities.Category
 import com.example.navsample.entities.FirebaseHelper
 import com.example.navsample.entities.ReceiptDatabase
 import com.example.navsample.entities.RoomDatabaseHelperFirebaseSync
+import com.example.navsample.entities.dto.CategoryFirebase
 import com.example.navsample.entities.dto.ProductFirebase
 import com.example.navsample.entities.dto.ReceiptFirebase
 import com.example.navsample.entities.dto.StoreFirebase
@@ -25,7 +25,7 @@ class SyncDatabaseViewModel : ViewModel() {
 
     var productList = MutableLiveData<List<ProductFirebase>>()
     var receiptList = MutableLiveData<List<ReceiptFirebase>>()
-    var categoryList = MutableLiveData<List<Category>>()
+    var categoryList = MutableLiveData<List<CategoryFirebase>>()
     var storeList = MutableLiveData<List<StoreFirebase>>()
 
     init {
@@ -76,7 +76,7 @@ class SyncDatabaseViewModel : ViewModel() {
         }
     }
 
-    fun categoryOperation(category: Category): Boolean {
+    fun categoryOperation(category: CategoryFirebase): Boolean {
 //        if(category.isSync && !category.upToDate){
 //            //TODO UPDATE
 //        }
@@ -84,6 +84,7 @@ class SyncDatabaseViewModel : ViewModel() {
             updateCategoryFirebaseIdWithDependentStores(category.id)
         } else if (category.id == category.firestoreId) {
             syncCategory(category)
+            category.isSync = true
             firebaseHelper.synchronize(category)
             return true
         }
@@ -98,6 +99,7 @@ class SyncDatabaseViewModel : ViewModel() {
             updateStoreFirebaseIdWithDependentReceipts(store.id)
         } else if (store.id == store.firestoreId && store.isCategorySync) {
             syncStore(store)
+            store.isSync = true
             firebaseHelper.synchronize(store)
             return true
         }
@@ -112,6 +114,7 @@ class SyncDatabaseViewModel : ViewModel() {
             updateReceiptFirebaseIdWithDependentProducts(receipt.id)
         } else if (receipt.id == receipt.firestoreId && receipt.isStoreSync) {
             syncReceipt(receipt)
+            receipt.isSync = true
             firebaseHelper.synchronize(receipt)
             return true
         }
@@ -124,13 +127,14 @@ class SyncDatabaseViewModel : ViewModel() {
 //        }
         if (product.id == product.firestoreId && product.isReceiptSync && product.isCategorySync) {
             syncProduct(product)
+            product.isSync = true
             firebaseHelper.synchronize(product)
             return true
         }
         return false
     }
 
-    private fun syncCategory(category: Category) {
+    private fun syncCategory(category: CategoryFirebase) {
         val updatedAt = DateUtil.getCurrentUtcTime()
         viewModelScope.launch {
             roomDatabaseHelper.syncCategory(category.id, updatedAt)

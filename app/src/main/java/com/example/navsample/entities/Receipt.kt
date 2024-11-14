@@ -49,13 +49,4 @@ data class Receipt(
             "updatedAt" to this.updatedAt
         )
     }
-
-    override fun synchronizeEntity(): HashMap<String, Any?> {
-        return hashMapOf(
-            "updatedAt" to this.updatedAt,
-            "deletedAt" to this.deletedAt,
-            "firestoreId" to this.firestoreId, //TODO DELETE
-            "isSync" to this.isSync
-        )
-    }
 }

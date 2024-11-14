@@ -3,12 +3,7 @@ package com.example.navsample.entities.dto
 interface TranslateFirebaseEntity {
 
 
-    fun synchronizeEntity(): HashMap<String, Any?> {
-        return hashMapOf(
-            "firestoreId" to this.firestoreId, //TODO DELETE
-            "isSync" to this.isSync
-        )
-    }
+    fun synchronizeEntity(): HashMap<String, Any?>
 
     var firestoreId: String
     var isSync: Boolean
