@@ -32,134 +32,134 @@ class InitDatabaseHelper {
                         6000, 37, 222, 0, 222, "D", "", true
                     )
                 ),
-                listOf(
-                    Product(
-                        "672aae7c-0ae1-445e-ad23-c31666368a02",
-                        "D_KAJZERKA 50G",
-                        "bcf97011-db56-44c3-bf6a-388c7e70da7b",
-                        8000, 37, 296, 0, 296, "D", "", true
-                    ),
-                    Product(
-                        "672aae7c-0ae1-445e-ad23-c31666368a02",
-                        "D_SEREK_ALMETTE 150",
-                        "bcf97011-db56-44c3-bf6a-388c7e70da7b",
-                        1000, 499, 499, 0, 499, "D", "", true
-                    ),
-                    Product(
-                        "672aae7c-0ae1-445e-ad23-c31666368a02",
-                        "D_MC SALADA LODOWA",
-                        "bcf97011-db56-44c3-bf6a-388c7e70da7b",
-                        1000, 499, 499, 0, 499, "D", "", true
-                    ),
-                    Product(
-                        "672aae7c-0ae1-445e-ad23-c31666368a02",
-                        "D_RZODKIEWKA PECZEK",
-                        "bcf97011-db56-44c3-bf6a-388c7e70da7b",
-                        1000, 229, 229, 0, 229, "D", "", true
-                    ),
-                    Product(
-                        "672aae7c-0ae1-445e-ad23-c31666368a02",
-                        "D_SER MAGNAT",
-                        "bcf97011-db56-44c3-bf6a-388c7e70da7b",
-                        204, 3990, 814, 0, 814, "D", "", true
-                    ),
-                    Product(
-                        "672aae7c-0ae1-445e-ad23-c31666368a02",
-                        "D_GREJPFRUTY BIALE L",
-                        "bcf97011-db56-44c3-bf6a-388c7e70da7b",
-                        348, 769, 268, 0, 268, "D", "", true
-                    ),
-                    Product(
-                        "672aae7c-0ae1-445e-ad23-c31666368a02",
-                        "D_MC CYTRYNY LUZ",
-                        "bcf97011-db56-44c3-bf6a-388c7e70da7b",
-                        258, 799, 206, 0, 206, "D", "", true
-                    )
-                ),
-                listOf(
-                    Product(
-                        "f8f0fc36-3d41-428d-8eae-6503c139d974",
-                        "ChlebWiel400g 50G",
-                        "bcf97011-db56-44c3-bf6a-388c7e70da7b",
-                        1000, 359, 359, 0, 359, "D", "", true
-                    ),
-                    Product(
-                        "f8f0fc36-3d41-428d-8eae-6503c139d974",
-                        "Papier Queen 10r 150",
-                        "bcf97011-db56-44c3-bf6a-388c7e70da7b",
-                        1000, 499, 499, 0, 499, "D", "", true
-                    ),
-                    Product(
-                        "f8f0fc36-3d41-428d-8eae-6503c139d974",
-                        "Chust Delikat x150",
-                        "e70f3a23-97c3-409d-bea7-89e9b648f2ca",
-                        100, 439, 439, 0, 439, "A", "", true
-                    ),
-                    Product(
-                        "f8f0fc36-3d41-428d-8eae-6503c139d974",
-                        "Chust Delikat x150",
-                        "e70f3a23-97c3-409d-bea7-89e9b648f2ca",
-                        100, 439, 439, 0, 439, "A", "", true
-                    ),
-                    Product(
-                        "f8f0fc36-3d41-428d-8eae-6503c139d974",
-                        "Chust Delikat 10x10",
-                        "e70f3a23-97c3-409d-bea7-89e9b648f2ca",
-                        100, 439, 439, 0, 439, "A", "", true
-                    ),
-                    Product(
-                        "f8f0fc36-3d41-428d-8eae-6503c139d974",
-                        "MakaronRyzAsia200g",
-                        "bcf97011-db56-44c3-bf6a-388c7e70da7b",
-                        100, 599, 599, 0, 599, "D", "", true
-                    ),
-                    Product(
-                        "f8f0fc36-3d41-428d-8eae-6503c139d974",
-                        "SmootZOwocLes075",
-                        "bcf97011-db56-44c3-bf6a-388c7e70da7b",
-                        100, 666, 666, 0, 666, "D", "", true
-                    ),
-                    Product(
-                        "f8f0fc36-3d41-428d-8eae-6503c139d974",
-                        "Marchew luz",
-                        "bcf97011-db56-44c3-bf6a-388c7e70da7b",
-                        335, 299, 100, 0, 100, "D", "", true
-                    ),
-                    Product(
-                        "f8f0fc36-3d41-428d-8eae-6503c139d974",
-                        "JablPolskieGalaLuz",
-                        "bcf97011-db56-44c3-bf6a-388c7e70da7b",
-                        395, 349, 138, 0, 138, "D", "", true
-                    ),
-                    Product(
-                        "f8f0fc36-3d41-428d-8eae-6503c139d974",
-                        "CebulaZolta Luz",
-                        "bcf97011-db56-44c3-bf6a-388c7e70da7b",
-                        8, 499, 40, 0, 40, "D", "", true
-                    )
-                ),
-                listOf(
-                    Product(
-                        "c3401927-875d-4d45-94bb-60b1331502c7",
-                        "IBUPROM 200MG 10 TABL",
-                        "9412d154-fcd1-4491-9f9d-6f2ed9507248",
-                        1000, 824, 359, 0, 359, "D", "", true
-                    )
-                ),
-                listOf(
-                    Product(
-                        "cf181987-aa29-4769-a42a-0f72db0bd7ef",
-                        "KAPIELOWKI",
-                        "377057f5-b5b5-4318-83e0-de4c91aa3af2",
-                        1000, 8999, 8999, 0, 8999, "D", "", true
-                    ),
-                    Product(
-                        "cf181987-aa29-4769-a42a-0f72db0bd7ef",
-                        "BUTY BIEGANIE",
-                        "377057f5-b5b5-4318-83e0-de4c91aa3af2",
-                        1000, 29999, 29999, 0, 29999, "D", "", true
-                    )
-                )
+//                listOf(
+//                    Product(
+//                        "672aae7c-0ae1-445e-ad23-c31666368a02",
+//                        "D_KAJZERKA 50G",
+//                        "bcf97011-db56-44c3-bf6a-388c7e70da7b",
+//                        8000, 37, 296, 0, 296, "D", "", true
+//                    ),
+//                    Product(
+//                        "672aae7c-0ae1-445e-ad23-c31666368a02",
+//                        "D_SEREK_ALMETTE 150",
+//                        "bcf97011-db56-44c3-bf6a-388c7e70da7b",
+//                        1000, 499, 499, 0, 499, "D", "", true
+//                    ),
+//                    Product(
+//                        "672aae7c-0ae1-445e-ad23-c31666368a02",
+//                        "D_MC SALADA LODOWA",
+//                        "bcf97011-db56-44c3-bf6a-388c7e70da7b",
+//                        1000, 499, 499, 0, 499, "D", "", true
+//                    ),
+//                    Product(
+//                        "672aae7c-0ae1-445e-ad23-c31666368a02",
+//                        "D_RZODKIEWKA PECZEK",
+//                        "bcf97011-db56-44c3-bf6a-388c7e70da7b",
+//                        1000, 229, 229, 0, 229, "D", "", true
+//                    ),
+//                    Product(
+//                        "672aae7c-0ae1-445e-ad23-c31666368a02",
+//                        "D_SER MAGNAT",
+//                        "bcf97011-db56-44c3-bf6a-388c7e70da7b",
+//                        204, 3990, 814, 0, 814, "D", "", true
+//                    ),
+//                    Product(
+//                        "672aae7c-0ae1-445e-ad23-c31666368a02",
+//                        "D_GREJPFRUTY BIALE L",
+//                        "bcf97011-db56-44c3-bf6a-388c7e70da7b",
+//                        348, 769, 268, 0, 268, "D", "", true
+//                    ),
+//                    Product(
+//                        "672aae7c-0ae1-445e-ad23-c31666368a02",
+//                        "D_MC CYTRYNY LUZ",
+//                        "bcf97011-db56-44c3-bf6a-388c7e70da7b",
+//                        258, 799, 206, 0, 206, "D", "", true
+//                    )
+//                ),
+//                listOf(
+//                    Product(
+//                        "f8f0fc36-3d41-428d-8eae-6503c139d974",
+//                        "ChlebWiel400g 50G",
+//                        "bcf97011-db56-44c3-bf6a-388c7e70da7b",
+//                        1000, 359, 359, 0, 359, "D", "", true
+//                    ),
+//                    Product(
+//                        "f8f0fc36-3d41-428d-8eae-6503c139d974",
+//                        "Papier Queen 10r 150",
+//                        "bcf97011-db56-44c3-bf6a-388c7e70da7b",
+//                        1000, 499, 499, 0, 499, "D", "", true
+//                    ),
+//                    Product(
+//                        "f8f0fc36-3d41-428d-8eae-6503c139d974",
+//                        "Chust Delikat x150",
+//                        "e70f3a23-97c3-409d-bea7-89e9b648f2ca",
+//                        100, 439, 439, 0, 439, "A", "", true
+//                    ),
+//                    Product(
+//                        "f8f0fc36-3d41-428d-8eae-6503c139d974",
+//                        "Chust Delikat x150",
+//                        "e70f3a23-97c3-409d-bea7-89e9b648f2ca",
+//                        100, 439, 439, 0, 439, "A", "", true
+//                    ),
+//                    Product(
+//                        "f8f0fc36-3d41-428d-8eae-6503c139d974",
+//                        "Chust Delikat 10x10",
+//                        "e70f3a23-97c3-409d-bea7-89e9b648f2ca",
+//                        100, 439, 439, 0, 439, "A", "", true
+//                    ),
+//                    Product(
+//                        "f8f0fc36-3d41-428d-8eae-6503c139d974",
+//                        "MakaronRyzAsia200g",
+//                        "bcf97011-db56-44c3-bf6a-388c7e70da7b",
+//                        100, 599, 599, 0, 599, "D", "", true
+//                    ),
+//                    Product(
+//                        "f8f0fc36-3d41-428d-8eae-6503c139d974",
+//                        "SmootZOwocLes075",
+//                        "bcf97011-db56-44c3-bf6a-388c7e70da7b",
+//                        100, 666, 666, 0, 666, "D", "", true
+//                    ),
+//                    Product(
+//                        "f8f0fc36-3d41-428d-8eae-6503c139d974",
+//                        "Marchew luz",
+//                        "bcf97011-db56-44c3-bf6a-388c7e70da7b",
+//                        335, 299, 100, 0, 100, "D", "", true
+//                    ),
+//                    Product(
+//                        "f8f0fc36-3d41-428d-8eae-6503c139d974",
+//                        "JablPolskieGalaLuz",
+//                        "bcf97011-db56-44c3-bf6a-388c7e70da7b",
+//                        395, 349, 138, 0, 138, "D", "", true
+//                    ),
+//                    Product(
+//                        "f8f0fc36-3d41-428d-8eae-6503c139d974",
+//                        "CebulaZolta Luz",
+//                        "bcf97011-db56-44c3-bf6a-388c7e70da7b",
+//                        8, 499, 40, 0, 40, "D", "", true
+//                    )
+//                ),
+//                listOf(
+//                    Product(
+//                        "c3401927-875d-4d45-94bb-60b1331502c7",
+//                        "IBUPROM 200MG 10 TABL",
+//                        "9412d154-fcd1-4491-9f9d-6f2ed9507248",
+//                        1000, 824, 359, 0, 359, "D", "", true
+//                    )
+//                ),
+//                listOf(
+//                    Product(
+//                        "cf181987-aa29-4769-a42a-0f72db0bd7ef",
+//                        "KAPIELOWKI",
+//                        "377057f5-b5b5-4318-83e0-de4c91aa3af2",
+//                        1000, 8999, 8999, 0, 8999, "D", "", true
+//                    ),
+//                    Product(
+//                        "cf181987-aa29-4769-a42a-0f72db0bd7ef",
+//                        "BUTY BIEGANIE",
+//                        "377057f5-b5b5-4318-83e0-de4c91aa3af2",
+//                        1000, 29999, 29999, 0, 29999, "D", "", true
+//                    )
+//                )
             )
         }
 

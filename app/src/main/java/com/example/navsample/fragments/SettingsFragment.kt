@@ -89,9 +89,9 @@ class SettingsFragment : Fragment() {
         InitDatabaseHelper.getReceipts().forEach { receipt ->
             addReceiptDataViewModel.insertReceipt(receipt, false)
         }
-//        InitDatabaseHelper.getProducts().forEach { product ->
-//            addProductDataViewModel.insertProducts(product)
-//        }
+        InitDatabaseHelper.getProducts().forEach { product ->
+            addProductDataViewModel.insertProducts(product)
+        }
     }
 
     private fun devButton() {

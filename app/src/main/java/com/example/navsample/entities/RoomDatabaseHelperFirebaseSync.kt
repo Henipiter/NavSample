@@ -52,11 +52,11 @@ class RoomDatabaseHelperFirebaseSync(
     }
 
     suspend fun replaceCategoryWithDependencies(oldId: String) {
-        return dao.replaceCategoryWithDependencies(oldId)
+        dao.replaceCategoryWithDependencies(oldId)
     }
 
     suspend fun replaceStoreWithDependencies(oldId: String) {
-        return dao.replaceStoreWithDependencies(oldId)
+        dao.replaceStoreWithDependencies(oldId)
     }
 
     suspend fun replaceReceiptWithDependencies(oldId: String) {

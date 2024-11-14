@@ -16,6 +16,7 @@ import com.example.navsample.entities.dto.StoreFirebase
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import java.util.UUID
 
 class SyncDatabaseViewModel : ViewModel() {
     private var roomDatabaseHelper: RoomDatabaseHelperFirebaseSync
@@ -31,6 +32,9 @@ class SyncDatabaseViewModel : ViewModel() {
         val myPref = ApplicationContext.context?.getSharedPreferences(
             "preferences", AppCompatActivity.MODE_PRIVATE
         )
+        if (myPref?.getString("userId", "") == "") {
+            myPref.edit().putString("userId", UUID.randomUUID().toString()).apply()
+        }
         val userUuid = myPref?.getString("userId", null) ?: throw Exception("NOT SET userId")
         firebaseHelper = FirebaseHelper(userUuid)
 
@@ -118,7 +122,7 @@ class SyncDatabaseViewModel : ViewModel() {
 //        if(product.isSync && !product.upToDate){
 //            //TODO UPDATE
 //        }
-        if (product.id == product.firestoreId && product.isReceiptSync) {
+        if (product.id == product.firestoreId && product.isReceiptSync && product.isCategorySync) {
             syncProduct(product)
             firebaseHelper.synchronize(product)
             return true

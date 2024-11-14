@@ -4,5 +4,7 @@ class StoreFirebase(
     var id: String,
     var isCategorySync: Boolean,
     override var firestoreId: String,
-    override var isSync: Boolean
+    override var isSync: Boolean,
+    override var toUpdate: Boolean,
+    override var toDelete: Boolean
 ) : TranslateFirebaseEntity

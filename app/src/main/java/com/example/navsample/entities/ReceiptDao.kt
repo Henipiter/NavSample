@@ -305,22 +305,23 @@ interface ReceiptDao {
     suspend fun syncProduct(id: String, updatedAt: String)
 
     @Query(
-        "SELECT  s.id,s.firestoreId,s.isSync,  c.isSync as isCategorySync " +
+        "SELECT  s.id, s.firestoreId, s.isSync, c.isSync as isCategorySync, s.toUpdate, s.toDelete " +
                 "FROM store s INNER JOIN category c ON s.defaultCategoryId = c.id " +
                 "WHERE s.isSync = 0"
     )
     suspend fun getNotSyncedStoreForFirestore(): List<StoreFirebase>
 
     @Query(
-        "SELECT  r.id,r.firestoreId,r.isSync,  s.isSync as isStoreSync " +
+        "SELECT  r.id,r.firestoreId,r.isSync,  s.isSync as isStoreSync, r.toUpdate, r.toDelete " +
                 "FROM receipt r INNER JOIN store s ON r.storeId = s.id " +
                 "WHERE r.isSync = 0"
     )
     suspend fun getNotSyncedReceiptForFirestore(): List<ReceiptFirebase>
 
     @Query(
-        "SELECT  p.id,p.firestoreId,p.isSync,  r.isSync as isReceiptSync " +
+        "SELECT  p.id,p.firestoreId,p.isSync, r.isSync as isReceiptSync, c.isSync as isCategorySync, p.toUpdate, p.toDelete " +
                 "FROM product p INNER JOIN receipt r ON p.receiptId = r.id " +
+                "INNER JOIN category c ON p.categoryId = c.id " +
                 "WHERE p.isSync = 0"
     )
     suspend fun getNotSyncedProductForFirestore(): List<ProductFirebase>
@@ -409,6 +410,7 @@ interface ReceiptDao {
             category.updatedAt = DateUtil.getCurrentUtcTime()
             insertCategory(category)
             updateDependentStoreByCategoryId(oldId, category.id, category.updatedAt)
+            updateDependentProductByCategoryId(oldId, category.id, category.updatedAt)
         } else {
             Log.d("Firestore", "Current category id not found: $oldId")
         }
@@ -449,6 +451,13 @@ interface ReceiptDao {
 
     @Query("UPDATE store SET defaultCategoryId = :newCategoryId, updatedAt = :timestamp WHERE defaultCategoryId = :oldCategoryId")
     suspend fun updateDependentStoreByCategoryId(
+        oldCategoryId: String,
+        newCategoryId: String,
+        timestamp: String
+    )
+
+    @Query("UPDATE product SET categoryId = :newCategoryId, updatedAt = :timestamp WHERE categoryId = :oldCategoryId")
+    suspend fun updateDependentProductByCategoryId(
         oldCategoryId: String,
         newCategoryId: String,
         timestamp: String
