@@ -1,6 +1,7 @@
 package com.example.navsample.entities
 
 import android.util.Log
+import com.example.navsample.entities.dto.CategoryFirebase
 import com.example.navsample.entities.dto.ProductFirebase
 import com.example.navsample.entities.dto.ReceiptFirebase
 import com.example.navsample.entities.dto.StoreFirebase
@@ -8,10 +9,12 @@ import com.example.navsample.entities.dto.TranslateFirebaseEntity
 import com.google.firebase.Firebase
 import com.google.firebase.firestore.CollectionReference
 import com.google.firebase.firestore.firestore
+import kotlinx.coroutines.runBlocking
 import kotlin.reflect.KClass
 
 class FirebaseHelper(
-    private var userUuid: String
+    private var userUuid: String,
+    private var dao: RoomDatabaseHelperFirebaseSync
 ) {
 
     fun <T : TranslateEntity> addFirestore(entity: T, addDocumentFunction: (String) -> Unit) {
@@ -66,7 +69,7 @@ class FirebaseHelper(
 
     private fun synchronize(
         firestoreId: String,
-        entity: KClass<out Any>,
+        entity: KClass<out TranslateFirebaseEntity>,
         synchronizeData: HashMap<String, Any?>
     ) {
         if (firestoreId != "") {
@@ -74,6 +77,7 @@ class FirebaseHelper(
                 .document(firestoreId)
                 .update(synchronizeData)
                 .addOnSuccessListener {
+                    updateSync(synchronizeData["id"] as String, entity)
                     Log.i(
                         "Firebase",
                         "Field sync for '${entity.simpleName}' was successfully updated."
@@ -82,6 +86,26 @@ class FirebaseHelper(
                 .addOnFailureListener { e ->
                     Log.e("Firebase", "Sync error for '${entity.simpleName}': ${e.message}")
                 }
+        }
+    }
+
+    private fun updateSync(id: String, entity: KClass<out TranslateFirebaseEntity>) {
+        when (entity) {
+            StoreFirebase::class -> {
+                runBlocking { dao.syncStore(id) }
+            }
+
+            CategoryFirebase::class -> {
+                runBlocking { dao.syncCategory(id) }
+            }
+
+            ReceiptFirebase::class -> {
+                runBlocking { dao.syncReceipt(id) }
+            }
+
+            ProductFirebase::class -> {
+                runBlocking { dao.syncProduct(id) }
+            }
         }
     }
 
@@ -103,7 +127,7 @@ class FirebaseHelper(
                 return STORE_FIRESTORE_PATH
             }
 
-            Category::class -> {
+            Category::class, CategoryFirebase::class -> {
                 return CATEGORY_FIRESTORE_PATH
             }
 

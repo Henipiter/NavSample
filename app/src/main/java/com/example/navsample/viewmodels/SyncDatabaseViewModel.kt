@@ -5,7 +5,6 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.navsample.ApplicationContext
-import com.example.navsample.dto.DateUtil
 import com.example.navsample.entities.FirebaseHelper
 import com.example.navsample.entities.ReceiptDatabase
 import com.example.navsample.entities.RoomDatabaseHelperFirebaseSync
@@ -36,11 +35,11 @@ class SyncDatabaseViewModel : ViewModel() {
             myPref.edit().putString("userId", UUID.randomUUID().toString()).apply()
         }
         val userUuid = myPref?.getString("userId", null) ?: throw Exception("NOT SET userId")
-        firebaseHelper = FirebaseHelper(userUuid)
 
         val dao = ApplicationContext.context?.let { ReceiptDatabase.getInstance(it).receiptDao }
             ?: throw Exception("NOT SET DATABASE")
         roomDatabaseHelper = RoomDatabaseHelperFirebaseSync(dao)
+        firebaseHelper = FirebaseHelper(userUuid, roomDatabaseHelper)
 
         loadAllList()
     }
@@ -70,6 +69,14 @@ class SyncDatabaseViewModel : ViewModel() {
         }
     }
 
+    /* w listenerze sprawdzac, ze jesli isSync == false
+         to czy dany klucz dokumentu wystepuje w bazie lokalnej. Jak tak to ponów próbę synchronizacji
+
+           firestoreId usunac calkowicie
+
+         w listenerze porownywac czasy updatedAt, deletedAt
+
+    */
     fun loadProducts() {
         viewModelScope.launch {
             productList.postValue(roomDatabaseHelper.getAllNotSyncedProducts())
@@ -83,7 +90,6 @@ class SyncDatabaseViewModel : ViewModel() {
         if (category.firestoreId != "" && category.firestoreId != category.id) {
             updateCategoryFirebaseIdWithDependentStores(category.id)
         } else if (category.id == category.firestoreId) {
-            syncCategory(category)
             category.isSync = true
             firebaseHelper.synchronize(category)
             return true
@@ -98,7 +104,6 @@ class SyncDatabaseViewModel : ViewModel() {
         if (store.firestoreId != "" && store.firestoreId != store.id) {
             updateStoreFirebaseIdWithDependentReceipts(store.id)
         } else if (store.id == store.firestoreId && store.isCategorySync) {
-            syncStore(store)
             store.isSync = true
             firebaseHelper.synchronize(store)
             return true
@@ -113,7 +118,6 @@ class SyncDatabaseViewModel : ViewModel() {
         if (receipt.firestoreId != "" && receipt.firestoreId != receipt.id) {
             updateReceiptFirebaseIdWithDependentProducts(receipt.id)
         } else if (receipt.id == receipt.firestoreId && receipt.isStoreSync) {
-            syncReceipt(receipt)
             receipt.isSync = true
             firebaseHelper.synchronize(receipt)
             return true
@@ -126,40 +130,11 @@ class SyncDatabaseViewModel : ViewModel() {
 //            //TODO UPDATE
 //        }
         if (product.id == product.firestoreId && product.isReceiptSync && product.isCategorySync) {
-            syncProduct(product)
             product.isSync = true
             firebaseHelper.synchronize(product)
             return true
         }
         return false
-    }
-
-    private fun syncCategory(category: CategoryFirebase) {
-        val updatedAt = DateUtil.getCurrentUtcTime()
-        viewModelScope.launch {
-            roomDatabaseHelper.syncCategory(category.id, updatedAt)
-        }
-    }
-
-    private fun syncStore(store: StoreFirebase) {
-        val updatedAt = DateUtil.getCurrentUtcTime()
-        viewModelScope.launch {
-            roomDatabaseHelper.syncStore(store.id, updatedAt)
-        }
-    }
-
-    private fun syncReceipt(receipt: ReceiptFirebase) {
-        val updatedAt = DateUtil.getCurrentUtcTime()
-        viewModelScope.launch {
-            roomDatabaseHelper.syncReceipt(receipt.id, updatedAt)
-        }
-    }
-
-    private fun syncProduct(product: ProductFirebase) {
-        val updatedAt = DateUtil.getCurrentUtcTime()
-        viewModelScope.launch {
-            roomDatabaseHelper.syncProduct(product.id, updatedAt)
-        }
     }
 
     private fun updateCategoryFirebaseIdWithDependentStores(oldId: String) {

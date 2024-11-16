@@ -278,17 +278,17 @@ interface ReceiptDao {
     suspend fun getAllStores(): List<Store>
 
 
-    @Query("UPDATE category SET isSync = 1, updatedAt = :updatedAt WHERE id = :id")
-    suspend fun syncCategory(id: String, updatedAt: String)
+    @Query("UPDATE category SET isSync = 1 WHERE id = :id")
+    suspend fun syncCategory(id: String)
 
-    @Query("UPDATE store SET isSync = 1, updatedAt = :updatedAt WHERE id = :id")
-    suspend fun syncStore(id: String, updatedAt: String)
+    @Query("UPDATE store SET isSync = 1 WHERE id = :id")
+    suspend fun syncStore(id: String)
 
-    @Query("UPDATE receipt SET isSync = 1, updatedAt = :updatedAt WHERE id = :id")
-    suspend fun syncReceipt(id: String, updatedAt: String)
+    @Query("UPDATE receipt SET isSync = 1WHERE id = :id")
+    suspend fun syncReceipt(id: String)
 
-    @Query("UPDATE product SET isSync = 1, updatedAt = :updatedAt WHERE id = :id")
-    suspend fun syncProduct(id: String, updatedAt: String)
+    @Query("UPDATE product SET isSync = 1 WHERE id = :id")
+    suspend fun syncProduct(id: String)
 
     @Query("SELECT id, firestoreId, isSync, toUpdate, toDelete FROM category WHERE isSync == 0")
     suspend fun getAllNotSyncedCategories(): List<CategoryFirebase>

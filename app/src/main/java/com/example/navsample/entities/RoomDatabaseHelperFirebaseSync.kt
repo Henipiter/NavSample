@@ -31,24 +31,24 @@ class RoomDatabaseHelperFirebaseSync(
         return dao.getNotSyncedReceiptForFirestore()
     }
 
-    suspend fun syncCategory(id: String, updatedAt: String) {
+    suspend fun syncCategory(id: String) {
         Log.i("Database", "Refresh store list")
-        dao.syncCategory(id, updatedAt)
+        dao.syncCategory(id)
     }
 
-    suspend fun syncStore(id: String, updatedAt: String) {
+    suspend fun syncStore(id: String) {
         Log.i("Database", "Refresh store list")
-        dao.syncStore(id, updatedAt)
+        dao.syncStore(id)
     }
 
-    suspend fun syncReceipt(id: String, updatedAt: String) {
+    suspend fun syncReceipt(id: String) {
         Log.i("Database", "Refresh store list")
-        dao.syncReceipt(id, updatedAt)
+        dao.syncReceipt(id)
     }
 
-    suspend fun syncProduct(id: String, updatedAt: String) {
+    suspend fun syncProduct(id: String) {
         Log.i("Database", "Refresh store list")
-        dao.syncProduct(id, updatedAt)
+        dao.syncProduct(id)
     }
 
     suspend fun replaceCategoryWithDependencies(oldId: String) {
