@@ -1,5 +1,6 @@
 package com.example.navsample.viewmodels
 
+import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -180,6 +181,7 @@ class SyncDatabaseViewModel : ViewModel() {
             updateCategoryFirebaseIdWithDependentStores(category.id)
         } else if (category.id == category.firestoreId) {
             category.isSync = true
+            Log.i("Firebase", "Syncing category ${category}. categorySyncStatusOperation")
             firebaseHelper.synchronize(category) { id ->
                 viewModelScope.launch { roomDatabaseHelperFirebase.syncCategory(id) }
             }
@@ -193,6 +195,7 @@ class SyncDatabaseViewModel : ViewModel() {
             updateStoreFirebaseIdWithDependentReceipts(store.id)
         } else if (store.id == store.firestoreId && store.isCategorySync) {
             store.isSync = true
+            Log.i("Firebase", "Syncing store $store. storeSyncStatusOperation")
             firebaseHelper.synchronize(store) { id ->
                 viewModelScope.launch { roomDatabaseHelperFirebase.syncStore(id) }
             }
@@ -206,6 +209,7 @@ class SyncDatabaseViewModel : ViewModel() {
             updateReceiptFirebaseIdWithDependentProducts(receipt.id)
         } else if (receipt.id == receipt.firestoreId && receipt.isStoreSync) {
             receipt.isSync = true
+            Log.i("Firebase", "Syncing recei[t $receipt. receiptSyncStatusOperation")
             firebaseHelper.synchronize(receipt) { id ->
                 viewModelScope.launch { roomDatabaseHelperFirebase.syncReceipt(id) }
             }
@@ -215,8 +219,11 @@ class SyncDatabaseViewModel : ViewModel() {
     }
 
     fun productSyncStatusOperation(product: ProductFirebase): Boolean {
-        if (product.id == product.firestoreId && product.isReceiptSync && product.isCategorySync) {
+        if (product.firestoreId != "" && product.firestoreId != product.id) {
+            updateProductFirebaseId(product.id)
+        } else if (product.id == product.firestoreId && product.isReceiptSync && product.isCategorySync) {
             product.isSync = true
+            Log.i("Firebase", "Syncing product $product. productSyncStatusOperation")
             firebaseHelper.synchronize(product) { id ->
                 viewModelScope.launch { roomDatabaseHelperFirebase.syncProduct(id) }
             }
@@ -245,6 +252,14 @@ class SyncDatabaseViewModel : ViewModel() {
         viewModelScope.launch {
             withContext(Dispatchers.IO) {
                 roomDatabaseHelperFirebase.replaceReceiptWithDependencies(oldId)
+            }
+        }
+    }
+
+    private fun updateProductFirebaseId(oldId: String) {
+        viewModelScope.launch {
+            withContext(Dispatchers.IO) {
+                roomDatabaseHelperFirebase.replaceProductWithDependencies(oldId)
             }
         }
     }

@@ -82,4 +82,8 @@ class RoomDatabaseHelperFirebaseSync(
     suspend fun replaceReceiptWithDependencies(oldId: String) {
         return dao.replaceReceiptWithDependencies(oldId)
     }
+
+    suspend fun replaceProductWithDependencies(oldId: String) {
+        return dao.replaceProductWithDependencies(oldId)
+    }
 }
