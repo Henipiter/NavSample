@@ -55,56 +55,75 @@ class ListingFragment : Fragment() {
                 binding.tabLayout.getTabAt(position)?.select()
             }
         })
-
-
     }
 
     private fun initObserver() {
-        syncDatabaseViewModel.categoryList.observe(viewLifecycleOwner) {
+        syncDatabaseViewModel.outdatedCategoryList.observe(viewLifecycleOwner) {
+            it?.forEach { category ->
+                syncDatabaseViewModel.syncOutdatedCategory(category)
+            }
+        }
+        syncDatabaseViewModel.outdatedStoreList.observe(viewLifecycleOwner) {
+            it?.forEach { store ->
+                syncDatabaseViewModel.syncOutdatedStore(store)
+            }
+        }
+        syncDatabaseViewModel.outdatedReceiptList.observe(viewLifecycleOwner) {
+            it?.forEach { receipt ->
+                syncDatabaseViewModel.syncOutdatedReceipt(receipt)
+            }
+        }
+        syncDatabaseViewModel.outdatedProductList.observe(viewLifecycleOwner) {
+            it?.forEach { product ->
+                syncDatabaseViewModel.syncOutdatedProduct(product)
+            }
+        }
+
+        syncDatabaseViewModel.notSyncedCategoryList.observe(viewLifecycleOwner) {
             var operationPerformed = true
             it?.forEach { category ->
-                if (!syncDatabaseViewModel.categoryOperation(category)) {
+                if (!syncDatabaseViewModel.categorySyncStatusOperation(category)) {
                     operationPerformed = false
                 }
             }
             if (!operationPerformed) {
-                syncDatabaseViewModel.loadCategories()
+                syncDatabaseViewModel.loadNotSyncedCategories()
             }
         }
-        syncDatabaseViewModel.storeList.observe(viewLifecycleOwner) {
+        syncDatabaseViewModel.notSyncedStoreList.observe(viewLifecycleOwner) {
             var operationPerformed = true
             it?.forEach { store ->
-                if (!syncDatabaseViewModel.storeOperation(store)) {
+                if (!syncDatabaseViewModel.storeSyncStatusOperation(store)) {
                     operationPerformed = false
 
                 }
             }
             if (!operationPerformed) {
-                syncDatabaseViewModel.loadStores()
+                syncDatabaseViewModel.loadNotSyncedStores()
             }
         }
-        syncDatabaseViewModel.receiptList.observe(viewLifecycleOwner) {
+        syncDatabaseViewModel.notSyncedReceiptList.observe(viewLifecycleOwner) {
             var operationPerformed = true
             it?.forEach { receipt ->
-                if (syncDatabaseViewModel.receiptOperation(receipt)) {
+                if (syncDatabaseViewModel.receiptSyncStatusOperation(receipt)) {
                     operationPerformed = false
 
                 }
             }
             if (!operationPerformed) {
-                syncDatabaseViewModel.loadReceipts()
+                syncDatabaseViewModel.loadNotSyncedReceipts()
             }
         }
-        syncDatabaseViewModel.productList.observe(viewLifecycleOwner) {
+        syncDatabaseViewModel.notSyncedProductList.observe(viewLifecycleOwner) {
             var operationPerformed = true
             it?.forEach { product ->
-                if (syncDatabaseViewModel.productOperation(product)) {
+                if (syncDatabaseViewModel.productSyncStatusOperation(product)) {
                     operationPerformed = false
 
                 }
             }
             if (!operationPerformed) {
-                syncDatabaseViewModel.loadProducts()
+                syncDatabaseViewModel.loadNotSyncedProducts()
             }
         }
     }

@@ -2,6 +2,7 @@ package com.example.navsample.entities
 
 interface TranslateEntity {
 
+    fun getEntityId(): String
     fun insertData(): HashMap<String, Any?>
     fun updateData(): HashMap<String, Any?>
 

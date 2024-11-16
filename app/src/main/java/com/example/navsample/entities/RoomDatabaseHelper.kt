@@ -238,10 +238,41 @@ class RoomDatabaseHelper(
         return category
     }
 
+    suspend fun markCategoryAsUpdated(id: String) {
+        dao.markCategoryAsUpdated(id)
+    }
+
+    suspend fun markStoreAsUpdated(id: String) {
+        dao.markStoreAsUpdated(id)
+    }
+
+    suspend fun markReceiptAsUpdated(id: String) {
+        dao.markReceiptAsUpdated(id)
+    }
+
+    suspend fun markProductAsUpdated(id: String) {
+        dao.markProductAsUpdated(id)
+    }
+
+    suspend fun markCategoryAsDeleted(id: String) {
+        dao.markCategoryAsDeleted(id)
+    }
+
+    suspend fun markStoreAsDeleted(id: String) {
+        dao.markStoreAsDeleted(id)
+    }
+
+    suspend fun markReceiptAsDeleted(id: String) {
+        dao.markReceiptAsDeleted(id)
+    }
+
+    suspend fun markProductAsDeleted(id: String) {
+        dao.markProductAsDeleted(id)
+    }
+
     suspend fun updateProduct(product: Product): Product {
         Log.i("Database", "Update product '${product.name}' with id '${product.id}'")
         product.updatedAt = DateUtil.getCurrentUtcTime()
-        product.toUpdate = false
         dao.updateProductFields(
             product.id,
             product.name,
@@ -262,7 +293,6 @@ class RoomDatabaseHelper(
     suspend fun updateStore(store: Store): Store {
         Log.i("Database", "Update store '${store.name}' with id '${store.id}'")
         store.updatedAt = DateUtil.getCurrentUtcTime()
-        store.toUpdate = false
         dao.updateStoreFields(
             store.id,
             store.name,
@@ -279,14 +309,28 @@ class RoomDatabaseHelper(
             "Update receipt from ${receipt.date} payed ${receipt.pln} with id '${receipt.id}'"
         )
         receipt.updatedAt = DateUtil.getCurrentUtcTime()
-        receipt.toUpdate = false
         dao.updateReceiptFields(
             receipt.id,
             receipt.date,
             receipt.time,
             receipt.pln,
             receipt.ptu,
+            receipt.validPrice,
             receipt.storeId,
+            receipt.updatedAt
+        )
+        return receipt
+    }
+
+    suspend fun updateReceiptValid(receipt: Receipt): Receipt {
+        Log.i(
+            "Database",
+            "Update receipt from ${receipt.date} payed ${receipt.pln} with id '${receipt.id}'"
+        )
+        receipt.updatedAt = DateUtil.getCurrentUtcTime()
+        dao.updateReceiptValidField(
+            receipt.id,
+            receipt.validPrice,
             receipt.updatedAt
         )
         return receipt

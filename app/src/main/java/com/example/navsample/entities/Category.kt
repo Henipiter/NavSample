@@ -40,4 +40,8 @@ data class Category(
             "updatedAt" to this.updatedAt
         )
     }
+
+    override fun getEntityId(): String {
+        return id
+    }
 }

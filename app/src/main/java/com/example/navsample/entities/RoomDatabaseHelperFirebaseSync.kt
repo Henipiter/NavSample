@@ -31,6 +31,26 @@ class RoomDatabaseHelperFirebaseSync(
         return dao.getNotSyncedReceiptForFirestore()
     }
 
+    suspend fun getAllOutdatedCategories(): List<Category> {
+        Log.i("Database", "Refresh category list")
+        return dao.getAllOutdatedCategories()
+    }
+
+    suspend fun getAllOutdatedStores(): List<Store> {
+        Log.i("Database", "Refresh store list")
+        return dao.getOutdatedStoreForFirestore()
+    }
+
+    suspend fun getAllOutdatedProducts(): List<Product> {
+        Log.i("Database", "Refresh store list")
+        return dao.getOutdatedProductForFirestore()
+    }
+
+    suspend fun getAllOutdatedReceipts(): List<Receipt> {
+        Log.i("Database", "Refresh store list")
+        return dao.getOutdatedReceiptForFirestore()
+    }
+
     suspend fun syncCategory(id: String) {
         Log.i("Database", "Refresh store list")
         dao.syncCategory(id)

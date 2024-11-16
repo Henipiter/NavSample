@@ -63,4 +63,8 @@ data class Product(
             "validPrice" to this.validPrice
         )
     }
+
+    override fun getEntityId(): String {
+        return id
+    }
 }

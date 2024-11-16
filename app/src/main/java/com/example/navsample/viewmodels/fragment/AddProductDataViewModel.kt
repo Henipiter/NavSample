@@ -55,7 +55,9 @@ class AddProductDataViewModel : ViewModel() {
     fun deleteProduct(productId: String) {
         viewModelScope.launch {
             val deletedProduct = roomDatabaseHelper.deleteProductById(productId)
-            firebaseHelper.delete(deletedProduct)
+            firebaseHelper.delete(deletedProduct) { id ->
+                viewModelScope.launch { roomDatabaseHelper.markProductAsDeleted(id) }
+            }
         }
     }
 
@@ -87,7 +89,9 @@ class AddProductDataViewModel : ViewModel() {
         viewModelScope.launch {
             val updatedProduct = roomDatabaseHelper.updateProduct(product)
             if (updatedProduct.firestoreId.isNotEmpty()) {
-                firebaseHelper.updateFirestore(updatedProduct)
+                firebaseHelper.updateFirestore(updatedProduct) {
+                    viewModelScope.launch { roomDatabaseHelper.markProductAsUpdated(product.id) }
+                }
             }
         }
     }
@@ -103,11 +107,12 @@ class AddProductDataViewModel : ViewModel() {
     }
 
     fun updateReceipt(newReceipt: Receipt) {
-        //TODO UPDATE ONLY 'VALID' FIELD
         viewModelScope.launch {
-            val updatedReceipt = roomDatabaseHelper.updateReceipt(newReceipt)
+            val updatedReceipt = roomDatabaseHelper.updateReceiptValid(newReceipt)
             if (newReceipt.firestoreId.isNotEmpty()) {
-                firebaseHelper.updateFirestore(updatedReceipt)
+                firebaseHelper.updateFirestore(updatedReceipt, newReceipt.updateValidData()) {
+                    viewModelScope.launch { roomDatabaseHelper.markReceiptAsUpdated(newReceipt.id) }
+                }
             }
         }
     }

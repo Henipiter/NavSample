@@ -45,7 +45,9 @@ class AddCategoryDataViewModel : ViewModel() {
     fun deleteCategory(categoryId: String) {
         viewModelScope.launch {
             val deletedCategory = roomDatabaseHelper.deleteCategory(categoryId)
-            firebaseHelper.delete(deletedCategory)
+            firebaseHelper.delete(deletedCategory) { id ->
+                viewModelScope.launch { roomDatabaseHelper.markCategoryAsDeleted(id) }
+            }
         }
     }
 
@@ -72,7 +74,9 @@ class AddCategoryDataViewModel : ViewModel() {
             val updatedCategory = roomDatabaseHelper.updateCategory(newCategory)
             savedCategory.postValue(updatedCategory)
             if (newCategory.firestoreId.isNotEmpty()) {
-                firebaseHelper.updateFirestore(updatedCategory)
+                firebaseHelper.updateFirestore(updatedCategory) {
+                    viewModelScope.launch { roomDatabaseHelper.markCategoryAsUpdated(updatedCategory.id) }
+                }
             }
         }
     }

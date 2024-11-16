@@ -9,12 +9,10 @@ import com.example.navsample.entities.dto.TranslateFirebaseEntity
 import com.google.firebase.Firebase
 import com.google.firebase.firestore.CollectionReference
 import com.google.firebase.firestore.firestore
-import kotlinx.coroutines.runBlocking
 import kotlin.reflect.KClass
 
 class FirebaseHelper(
-    private var userUuid: String,
-    private var dao: RoomDatabaseHelperFirebaseSync
+    private var userUuid: String
 ) {
 
     fun <T : TranslateEntity> addFirestore(entity: T, addDocumentFunction: (String) -> Unit) {
@@ -31,11 +29,20 @@ class FirebaseHelper(
             }
     }
 
-    fun <T : TranslateEntity> updateFirestore(entity: T) {
+    fun <T : TranslateEntity> updateFirestore(entity: T, updateDb: (String) -> Unit) {
+        updateFirestore(entity, entity.updateData(), updateDb)
+    }
+
+    fun <T : TranslateEntity> updateFirestore(
+        entity: T,
+        data: HashMap<String, Any?>,
+        updateDb: (String) -> Unit
+    ) {
         getFirestoreUserPath(getPath(entity::class))
             .document(entity.firestoreId)
-            .update(entity.updateData())
+            .update(data)
             .addOnSuccessListener {
+                updateDb.invoke(entity.getEntityId())
                 Log.i("Firebase", "Updating entity ${entity::class} end successfully.")
             }
             .addOnFailureListener { e ->
@@ -43,12 +50,13 @@ class FirebaseHelper(
             }
     }
 
-    fun <T : TranslateEntity> delete(entity: T) {
+    fun <T : TranslateEntity> delete(entity: T, updateDb: (String) -> Unit) {
         if (entity.firestoreId != "") {
             getFirestoreUserPath(getPath(entity::class))
                 .document(entity.firestoreId)
                 .update(entity.deleteData())
                 .addOnSuccessListener {
+                    updateDb.invoke(entity.getEntityId())
                     Log.i(
                         "Firebase",
                         "Field deletedAt was successfully updated for '${entity.javaClass.simpleName}'."
@@ -63,55 +71,27 @@ class FirebaseHelper(
         }
     }
 
-    fun <T : TranslateFirebaseEntity> synchronize(entity: T) {
-        synchronize(entity.firestoreId, entity::class, entity.synchronizeEntity())
-    }
-
-    private fun synchronize(
-        firestoreId: String,
-        entity: KClass<out TranslateFirebaseEntity>,
-        synchronizeData: HashMap<String, Any?>
-    ) {
-        if (firestoreId != "") {
-            getFirestoreUserPath(getPath(entity))
-                .document(firestoreId)
-                .update(synchronizeData)
+    fun <T : TranslateFirebaseEntity> synchronize(entity: T, updateDb: (String) -> Unit) {
+        if (entity.firestoreId != "") {
+            getFirestoreUserPath(getPath(entity::class))
+                .document(entity.firestoreId)
+                .update(entity.synchronizeEntity())
                 .addOnSuccessListener {
-                    updateSync(synchronizeData["id"] as String, entity)
+                    updateDb.invoke(entity.getEntityId())
                     Log.i(
                         "Firebase",
-                        "Field sync for '${entity.simpleName}' was successfully updated."
+                        "Field sync for '${entity::class.simpleName}' was successfully updated."
                     )
                 }
                 .addOnFailureListener { e ->
-                    Log.e("Firebase", "Sync error for '${entity.simpleName}': ${e.message}")
+                    Log.e("Firebase", "Sync error for '${entity::class.simpleName}': ${e.message}")
                 }
         }
     }
 
-    private fun updateSync(id: String, entity: KClass<out TranslateFirebaseEntity>) {
-        when (entity) {
-            StoreFirebase::class -> {
-                runBlocking { dao.syncStore(id) }
-            }
-
-            CategoryFirebase::class -> {
-                runBlocking { dao.syncCategory(id) }
-            }
-
-            ReceiptFirebase::class -> {
-                runBlocking { dao.syncReceipt(id) }
-            }
-
-            ProductFirebase::class -> {
-                runBlocking { dao.syncProduct(id) }
-            }
-        }
-    }
-
-    fun <T : TranslateEntity> delete(ids: List<T>) {
+    fun <T : TranslateEntity> delete(ids: List<T>, updateDb: (String) -> Unit) {
         ids.forEach { entity ->
-            delete(entity)
+            delete(entity, updateDb)
         }
     }
 

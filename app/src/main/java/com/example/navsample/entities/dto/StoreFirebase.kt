@@ -18,4 +18,8 @@ class StoreFirebase(
             "isSync" to this.isSync
         )
     }
+
+    override fun getEntityId(): String {
+        return id
+    }
 }

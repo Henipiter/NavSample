@@ -19,4 +19,8 @@ class ReceiptFirebase(
             "isSync" to this.isSync
         )
     }
+
+    override fun getEntityId(): String {
+        return id
+    }
 }

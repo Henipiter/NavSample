@@ -54,9 +54,13 @@ class AddReceiptDataViewModel : ViewModel() {
     fun deleteReceipt(receiptId: String) {
         viewModelScope.launch {
             val deletedProducts = roomDatabaseHelper.deleteReceiptProducts(receiptId)
-            firebaseHelper.delete(deletedProducts)
+            firebaseHelper.delete(deletedProducts) { id ->
+                viewModelScope.launch { roomDatabaseHelper.markProductAsDeleted(id) }
+            }
             val deletedReceipt = roomDatabaseHelper.deleteReceipt(receiptId)
-            firebaseHelper.delete(deletedReceipt)
+            firebaseHelper.delete(deletedReceipt) { id ->
+                viewModelScope.launch { roomDatabaseHelper.markReceiptAsDeleted(id) }
+            }
         }
     }
 
@@ -77,7 +81,9 @@ class AddReceiptDataViewModel : ViewModel() {
             val updatedReceipt = roomDatabaseHelper.updateReceipt(newReceipt)
             savedReceipt.postValue(updatedReceipt)
             if (newReceipt.firestoreId.isNotEmpty()) {
-                firebaseHelper.updateFirestore(updatedReceipt)
+                firebaseHelper.updateFirestore(updatedReceipt) { id ->
+                    viewModelScope.launch { roomDatabaseHelper.markReceiptAsUpdated(id) }
+                }
             }
         }
     }

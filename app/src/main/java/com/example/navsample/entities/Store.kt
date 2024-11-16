@@ -46,4 +46,8 @@ data class Store(
             "updatedAt" to this.updatedAt
         )
     }
+
+    override fun getEntityId(): String {
+        return id
+    }
 }

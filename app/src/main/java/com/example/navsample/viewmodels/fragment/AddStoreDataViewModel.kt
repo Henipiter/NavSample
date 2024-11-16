@@ -57,11 +57,17 @@ class AddStoreDataViewModel : ViewModel() {
     fun deleteStore(storeId: String) {
         viewModelScope.launch {
             val deletedProducts = roomDatabaseHelper.deleteStoreProducts(storeId)
-            firebaseHelper.delete(deletedProducts)
+            firebaseHelper.delete(deletedProducts) { id ->
+                viewModelScope.launch { roomDatabaseHelper.markProductAsDeleted(id) }
+            }
             val deletedReceipts = roomDatabaseHelper.deleteStoreReceipts(storeId)
-            firebaseHelper.delete(deletedReceipts)
+            firebaseHelper.delete(deletedReceipts) { id ->
+                viewModelScope.launch { roomDatabaseHelper.markReceiptAsDeleted(id) }
+            }
             val deletedStore = roomDatabaseHelper.deleteStore(storeId)
-            firebaseHelper.delete(deletedStore)
+            firebaseHelper.delete(deletedStore) { id ->
+                viewModelScope.launch { roomDatabaseHelper.markStoreAsDeleted(id) }
+            }
         }
     }
 
@@ -88,7 +94,9 @@ class AddStoreDataViewModel : ViewModel() {
             val updateStore = roomDatabaseHelper.updateStore(newStore)
             savedStore.postValue(updateStore)
             if (newStore.firestoreId.isNotEmpty()) {
-                firebaseHelper.updateFirestore(updateStore)
+                firebaseHelper.updateFirestore(updateStore) {
+                    viewModelScope.launch { roomDatabaseHelper.markStoreAsUpdated(newStore.id) }
+                }
             }
         }
     }

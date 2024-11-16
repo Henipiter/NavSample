@@ -52,7 +52,8 @@ interface ReceiptDao {
         "UPDATE category " +
                 "SET color = :color, " +
                 "name = :name, " +
-                "updatedAt = :updatedAt " +
+                "updatedAt = :updatedAt, " +
+                "toUpdate = 1 " +
                 "WHERE id = :id"
     )
     suspend fun updateCategoryFields(id: String, name: String, color: String, updatedAt: String)
@@ -80,6 +81,7 @@ interface ReceiptDao {
                 "time = :time, " +
                 "pln = :pln, " +
                 "ptu = :ptu, " +
+                "validPrice = :validPrice, " +
                 "storeId = :storeId, " +
                 "updatedAt = :updatedAt, " +
                 "toUpdate = 1 " +
@@ -91,7 +93,21 @@ interface ReceiptDao {
         time: String,
         pln: Int,
         ptu: Int,
+        validPrice: Boolean,
         storeId: String,
+        updatedAt: String
+    )
+
+    @Query(
+        "UPDATE receipt " +
+                "SET validPrice = :validPrice, " +
+                "updatedAt = :updatedAt, " +
+                "toUpdate = 1 " +
+                "WHERE id = :id"
+    )
+    suspend fun updateReceiptValidField(
+        id: String,
+        validPrice: Boolean,
         updatedAt: String
     )
 
@@ -284,11 +300,35 @@ interface ReceiptDao {
     @Query("UPDATE store SET isSync = 1 WHERE id = :id")
     suspend fun syncStore(id: String)
 
-    @Query("UPDATE receipt SET isSync = 1WHERE id = :id")
+    @Query("UPDATE receipt SET isSync = 1 WHERE id = :id")
     suspend fun syncReceipt(id: String)
 
     @Query("UPDATE product SET isSync = 1 WHERE id = :id")
     suspend fun syncProduct(id: String)
+
+    @Query("UPDATE category SET toUpdate = 0 WHERE id = :id")
+    suspend fun markCategoryAsUpdated(id: String)
+
+    @Query("UPDATE store SET toUpdate = 0 WHERE id = :id")
+    suspend fun markStoreAsUpdated(id: String)
+
+    @Query("UPDATE receipt SET toUpdate = 0 WHERE id = :id")
+    suspend fun markReceiptAsUpdated(id: String)
+
+    @Query("UPDATE product SET toUpdate = 0 WHERE id = :id")
+    suspend fun markProductAsUpdated(id: String)
+
+    @Query("UPDATE category SET toDelete = 0 WHERE id = :id")
+    suspend fun markCategoryAsDeleted(id: String)
+
+    @Query("UPDATE store SET toDelete = 0 WHERE id = :id")
+    suspend fun markStoreAsDeleted(id: String)
+
+    @Query("UPDATE receipt SET toDelete = 0 WHERE id = :id")
+    suspend fun markReceiptAsDeleted(id: String)
+
+    @Query("UPDATE product SET toDelete = 0 WHERE id = :id")
+    suspend fun markProductAsDeleted(id: String)
 
     @Query("SELECT id, firestoreId, isSync, toUpdate, toDelete FROM category WHERE isSync == 0")
     suspend fun getAllNotSyncedCategories(): List<CategoryFirebase>
@@ -314,6 +354,18 @@ interface ReceiptDao {
                 "WHERE p.isSync = 0"
     )
     suspend fun getNotSyncedProductForFirestore(): List<ProductFirebase>
+
+    @Query("SELECT * FROM category WHERE toUpdate == 1 OR toDelete == 1")
+    suspend fun getAllOutdatedCategories(): List<Category>
+
+    @Query("SELECT * FROM store WHERE toUpdate == 1 OR toDelete == 1")
+    suspend fun getOutdatedStoreForFirestore(): List<Store>
+
+    @Query("SELECT * FROM receipt WHERE toUpdate == 1 OR toDelete == 1")
+    suspend fun getOutdatedReceiptForFirestore(): List<Receipt>
+
+    @Query("SELECT * FROM product WHERE toUpdate == 1 OR toDelete == 1")
+    suspend fun getOutdatedProductForFirestore(): List<Product>
 
 
     @RawQuery

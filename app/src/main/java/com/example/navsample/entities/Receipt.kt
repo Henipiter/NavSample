@@ -46,7 +46,19 @@ data class Receipt(
             "ptu" to this.ptu,
             "date" to this.date,
             "time" to this.time,
+            "validPrice" to this.validPrice,
             "updatedAt" to this.updatedAt
         )
+    }
+
+    fun updateValidData(): HashMap<String, Any?> {
+        return hashMapOf(
+            "validPrice" to this.validPrice,
+            "updatedAt" to this.updatedAt
+        )
+    }
+
+    override fun getEntityId(): String {
+        return id
     }
 }
