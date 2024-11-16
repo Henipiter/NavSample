@@ -53,10 +53,16 @@ interface ReceiptDao {
                 "SET color = :color, " +
                 "name = :name, " +
                 "updatedAt = :updatedAt, " +
-                "toUpdate = 1 " +
+                "toUpdate = :toUpdate " +
                 "WHERE id = :id"
     )
-    suspend fun updateCategoryFields(id: String, name: String, color: String, updatedAt: String)
+    suspend fun updateCategoryFields(
+        id: String,
+        name: String,
+        color: String,
+        updatedAt: String,
+        toUpdate: Boolean = true
+    )
 
     @Query(
         "UPDATE store " +
@@ -64,7 +70,7 @@ interface ReceiptDao {
                 "name = :name, " +
                 "defaultCategoryId= :defaultCategoryId, " +
                 "updatedAt = :updatedAt, " +
-                "toUpdate = 1 " +
+                "toUpdate = :toUpdate " +
                 "WHERE id = :id"
     )
     suspend fun updateStoreFields(
@@ -72,7 +78,8 @@ interface ReceiptDao {
         name: String,
         nip: String,
         defaultCategoryId: String,
-        updatedAt: String
+        updatedAt: String,
+        toUpdate: Boolean = true
     )
 
     @Query(
@@ -84,7 +91,7 @@ interface ReceiptDao {
                 "validPrice = :validPrice, " +
                 "storeId = :storeId, " +
                 "updatedAt = :updatedAt, " +
-                "toUpdate = 1 " +
+                "toUpdate = :toUpdate " +
                 "WHERE id = :id"
     )
     suspend fun updateReceiptFields(
@@ -95,7 +102,8 @@ interface ReceiptDao {
         ptu: Int,
         validPrice: Boolean,
         storeId: String,
-        updatedAt: String
+        updatedAt: String,
+        toUpdate: Boolean = true
     )
 
     @Query(
@@ -124,7 +132,7 @@ interface ReceiptDao {
                 "ptuType = :ptuType, " +
                 "validPrice = :validPrice, " +
                 "updatedAt = :updatedAt, " +
-                "toUpdate = 1 " +
+                "toUpdate = :toUpdate " +
                 "WHERE id = :id"
     )
     suspend fun updateProductFields(
@@ -139,8 +147,95 @@ interface ReceiptDao {
         raw: String,
         ptuType: String,
         validPrice: Boolean,
-        updatedAt: String
+        updatedAt: String,
+        toUpdate: Boolean = true
     )
+
+
+    @Transaction
+    suspend fun saveCategoryFromFirestore(category: Category) {
+        val localCategory = getCategoryById(category.id)
+        if (localCategory == null) {
+            insertCategory(category)
+        } else {
+            if (localCategory.updatedAt < category.updatedAt) {
+                updateCategoryFields(
+                    category.id,
+                    category.name,
+                    category.color,
+                    category.updatedAt,
+                    false
+                )
+            }
+        }
+    }
+
+    @Transaction
+    suspend fun saveStoreFromFirestore(store: Store) {
+        val localStore = getStoreById(store.id)
+        if (localStore == null) {
+            insertStore(store)
+        } else {
+            if (localStore.updatedAt < store.updatedAt) {
+                updateStoreFields(
+                    store.id,
+                    store.name,
+                    store.nip,
+                    store.defaultCategoryId,
+                    store.updatedAt,
+                    false
+                )
+            }
+        }
+    }
+
+    @Transaction
+    suspend fun saveReceiptFromFirestore(receipt: Receipt) {
+        val localReceipt = getReceiptById(receipt.id)
+        if (localReceipt == null) {
+            insertReceipt(receipt)
+        } else {
+            if (localReceipt.updatedAt < receipt.updatedAt) {
+                updateReceiptFields(
+                    receipt.id,
+                    receipt.date,
+                    receipt.time,
+                    receipt.pln,
+                    receipt.ptu,
+                    receipt.validPrice,
+                    receipt.storeId,
+                    receipt.updatedAt,
+                    false
+                )
+            }
+        }
+    }
+
+    @Transaction
+    suspend fun saveProductFromFirestore(product: Product) {
+        val localProduct = getProductById(product.id)
+        if (localProduct == null) {
+            insertProduct(product)
+        } else {
+            if (localProduct.updatedAt < product.updatedAt) {
+                updateProductFields(
+                    product.id,
+                    product.name,
+                    product.categoryId,
+                    product.quantity,
+                    product.unitPrice,
+                    product.subtotalPrice,
+                    product.discount,
+                    product.finalPrice,
+                    product.raw,
+                    product.ptuType,
+                    product.validPrice,
+                    product.updatedAt,
+                    false
+                )
+            }
+        }
+    }
 
     @Query("UPDATE category SET firestoreId = :firestoreId WHERE id = :id")
     suspend fun updateCategoryFirestoreId(id: String, firestoreId: String)

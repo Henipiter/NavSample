@@ -392,4 +392,20 @@ class RoomDatabaseHelper(
             return newDate
         }
     }
+
+    suspend fun saveCategoryFromFirestore(category: Category) {
+        dao.saveCategoryFromFirestore(category)
+    }
+
+    suspend fun saveStoreFromFirestore(store: Store) {
+        dao.saveStoreFromFirestore(store)
+    }
+
+    suspend fun saveReceiptFromFirestore(receipt: Receipt) {
+        dao.saveReceiptFromFirestore(receipt)
+    }
+
+    suspend fun saveProductFromFirestore(product: Product) {
+        dao.saveProductFromFirestore(product)
+    }
 }

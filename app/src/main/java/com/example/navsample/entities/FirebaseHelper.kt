@@ -16,7 +16,8 @@ class FirebaseHelper(
 ) {
 
     fun <T : TranslateEntity> addFirestore(entity: T, addDocumentFunction: (String) -> Unit) {
-        getFirestoreUserPath(getPath(entity::class)).add(entity.insertData())
+        getFullFirestorePath(entity::class)
+            .add(entity.insertData())
             .addOnSuccessListener { documentReference ->
                 Log.i(
                     "Firestore",
@@ -38,7 +39,7 @@ class FirebaseHelper(
         data: HashMap<String, Any?>,
         updateDb: (String) -> Unit
     ) {
-        getFirestoreUserPath(getPath(entity::class))
+        getFullFirestorePath(entity::class)
             .document(entity.firestoreId)
             .update(data)
             .addOnSuccessListener {
@@ -52,7 +53,7 @@ class FirebaseHelper(
 
     fun <T : TranslateEntity> delete(entity: T, updateDb: (String) -> Unit) {
         if (entity.firestoreId != "") {
-            getFirestoreUserPath(getPath(entity::class))
+            getFullFirestorePath(entity::class)
                 .document(entity.firestoreId)
                 .update(entity.deleteData())
                 .addOnSuccessListener {
@@ -73,7 +74,7 @@ class FirebaseHelper(
 
     fun <T : TranslateFirebaseEntity> synchronize(entity: T, updateDb: (String) -> Unit) {
         if (entity.firestoreId != "") {
-            getFirestoreUserPath(getPath(entity::class))
+            getFullFirestorePath(entity::class)
                 .document(entity.firestoreId)
                 .update(entity.synchronizeEntity())
                 .addOnSuccessListener {
@@ -93,6 +94,10 @@ class FirebaseHelper(
         ids.forEach { entity ->
             delete(entity, updateDb)
         }
+    }
+
+    fun getFullFirestorePath(type: KClass<out Any>): CollectionReference {
+        return getFirestoreUserPath(getPath(type))
     }
 
     private fun getFirestoreUserPath(entityPath: String): CollectionReference {

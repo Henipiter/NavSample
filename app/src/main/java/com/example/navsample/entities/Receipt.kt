@@ -22,6 +22,7 @@ data class Receipt(
     @PrimaryKey
     var id: String = ""
 
+    constructor() : this("", -1, -1, "", "", false)
     override fun insertData(): HashMap<String, Any?> {
         return hashMapOf(
             "id" to this.id,

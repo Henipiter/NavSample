@@ -27,6 +27,7 @@ data class Product(
     @PrimaryKey
     var id: String = ""
 
+    constructor() : this("", "", "", -1, -1, -1, -1, -1, "", "", false)
     override fun insertData(): HashMap<String, Any?> {
         return hashMapOf(
             "receiptId" to this.receiptId,

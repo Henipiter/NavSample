@@ -19,6 +19,7 @@ data class Category(
     @PrimaryKey
     var id: String = ""
 
+    constructor() : this("", "")
     override fun insertData(): HashMap<String, Any?> {
         return hashMapOf(
             "id" to this.id,
