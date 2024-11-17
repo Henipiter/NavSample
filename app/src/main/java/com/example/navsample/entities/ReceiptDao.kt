@@ -154,6 +154,9 @@ interface ReceiptDao {
 
     @Transaction
     suspend fun saveCategoryFromFirestore(category: Category) {
+        if (category.id == "") {
+            return
+        }
         val localCategory = getCategoryById(category.id)
         if (localCategory == null) {
             insertCategory(category)
@@ -172,6 +175,9 @@ interface ReceiptDao {
 
     @Transaction
     suspend fun saveStoreFromFirestore(store: Store) {
+        if (store.id == "") {
+            return
+        }
         val localStore = getStoreById(store.id)
         if (localStore == null) {
             insertStore(store)
@@ -191,6 +197,9 @@ interface ReceiptDao {
 
     @Transaction
     suspend fun saveReceiptFromFirestore(receipt: Receipt) {
+        if (receipt.id == "") {
+            return
+        }
         val localReceipt = getReceiptById(receipt.id)
         if (localReceipt == null) {
             insertReceipt(receipt)
@@ -213,6 +222,9 @@ interface ReceiptDao {
 
     @Transaction
     suspend fun saveProductFromFirestore(product: Product) {
+        if (product.id == "") {
+            return
+        }
         val localProduct = getProductById(product.id)
         if (localProduct == null) {
             insertProduct(product)
