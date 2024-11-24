@@ -16,7 +16,7 @@ class StoreDropdownAdapter(
     var storeList: ArrayList<Store>
 ) : ArrayAdapter<Store>(ctx, res, storeList), Filterable {
     private var filteredList: ArrayList<Store>
-    private val addNewStoreHolder = Store("", "+ ADD NEW", null)
+    private val addNewStoreHolder = Store("", "+ ADD NEW", "")
 
     init {
         filteredList = ArrayList(storeList)

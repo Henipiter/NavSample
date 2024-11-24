@@ -1,112 +1,82 @@
 package com.example.navsample.viewmodels.fragment
 
-import android.util.Log
+import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.navsample.ApplicationContext
+import com.example.navsample.dto.inputmode.AddingInputType
 import com.example.navsample.entities.Category
+import com.example.navsample.entities.FirebaseHelper
 import com.example.navsample.entities.ReceiptDatabase
-import com.example.navsample.entities.TranslateEntity
-import com.google.firebase.Firebase
-import com.google.firebase.firestore.CollectionReference
-import com.google.firebase.firestore.firestore
+import com.example.navsample.entities.RoomDatabaseHelper
 import kotlinx.coroutines.launch
 
 class AddCategoryDataViewModel : ViewModel() {
 
-    companion object {
-        private const val CATEGORY_FIRESTORE_PATH = "categories"
-    }
+    private var firebaseHelper: FirebaseHelper
+    private var roomDatabaseHelper: RoomDatabaseHelper
 
-    private val firestore = Firebase.firestore
-    private val dao = ApplicationContext.context?.let { ReceiptDatabase.getInstance(it).receiptDao }
-
-    var inputType = "EMPTY"
-    var categoryId = -1
+    var inputType = AddingInputType.EMPTY.name
+    var categoryId = ""
 
     var categoryList = MutableLiveData<ArrayList<Category>>()
     var categoryById = MutableLiveData<Category?>()
     var savedCategory = MutableLiveData<Category>()
-    private var userUuid = MutableLiveData<String?>(null)
 
     init {
-        setUserUuid()
+        val myPref = ApplicationContext.context?.getSharedPreferences(
+            "preferences", AppCompatActivity.MODE_PRIVATE
+        )
+        val userUuid = myPref?.getString("userId", null) ?: throw Exception("NOT SET userId")
+        firebaseHelper = FirebaseHelper(userUuid)
+
+        val dao = ApplicationContext.context?.let { ReceiptDatabase.getInstance(it).receiptDao }
+            ?: throw Exception("NOT SET DATABASE")
+        roomDatabaseHelper = RoomDatabaseHelper(dao)
     }
 
     fun refreshCategoryList() {
-        Log.i("Database", "refresh category list")
         viewModelScope.launch {
-            categoryList.postValue(
-                dao?.getAllCategories() as ArrayList<Category>
-            )
+            categoryList.postValue(roomDatabaseHelper.getAllCategories() as ArrayList<Category>)
         }
     }
 
-
-    fun deleteCategory(category: Category) {
-        Log.i("Database", "delete category - id ${category.id}")
+    fun deleteCategory(categoryId: String) {
         viewModelScope.launch {
-            dao?.deleteCategory(category)
-        }
-    }
-
-    fun getCategoryById(id: Int) {
-        Log.i("Database", "refresh category list")
-        viewModelScope.launch {
-            categoryById.postValue(
-                dao?.getCategoryById(id)
-            )
-        }
-    }
-
-    fun insertCategory(newCategory: Category) {
-        Log.i("Database", "insert category: ${newCategory.name}")
-        viewModelScope.launch {
-            dao?.let {
-                val rowId = dao.insertCategory(newCategory)
-                newCategory.id = dao.getCategoryId(rowId)
+            val deletedCategory = roomDatabaseHelper.deleteCategory(categoryId)
+            firebaseHelper.delete(deletedCategory) { id ->
+                viewModelScope.launch { roomDatabaseHelper.markCategoryAsDeleted(id) }
             }
-            Log.i("Database", "inserted category with id ${newCategory.id}")
-            savedCategory.value = newCategory
-            addFirestore(newCategory)
         }
     }
 
+    fun getCategoryById(id: String) {
+        viewModelScope.launch {
+            categoryById.postValue(roomDatabaseHelper.getCategoryById(id))
+        }
+    }
+
+    fun insertCategory(newCategory: Category, generateId: Boolean = true) {
+        viewModelScope.launch {
+            val insertedCategory = roomDatabaseHelper.insertCategory(newCategory, generateId)
+            savedCategory.postValue(insertedCategory)
+            firebaseHelper.addFirestore(insertedCategory) {
+                viewModelScope.launch {
+                    roomDatabaseHelper.updateCategoryFirestoreId(insertedCategory.id, it)
+                }
+            }
+        }
+    }
 
     fun updateCategory(newCategory: Category) {
-        Log.i("Database", "update category with id ${newCategory.id}: ${newCategory.name}")
         viewModelScope.launch {
-            dao?.let {
-                dao.updateCategory(newCategory)
-            }
-            savedCategory.postValue(newCategory)
-            updateFirestore(newCategory)
-        }
-    }
-
-    private fun <T : TranslateEntity> addFirestore(obj: T) {
-        getFirestoreUserPath().document(obj.getDescriptiveId()).set(obj)
-    }
-
-    private fun <T : TranslateEntity> updateFirestore(obj: T) {
-        getFirestoreUserPath()
-            .document(obj.getDescriptiveId())
-            .update(obj.toMap())
-
-    }
-
-    private fun getFirestoreUserPath(): CollectionReference {
-        return firestore.collection("user").document(userUuid.value.toString())
-            .collection(CATEGORY_FIRESTORE_PATH)
-
-    }
-
-    private fun setUserUuid() {
-        viewModelScope.launch {
-            dao?.let {
-                val uuid = dao.getUserUuid()
-                userUuid.postValue(uuid)
+            val updatedCategory = roomDatabaseHelper.updateCategory(newCategory)
+            savedCategory.postValue(updatedCategory)
+            if (newCategory.firestoreId.isNotEmpty()) {
+                firebaseHelper.updateFirestore(updatedCategory) {
+                    viewModelScope.launch { roomDatabaseHelper.markCategoryAsUpdated(updatedCategory.id) }
+                }
             }
         }
     }

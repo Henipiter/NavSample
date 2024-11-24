@@ -77,7 +77,7 @@ class StoreListFragment : Fragment(), ItemClickListener {
             listingViewModel.storeList.value ?: arrayListOf(), this
         ) { i: Int ->
             listingViewModel.storeList.value?.get(i)?.let {
-                if (it.id == null) {
+                if (it.id.isEmpty()) {
                     Toast.makeText(requireContext(), "STORE HAS NOT ID", Toast.LENGTH_SHORT).show()
                 } else {
                     ConfirmDialog(
@@ -85,7 +85,7 @@ class StoreListFragment : Fragment(), ItemClickListener {
                         "$i Are you sure you want to delete the store with dependent receipts and" +
                                 " products??\n\n" + "Name: " + it.name + "\nNIP: " + it.nip
                     ) {
-                        addStoreDataViewModel.deleteStore(it.id!!)
+                        addStoreDataViewModel.deleteStore(it.id)
                         listingViewModel.storeList.value?.let { storeList ->
                             storeList.removeAt(i)
                             storeListAdapter.storeList = storeList
@@ -126,7 +126,9 @@ class StoreListFragment : Fragment(), ItemClickListener {
                 ListingFragmentDirections.actionListingFragmentToAddStoreFragment(
                     storeName = null,
                     storeNip = null,
-                    sourceFragment = FragmentName.STORE_LIST_FRAGMENT
+                    sourceFragment = FragmentName.STORE_LIST_FRAGMENT,
+                    storeId = "",
+                    categoryId = ""
                 )
             Navigation.findNavController(requireView()).navigate(action)
         }
@@ -135,7 +137,7 @@ class StoreListFragment : Fragment(), ItemClickListener {
     override fun onItemClick(index: Int) {
         listingViewModel.storeList.value?.let { storeList ->
             val storeId = storeList[index].id
-            if (storeId == null) {
+            if (storeId.isEmpty()) {
                 Toast.makeText(requireContext(), "STORE ID IS NULL", Toast.LENGTH_SHORT).show()
 
             } else {
@@ -145,7 +147,8 @@ class StoreListFragment : Fragment(), ItemClickListener {
                         storeId = storeId,
                         storeName = null,
                         storeNip = null,
-                        sourceFragment = FragmentName.STORE_LIST_FRAGMENT
+                        sourceFragment = FragmentName.STORE_LIST_FRAGMENT,
+                        categoryId = ""
                     )
                 Navigation.findNavController(requireView()).navigate(action)
             }

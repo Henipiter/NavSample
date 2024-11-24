@@ -8,19 +8,41 @@ import androidx.room.PrimaryKey
 data class Category(
     var name: String,
     var color: String,
+    override var createdAt: String = "",
+    override var updatedAt: String = "",
+    override var deletedAt: String = "",
+    override var firestoreId: String = "",
+    override var isSync: Boolean = false,
+    override var toUpdate: Boolean = false,
+    override var toDelete: Boolean = false
 ) : TranslateEntity {
-    @PrimaryKey(autoGenerate = true)
-    var id: Int? = null
+    @PrimaryKey
+    var id: String = ""
 
-    override fun toMap(): HashMap<String, Any?> {
+    constructor() : this("", "")
+    override fun insertData(): HashMap<String, Any?> {
         return hashMapOf(
             "id" to this.id,
             "name" to this.name,
-            "color" to this.color
+            "color" to this.color,
+            "createdAt" to this.createdAt,
+            "updatedAt" to this.updatedAt,
+            "deletedAt" to this.deletedAt,
+            "firestoreId" to this.firestoreId, //TODO DELETE
+            "isSync" to this.isSync
         )
     }
 
-    override fun getDescriptiveId(): String {
-        return "$id $name"
+    override fun updateData(): HashMap<String, Any?> {
+        return hashMapOf(
+            "id" to this.id,
+            "name" to this.name,
+            "color" to this.color,
+            "updatedAt" to this.updatedAt
+        )
+    }
+
+    override fun getEntityId(): String {
+        return id
     }
 }

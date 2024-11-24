@@ -56,8 +56,8 @@ class CropImageFragment : Fragment() {
         binding.toolbar.setOnMenuItemClickListener {
             when (it.itemId) {
                 R.id.rotate -> {
-                    imageViewModel.bitmapCroppedReceipt.value?.let {
-                        val rotatedBitmap = rotateBitmap(it)
+                    imageViewModel.bitmapCroppedReceipt.value?.let { bitmap ->
+                        val rotatedBitmap = rotateBitmap(bitmap)
                         imageViewModel.bitmapCroppedReceipt.value = rotatedBitmap
                         binding.receiptImage.setImageBitmap(rotatedBitmap)
                     }
@@ -84,9 +84,21 @@ class CropImageFragment : Fragment() {
 
     private fun analyzeImage(bitmap: Bitmap) {
         imageAnalyzerViewModel.uid = imageViewModel.uid.value ?: "temp"
+        navArgs.receiptId.ifEmpty {
+            Toast.makeText(requireContext(), "NO RECEIPT ID", Toast.LENGTH_SHORT).show()
+            return
+        }
+        navArgs.categoryId.ifEmpty {
+            Toast.makeText(requireContext(), "NO CATEGORY ID", Toast.LENGTH_SHORT).show()
+            return
+        }
         imageAnalyzerViewModel.analyzeProductList(
-            bitmap, navArgs.receiptId, navArgs.categoryId, listingViewModel.categoryList.value
+            bitmap,
+            navArgs.receiptId,
+            navArgs.categoryId,
+            listingViewModel.categoryList.value
         )
+
 
     }
 

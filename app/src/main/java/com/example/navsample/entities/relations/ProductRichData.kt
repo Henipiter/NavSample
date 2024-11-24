@@ -3,14 +3,14 @@ package com.example.navsample.entities.relations
 import androidx.room.Ignore
 
 data class ProductRichData(
-    var storeId: Int,
+    var storeId: String,
     var storeName: String,
     var date: String,
     var categoryName: String,
     var categoryColor: String,
-    var receiptId: Int,
+    var receiptId: String,
     var name: String,
-    var categoryId: Int,
+    var categoryId: String,
     var quantity: Int,
     var unitPrice: Int,
     var subtotalPrice: Int,
@@ -19,19 +19,19 @@ data class ProductRichData(
     var ptuType: String,
     var raw: String,
     var validPrice: Boolean,
-    var id: Int,
+    var id: String,
     @Ignore
     var collapse: Boolean = true
 ) {
     constructor(
-        storeId: Int,
+        storeId: String,
         storeName: String,
         date: String,
         categoryName: String,
         categoryColor: String,
-        receiptId: Int,
+        receiptId: String,
         name: String,
-        categoryId: Int,
+        categoryId: String,
         quantity: Int,
         unitPrice: Int,
         subtotalPrice: Int,
@@ -40,7 +40,7 @@ data class ProductRichData(
         ptuType: String,
         raw: String,
         validPrice: Boolean,
-        id: Int,
+        id: String,
     ) : this(
         storeId,
         storeName,

@@ -1,33 +1,27 @@
 package com.example.navsample.viewmodels.fragment
 
-import android.util.Log
+import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.navsample.ApplicationContext
+import com.example.navsample.dto.inputmode.AddingInputType
 import com.example.navsample.entities.Category
+import com.example.navsample.entities.FirebaseHelper
 import com.example.navsample.entities.ReceiptDatabase
+import com.example.navsample.entities.RoomDatabaseHelper
 import com.example.navsample.entities.Store
-import com.example.navsample.entities.TranslateEntity
-import com.google.firebase.Firebase
-import com.google.firebase.firestore.CollectionReference
-import com.google.firebase.firestore.firestore
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 class AddStoreDataViewModel : ViewModel() {
 
-    companion object {
-        private const val STORE_FIRESTORE_PATH = "stores"
-    }
-
-    private val firestore = Firebase.firestore
-    private val dao = ApplicationContext.context?.let { ReceiptDatabase.getInstance(it).receiptDao }
+    private var firebaseHelper: FirebaseHelper
+    private var roomDatabaseHelper: RoomDatabaseHelper
 
 
-    var inputType = "EMPTY"
-    var storeId = -1
-    var categoryId = -1
+    var inputType = AddingInputType.EMPTY.name
+    var storeId = ""
+    var categoryId = ""
     var storeName: String? = null
     var storeNip: String? = null
 
@@ -35,97 +29,74 @@ class AddStoreDataViewModel : ViewModel() {
     var categoryList = MutableLiveData<ArrayList<Category>>()
     var storeById = MutableLiveData<Store?>()
     var savedStore = MutableLiveData<Store>()
-    private var userUuid = MutableLiveData<String?>(null)
 
     init {
-        setUserUuid()
+        val myPref = ApplicationContext.context?.getSharedPreferences(
+            "preferences", AppCompatActivity.MODE_PRIVATE
+        )
+        val userUuid = myPref?.getString("userId", null) ?: throw Exception("NOT SET userId")
+        firebaseHelper = FirebaseHelper(userUuid)
+
+        val dao = ApplicationContext.context?.let { ReceiptDatabase.getInstance(it).receiptDao }
+            ?: throw Exception("NOT SET DATABASE")
+        roomDatabaseHelper = RoomDatabaseHelper(dao)
     }
 
     fun refreshCategoryList() {
-        Log.i("Database", "refresh category list")
         viewModelScope.launch {
-            categoryList.postValue(
-                dao?.getAllCategories() as ArrayList<Category>
-            )
+            categoryList.postValue(roomDatabaseHelper.getAllCategories() as ArrayList<Category>)
         }
     }
 
     fun refreshStoreList() {
-        Log.i("Database", "refresh store list")
         viewModelScope.launch {
-            storeList.postValue(dao?.getAllStores()?.let { ArrayList(it) })
+            storeList.postValue(roomDatabaseHelper.getAllStores() as ArrayList<Store>)
         }
     }
 
-    fun deleteStore(storeId: Int) {
-        Log.i("Database", "delete store - id $storeId")
+    fun deleteStore(storeId: String) {
         viewModelScope.launch {
-            dao?.deleteProductsOfStore(storeId)
-            dao?.deleteReceiptsOfStore(storeId)
-            dao?.deleteStoreById(storeId)
-        }
-    }
-
-    fun getStoreById(id: Int) {
-        Log.i("Database", "get store with id $id")
-        viewModelScope.launch {
-            dao?.let {
-                storeById.postValue(dao.getStoreById(id))
+            val deletedProducts = roomDatabaseHelper.deleteStoreProducts(storeId)
+            firebaseHelper.delete(deletedProducts) { id ->
+                viewModelScope.launch { roomDatabaseHelper.markProductAsDeleted(id) }
+            }
+            val deletedReceipts = roomDatabaseHelper.deleteStoreReceipts(storeId)
+            firebaseHelper.delete(deletedReceipts) { id ->
+                viewModelScope.launch { roomDatabaseHelper.markReceiptAsDeleted(id) }
+            }
+            val deletedStore = roomDatabaseHelper.deleteStore(storeId)
+            firebaseHelper.delete(deletedStore) { id ->
+                viewModelScope.launch { roomDatabaseHelper.markStoreAsDeleted(id) }
             }
         }
     }
 
-    fun insertStore(newStore: Store) {
-        Log.i("Database", "insert store ${newStore.name}")
+    fun getStoreById(id: String) {
         viewModelScope.launch {
-            try {
-                dao?.let {
-                    val rowId = dao.insertStore(newStore)
-                    newStore.id = dao.getStoreId(rowId)
+            roomDatabaseHelper.getStoreById(id)
+        }
+    }
+
+    fun insertStore(newStore: Store, generateId: Boolean = true) {
+        viewModelScope.launch {
+            val insertedStore = roomDatabaseHelper.insertStore(newStore, generateId)
+            savedStore.postValue(insertedStore)
+            firebaseHelper.addFirestore(insertedStore) {
+                viewModelScope.launch {
+                    roomDatabaseHelper.updateStoreFirestoreId(insertedStore.id, it)
                 }
-                Log.i("Database", "inserted receipt with id ${newStore.id}")
-                addFirestore(newStore)
-                savedStore.postValue(newStore)
-            } catch (e: Exception) {
-                Log.e("Insert store to DB", e.message.toString())
             }
         }
     }
 
     fun updateStore(newStore: Store) {
-        Log.i("Database", "update store with id ${newStore.id}: ${newStore.name}")
-        viewModelScope.launch(Dispatchers.IO) {
-            dao?.let {
-                dao.updateStore(newStore)
-            }
-        }
-        savedStore.value = newStore
-        updateFirestore(newStore)
-
-    }
-
-    private fun <T : TranslateEntity> addFirestore(obj: T) {
-        getFirestoreUserPath().document(obj.getDescriptiveId()).set(obj)
-    }
-
-    private fun <T : TranslateEntity> updateFirestore(obj: T) {
-        getFirestoreUserPath()
-            .document(obj.getDescriptiveId())
-            .update(obj.toMap())
-
-    }
-
-    private fun getFirestoreUserPath(): CollectionReference {
-        return firestore.collection("user").document(userUuid.value.toString())
-            .collection(STORE_FIRESTORE_PATH)
-
-    }
-
-    private fun setUserUuid() {
         viewModelScope.launch {
-            dao?.let {
-                val uuid = dao.getUserUuid()
-                userUuid.postValue(uuid)
+            val updateStore = roomDatabaseHelper.updateStore(newStore)
+            savedStore.postValue(updateStore)
+            if (newStore.firestoreId.isNotEmpty()) {
+                firebaseHelper.updateFirestore(updateStore) {
+                    viewModelScope.launch { roomDatabaseHelper.markStoreAsUpdated(newStore.id) }
+                }
             }
         }
     }

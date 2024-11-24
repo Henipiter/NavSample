@@ -67,8 +67,8 @@ class ImageImportFragment : Fragment() {
         binding.toolbar.setOnMenuItemClickListener {
             when (it.itemId) {
                 R.id.rotate -> {
-                    imageViewModel.bitmapOriginal.value?.let {
-                        imageViewModel.bitmapOriginal.value = rotateBitmap(it)
+                    imageViewModel.bitmapOriginal.value?.let { bitmap ->
+                        imageViewModel.bitmapOriginal.value = rotateBitmap(bitmap)
                     }
                     Toast.makeText(requireContext(), "ROTATE", Toast.LENGTH_SHORT).show()
                     true
@@ -78,7 +78,9 @@ class ImageImportFragment : Fragment() {
                     binding.receiptImage.croppedImageAsync()
                     val action =
                         ImageImportFragmentDirections.actionImageImportFragmentToAddReceiptFragment(
-                            sourceFragment = FragmentName.IMAGE_IMPORT_FRAGMENT
+                            sourceFragment = FragmentName.IMAGE_IMPORT_FRAGMENT,
+                            storeId = "",
+                            receiptId = ""
                         )
                     Navigation.findNavController(requireView()).navigate(action)
                     true
@@ -103,7 +105,9 @@ class ImageImportFragment : Fragment() {
             imageViewModel.clearData()
             val action =
                 ImageImportFragmentDirections.actionImageImportFragmentToAddReceiptFragment(
-                    sourceFragment = FragmentName.IMAGE_IMPORT_FRAGMENT
+                    sourceFragment = FragmentName.IMAGE_IMPORT_FRAGMENT,
+                    receiptId = "",
+                    storeId = ""
                 )
             Navigation.findNavController(requireView()).navigate(action)
         }

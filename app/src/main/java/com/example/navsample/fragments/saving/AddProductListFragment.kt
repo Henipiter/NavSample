@@ -102,8 +102,8 @@ class AddProductListFragment : Fragment(), ItemClickListener {
                     "Are you sure you want to delete the product??\n\n" +
                             "Name: ${product.name}\nPLN: ${product.subtotalPrice}"
                 ) {
-                    if (product.id != null && product.id!! >= 0) {
-                        addProductDataViewModel.deleteProduct(product.id!!)
+                    if (product.id.isNotEmpty()) {
+                        addProductDataViewModel.deleteProduct(product.id)
                     }
                     productList.removeAt(i)
                     productListAdapter.productList = productList
@@ -137,7 +137,7 @@ class AddProductListFragment : Fragment(), ItemClickListener {
             when (it.itemId) {
                 R.id.aiParser -> {
                     val productsData = AnalyzedProductsData(
-                        ArrayList(addProductDataViewModel.productList.value?.map { it.name }
+                        ArrayList(addProductDataViewModel.productList.value?.map { product -> product.name }
                             ?: arrayListOf()),
                         ArrayList(),
                         addProductDataViewModel.productList.value ?: arrayListOf()
@@ -161,7 +161,9 @@ class AddProductListFragment : Fragment(), ItemClickListener {
                             inputType = AddingInputType.EMPTY.name,
                             receiptId = navArgs.receiptId,
                             storeId = navArgs.storeId,
-                            sourceFragment = FragmentName.ADD_PRODUCT_LIST_FRAGMENT
+                            sourceFragment = FragmentName.ADD_PRODUCT_LIST_FRAGMENT,
+                            productId = "",
+                            categoryId = ""
                         )
                     Navigation.findNavController(requireView()).navigate(action)
                     true
@@ -190,16 +192,16 @@ class AddProductListFragment : Fragment(), ItemClickListener {
 
 
     private fun consumeNavArgs() {
-        if (navArgs.storeId != -1) {
+        if (navArgs.storeId.isNotEmpty()) {
             addProductDataViewModel.getStoreById(navArgs.storeId)
         } else {
-            throw Exception("NO STORE ID SET: " + navArgs.storeId)
+            throw Exception("NO STORE ID SET")
         }
-        if (navArgs.receiptId != -1) {
+        if (navArgs.receiptId.isNotEmpty()) {
             addProductDataViewModel.getReceiptById(navArgs.receiptId)
             addProductDataViewModel.getProductsByReceiptId(navArgs.receiptId)
         } else {
-            throw Exception("NO RECEIPT ID SET: " + navArgs.receiptId)
+            throw Exception("NO RECEIPT ID SET")
         }
 
     }
@@ -272,7 +274,9 @@ class AddProductListFragment : Fragment(), ItemClickListener {
                 productIndex = index,
                 receiptId = navArgs.receiptId,
                 storeId = navArgs.storeId,
-                sourceFragment = FragmentName.ADD_PRODUCT_LIST_FRAGMENT
+                sourceFragment = FragmentName.ADD_PRODUCT_LIST_FRAGMENT,
+                productId = "",
+                categoryId = ""
             )
         Navigation.findNavController(requireView()).navigate(action)
 

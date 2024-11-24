@@ -5,28 +5,61 @@ import androidx.room.PrimaryKey
 
 @Entity
 data class Receipt(
-    var storeId: Int,
+    var storeId: String,
     var pln: Int,
     var ptu: Int,
     var date: String,
     var time: String,
-    var validPrice: Boolean
+    var validPrice: Boolean,
+    override var createdAt: String = "",
+    override var updatedAt: String = "",
+    override var deletedAt: String = "",
+    override var firestoreId: String = "",
+    override var isSync: Boolean = false,
+    override var toUpdate: Boolean = false,
+    override var toDelete: Boolean = false
 ) : TranslateEntity {
-    @PrimaryKey(autoGenerate = true)
-    var id: Int? = null
+    @PrimaryKey
+    var id: String = ""
 
-    override fun toMap(): HashMap<String, Any?> {
+    constructor() : this("", -1, -1, "", "", false)
+    override fun insertData(): HashMap<String, Any?> {
         return hashMapOf(
             "id" to this.id,
             "storeId" to this.storeId,
             "pln" to this.pln,
             "ptu" to this.ptu,
             "date" to this.date,
-            "time" to this.time
+            "time" to this.time,
+            "createdAt" to this.createdAt,
+            "updatedAt" to this.updatedAt,
+            "deletedAt" to this.deletedAt,
+            "firestoreId" to this.firestoreId, //TODO DELETE
+            "isSync" to this.isSync
         )
     }
 
-    override fun getDescriptiveId(): String {
-        return "$id $date $time"
+    override fun updateData(): HashMap<String, Any?> {
+        return hashMapOf(
+            "id" to this.id,
+            "storeId" to this.storeId,
+            "pln" to this.pln,
+            "ptu" to this.ptu,
+            "date" to this.date,
+            "time" to this.time,
+            "validPrice" to this.validPrice,
+            "updatedAt" to this.updatedAt
+        )
+    }
+
+    fun updateValidData(): HashMap<String, Any?> {
+        return hashMapOf(
+            "validPrice" to this.validPrice,
+            "updatedAt" to this.updatedAt
+        )
+    }
+
+    override fun getEntityId(): String {
+        return id
     }
 }

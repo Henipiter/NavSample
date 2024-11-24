@@ -3,8 +3,9 @@ package com.example.navsample.imageanalyzer
 import com.example.navsample.dto.PriceUtils.Companion.roundInt
 import com.example.navsample.entities.Product
 import kotlin.math.min
+import kotlin.math.roundToInt
 
-class ReceiptParser(var receiptId: Int, var categoryId: Int) {
+class ReceiptParser(var receiptId: String, var categoryId: String) {
     companion object {
         private const val REGEX_PRICE = """-*(\d+\s*[,.]\s*\d\s*\d)|(\d+\s+\d\s*\d)"""
         private const val REGEX_QUANTITY = """(\d+[,.]\s*\d*\s*\d*\s*\d*)|(\d+\s*)"""
@@ -88,8 +89,17 @@ class ReceiptParser(var receiptId: Int, var categoryId: Int) {
         }
     }
 
+    private fun roundInt(integer: Int): Int {
+        return (integer / 1000.0).roundToInt()
+    }
+
     private fun arePricesValid(product: Product): Boolean {
-        return product.quantity * product.unitPrice == product.subtotalPrice && product.subtotalPrice - product.discount == product.finalPrice
+        val isNotZero =
+            product.quantity > 0.0 && product.unitPrice > 0.0 && product.subtotalPrice > 0.0 && product.finalPrice > 0.0
+        val isSubtotalPriceValid =
+            roundInt(product.quantity * product.unitPrice) == product.subtotalPrice
+        val isFinalPriceValid = product.subtotalPrice - product.discount == product.finalPrice
+        return isNotZero && isSubtotalPriceValid && isFinalPriceValid
     }
 
     private fun fixPrize(price: String): Double {
@@ -101,7 +111,7 @@ class ReceiptParser(var receiptId: Int, var categoryId: Int) {
         newPrice = newPrice.replace("\\s*".toRegex(), "").trim()
 
         return try {
-            newPrice.toDouble() * 100
+            newPrice.toDouble()
         } catch (exception: Exception) {
             0.0
         }

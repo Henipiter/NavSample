@@ -17,6 +17,10 @@ import com.example.navsample.databinding.FragmentSettingsBinding
 import com.example.navsample.entities.init.InitDatabaseHelper
 import com.example.navsample.viewmodels.ImageViewModel
 import com.example.navsample.viewmodels.InitDatabaseViewModel
+import com.example.navsample.viewmodels.fragment.AddCategoryDataViewModel
+import com.example.navsample.viewmodels.fragment.AddProductDataViewModel
+import com.example.navsample.viewmodels.fragment.AddReceiptDataViewModel
+import com.example.navsample.viewmodels.fragment.AddStoreDataViewModel
 import java.util.UUID
 
 class SettingsFragment : Fragment() {
@@ -24,11 +28,16 @@ class SettingsFragment : Fragment() {
 
     private val binding get() = _binding!!
     private val initDatabaseViewModel: InitDatabaseViewModel by activityViewModels()
+    private val addStoreDataViewModel: AddStoreDataViewModel by activityViewModels()
+    private val addCategoryDataViewModel: AddCategoryDataViewModel by activityViewModels()
+    private val addReceiptDataViewModel: AddReceiptDataViewModel by activityViewModels()
+    private val addProductDataViewModel: AddProductDataViewModel by activityViewModels()
     private val imageViewModel: ImageViewModel by activityViewModels()
 
 
     companion object {
         private const val FILLED_DB = "filled_db"
+        private const val USER_ID = "userId"
     }
 
     private lateinit var myPref: SharedPreferences
@@ -59,21 +68,30 @@ class SettingsFragment : Fragment() {
         if (BuildConfig.DEVELOPER) {
             devButton()
         }
-
-        myPref = requireContext().getSharedPreferences(
-            "preferences",
-            AppCompatActivity.MODE_PRIVATE
-        )
+        myPref =
+            requireContext().getSharedPreferences("preferences", AppCompatActivity.MODE_PRIVATE)
+        if (myPref.getString(USER_ID, "") == "") {
+            myPref.edit().putString(USER_ID, UUID.randomUUID().toString()).apply()
+        }
         if (myPref.getString(FILLED_DB, "false") == "false") {
             initDatabase()
             myPref.edit().putString(FILLED_DB, "true").apply()
-        } else {
-            initDatabaseViewModel.setUserUuid()
         }
     }
 
     private fun initDatabase() {
-        observeUserUUid()
+        InitDatabaseHelper.getStores().forEach { store ->
+            addStoreDataViewModel.insertStore(store, false)
+        }
+        InitDatabaseHelper.getCategories().forEach { category ->
+            addCategoryDataViewModel.insertCategory(category, false)
+        }
+        InitDatabaseHelper.getReceipts().forEach { receipt ->
+            addReceiptDataViewModel.insertReceipt(receipt, false)
+        }
+        InitDatabaseHelper.getProducts().forEach { product ->
+            addProductDataViewModel.insertProducts(product)
+        }
     }
 
     private fun devButton() {
@@ -85,27 +103,6 @@ class SettingsFragment : Fragment() {
         binding.guideTest.setOnClickListener {
             val intent = Intent(requireContext(), GuideActivity::class.java)
             startActivity(intent)
-        }
-    }
-
-    private fun observeUserUUid() {
-        initDatabaseViewModel.setUserUuid()
-        initDatabaseViewModel.userUuid.observe(viewLifecycleOwner) {
-            if (it != null && it != "") {
-                InitDatabaseHelper.getStores().forEach { store ->
-                    initDatabaseViewModel.insertStore(store)
-                }
-                InitDatabaseHelper.getCategories().forEach { category ->
-                    initDatabaseViewModel.insertCategoryList(category)
-                }
-                InitDatabaseHelper.getReceipts().forEach { receipt ->
-                    initDatabaseViewModel.insertReceipt(receipt)
-                }
-                InitDatabaseHelper.getProducts().forEach { product ->
-                    initDatabaseViewModel.insertProducts(product)
-                }
-                initDatabaseViewModel.userUuid.removeObserver { }
-            }
         }
     }
 }

@@ -126,12 +126,12 @@ class AddCategoryFragment : Fragment() {
             binding.toolbar.title = "New category"
 
         } else if (inputType == AddingInputType.ID) {
-            if (addCategoryDataViewModel.categoryId >= 0) {
+            if (addCategoryDataViewModel.categoryId.isNotEmpty()) {
                 binding.toolbar.title = "Edit category"
                 mode = DataMode.EDIT
                 addCategoryDataViewModel.getCategoryById(addCategoryDataViewModel.categoryId)
             } else {
-                throw Exception("NO CATEGORY ID SET: " + addCategoryDataViewModel.categoryId)
+                throw Exception("NO CATEGORY ID SET")
             }
         } else {
             throw Exception("BAD INPUT TYPE: " + addCategoryDataViewModel.inputType)
@@ -196,9 +196,10 @@ class AddCategoryFragment : Fragment() {
                         val action =
                             AddCategoryFragmentDirections.actionAddCategoryFragmentToAddStoreFragment(
                                 sourceFragment = FragmentName.ADD_CATEGORY_FRAGMENT,
-                                categoryId = it.id ?: -2,
-                                storeName = null,
-                                storeNip = null
+                                categoryId = it.id,
+                                storeId = "",
+                                storeName = "",
+                                storeNip = ""
                             )
                         Navigation.findNavController(requireView()).navigate(action)
                     }
@@ -207,7 +208,10 @@ class AddCategoryFragment : Fragment() {
                         val action =
                             AddCategoryFragmentDirections.actionAddCategoryFragmentToAddProductFragment(
                                 sourceFragment = FragmentName.ADD_CATEGORY_FRAGMENT,
-                                categoryId = it.id ?: -2
+                                categoryId = it.id,
+                                storeId = "",
+                                receiptId = "",
+                                productId = ""
                             )
                         Navigation.findNavController(requireView()).navigate(action)
                     }

@@ -131,12 +131,12 @@ class ReceiptListFragment : Fragment(), ItemClickListener {
     override fun onItemClick(index: Int) {
         listingViewModel.receiptList.value?.let { receiptList ->
             val receiptId = receiptList[index].id
-            val action =
-                ListingFragmentDirections.actionListingFragmentToAddReceiptFragment(
-                    inputType = AddingInputType.ID.name,
-                    receiptId = receiptId,
-                    sourceFragment = FragmentName.RECEIPT_LIST_FRAGMENT
-                )
+            val action = ListingFragmentDirections.actionListingFragmentToAddReceiptFragment(
+                inputType = AddingInputType.ID.name,
+                receiptId = receiptId,
+                sourceFragment = FragmentName.RECEIPT_LIST_FRAGMENT,
+                storeId = ""
+            )
             Navigation.findNavController(requireView()).navigate(action)
 
         }

@@ -5,22 +5,51 @@ import androidx.room.PrimaryKey
 
 @Entity
 data class Product(
-    var receiptId: Int,
+    var receiptId: String,
     var name: String,
-    var categoryId: Int,
-    var quantity: Int, //divide by 1000
+    var categoryId: String,
+    var quantity: Int,
     var unitPrice: Int,
     var subtotalPrice: Int,
     var discount: Int,
     var finalPrice: Int,
     var ptuType: String,
     var raw: String,
-    var validPrice: Boolean
+    var validPrice: Boolean,
+    override var createdAt: String = "",
+    override var updatedAt: String = "",
+    override var deletedAt: String = "",
+    override var firestoreId: String = "",
+    override var isSync: Boolean = false,
+    override var toUpdate: Boolean = false,
+    override var toDelete: Boolean = false
 ) : TranslateEntity {
-    @PrimaryKey(autoGenerate = true)
-    var id: Int? = null
+    @PrimaryKey
+    var id: String = ""
 
-    override fun toMap(): HashMap<String, Any?> {
+    constructor() : this("", "", "", -1, -1, -1, -1, -1, "", "", false)
+    override fun insertData(): HashMap<String, Any?> {
+        return hashMapOf(
+            "receiptId" to this.receiptId,
+            "name" to this.name,
+            "categoryId" to this.categoryId,
+            "quantity" to this.quantity,
+            "unitPrice" to this.unitPrice,
+            "subtotalPrice" to this.subtotalPrice,
+            "discount" to this.discount,
+            "finalPrice" to this.finalPrice,
+            "ptuType" to this.ptuType,
+            "raw" to this.raw,
+            "validPrice" to this.validPrice,
+            "createdAt" to this.createdAt,
+            "updatedAt" to this.updatedAt,
+            "deletedAt" to this.deletedAt,
+            "firestoreId" to this.firestoreId, //TODO DELETE
+            "isSync" to this.isSync
+        )
+    }
+
+    override fun updateData(): HashMap<String, Any?> {
         return hashMapOf(
             "receiptId" to this.receiptId,
             "name" to this.name,
@@ -36,7 +65,7 @@ data class Product(
         )
     }
 
-    override fun getDescriptiveId(): String {
-        return "$id $name"
+    override fun getEntityId(): String {
+        return id
     }
 }

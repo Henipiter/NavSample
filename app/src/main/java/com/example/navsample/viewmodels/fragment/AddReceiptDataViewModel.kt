@@ -1,134 +1,90 @@
 package com.example.navsample.viewmodels.fragment
 
-import android.util.Log
+import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.navsample.ApplicationContext
+import com.example.navsample.dto.inputmode.AddingInputType
+import com.example.navsample.entities.FirebaseHelper
 import com.example.navsample.entities.Receipt
 import com.example.navsample.entities.ReceiptDatabase
+import com.example.navsample.entities.RoomDatabaseHelper
 import com.example.navsample.entities.Store
-import com.example.navsample.entities.TranslateEntity
-import com.google.firebase.Firebase
-import com.google.firebase.firestore.CollectionReference
-import com.google.firebase.firestore.firestore
 import kotlinx.coroutines.launch
 
 class AddReceiptDataViewModel : ViewModel() {
 
-    companion object {
-        private const val RECEIPT_FIRESTORE_PATH = "receipts"
-    }
+    private var firebaseHelper: FirebaseHelper
+    private var roomDatabaseHelper: RoomDatabaseHelper
 
-    private val firestore = Firebase.firestore
-    private val dao = ApplicationContext.context?.let { ReceiptDatabase.getInstance(it).receiptDao }
-
-
-    var inputType = "EMPTY"
-    var receiptId = -1
-    var storeId = -1
+    var inputType = AddingInputType.EMPTY.name
+    var receiptId = ""
+    var storeId = ""
 
     var storeList = MutableLiveData<ArrayList<Store>>()
     var receiptById = MutableLiveData<Receipt?>()
     var savedReceipt = MutableLiveData<Receipt>()
-    private var userUuid = MutableLiveData<String?>(null)
 
     init {
-        setUserUuid()
+        val myPref = ApplicationContext.context?.getSharedPreferences(
+            "preferences", AppCompatActivity.MODE_PRIVATE
+        )
+        val userUuid = myPref?.getString("userId", null) ?: throw Exception("NOT SET userId")
+        firebaseHelper = FirebaseHelper(userUuid)
+
+        val dao = ApplicationContext.context?.let { ReceiptDatabase.getInstance(it).receiptDao }
+            ?: throw Exception("NOT SET DATABASE")
+        roomDatabaseHelper = RoomDatabaseHelper(dao)
     }
 
     fun refreshStoreList() {
-        Log.i("Database", "refresh store list")
         viewModelScope.launch {
-            storeList.postValue(dao?.getAllStores()?.let { ArrayList(it) })
+            storeList.postValue(roomDatabaseHelper.getAllStores() as ArrayList)
         }
     }
 
-    fun getReceiptById(id: Int) {
-        Log.i("Database", "get store with id $id")
+    fun getReceiptById(id: String) {
         viewModelScope.launch {
-            dao?.let {
-                receiptById.postValue(dao.getReceiptById(id))
+            receiptById.postValue(roomDatabaseHelper.getReceiptById(id))
+        }
+    }
+
+
+    fun deleteReceipt(receiptId: String) {
+        viewModelScope.launch {
+            val deletedProducts = roomDatabaseHelper.deleteReceiptProducts(receiptId)
+            firebaseHelper.delete(deletedProducts) { id ->
+                viewModelScope.launch { roomDatabaseHelper.markProductAsDeleted(id) }
+            }
+            val deletedReceipt = roomDatabaseHelper.deleteReceipt(receiptId)
+            firebaseHelper.delete(deletedReceipt) { id ->
+                viewModelScope.launch { roomDatabaseHelper.markReceiptAsDeleted(id) }
+            }
+        }
+    }
+
+    fun insertReceipt(newReceipt: Receipt, generateId: Boolean = true) {
+        viewModelScope.launch {
+            val insertedReceipt = roomDatabaseHelper.insertReceipt(newReceipt, generateId)
+            savedReceipt.postValue(insertedReceipt)
+            firebaseHelper.addFirestore(insertedReceipt) {
+                viewModelScope.launch {
+                    roomDatabaseHelper.updateReceiptFirestoreId(insertedReceipt.id, it)
+                }
             }
         }
     }
 
     fun updateReceipt(newReceipt: Receipt) {
-        Log.i(
-            "Database",
-            "update receipt with id ${newReceipt.id}: ${newReceipt.date} ${newReceipt.pln}"
-        )
         viewModelScope.launch {
-            dao?.let {
-                dao.updateReceipt(newReceipt)
+            val updatedReceipt = roomDatabaseHelper.updateReceipt(newReceipt)
+            savedReceipt.postValue(updatedReceipt)
+            if (newReceipt.firestoreId.isNotEmpty()) {
+                firebaseHelper.updateFirestore(updatedReceipt) { id ->
+                    viewModelScope.launch { roomDatabaseHelper.markReceiptAsUpdated(id) }
+                }
             }
-            savedReceipt.postValue(newReceipt)
-            updateFirestore(newReceipt)
-        }
-    }
-
-
-    fun deleteReceipt(receiptId: Int) {
-        Log.i("Database", "delete receipt - id $receiptId")
-        viewModelScope.launch {
-            dao?.deleteProductsOfReceipt(receiptId)
-            dao?.deleteReceiptById(receiptId)
-        }
-    }
-
-    fun insertReceipt(newReceipt: Receipt) {
-        Log.i("Database", "insert receipt: ${newReceipt.date} ${newReceipt.pln}")
-        viewModelScope.launch {
-            dao?.let {
-                newReceipt.date = convertDateFormat(newReceipt.date)
-                val rowId = dao.insertReceipt(newReceipt)
-                newReceipt.id = dao.getReceiptId(rowId)
-            }
-            Log.i("Database", "inserted receipt with id ${newReceipt.id}")
-            savedReceipt.value = newReceipt
-            addFirestore(newReceipt)
-        }
-    }
-
-
-    private fun <T : TranslateEntity> addFirestore(obj: T) {
-        getFirestoreUserPath().document(obj.getDescriptiveId()).set(obj)
-    }
-
-    private fun <T : TranslateEntity> updateFirestore(obj: T) {
-        getFirestoreUserPath()
-            .document(obj.getDescriptiveId())
-            .update(obj.toMap())
-
-    }
-
-    private fun getFirestoreUserPath(): CollectionReference {
-        return firestore.collection("user").document(userUuid.value.toString())
-            .collection(RECEIPT_FIRESTORE_PATH)
-
-    }
-
-    private fun setUserUuid() {
-        viewModelScope.launch {
-            dao?.let {
-                val uuid = dao.getUserUuid()
-                userUuid.postValue(uuid)
-            }
-        }
-    }
-
-
-    private fun convertDateFormat(date: String): String {
-        val newDate = date.replace(".", "-")
-        val splitDate = newDate.split("-")
-        try {
-            if (splitDate[2].length == 4) {
-                return splitDate[2] + "-" + splitDate[1] + "-" + splitDate[0]
-            }
-            return newDate
-        } catch (e: Exception) {
-            Log.e("ConvertDate", "Cannot convert date: $splitDate")
-            return newDate
         }
     }
 
