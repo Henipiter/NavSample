@@ -8,6 +8,8 @@ import com.example.navsample.ApplicationContext
 import com.example.navsample.dto.inputmode.AddingInputType
 import com.example.navsample.entities.Category
 import com.example.navsample.entities.FirebaseHelper
+import com.example.navsample.entities.FirebaseHelperFactory
+import com.example.navsample.entities.FirebaseHelperImpl
 import com.example.navsample.entities.ReceiptDatabase
 import com.example.navsample.entities.RoomDatabaseHelper
 import com.example.navsample.entities.Store
@@ -35,11 +37,23 @@ class AddStoreDataViewModel : ViewModel() {
             "preferences", AppCompatActivity.MODE_PRIVATE
         )
         val userUuid = myPref?.getString("userId", null) ?: throw Exception("NOT SET userId")
-        firebaseHelper = FirebaseHelper(userUuid)
+        firebaseHelper = FirebaseHelperFactory.build(userUuid)
 
         val dao = ApplicationContext.context?.let { ReceiptDatabase.getInstance(it).receiptDao }
             ?: throw Exception("NOT SET DATABASE")
         roomDatabaseHelper = RoomDatabaseHelper(dao)
+    }
+
+    fun setFirebaseHelper() {
+        val myPref = ApplicationContext.context?.getSharedPreferences(
+            "preferences", AppCompatActivity.MODE_PRIVATE
+        )
+        val userUuid = myPref?.getString("userId", null) ?: throw Exception("NOT SET userId")
+        firebaseHelper = FirebaseHelperFactory.build(userUuid)
+    }
+
+    fun isFirebaseActive(): Boolean {
+        return firebaseHelper is FirebaseHelperImpl
     }
 
     fun refreshCategoryList() {

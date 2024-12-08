@@ -33,6 +33,7 @@ class ListingFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         viewPagerAdapter = ViewPagerAdapter(this)
         binding.viewPager.adapter = viewPagerAdapter
+        syncDatabaseViewModel.setFirebaseHelper()
         initObserver()
         syncDatabaseViewModel.loadAllList()
         binding.tabLayout.addOnTabSelectedListener(object : TabLayout.OnTabSelectedListener {
@@ -60,6 +61,9 @@ class ListingFragment : Fragment() {
     }
 
     private fun initObserver() {
+        if (!syncDatabaseViewModel.isFirebaseActive()) {
+            return
+        }
         syncDatabaseViewModel.outdatedCategoryList.observe(viewLifecycleOwner) {
             Log.i(
                 "Firebase",

@@ -12,62 +12,62 @@ class RoomDatabaseHelperFirebaseSync(
 
     // GET ALL
     suspend fun getAllNotSyncedCategories(): List<CategoryFirebase> {
-        Log.i("Database", "Refresh category list")
+        Log.i("Database", "getAllNotSyncedCategories")
         return dao.getAllNotSyncedCategories()
     }
 
     suspend fun getAllNotSyncedStores(): List<StoreFirebase> {
-        Log.i("Database", "Refresh store list")
+        Log.i("Database", "getAllNotSyncedStores")
         return dao.getNotSyncedStoreForFirestore()
     }
 
     suspend fun getAllNotSyncedProducts(): List<ProductFirebase> {
-        Log.i("Database", "Refresh store list")
+        Log.i("Database", "getAllNotSyncedProducts")
         return dao.getNotSyncedProductForFirestore()
     }
 
     suspend fun getAllNotSyncedReceipts(): List<ReceiptFirebase> {
-        Log.i("Database", "Refresh store list")
+        Log.i("Database", "getAllNotSyncedReceipts")
         return dao.getNotSyncedReceiptForFirestore()
     }
 
     suspend fun getAllOutdatedCategories(): List<Category> {
-        Log.i("Database", "Refresh category list")
+        Log.i("Database", "getAllOutdatedCategories")
         return dao.getAllOutdatedCategories()
     }
 
     suspend fun getAllOutdatedStores(): List<Store> {
-        Log.i("Database", "Refresh store list")
+        Log.i("Database", "getAllOutdatedStores")
         return dao.getOutdatedStoreForFirestore()
     }
 
     suspend fun getAllOutdatedProducts(): List<Product> {
-        Log.i("Database", "Refresh store list")
+        Log.i("Database", "getAllOutdatedProducts")
         return dao.getOutdatedProductForFirestore()
     }
 
     suspend fun getAllOutdatedReceipts(): List<Receipt> {
-        Log.i("Database", "Refresh store list")
+        Log.i("Database", "getAllOutdatedReceipts")
         return dao.getOutdatedReceiptForFirestore()
     }
 
     suspend fun syncCategory(id: String) {
-        Log.i("Database", "Refresh store list")
+        Log.i("Database", "syncCategory")
         dao.syncCategory(id)
     }
 
     suspend fun syncStore(id: String) {
-        Log.i("Database", "Refresh store list")
+        Log.i("Database", "syncStore")
         dao.syncStore(id)
     }
 
     suspend fun syncReceipt(id: String) {
-        Log.i("Database", "Refresh store list")
+        Log.i("Database", "syncReceipt")
         dao.syncReceipt(id)
     }
 
     suspend fun syncProduct(id: String) {
-        Log.i("Database", "Refresh store list")
+        Log.i("Database", "syncProduct")
         dao.syncProduct(id)
     }
 

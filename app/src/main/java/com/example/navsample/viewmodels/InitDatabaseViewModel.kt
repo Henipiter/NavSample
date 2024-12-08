@@ -6,6 +6,7 @@ import androidx.lifecycle.ViewModel
 import com.example.navsample.ApplicationContext
 import com.example.navsample.entities.Category
 import com.example.navsample.entities.FirebaseHelper
+import com.example.navsample.entities.FirebaseHelperFactory
 import com.example.navsample.entities.Product
 import com.example.navsample.entities.Receipt
 import com.example.navsample.entities.ReceiptDatabase
@@ -33,7 +34,7 @@ class InitDatabaseViewModel : ViewModel() {
             myPref.edit().putString("userId", UUID.randomUUID().toString()).apply()
         }
         val userUuid = myPref?.getString("userId", null) ?: throw Exception("NOT SET userId")
-        firebaseHelper = FirebaseHelper(userUuid)
+        firebaseHelper = FirebaseHelperFactory.build(userUuid)
 
         val dao = ApplicationContext.context?.let { ReceiptDatabase.getInstance(it).receiptDao }
         roomDatabaseHelper = RoomDatabaseHelper(dao!!)

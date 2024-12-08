@@ -8,30 +8,27 @@ import androidx.lifecycle.viewModelScope
 import com.example.navsample.ApplicationContext
 import com.example.navsample.entities.Category
 import com.example.navsample.entities.FirebaseHelper
+import com.example.navsample.entities.FirebaseHelperFactory
+import com.example.navsample.entities.FirebaseHelperImpl
 import com.example.navsample.entities.Product
 import com.example.navsample.entities.Receipt
 import com.example.navsample.entities.ReceiptDatabase
 import com.example.navsample.entities.RoomDatabaseHelper
 import com.example.navsample.entities.RoomDatabaseHelperFirebaseSync
 import com.example.navsample.entities.Store
-import com.example.navsample.entities.TranslateEntity
 import com.example.navsample.entities.dto.CategoryFirebase
 import com.example.navsample.entities.dto.ProductFirebase
 import com.example.navsample.entities.dto.ReceiptFirebase
 import com.example.navsample.entities.dto.StoreFirebase
-import com.google.firebase.firestore.MetadataChanges
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import java.util.UUID
-import kotlin.reflect.KClass
 
 
 class SyncDatabaseViewModel : ViewModel() {
     private var roomDatabaseHelper: RoomDatabaseHelper
     private var roomDatabaseHelperFirebase: RoomDatabaseHelperFirebaseSync
     private var firebaseHelper: FirebaseHelper
-
 
     var notSyncedProductList = MutableLiveData<List<ProductFirebase>>()
     var notSyncedReceiptList = MutableLiveData<List<ReceiptFirebase>>()
@@ -47,22 +44,41 @@ class SyncDatabaseViewModel : ViewModel() {
         val myPref = ApplicationContext.context?.getSharedPreferences(
             "preferences", AppCompatActivity.MODE_PRIVATE
         )
-        if (myPref?.getString("userId", "") == "") {
-            myPref.edit().putString("userId", UUID.randomUUID().toString()).apply()
-        }
-        val userUuid = myPref?.getString("userId", null) ?: throw Exception("NOT SET userId")
 
         val dao = ApplicationContext.context?.let { ReceiptDatabase.getInstance(it).receiptDao }
             ?: throw Exception("NOT SET DATABASE")
         roomDatabaseHelper = RoomDatabaseHelper(dao)
         roomDatabaseHelperFirebase = RoomDatabaseHelperFirebaseSync(dao)
-        firebaseHelper = FirebaseHelper(userUuid)
 
-        loadAllList()
-        firestoreListener()
+        val userUuid = myPref?.getString("userId", "") ?: ""
+        firebaseHelper = FirebaseHelperFactory.build(userUuid)
+
+        if (isFirebaseActive()) {
+            loadAllList()
+            firestoreListener()
+        }
+    }
+
+    fun setFirebaseHelper() {
+        val myPref = ApplicationContext.context?.getSharedPreferences(
+            "preferences", AppCompatActivity.MODE_PRIVATE
+        )
+        val userUuid = myPref?.getString("userId", null) ?: throw Exception("NOT SET userId")
+        firebaseHelper = FirebaseHelperFactory.build(userUuid)
+        if (isFirebaseActive()) {
+            loadAllList()
+            firestoreListener()
+        }
+    }
+
+    fun isFirebaseActive(): Boolean {
+        return firebaseHelper is FirebaseHelperImpl
     }
 
     fun loadAllList() {
+        if (!isFirebaseActive()) {
+            return
+        }
         loadNotSyncedStores()
         loadNotSyncedReceipts()
         loadNotSyncedProducts()
@@ -271,45 +287,19 @@ class SyncDatabaseViewModel : ViewModel() {
 
 
     private fun firestoreListener() {
-        singleListener(Category::class) { category ->
+        firebaseHelper.singleListener(Category::class) { category ->
             viewModelScope.launch { roomDatabaseHelper.saveCategoryFromFirestore(category) }
         }
-        singleListener(Store::class) { store ->
+        firebaseHelper.singleListener(Store::class) { store ->
             viewModelScope.launch { roomDatabaseHelper.saveStoreFromFirestore(store) }
         }
-        singleListener(Receipt::class) { receipt ->
+        firebaseHelper.singleListener(Receipt::class) { receipt ->
             viewModelScope.launch { roomDatabaseHelper.saveReceiptFromFirestore(receipt) }
         }
-        singleListener(Product::class) { product ->
+        firebaseHelper.singleListener(Product::class) { product ->
             viewModelScope.launch { roomDatabaseHelper.saveProductFromFirestore(product) }
         }
     }
 
-    private fun <T : TranslateEntity> singleListener(
-        objectClass: KClass<out T>,
-        saveEntity: (T) -> Unit
-    ) {
-        firebaseHelper.getFullFirestorePath(objectClass)
-            .addSnapshotListener(MetadataChanges.INCLUDE) { snapshot, exception ->
-                if (exception != null) {
-                    Log.w("Firestore", "Listen failed.", exception)
-                    return@addSnapshotListener
-                }
-                if (snapshot != null && !snapshot.metadata.isFromCache) {
-                    Log.d(
-                        "Firestore",
-                        "${objectClass.simpleName} docs size: ${snapshot.documents.size}"
-                    )
-                    for (document in snapshot.documents) {
-                        val entity = document.toObject(objectClass.java)
-                        entity?.let {
-                            saveEntity(entity)
-                        }
-                    }
-                } else {
-                    Log.d("Firestore", "Ignored local cache update")
-                }
-            }
-    }
 
 }
