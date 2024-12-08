@@ -55,6 +55,7 @@ class SignInFragment : Fragment() {
                 val userId = signInViewModel.getUserId()
                 setUserIdToPreferences(userId)
                 FirestoreHelperSingleton.initialize(userId)
+                syncDatabaseViewModel.setFirebaseHelper()
                 syncDatabaseViewModel.loadNotAddedList()
                 Navigation.findNavController(requireView()).popBackStack()
             } else {

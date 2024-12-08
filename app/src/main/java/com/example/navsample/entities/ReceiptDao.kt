@@ -656,4 +656,24 @@ interface ReceiptDao {
         timestamp: String
     )
 
+    @Query("DELETE FROM category")
+    suspend fun clearCategory()
+
+    @Query("DELETE FROM store")
+    suspend fun clearStore()
+
+    @Query("DELETE FROM receipt")
+    suspend fun clearReceipt()
+
+    @Query("DELETE FROM product")
+    suspend fun clearProduct()
+
+    @Transaction
+    suspend fun deleteAllData() {
+        clearProduct()
+        clearReceipt()
+        clearStore()
+        clearCategory()
+    }
+
 }

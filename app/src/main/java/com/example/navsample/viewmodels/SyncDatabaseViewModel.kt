@@ -43,10 +43,7 @@ class SyncDatabaseViewModel : ViewModel() {
         roomDatabaseHelper = RoomDatabaseHelper(dao)
         roomDatabaseHelperFirebase = RoomDatabaseHelperFirebaseSync(dao)
 
-        if (isFirebaseActive()) {
-            loadAllList()
-            firestoreListener()
-        }
+        setFirebaseHelper()
     }
 
     fun setFirebaseHelper() {
@@ -359,6 +356,10 @@ class SyncDatabaseViewModel : ViewModel() {
         FirestoreHelperSingleton.getInstance().singleListener(Product::class) { product ->
             viewModelScope.launch { roomDatabaseHelper.saveProductFromFirestore(product) }
         }
+    }
+
+    fun deleteAllData() {
+        viewModelScope.launch { roomDatabaseHelper.deleteAllData() }
     }
 
 

@@ -12,12 +12,14 @@ import androidx.navigation.Navigation
 import com.example.navsample.ApplicationContext
 import com.example.navsample.databinding.FragmentSigningPanelBinding
 import com.example.navsample.entities.FirestoreHelperSingleton
+import com.example.navsample.viewmodels.SyncDatabaseViewModel
 import com.example.navsample.viewmodels.auth.SignInViewModel
 
 
 class SigningPanelFragment : Fragment() {
     private var _binding: FragmentSigningPanelBinding? = null
     private val signInViewModel: SignInViewModel by activityViewModels()
+    private val syncDatabaseViewModel: SyncDatabaseViewModel by activityViewModels()
     private val binding get() = _binding!!
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -62,8 +64,7 @@ class SigningPanelFragment : Fragment() {
     }
 
     private fun clearDatabase() {
-
-
+        syncDatabaseViewModel.deleteAllData()
     }
 
     private fun initObserver() {

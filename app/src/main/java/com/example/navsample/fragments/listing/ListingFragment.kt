@@ -33,7 +33,6 @@ class ListingFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         viewPagerAdapter = ViewPagerAdapter(this)
         binding.viewPager.adapter = viewPagerAdapter
-        syncDatabaseViewModel.setFirebaseHelper()
         initObserver()
         syncDatabaseViewModel.loadAllList()
         binding.tabLayout.addOnTabSelectedListener(object : TabLayout.OnTabSelectedListener {

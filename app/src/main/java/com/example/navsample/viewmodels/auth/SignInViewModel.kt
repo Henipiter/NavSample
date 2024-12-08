@@ -8,7 +8,7 @@ import com.example.navsample.auth.User
 class SignInViewModel(
 ) : NotesAppViewModel() {
     private val accountService = AccountServiceImpl()
-    val currentUserId = MutableLiveData("")
+    val currentUserId = MutableLiveData("") //TODO create listener
     val currentUser = MutableLiveData<User>()
 
     fun onSignInClick(email: String, password: String) {
