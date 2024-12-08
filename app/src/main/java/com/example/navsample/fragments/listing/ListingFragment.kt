@@ -60,47 +60,7 @@ class ListingFragment : Fragment() {
         })
     }
 
-    private fun initObserver() {
-        if (!syncDatabaseViewModel.isFirebaseActive()) {
-            return
-        }
-        syncDatabaseViewModel.outdatedCategoryList.observe(viewLifecycleOwner) {
-            Log.i(
-                "Firebase",
-                "outdatedCategoryList size: ${syncDatabaseViewModel.outdatedCategoryList.value?.size ?: "empty"}"
-            )
-            it?.forEach { category ->
-                syncDatabaseViewModel.syncOutdatedCategory(category)
-            }
-        }
-        syncDatabaseViewModel.outdatedStoreList.observe(viewLifecycleOwner) {
-            Log.i(
-                "Firebase",
-                "outdatedStoreList size: ${syncDatabaseViewModel.outdatedStoreList.value?.size ?: "empty"}"
-            )
-            it?.forEach { store ->
-                syncDatabaseViewModel.syncOutdatedStore(store)
-            }
-        }
-        syncDatabaseViewModel.outdatedReceiptList.observe(viewLifecycleOwner) {
-            Log.i(
-                "Firebase",
-                "outdatedReceiptList size: ${syncDatabaseViewModel.outdatedReceiptList.value?.size ?: "empty"}"
-            )
-            it?.forEach { receipt ->
-                syncDatabaseViewModel.syncOutdatedReceipt(receipt)
-            }
-        }
-        syncDatabaseViewModel.outdatedProductList.observe(viewLifecycleOwner) {
-            Log.i(
-                "Firebase",
-                "outdatedProductList size: ${syncDatabaseViewModel.outdatedProductList.value?.size ?: "empty"}"
-            )
-            it?.forEach { product ->
-                syncDatabaseViewModel.syncOutdatedProduct(product)
-            }
-        }
-
+    private fun initNotSyncedLists() {
         syncDatabaseViewModel.notSyncedCategoryList.observe(viewLifecycleOwner) {
             observerForNotSynced(
                 it,
@@ -135,18 +95,50 @@ class ListingFragment : Fragment() {
         }
     }
 
+    private fun initOutdatedLists() {
+        syncDatabaseViewModel.outdatedCategoryList.observe(viewLifecycleOwner) {
+            Log.i("Firebase", "outdatedCategoryList size: ${it.size}")
+            it?.forEach { category ->
+                syncDatabaseViewModel.syncOutdatedCategory(category)
+            }
+        }
+        syncDatabaseViewModel.outdatedStoreList.observe(viewLifecycleOwner) {
+            Log.i("Firebase", "outdatedStoreList size: ${it.size}")
+            it?.forEach { store ->
+                syncDatabaseViewModel.syncOutdatedStore(store)
+            }
+        }
+        syncDatabaseViewModel.outdatedReceiptList.observe(viewLifecycleOwner) {
+            Log.i("Firebase", "outdatedReceiptList size: ${it.size}")
+            it?.forEach { receipt ->
+                syncDatabaseViewModel.syncOutdatedReceipt(receipt)
+            }
+        }
+        syncDatabaseViewModel.outdatedProductList.observe(viewLifecycleOwner) {
+            Log.i("Firebase", "outdatedProductList size: ${it.size}")
+            it?.forEach { product ->
+                syncDatabaseViewModel.syncOutdatedProduct(product)
+            }
+        }
+    }
+
+    private fun initObserver() {
+        if (!syncDatabaseViewModel.isFirebaseActive()) {
+            return
+        }
+        initOutdatedLists()
+        initNotSyncedLists()
+    }
+
     private fun <T : TranslateFirebaseEntity> observerForNotSynced(
-        notSyncedList: List<T>?,
+        notSyncedList: List<T>,
         syncStatus: (T) -> Boolean,
         loadNotSynced: () -> Unit,
         logName: String
     ) {
-        Log.i(
-            "Firebase",
-            "$logName size: ${notSyncedList?.size ?: "empty"}"
-        )
+        Log.i("Firebase", "$logName size: ${notSyncedList.size}")
         var operationPerformed = true
-        notSyncedList?.forEach { product ->
+        notSyncedList.forEach { product ->
             if (!syncStatus(product)) {
                 operationPerformed = false
 

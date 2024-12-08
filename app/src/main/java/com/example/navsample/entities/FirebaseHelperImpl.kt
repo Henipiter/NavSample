@@ -158,7 +158,7 @@ class FirebaseHelperImpl(
 
     companion object {
 
-        private const val COLLECTION_PATH = "userTest"
+        private const val COLLECTION_PATH = "userTest2"
         private const val PRODUCT_FIRESTORE_PATH = "products"
         private const val RECEIPT_FIRESTORE_PATH = "receipts"
         private const val STORE_FIRESTORE_PATH = "stores"

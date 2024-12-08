@@ -13,6 +13,8 @@ import androidx.navigation.Navigation
 import androidx.navigation.fragment.navArgs
 import com.example.navsample.ApplicationContext
 import com.example.navsample.databinding.FragmentSignInBinding
+import com.example.navsample.entities.FirestoreHelperSingleton
+import com.example.navsample.viewmodels.SyncDatabaseViewModel
 import com.example.navsample.viewmodels.auth.SignInViewModel
 
 
@@ -20,6 +22,7 @@ class SignInFragment : Fragment() {
     private var _binding: FragmentSignInBinding? = null
     private val binding get() = _binding!!
     private val signInViewModel: SignInViewModel by activityViewModels()
+    private val syncDatabaseViewModel: SyncDatabaseViewModel by activityViewModels()
     private val navArgs: SignInFragmentArgs by navArgs()
     private var actionOnClick: ((String, String) -> Unit)? = null
     override fun onCreateView(
@@ -49,7 +52,10 @@ class SignInFragment : Fragment() {
             val password = binding.passwordInput.text.toString()
             actionOnClick?.let { it(email, password) }
             if (signInViewModel.isLogged()) {
-                setUserIdToPreferences(signInViewModel.getUserId())
+                val userId = signInViewModel.getUserId()
+                setUserIdToPreferences(userId)
+                FirestoreHelperSingleton.initialize(userId)
+                syncDatabaseViewModel.loadNotAddedList()
                 Navigation.findNavController(requireView()).popBackStack()
             } else {
                 Toast.makeText(requireContext(), "SOMETHING WENT WRONG", Toast.LENGTH_SHORT).show()

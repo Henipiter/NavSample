@@ -1,15 +1,12 @@
 package com.example.navsample.viewmodels.fragment
 
-import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.navsample.ApplicationContext
 import com.example.navsample.dto.inputmode.AddingInputType
 import com.example.navsample.entities.Category
-import com.example.navsample.entities.FirebaseHelper
-import com.example.navsample.entities.FirebaseHelperFactory
-import com.example.navsample.entities.FirebaseHelperImpl
+import com.example.navsample.entities.FirestoreHelperSingleton
 import com.example.navsample.entities.ReceiptDatabase
 import com.example.navsample.entities.RoomDatabaseHelper
 import com.example.navsample.entities.Store
@@ -17,7 +14,6 @@ import kotlinx.coroutines.launch
 
 class AddStoreDataViewModel : ViewModel() {
 
-    private var firebaseHelper: FirebaseHelper
     private var roomDatabaseHelper: RoomDatabaseHelper
 
 
@@ -33,27 +29,9 @@ class AddStoreDataViewModel : ViewModel() {
     var savedStore = MutableLiveData<Store>()
 
     init {
-        val myPref = ApplicationContext.context?.getSharedPreferences(
-            "preferences", AppCompatActivity.MODE_PRIVATE
-        )
-        val userUuid = myPref?.getString("userId", null) ?: throw Exception("NOT SET userId")
-        firebaseHelper = FirebaseHelperFactory.build(userUuid)
-
         val dao = ApplicationContext.context?.let { ReceiptDatabase.getInstance(it).receiptDao }
             ?: throw Exception("NOT SET DATABASE")
         roomDatabaseHelper = RoomDatabaseHelper(dao)
-    }
-
-    fun setFirebaseHelper() {
-        val myPref = ApplicationContext.context?.getSharedPreferences(
-            "preferences", AppCompatActivity.MODE_PRIVATE
-        )
-        val userUuid = myPref?.getString("userId", null) ?: throw Exception("NOT SET userId")
-        firebaseHelper = FirebaseHelperFactory.build(userUuid)
-    }
-
-    fun isFirebaseActive(): Boolean {
-        return firebaseHelper is FirebaseHelperImpl
     }
 
     fun refreshCategoryList() {
@@ -71,15 +49,15 @@ class AddStoreDataViewModel : ViewModel() {
     fun deleteStore(storeId: String) {
         viewModelScope.launch {
             val deletedProducts = roomDatabaseHelper.deleteStoreProducts(storeId)
-            firebaseHelper.delete(deletedProducts) { id ->
+            FirestoreHelperSingleton.getInstance().delete(deletedProducts) { id ->
                 viewModelScope.launch { roomDatabaseHelper.markProductAsDeleted(id) }
             }
             val deletedReceipts = roomDatabaseHelper.deleteStoreReceipts(storeId)
-            firebaseHelper.delete(deletedReceipts) { id ->
+            FirestoreHelperSingleton.getInstance().delete(deletedReceipts) { id ->
                 viewModelScope.launch { roomDatabaseHelper.markReceiptAsDeleted(id) }
             }
             val deletedStore = roomDatabaseHelper.deleteStore(storeId)
-            firebaseHelper.delete(deletedStore) { id ->
+            FirestoreHelperSingleton.getInstance().delete(deletedStore) { id ->
                 viewModelScope.launch { roomDatabaseHelper.markStoreAsDeleted(id) }
             }
         }
@@ -95,7 +73,7 @@ class AddStoreDataViewModel : ViewModel() {
         viewModelScope.launch {
             val insertedStore = roomDatabaseHelper.insertStore(newStore, generateId)
             savedStore.postValue(insertedStore)
-            firebaseHelper.addFirestore(insertedStore) {
+            FirestoreHelperSingleton.getInstance().addFirestore(insertedStore) {
                 viewModelScope.launch {
                     roomDatabaseHelper.updateStoreFirestoreId(insertedStore.id, it)
                 }
@@ -108,7 +86,7 @@ class AddStoreDataViewModel : ViewModel() {
             val updateStore = roomDatabaseHelper.updateStore(newStore)
             savedStore.postValue(updateStore)
             if (newStore.firestoreId.isNotEmpty()) {
-                firebaseHelper.updateFirestore(updateStore) {
+                FirestoreHelperSingleton.getInstance().updateFirestore(updateStore) {
                     viewModelScope.launch { roomDatabaseHelper.markStoreAsUpdated(newStore.id) }
                 }
             }

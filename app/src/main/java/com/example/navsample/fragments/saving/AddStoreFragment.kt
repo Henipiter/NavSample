@@ -62,7 +62,6 @@ class AddStoreFragment : Fragment() {
             binding.storeDefaultCategoryInput.setAdapter(adapter)
         }
 
-        addStoreDataViewModel.setFirebaseHelper()
         consumeNavArgs()
         initObserver()
         addStoreDataViewModel.refreshStoreList()

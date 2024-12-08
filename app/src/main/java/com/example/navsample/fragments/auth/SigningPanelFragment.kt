@@ -11,6 +11,7 @@ import androidx.fragment.app.activityViewModels
 import androidx.navigation.Navigation
 import com.example.navsample.ApplicationContext
 import com.example.navsample.databinding.FragmentSigningPanelBinding
+import com.example.navsample.entities.FirestoreHelperSingleton
 import com.example.navsample.viewmodels.auth.SignInViewModel
 
 
@@ -51,11 +52,18 @@ class SigningPanelFragment : Fragment() {
             if (!signInViewModel.isLogged()) {
                 Log.d("USER_ID", "Clear user id")
                 clearUserIdInPreferences()
+                FirestoreHelperSingleton.initialize("")
+                clearDatabase()
                 initButtons()
             } else {
                 Log.d("USER_ID", "User is still logged")
             }
         }
+    }
+
+    private fun clearDatabase() {
+
+
     }
 
     private fun initObserver() {

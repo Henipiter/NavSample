@@ -11,6 +11,26 @@ class RoomDatabaseHelperFirebaseSync(
 ) {
 
     // GET ALL
+    suspend fun getAllNotAddedCategories(): List<Category> {
+        Log.i("Database", "getAllNotAddedCategories")
+        return dao.getAllNotAddedCategories()
+    }
+
+    suspend fun getAllNotAddedStore(): List<Store> {
+        Log.i("Database", "getAllNotAddedStore")
+        return dao.getAllNotAddedStore()
+    }
+
+    suspend fun getAllNotAddedReceipt(): List<Receipt> {
+        Log.i("Database", "getAllNotAddedReceipt")
+        return dao.getAllNotAddedReceipt()
+    }
+
+    suspend fun getAllNotAddedProduct(): List<Product> {
+        Log.i("Database", "getAllNotAddedProduct")
+        return dao.getAllNotAddedProduct()
+    }
+
     suspend fun getAllNotSyncedCategories(): List<CategoryFirebase> {
         Log.i("Database", "getAllNotSyncedCategories")
         return dao.getAllNotSyncedCategories()

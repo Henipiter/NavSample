@@ -39,7 +39,6 @@ class SettingsFragment : Fragment() {
 
     companion object {
         private const val FILLED_DB = "filled_db"
-        private const val USER_ID = "userId"
     }
 
     private lateinit var myPref: SharedPreferences
@@ -81,11 +80,8 @@ class SettingsFragment : Fragment() {
         }
         myPref =
             requireContext().getSharedPreferences("preferences", AppCompatActivity.MODE_PRIVATE)
-        if (myPref.getString(USER_ID, "") == "") {
-            myPref.edit().putString(USER_ID, UUID.randomUUID().toString()).apply()
-        }
         if (myPref.getString(FILLED_DB, "false") == "false") {
-            initDatabase()
+//            initDatabase()
             myPref.edit().putString(FILLED_DB, "true").apply()
         }
     }
