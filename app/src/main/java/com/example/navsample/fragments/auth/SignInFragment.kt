@@ -25,6 +25,7 @@ class SignInFragment : Fragment() {
     private val syncDatabaseViewModel: SyncDatabaseViewModel by activityViewModels()
     private val navArgs: SignInFragmentArgs by navArgs()
     private var actionOnClick: ((String, String) -> Unit)? = null
+    private var validationMessage = ""
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?,
@@ -39,12 +40,24 @@ class SignInFragment : Fragment() {
         if (navArgs.signIn) {
             binding.confirmPasswordLayout.visibility = View.INVISIBLE
             actionOnClick = { email, password ->
-                signInViewModel.onSignInClick(email, password)
+                validationMessage = validateSingIn()
+                if (validationMessage.isEmpty()) {
+                    signInViewModel.onSignInClick(email, password)
+                } else {
+
+                    Toast.makeText(requireContext(), validationMessage, Toast.LENGTH_SHORT).show()
+                }
             }
         } else if (navArgs.signUp) {
             binding.confirmPasswordLayout.visibility = View.VISIBLE
             actionOnClick = { email, password ->
-                signInViewModel.onSignUpClick(email, password)
+                validationMessage = validateSingUp()
+                if (validationMessage.isEmpty()) {
+                    signInViewModel.onSignUpClick(email, password)
+                } else {
+                    Toast.makeText(requireContext(), validationMessage, Toast.LENGTH_SHORT).show()
+                }
+
             }
         }
 
@@ -54,6 +67,26 @@ class SignInFragment : Fragment() {
             actionOnClick?.let { it(email, password) }
 
         }
+    }
+
+    private fun validateSingUp(): String {
+        if (!validateEmailInput()) {
+            return "Bad email"
+        } else if (!validatePasswordInput()) {
+            return "Password have to be longer than 6 signs"
+        } else if (!validatePasswordConfirmationInput()) {
+            return "Passwords are different"
+        }
+        return ""
+    }
+
+    private fun validateSingIn(): String {
+        if (!validateEmailInput()) {
+            return "Bad email"
+        } else if (!validatePasswordInput()) {
+            return "Password have to be longer than 6 signs"
+        }
+        return ""
     }
 
     private fun initObserver() {
@@ -91,4 +124,22 @@ class SignInFragment : Fragment() {
             Log.d("USER_ID", "User id is currently set: $currentUserId")
         }
     }
+
+    private fun validateEmailInput(): Boolean {
+        val email = binding.usernameInput.text
+        val emailRegex = "^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+$".toRegex()
+        return email.matches(emailRegex)
+    }
+
+    private fun validatePasswordInput(): Boolean {
+        val password = binding.passwordInput.text
+        return password.length > 6
+    }
+
+    private fun validatePasswordConfirmationInput(): Boolean {
+        val password = binding.passwordInput.text
+        val confirmPassword = binding.confirmPasswordInput.text
+        return password == confirmPassword
+    }
 }
+
