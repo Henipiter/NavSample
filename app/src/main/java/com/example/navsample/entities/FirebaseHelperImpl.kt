@@ -61,9 +61,6 @@ class FirebaseHelperImpl(
     }
 
     override fun <T : TranslateEntity> updateFirestore(entity: T, updateDb: (String) -> Unit) {
-        if (shouldCancelIfUserIdIsNotSet()) {
-            return
-        }
         updateFirestore(entity, entity.updateData(), updateDb)
     }
 
@@ -72,9 +69,6 @@ class FirebaseHelperImpl(
         data: HashMap<String, Any?>,
         updateDb: (String) -> Unit
     ) {
-        if (shouldCancelIfUserIdIsNotSet()) {
-            return
-        }
         getFullFirestorePath(entity::class)
             .document(entity.firestoreId)
             .update(data)
@@ -88,9 +82,6 @@ class FirebaseHelperImpl(
     }
 
     override fun <T : TranslateEntity> delete(entity: T, updateDb: (String) -> Unit) {
-        if (shouldCancelIfUserIdIsNotSet()) {
-            return
-        }
         if (entity.firestoreId != "") {
             getFullFirestorePath(entity::class)
                 .document(entity.firestoreId)
@@ -112,9 +103,6 @@ class FirebaseHelperImpl(
     }
 
     override fun <T : TranslateFirebaseEntity> synchronize(entity: T, updateDb: (String) -> Unit) {
-        if (shouldCancelIfUserIdIsNotSet()) {
-            return
-        }
         if (entity.firestoreId != "") {
             getFullFirestorePath(entity::class)
                 .document(entity.firestoreId)
@@ -133,9 +121,6 @@ class FirebaseHelperImpl(
     }
 
     override fun <T : TranslateEntity> delete(ids: List<T>, updateDb: (String) -> Unit) {
-        if (shouldCancelIfUserIdIsNotSet()) {
-            return
-        }
         ids.forEach { entity ->
             delete(entity, updateDb)
         }
@@ -169,10 +154,6 @@ class FirebaseHelperImpl(
             }
         }
         return "null"
-    }
-
-    private fun shouldCancelIfUserIdIsNotSet(): Boolean {
-        return userUuid == ""
     }
 
     companion object {

@@ -146,12 +146,12 @@ class SyncDatabaseViewModel : ViewModel() {
     }
 
     fun syncOutdatedCategory(category: Category) {
-        if (category.isSync && !category.toUpdate) {
+        if (category.isSync && category.toUpdate) {
             firebaseHelper.updateFirestore(category) { id ->
                 viewModelScope.launch { roomDatabaseHelper.markCategoryAsUpdated(id) }
             }
         }
-        if (category.isSync && !category.toDelete) {
+        if (category.isSync && category.toDelete) {
             firebaseHelper.delete(category) { id ->
                 viewModelScope.launch { roomDatabaseHelper.markCategoryAsDeleted(id) }
             }
@@ -159,12 +159,12 @@ class SyncDatabaseViewModel : ViewModel() {
     }
 
     fun syncOutdatedStore(store: Store) {
-        if (store.isSync && !store.toUpdate) {
+        if (store.isSync && store.toUpdate) {
             firebaseHelper.updateFirestore(store) { id ->
                 viewModelScope.launch { roomDatabaseHelper.markStoreAsUpdated(id) }
             }
         }
-        if (store.isSync && !store.toDelete) {
+        if (store.isSync && store.toDelete) {
             firebaseHelper.updateFirestore(store) { id ->
                 viewModelScope.launch { roomDatabaseHelper.markStoreAsDeleted(id) }
             }
@@ -172,12 +172,12 @@ class SyncDatabaseViewModel : ViewModel() {
     }
 
     fun syncOutdatedReceipt(receipt: Receipt) {
-        if (receipt.isSync && !receipt.toUpdate) {
+        if (receipt.isSync && receipt.toUpdate) {
             firebaseHelper.updateFirestore(receipt) { id ->
                 viewModelScope.launch { roomDatabaseHelper.markCategoryAsUpdated(id) }
             }
         }
-        if (receipt.isSync && !receipt.toDelete) {
+        if (receipt.isSync && receipt.toDelete) {
             firebaseHelper.delete(receipt) { id ->
                 viewModelScope.launch { roomDatabaseHelper.markCategoryAsDeleted(id) }
             }
@@ -185,12 +185,12 @@ class SyncDatabaseViewModel : ViewModel() {
     }
 
     fun syncOutdatedProduct(product: Product) {
-        if (product.isSync && !product.toUpdate) {
+        if (product.isSync && product.toUpdate) {
             firebaseHelper.updateFirestore(product) { id ->
                 viewModelScope.launch { roomDatabaseHelper.markProductAsUpdated(id) }
             }
         }
-        if (product.isSync && !product.toDelete) {
+        if (product.isSync && product.toDelete) {
             firebaseHelper.delete(product) { id ->
                 viewModelScope.launch { roomDatabaseHelper.markProductAsDeleted(id) }
             }
