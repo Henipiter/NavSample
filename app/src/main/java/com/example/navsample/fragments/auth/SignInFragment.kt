@@ -35,6 +35,7 @@ class SignInFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        initObserver()
         if (navArgs.signIn) {
             binding.confirmPasswordLayout.visibility = View.INVISIBLE
             actionOnClick = { email, password ->
@@ -51,19 +52,31 @@ class SignInFragment : Fragment() {
             val email = binding.usernameInput.text.toString()
             val password = binding.passwordInput.text.toString()
             actionOnClick?.let { it(email, password) }
-            if (signInViewModel.isLogged()) {
+
+        }
+    }
+
+    private fun initObserver() {
+        signInViewModel.loggingFinish.observe(viewLifecycleOwner) {
+            if (!it) {
+                return@observe
+            }
+            signInViewModel.loggingFinish.postValue(false)
+
+            if (it == null) {
                 val userId = signInViewModel.getUserId()
                 setUserIdToPreferences(userId)
                 FirestoreHelperSingleton.initialize(userId)
                 syncDatabaseViewModel.setFirebaseHelper()
                 syncDatabaseViewModel.loadNotAddedList()
+                Toast.makeText(requireContext(), "Auth success", Toast.LENGTH_SHORT).show()
                 Navigation.findNavController(requireView()).popBackStack()
             } else {
-                Toast.makeText(requireContext(), "SOMETHING WENT WRONG", Toast.LENGTH_SHORT).show()
+                Log.d("Firestore1", "Error ${signInViewModel.errorMessage}")
+                Toast.makeText(requireContext(), "Auth error", Toast.LENGTH_SHORT).show()
             }
         }
     }
-
 
     private fun setUserIdToPreferences(id: String) {
         Log.d("USER_ID", "Try setting if: $id")

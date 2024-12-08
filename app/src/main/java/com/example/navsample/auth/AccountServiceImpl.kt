@@ -9,10 +9,8 @@ import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.tasks.await
-import javax.inject.Inject
 
-class AccountServiceImpl @Inject constructor() : AccountService {
-
+class AccountServiceImpl : AccountService {
     override val currentUser: Flow<User?>
         get() = callbackFlow {
             val listener =
@@ -39,12 +37,28 @@ class AccountServiceImpl @Inject constructor() : AccountService {
         Firebase.auth.currentUser!!.linkWithCredential(credential).await()
     }
 
-    override suspend fun signIn(email: String, password: String) {
-        Firebase.auth.signInWithEmailAndPassword(email, password).await()
+    override suspend fun signIn(email: String, password: String, onResult: (String?) -> Unit) {
+        Firebase.auth.signInWithEmailAndPassword(email, password)
+            .addOnCompleteListener { task ->
+                val exceptionMessage = if (task.isSuccessful) {
+                    null
+                } else {
+                    task.exception?.message
+                }
+                onResult.invoke(exceptionMessage)
+            }
     }
 
-    override suspend fun signUp(email: String, password: String) {
-        Firebase.auth.createUserWithEmailAndPassword(email, password).await()
+    override suspend fun signUp(email: String, password: String, onResult: (String?) -> Unit) {
+        Firebase.auth.createUserWithEmailAndPassword(email, password)
+            .addOnCompleteListener { task ->
+                val exceptionMessage = if (task.isSuccessful) {
+                    null
+                } else {
+                    task.exception?.message
+                }
+                onResult.invoke(exceptionMessage)
+            }
     }
 
     override suspend fun signOut() {
