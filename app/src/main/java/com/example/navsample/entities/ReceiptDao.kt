@@ -437,20 +437,36 @@ interface ReceiptDao {
     @Query("UPDATE product SET toDelete = 0 WHERE id = :id")
     suspend fun markProductAsDeleted(id: String)
 
-    @Query("SELECT id, firestoreId, isSync, toUpdate, toDelete FROM category WHERE isSync == 0")
+    @Query("SELECT * FROM category WHERE firestoreId == ''")
+    suspend fun getAllNotAddedCategories(): List<Category>
+
+    @Query("SELECT * FROM store WHERE firestoreId == ''")
+    suspend fun getAllNotAddedStore(): List<Store>
+
+    @Query("SELECT * FROM receipt WHERE firestoreId == ''")
+    suspend fun getAllNotAddedReceipt(): List<Receipt>
+
+    @Query("SELECT * FROM product WHERE firestoreId == ''")
+    suspend fun getAllNotAddedProduct(): List<Product>
+
+    @Query(
+        "SELECT id, firestoreId, isSync, toUpdate, toDelete " +
+                "FROM category " +
+                "WHERE isSync == 0 and firestoreId != '' "
+    )
     suspend fun getAllNotSyncedCategories(): List<CategoryFirebase>
 
     @Query(
         "SELECT  s.id, c.id as defaultCategoryId, s.firestoreId, s.isSync, c.isSync as isCategorySync, s.toUpdate, s.toDelete " +
                 "FROM store s INNER JOIN category c ON s.defaultCategoryId = c.id " +
-                "WHERE s.isSync = 0"
+                "WHERE s.isSync = 0 and s.firestoreId != '' "
     )
     suspend fun getNotSyncedStoreForFirestore(): List<StoreFirebase>
 
     @Query(
         "SELECT r.id, s.id as storeId, r.firestoreId,r.isSync,  s.isSync as isStoreSync, r.toUpdate, r.toDelete " +
                 "FROM receipt r INNER JOIN store s ON r.storeId = s.id " +
-                "WHERE r.isSync = 0"
+                "WHERE r.isSync = 0 and r.firestoreId != '' "
     )
     suspend fun getNotSyncedReceiptForFirestore(): List<ReceiptFirebase>
 
@@ -458,7 +474,7 @@ interface ReceiptDao {
         "SELECT  p.id,r.id as receiptId, c.id as categoryId,p.firestoreId,p.isSync, r.isSync as isReceiptSync, c.isSync as isCategorySync, p.toUpdate, p.toDelete " +
                 "FROM product p INNER JOIN receipt r ON p.receiptId = r.id " +
                 "INNER JOIN category c ON p.categoryId = c.id " +
-                "WHERE p.isSync = 0"
+                "WHERE p.isSync = 0 and p.firestoreId != '' "
     )
     suspend fun getNotSyncedProductForFirestore(): List<ProductFirebase>
 
@@ -639,5 +655,25 @@ interface ReceiptDao {
         newReceiptId: String,
         timestamp: String
     )
+
+    @Query("DELETE FROM category")
+    suspend fun clearCategory()
+
+    @Query("DELETE FROM store")
+    suspend fun clearStore()
+
+    @Query("DELETE FROM receipt")
+    suspend fun clearReceipt()
+
+    @Query("DELETE FROM product")
+    suspend fun clearProduct()
+
+    @Transaction
+    suspend fun deleteAllData() {
+        clearProduct()
+        clearReceipt()
+        clearStore()
+        clearCategory()
+    }
 
 }

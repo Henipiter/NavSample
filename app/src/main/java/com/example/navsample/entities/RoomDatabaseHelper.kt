@@ -408,4 +408,8 @@ class RoomDatabaseHelper(
     suspend fun saveProductFromFirestore(product: Product) {
         dao.saveProductFromFirestore(product)
     }
+
+    suspend fun deleteAllData() {
+        dao.deleteAllData()
+    }
 }

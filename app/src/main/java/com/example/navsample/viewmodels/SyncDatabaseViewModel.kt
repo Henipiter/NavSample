@@ -1,37 +1,31 @@
 package com.example.navsample.viewmodels
 
 import android.util.Log
-import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.navsample.ApplicationContext
 import com.example.navsample.entities.Category
-import com.example.navsample.entities.FirebaseHelper
+import com.example.navsample.entities.FirebaseHelperImpl
+import com.example.navsample.entities.FirestoreHelperSingleton
 import com.example.navsample.entities.Product
 import com.example.navsample.entities.Receipt
 import com.example.navsample.entities.ReceiptDatabase
 import com.example.navsample.entities.RoomDatabaseHelper
 import com.example.navsample.entities.RoomDatabaseHelperFirebaseSync
 import com.example.navsample.entities.Store
-import com.example.navsample.entities.TranslateEntity
 import com.example.navsample.entities.dto.CategoryFirebase
 import com.example.navsample.entities.dto.ProductFirebase
 import com.example.navsample.entities.dto.ReceiptFirebase
 import com.example.navsample.entities.dto.StoreFirebase
-import com.google.firebase.firestore.MetadataChanges
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import java.util.UUID
-import kotlin.reflect.KClass
 
 
 class SyncDatabaseViewModel : ViewModel() {
     private var roomDatabaseHelper: RoomDatabaseHelper
     private var roomDatabaseHelperFirebase: RoomDatabaseHelperFirebaseSync
-    private var firebaseHelper: FirebaseHelper
-
 
     var notSyncedProductList = MutableLiveData<List<ProductFirebase>>()
     var notSyncedReceiptList = MutableLiveData<List<ReceiptFirebase>>()
@@ -44,25 +38,36 @@ class SyncDatabaseViewModel : ViewModel() {
     var outdatedStoreList = MutableLiveData<List<Store>>()
 
     init {
-        val myPref = ApplicationContext.context?.getSharedPreferences(
-            "preferences", AppCompatActivity.MODE_PRIVATE
-        )
-        if (myPref?.getString("userId", "") == "") {
-            myPref.edit().putString("userId", UUID.randomUUID().toString()).apply()
-        }
-        val userUuid = myPref?.getString("userId", null) ?: throw Exception("NOT SET userId")
-
         val dao = ApplicationContext.context?.let { ReceiptDatabase.getInstance(it).receiptDao }
             ?: throw Exception("NOT SET DATABASE")
         roomDatabaseHelper = RoomDatabaseHelper(dao)
         roomDatabaseHelperFirebase = RoomDatabaseHelperFirebaseSync(dao)
-        firebaseHelper = FirebaseHelper(userUuid)
 
-        loadAllList()
-        firestoreListener()
+        setFirebaseHelper()
+    }
+
+    fun setFirebaseHelper() {
+        if (isFirebaseActive()) {
+            loadAllList()
+            firestoreListener()
+        }
+    }
+
+    fun isFirebaseActive(): Boolean {
+        return FirestoreHelperSingleton.getInstance() is FirebaseHelperImpl
+    }
+
+    fun loadNotAddedList() {
+        loadNotAddedCategories()
+        loadNotAddedStores()
+        loadNotAddedReceipts()
+        loadNotAddedProducts()
     }
 
     fun loadAllList() {
+        if (!isFirebaseActive()) {
+            return
+        }
         loadNotSyncedStores()
         loadNotSyncedReceipts()
         loadNotSyncedProducts()
@@ -81,6 +86,42 @@ class SyncDatabaseViewModel : ViewModel() {
          w listenerze porownywac czasy updatedAt, deletedAt
 
     */
+    private fun loadNotAddedCategories() {
+        viewModelScope.launch {
+            val list = roomDatabaseHelperFirebase.getAllNotAddedCategories()
+            list.forEach {
+                addNotAddedCategory(it)
+            }
+        }
+    }
+
+    private fun loadNotAddedStores() {
+        viewModelScope.launch {
+            val list = roomDatabaseHelperFirebase.getAllNotAddedStore()
+            list.forEach {
+                addNotAddedStore(it)
+            }
+        }
+    }
+
+    private fun loadNotAddedReceipts() {
+        viewModelScope.launch {
+            val list = roomDatabaseHelperFirebase.getAllNotAddedReceipt()
+            list.forEach {
+                addNotAddedReceipt(it)
+            }
+        }
+    }
+
+    private fun loadNotAddedProducts() {
+        viewModelScope.launch {
+            val list = roomDatabaseHelperFirebase.getAllNotAddedProduct()
+            list.forEach {
+                addNotAddedProduct(it)
+            }
+        }
+    }
+
     fun loadNotSyncedStores() {
         viewModelScope.launch {
             notSyncedStoreList.postValue(roomDatabaseHelperFirebase.getAllNotSyncedStores())
@@ -129,53 +170,85 @@ class SyncDatabaseViewModel : ViewModel() {
         }
     }
 
+    private fun addNotAddedCategory(category: Category) {
+        FirestoreHelperSingleton.getInstance().addFirestore(category) {
+            viewModelScope.launch {
+                roomDatabaseHelper.updateCategoryFirestoreId(category.id, it)
+            }
+        }
+    }
+
+    private fun addNotAddedStore(store: Store) {
+        FirestoreHelperSingleton.getInstance().addFirestore(store) {
+            viewModelScope.launch {
+                roomDatabaseHelper.updateStoreFirestoreId(store.id, it)
+            }
+        }
+    }
+
+    private fun addNotAddedReceipt(receipt: Receipt) {
+        FirestoreHelperSingleton.getInstance().addFirestore(receipt) {
+            viewModelScope.launch {
+                roomDatabaseHelper.updateReceiptFirestoreId(receipt.id, it)
+            }
+        }
+    }
+
+    private fun addNotAddedProduct(product: Product) {
+        FirestoreHelperSingleton.getInstance().addFirestore(product) {
+            viewModelScope.launch {
+                roomDatabaseHelper.updateProductFirestoreId(product.id, it)
+            }
+        }
+    }
+
     fun syncOutdatedCategory(category: Category) {
-        if (category.isSync && !category.toUpdate) {
-            firebaseHelper.updateFirestore(category) { id ->
+        if (category.isSync && category.toUpdate) {
+            FirestoreHelperSingleton.getInstance().updateFirestore(category) { id ->
                 viewModelScope.launch { roomDatabaseHelper.markCategoryAsUpdated(id) }
             }
         }
-        if (category.isSync && !category.toDelete) {
-            firebaseHelper.delete(category) { id ->
+        if (category.isSync && category.toDelete) {
+            FirestoreHelperSingleton.getInstance().delete(category) { id ->
                 viewModelScope.launch { roomDatabaseHelper.markCategoryAsDeleted(id) }
             }
         }
     }
 
     fun syncOutdatedStore(store: Store) {
-        if (store.isSync && !store.toUpdate) {
-            firebaseHelper.updateFirestore(store) { id ->
+        if (store.isSync && store.toUpdate) {
+            FirestoreHelperSingleton.getInstance().updateFirestore(store) { id ->
                 viewModelScope.launch { roomDatabaseHelper.markStoreAsUpdated(id) }
             }
         }
-        if (store.isSync && !store.toDelete) {
-            firebaseHelper.updateFirestore(store) { id ->
+        if (store.isSync && store.toDelete) {
+            FirestoreHelperSingleton.getInstance().updateFirestore(store) { id ->
                 viewModelScope.launch { roomDatabaseHelper.markStoreAsDeleted(id) }
             }
         }
     }
 
     fun syncOutdatedReceipt(receipt: Receipt) {
-        if (receipt.isSync && !receipt.toUpdate) {
-            firebaseHelper.updateFirestore(receipt) { id ->
+        if (receipt.isSync && receipt.toUpdate) {
+            FirestoreHelperSingleton.getInstance().updateFirestore(receipt) { id ->
                 viewModelScope.launch { roomDatabaseHelper.markCategoryAsUpdated(id) }
             }
         }
-        if (receipt.isSync && !receipt.toDelete) {
-            firebaseHelper.delete(receipt) { id ->
+        if (receipt.isSync && receipt.toDelete) {
+            FirestoreHelperSingleton.getInstance().delete(receipt) { id ->
                 viewModelScope.launch { roomDatabaseHelper.markCategoryAsDeleted(id) }
             }
         }
     }
 
     fun syncOutdatedProduct(product: Product) {
-        if (product.isSync && !product.toUpdate) {
-            firebaseHelper.updateFirestore(product) { id ->
+        if (product.isSync && product.toUpdate) {
+            FirestoreHelperSingleton.getInstance().updateFirestore(product) { id ->
                 viewModelScope.launch { roomDatabaseHelper.markProductAsUpdated(id) }
             }
         }
-        if (product.isSync && !product.toDelete) {
-            firebaseHelper.delete(product) { id ->
+        if (product.isSync && product.toDelete) {
+            FirestoreHelperSingleton.getInstance().delete(product) { id ->
                 viewModelScope.launch { roomDatabaseHelper.markProductAsDeleted(id) }
             }
         }
@@ -187,7 +260,7 @@ class SyncDatabaseViewModel : ViewModel() {
         } else if (category.id == category.firestoreId) {
             category.isSync = true
             Log.i("Firebase", "Syncing category ${category}. categorySyncStatusOperation")
-            firebaseHelper.synchronize(category) { id ->
+            FirestoreHelperSingleton.getInstance().synchronize(category) { id ->
                 viewModelScope.launch { roomDatabaseHelperFirebase.syncCategory(id) }
             }
             return true
@@ -201,7 +274,7 @@ class SyncDatabaseViewModel : ViewModel() {
         } else if (store.id == store.firestoreId && store.isCategorySync) {
             store.isSync = true
             Log.i("Firebase", "Syncing store $store. storeSyncStatusOperation")
-            firebaseHelper.synchronize(store) { id ->
+            FirestoreHelperSingleton.getInstance().synchronize(store) { id ->
                 viewModelScope.launch { roomDatabaseHelperFirebase.syncStore(id) }
             }
             return true
@@ -215,7 +288,7 @@ class SyncDatabaseViewModel : ViewModel() {
         } else if (receipt.id == receipt.firestoreId && receipt.isStoreSync) {
             receipt.isSync = true
             Log.i("Firebase", "Syncing recei[t $receipt. receiptSyncStatusOperation")
-            firebaseHelper.synchronize(receipt) { id ->
+            FirestoreHelperSingleton.getInstance().synchronize(receipt) { id ->
                 viewModelScope.launch { roomDatabaseHelperFirebase.syncReceipt(id) }
             }
             return true
@@ -229,7 +302,7 @@ class SyncDatabaseViewModel : ViewModel() {
         } else if (product.id == product.firestoreId && product.isReceiptSync && product.isCategorySync) {
             product.isSync = true
             Log.i("Firebase", "Syncing product $product. productSyncStatusOperation")
-            firebaseHelper.synchronize(product) { id ->
+            FirestoreHelperSingleton.getInstance().synchronize(product) { id ->
                 viewModelScope.launch { roomDatabaseHelperFirebase.syncProduct(id) }
             }
             return true
@@ -271,45 +344,23 @@ class SyncDatabaseViewModel : ViewModel() {
 
 
     private fun firestoreListener() {
-        singleListener(Category::class) { category ->
+        FirestoreHelperSingleton.getInstance().singleListener(Category::class) { category ->
             viewModelScope.launch { roomDatabaseHelper.saveCategoryFromFirestore(category) }
         }
-        singleListener(Store::class) { store ->
+        FirestoreHelperSingleton.getInstance().singleListener(Store::class) { store ->
             viewModelScope.launch { roomDatabaseHelper.saveStoreFromFirestore(store) }
         }
-        singleListener(Receipt::class) { receipt ->
+        FirestoreHelperSingleton.getInstance().singleListener(Receipt::class) { receipt ->
             viewModelScope.launch { roomDatabaseHelper.saveReceiptFromFirestore(receipt) }
         }
-        singleListener(Product::class) { product ->
+        FirestoreHelperSingleton.getInstance().singleListener(Product::class) { product ->
             viewModelScope.launch { roomDatabaseHelper.saveProductFromFirestore(product) }
         }
     }
 
-    private fun <T : TranslateEntity> singleListener(
-        objectClass: KClass<out T>,
-        saveEntity: (T) -> Unit
-    ) {
-        firebaseHelper.getFullFirestorePath(objectClass)
-            .addSnapshotListener(MetadataChanges.INCLUDE) { snapshot, exception ->
-                if (exception != null) {
-                    Log.w("Firestore", "Listen failed.", exception)
-                    return@addSnapshotListener
-                }
-                if (snapshot != null && !snapshot.metadata.isFromCache) {
-                    Log.d(
-                        "Firestore",
-                        "${objectClass.simpleName} docs size: ${snapshot.documents.size}"
-                    )
-                    for (document in snapshot.documents) {
-                        val entity = document.toObject(objectClass.java)
-                        entity?.let {
-                            saveEntity(entity)
-                        }
-                    }
-                } else {
-                    Log.d("Firestore", "Ignored local cache update")
-                }
-            }
+    fun deleteAllData() {
+        viewModelScope.launch { roomDatabaseHelper.deleteAllData() }
     }
+
 
 }

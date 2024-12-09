@@ -1,20 +1,18 @@
 package com.example.navsample.viewmodels.fragment
 
-import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.navsample.ApplicationContext
 import com.example.navsample.dto.inputmode.AddingInputType
 import com.example.navsample.entities.Category
-import com.example.navsample.entities.FirebaseHelper
+import com.example.navsample.entities.FirestoreHelperSingleton
 import com.example.navsample.entities.ReceiptDatabase
 import com.example.navsample.entities.RoomDatabaseHelper
 import kotlinx.coroutines.launch
 
 class AddCategoryDataViewModel : ViewModel() {
 
-    private var firebaseHelper: FirebaseHelper
     private var roomDatabaseHelper: RoomDatabaseHelper
 
     var inputType = AddingInputType.EMPTY.name
@@ -25,11 +23,6 @@ class AddCategoryDataViewModel : ViewModel() {
     var savedCategory = MutableLiveData<Category>()
 
     init {
-        val myPref = ApplicationContext.context?.getSharedPreferences(
-            "preferences", AppCompatActivity.MODE_PRIVATE
-        )
-        val userUuid = myPref?.getString("userId", null) ?: throw Exception("NOT SET userId")
-        firebaseHelper = FirebaseHelper(userUuid)
 
         val dao = ApplicationContext.context?.let { ReceiptDatabase.getInstance(it).receiptDao }
             ?: throw Exception("NOT SET DATABASE")
@@ -45,7 +38,7 @@ class AddCategoryDataViewModel : ViewModel() {
     fun deleteCategory(categoryId: String) {
         viewModelScope.launch {
             val deletedCategory = roomDatabaseHelper.deleteCategory(categoryId)
-            firebaseHelper.delete(deletedCategory) { id ->
+            FirestoreHelperSingleton.getInstance().delete(deletedCategory) { id ->
                 viewModelScope.launch { roomDatabaseHelper.markCategoryAsDeleted(id) }
             }
         }
@@ -61,7 +54,7 @@ class AddCategoryDataViewModel : ViewModel() {
         viewModelScope.launch {
             val insertedCategory = roomDatabaseHelper.insertCategory(newCategory, generateId)
             savedCategory.postValue(insertedCategory)
-            firebaseHelper.addFirestore(insertedCategory) {
+            FirestoreHelperSingleton.getInstance().addFirestore(insertedCategory) {
                 viewModelScope.launch {
                     roomDatabaseHelper.updateCategoryFirestoreId(insertedCategory.id, it)
                 }
@@ -74,7 +67,7 @@ class AddCategoryDataViewModel : ViewModel() {
             val updatedCategory = roomDatabaseHelper.updateCategory(newCategory)
             savedCategory.postValue(updatedCategory)
             if (newCategory.firestoreId.isNotEmpty()) {
-                firebaseHelper.updateFirestore(updatedCategory) {
+                FirestoreHelperSingleton.getInstance().updateFirestore(updatedCategory) {
                     viewModelScope.launch { roomDatabaseHelper.markCategoryAsUpdated(updatedCategory.id) }
                 }
             }

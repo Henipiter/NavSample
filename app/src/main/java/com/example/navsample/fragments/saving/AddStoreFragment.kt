@@ -62,7 +62,6 @@ class AddStoreFragment : Fragment() {
             binding.storeDefaultCategoryInput.setAdapter(adapter)
         }
 
-
         consumeNavArgs()
         initObserver()
         addStoreDataViewModel.refreshStoreList()

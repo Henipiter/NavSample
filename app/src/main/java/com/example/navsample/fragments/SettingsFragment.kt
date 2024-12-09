@@ -6,6 +6,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
@@ -13,6 +14,7 @@ import androidx.navigation.Navigation
 import com.example.navsample.BuildConfig
 import com.example.navsample.R
 import com.example.navsample.activity.GuideActivity
+import com.example.navsample.auth.AccountServiceImpl
 import com.example.navsample.databinding.FragmentSettingsBinding
 import com.example.navsample.entities.init.InitDatabaseHelper
 import com.example.navsample.viewmodels.ImageViewModel
@@ -37,10 +39,10 @@ class SettingsFragment : Fragment() {
 
     companion object {
         private const val FILLED_DB = "filled_db"
-        private const val USER_ID = "userId"
     }
 
     private lateinit var myPref: SharedPreferences
+    private var accountServiceImpl = AccountServiceImpl()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -53,7 +55,15 @@ class SettingsFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        binding.showReceipt.setOnClickListener {
+        binding.logInButton.setOnClickListener {
+            Toast.makeText(
+                requireContext(),
+                "EEE'${accountServiceImpl.currentUserId}'EEE",
+                Toast.LENGTH_SHORT
+            ).show()
+            Navigation.findNavController(it)
+                .navigate(R.id.action_settingsFragment_to_signingPanelFragment)
+
         }
         binding.exportDataButton.setOnClickListener {
             Navigation.findNavController(it)
@@ -70,11 +80,8 @@ class SettingsFragment : Fragment() {
         }
         myPref =
             requireContext().getSharedPreferences("preferences", AppCompatActivity.MODE_PRIVATE)
-        if (myPref.getString(USER_ID, "") == "") {
-            myPref.edit().putString(USER_ID, UUID.randomUUID().toString()).apply()
-        }
         if (myPref.getString(FILLED_DB, "false") == "false") {
-            initDatabase()
+//            initDatabase()
             myPref.edit().putString(FILLED_DB, "true").apply()
         }
     }

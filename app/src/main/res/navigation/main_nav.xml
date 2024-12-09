@@ -20,6 +20,9 @@
         <action
             android:id="@+id/action_settingsFragment_to_exportDataFragment"
             app:destination="@id/exportDataFragment" />
+        <action
+            android:id="@+id/action_settingsFragment_to_signingPanelFragment"
+            app:destination="@id/signingPanelFragment" />
     </fragment>
     <fragment
         android:id="@+id/addProductListFragment"
@@ -281,5 +284,26 @@
         <argument
             android:name="categoryId"
             app:argType="string" />
+    </fragment>
+    <fragment
+        android:id="@+id/signInFragment"
+        android:name="com.example.navsample.fragments.auth.SignInFragment"
+        android:label="fragment_sign_in"
+        tools:layout="@layout/fragment_sign_in">
+        <argument
+            android:name="signIn"
+            app:argType="boolean" />
+        <argument
+            android:name="signUp"
+            app:argType="boolean" />
+    </fragment>
+    <fragment
+        android:id="@+id/signingPanelFragment"
+        android:name="com.example.navsample.fragments.auth.SigningPanelFragment"
+        android:label="fragment_signing_panel"
+        tools:layout="@layout/fragment_signing_panel">
+        <action
+            android:id="@+id/action_signingPanelFragment_to_signInFragment"
+            app:destination="@id/signInFragment" />
     </fragment>
 </navigation>
