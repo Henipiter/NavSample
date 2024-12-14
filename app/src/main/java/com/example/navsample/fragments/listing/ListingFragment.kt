@@ -37,12 +37,10 @@ class ListingFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         viewPagerAdapter = ViewPagerAdapter(this)
         binding.viewPager.adapter = viewPagerAdapter
-        Log.d("D", "ListingFragment onViewCreated")
         if (shouldRunGuide()) {
             markRunGuideAsDone()
             val intent = Intent(requireContext(), GuideActivity::class.java)
             startActivity(intent)
-            return
         }
 
         initObserver()

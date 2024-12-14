@@ -40,10 +40,7 @@ class MainActivity : AppCompatActivity() {
 
         val shouldInitLogin =
             getSharedPreferences("preferences", MODE_PRIVATE).getBoolean("shouldInitLogin", true)
-                ?: false
         if (shouldInitLogin) {
-
-
             val navGraph = navController.navInflater.inflate(R.navigation.main_nav)
             navGraph.setStartDestination(R.id.signingPanelFragment)
             navController.graph = navGraph
