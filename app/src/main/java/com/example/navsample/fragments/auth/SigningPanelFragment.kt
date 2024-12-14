@@ -123,14 +123,12 @@ class SigningPanelFragment : Fragment() {
     }
 
     private fun changeStartDestination() {
-        return
         val navGraph = findNavController().navInflater.inflate(R.navigation.main_nav)
         navGraph.setStartDestination(R.id.listingFragment)
         findNavController().graph = navGraph
     }
 
     private fun initLogInMarkAsDone() {
-        return
         val myPref = ApplicationContext.context
             ?.getSharedPreferences("preferences", AppCompatActivity.MODE_PRIVATE)
         myPref?.edit()?.putBoolean("shouldInitLogin", false)?.apply()

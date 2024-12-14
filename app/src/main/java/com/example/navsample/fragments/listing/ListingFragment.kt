@@ -82,7 +82,6 @@ class ListingFragment : Fragment() {
 
 
     private fun markRunGuideAsDone() {
-        return
         val myPref = ApplicationContext.context
             ?.getSharedPreferences("preferences", AppCompatActivity.MODE_PRIVATE)
         myPref?.edit()?.putBoolean("shouldRunGuide", false)?.apply()
