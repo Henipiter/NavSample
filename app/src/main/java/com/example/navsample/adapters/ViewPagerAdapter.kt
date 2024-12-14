@@ -15,11 +15,11 @@ class ViewPagerAdapter(var fragment: Fragment) :
 
     override fun createFragment(position: Int): Fragment {
         return when (position) {
-            0 -> StoreListFragment()
-            1 -> ReceiptListFragment()
-            2 -> ProductListFragment()
+            0 -> ReceiptListFragment()
+            1 -> ProductListFragment()
+            2 -> StoreListFragment()
             3 -> CategoryListFragment()
-            else -> StoreListFragment()
+            else -> ReceiptListFragment()
         }
     }
 }

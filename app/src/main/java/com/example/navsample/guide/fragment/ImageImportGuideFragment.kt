@@ -1,6 +1,7 @@
 package com.example.navsample.guide.fragment
 
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -31,11 +32,12 @@ class ImageImportGuideFragment : Fragment(), Guide {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
+        Log.d("GUIDE1", "prepare")
         prepare()
         val dialog = configureDialog()
-
         dialog.show(childFragmentManager, "TAG")
+
+
     }
 
     override fun prepare() {
@@ -72,4 +74,6 @@ class ImageImportGuideFragment : Fragment(), Guide {
     override fun getPhotoView(): PhotoView {
         return PhotoView(requireContext())
     }
+
+
 }

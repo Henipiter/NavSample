@@ -17,6 +17,8 @@ interface Guide {
             iterator, texts, instructions, verticalLevel
         )
         guideDialog.isCancelable = false
+
+
         return guideDialog
     }
 

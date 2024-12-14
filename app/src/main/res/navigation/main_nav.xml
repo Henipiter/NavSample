@@ -16,6 +16,12 @@
             <argument
                 android:name="developerMode"
                 android:defaultValue="true" />
+            <argument
+                android:name="categoryId"
+                android:defaultValue="&quot;&quot;" />
+            <argument
+                android:name="receiptId"
+                android:defaultValue="&quot;&quot;" />
         </action>
         <action
             android:id="@+id/action_settingsFragment_to_exportDataFragment"
