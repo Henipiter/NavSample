@@ -20,8 +20,10 @@ import com.example.navsample.dto.PriceUtils.Companion.intPriceToString
 import com.example.navsample.dto.inputmode.AddingInputType
 import com.example.navsample.dto.sort.ReceiptWithStoreSort
 import com.example.navsample.dto.sort.SortProperty
+import com.example.navsample.entities.relations.ReceiptWithStore
 import com.example.navsample.fragments.dialogs.ConfirmDialog
 import com.example.navsample.fragments.dialogs.SortingDialog
+import com.example.navsample.sheets.ReceiptBottomSheetFragment
 import com.example.navsample.viewmodels.ListingViewModel
 import com.example.navsample.viewmodels.fragment.AddReceiptDataViewModel
 
@@ -86,36 +88,60 @@ class ReceiptListFragment : Fragment(), ItemClickListener {
         receiptListAdapter = ReceiptListAdapter(
             requireContext(),
             listingViewModel.receiptList.value ?: arrayListOf(), this
-        ) { i: Int ->
-            listingViewModel.receiptList.value?.get(i)?.let {
-                ConfirmDialog(
-                    "Delete",
-                    "$i Are you sure you want to delete the receipt with dependent products??\n\n" +
-                            "Store: " + it.name
-                            + "\nPLN: " + intPriceToString(it.pln)
-                            + "\nPTU: " + intPriceToString(it.ptu)
-                            + "\nDate: " + it.date
-                            + "\nTime: " + it.time
-                ) {
-                    addReceiptDataViewModel.deleteReceipt(it.id)
-                    listingViewModel.receiptList.value?.let { receiptList ->
-                        receiptList.removeAt(i)
-                        receiptListAdapter.receiptList = receiptList
-                        receiptListAdapter.notifyItemRemoved(i)
-                        receiptListAdapter.notifyItemRangeChanged(
-                            i, receiptListAdapter.receiptList.size
-                        )
-                    }
-                    listingViewModel.loadDataByProductFilter()
-
-
-                }.show(childFragmentManager, "TAG")
+        ) { index: Int ->
+            listingViewModel.receiptList.value?.get(index)?.let { receiptWithStore ->
+                popUpButtonSheet(index, receiptWithStore)
             }
-
         }
         recyclerViewEvent.adapter = receiptListAdapter
         recyclerViewEvent.layoutManager =
             LinearLayoutManager(requireContext(), LinearLayoutManager.VERTICAL, false)
+    }
+
+    private fun popUpButtonSheet(index: Int, receiptWithStore: ReceiptWithStore) {
+        val modalBottomSheet = ReceiptBottomSheetFragment(
+            { onDelete(index, receiptWithStore) },
+            { onJumpToStore(receiptWithStore.storeId) }
+        )
+        modalBottomSheet.show(parentFragmentManager, ReceiptBottomSheetFragment.TAG)
+    }
+
+    private fun onJumpToStore(storeId: String) {
+        val action =
+            ListingFragmentDirections.actionListingFragmentToAddStoreFragment(
+                inputType = AddingInputType.ID.name,
+                storeId = storeId,
+                storeName = null,
+                storeNip = null,
+                sourceFragment = FragmentName.STORE_LIST_FRAGMENT,
+                categoryId = ""
+            )
+        Navigation.findNavController(requireView()).navigate(action)
+    }
+
+    private fun onDelete(index: Int, receiptWithStore: ReceiptWithStore) {
+        ConfirmDialog(
+            "Delete",
+            "Are you sure you want to delete the receipt with dependent products??\n\n" +
+                    "Store: " + receiptWithStore.name
+                    + "\nPLN: " + intPriceToString(receiptWithStore.pln)
+                    + "\nPTU: " + intPriceToString(receiptWithStore.ptu)
+                    + "\nDate: " + receiptWithStore.date
+                    + "\nTime: " + receiptWithStore.time
+        ) {
+            addReceiptDataViewModel.deleteReceipt(receiptWithStore.id)
+            listingViewModel.receiptList.value?.let { receiptList ->
+                receiptList.removeAt(index)
+                receiptListAdapter.receiptList = receiptList
+                receiptListAdapter.notifyItemRemoved(index)
+                receiptListAdapter.notifyItemRangeChanged(
+                    index, receiptListAdapter.receiptList.size
+                )
+            }
+            listingViewModel.loadDataByProductFilter()
+
+
+        }.show(childFragmentManager, "TAG")
     }
 
     @SuppressLint("NotifyDataSetChanged")

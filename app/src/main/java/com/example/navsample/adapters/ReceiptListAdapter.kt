@@ -14,7 +14,7 @@ class ReceiptListAdapter(
     var context: Context,
     var receiptList: ArrayList<ReceiptWithStore>,
     private var itemClickListener: ItemClickListener,
-    private var onDelete: (Int) -> Unit
+    private var onLongClick: (Int) -> Unit
 ) : RecyclerView.Adapter<ReceiptListAdapter.MyViewHolder>() {
     var position = 0
 
@@ -48,7 +48,7 @@ class ReceiptListAdapter(
             itemClickListener.onItemClick(position)
         }
         holder.binding.mainLayout.setOnLongClickListener {
-            onDelete.invoke(position)
+            onLongClick.invoke(position)
             true
         }
     }
