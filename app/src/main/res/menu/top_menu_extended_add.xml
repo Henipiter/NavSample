@@ -9,6 +9,13 @@
         android:icon="@drawable/robot"
         app:showAsAction="ifRoom" />
     <item
+        android:id="@+id/importImage"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:title="Import image"
+        android:icon="@drawable/gallery"
+        app:showAsAction="ifRoom" />
+    <item
         android:id="@+id/reorder"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"

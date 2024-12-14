@@ -63,9 +63,7 @@ class AddProductListFragment : Fragment(), ItemClickListener {
         return binding.root
     }
 
-
     @SuppressLint("NotifyDataSetChanged")
-    @ExperimentalGetImage
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         binding.toolbar.inflateMenu(R.menu.top_menu_extended_add)
@@ -81,12 +79,7 @@ class AddProductListFragment : Fragment(), ItemClickListener {
             requireContext().getSharedPreferences("preferences", AppCompatActivity.MODE_PRIVATE)
         if (shouldOpenCropFragment && imageViewModel.uriCroppedProduct.value == null) {
             shouldOpenCropFragment = false
-            val action =
-                AddProductListFragmentDirections.actionAddProductListFragmentToCropImageFragment(
-                    receiptId = navArgs.receiptId,
-                    categoryId = navArgs.categoryId
-                )
-            Navigation.findNavController(requireView()).navigate(action)
+            delegateToCropImage()
         }
         recyclerViewEvent = binding.recyclerViewEvent
         productListAdapter = ProductListAdapter(
@@ -115,12 +108,7 @@ class AddProductListFragment : Fragment(), ItemClickListener {
 
 
         binding.receiptImage.setOnLongClickListener {
-            val action =
-                AddProductListFragmentDirections.actionAddProductListFragmentToCropImageFragment(
-                    receiptId = navArgs.receiptId,
-                    categoryId = navArgs.categoryId
-                )
-            Navigation.findNavController(requireView()).navigate(action)
+            delegateToCropImage()
             true
         }
         recyclerViewEvent.adapter = productListAdapter
@@ -133,8 +121,17 @@ class AddProductListFragment : Fragment(), ItemClickListener {
             Navigation.findNavController(it).popBackStack()
         }
 
+        defineToolbarActions()
+    }
+
+    private fun defineToolbarActions() {
         binding.toolbar.setOnMenuItemClickListener {
             when (it.itemId) {
+                R.id.importImage -> {
+                    importImage()
+                    true
+                }
+
                 R.id.aiParser -> {
                     val productsData = AnalyzedProductsData(
                         ArrayList(addProductDataViewModel.productList.value?.map { product -> product.name }
@@ -187,9 +184,16 @@ class AddProductListFragment : Fragment(), ItemClickListener {
                 else -> false
             }
         }
-
     }
 
+    private fun delegateToCropImage() {
+        val action =
+            AddProductListFragmentDirections.actionAddProductListFragmentToCropImageFragment(
+                receiptId = navArgs.receiptId,
+                categoryId = navArgs.categoryId
+            )
+        Navigation.findNavController(requireView()).navigate(action)
+    }
 
     private fun consumeNavArgs() {
         if (navArgs.storeId.isNotEmpty()) {
@@ -255,6 +259,13 @@ class AddProductListFragment : Fragment(), ItemClickListener {
             }
         }
         return true
+    }
+
+    private fun importImage() {
+        //TODO add popup and import file OR make photo OR just crop existing
+        //TODO delegateToCropImage()
+        Toast.makeText(requireContext(), "Not implemented yet", Toast.LENGTH_SHORT).show()
+        return
     }
 
     private fun reorderTilesWithProducts() {
