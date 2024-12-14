@@ -297,7 +297,7 @@ class AddStoreFragment : Fragment() {
             Toast.makeText(requireContext(), "Category cannot be empty", Toast.LENGTH_SHORT).show()
             return false
         }
-        if (!isUniqueNIP) {
+        if (!isNIPUnique(binding.storeNIPInput.text.toString())) {
             Toast.makeText(requireContext(), "NIP cannot be duplicated", Toast.LENGTH_SHORT).show()
             return false
         }

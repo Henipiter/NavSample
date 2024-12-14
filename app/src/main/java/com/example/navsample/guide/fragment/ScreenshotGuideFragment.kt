@@ -5,6 +5,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
+import com.canhub.cropper.CropImageView
 import com.example.navsample.databinding.FragmentGuideScreenshotBinding
 import com.example.navsample.guide.Guide
 import com.github.chrisbanes.photoview.PhotoView
@@ -40,7 +41,15 @@ open class ScreenshotGuideFragment : Fragment(), Guide {
         loadImage(imageName, requireContext())
     }
 
+    override fun loadCropImageView(imageName: String) {
+        TODO("Not yet implemented")
+    }
+
     override fun getPhotoView(): PhotoView {
         return binding.receiptImage
+    }
+
+    override fun getCropImageView(): CropImageView {
+        TODO("Not yet implemented")
     }
 }

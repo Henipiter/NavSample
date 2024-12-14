@@ -6,6 +6,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.navigation.Navigation
+import com.canhub.cropper.CropImageView
 import com.example.navsample.R
 import com.example.navsample.databinding.FragmentAddReceiptBinding
 import com.example.navsample.guide.Guide
@@ -43,8 +44,7 @@ class AddReceiptGuideFragment : Fragment(), Guide {
         loadImage("crop_receipt.png")
         instructions = listOf(
             { Navigation.findNavController(requireView()).popBackStack() },
-            { clearInputs(); loadImage("crop_receipt.png") },
-            { fillInputs() },
+            { fillInputs(); loadImage("crop_receipt.png") },
             {
                 Navigation.findNavController(requireView())
                     .navigate(R.id.action_addReceiptGuideFragment_to_cropProductGuideFragment)
@@ -52,22 +52,13 @@ class AddReceiptGuideFragment : Fragment(), Guide {
         )
         texts = listOf(
             "View with receipt data. Will be provided automatically",
-            "Data provided!",
             ""
         )
         verticalLevel = listOf(
-            100, 100, 100
+            100, 100
         )
     }
 
-    private fun clearInputs() {
-        binding.storeNameInput.setText("")
-        binding.receiptPLNInput.setText("")
-        binding.receiptPLNInput.setText("")
-        binding.receiptPTUInput.setText("")
-        binding.receiptDateInput.setText("")
-        binding.receiptTimeInput.setText("")
-    }
 
     private fun fillInputs() {
         binding.storeNameInput.setText("CARREFOUR")
@@ -82,7 +73,15 @@ class AddReceiptGuideFragment : Fragment(), Guide {
         loadImage(imageName, requireContext())
     }
 
+    override fun loadCropImageView(imageName: String) {
+        TODO("Not yet implemented")
+    }
+
     override fun getPhotoView(): PhotoView {
         return binding.receiptImage
+    }
+
+    override fun getCropImageView(): CropImageView {
+        TODO("Not yet implemented")
     }
 }

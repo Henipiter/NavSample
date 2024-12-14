@@ -1,12 +1,13 @@
 package com.example.navsample.guide.fragment
 
+import android.graphics.Rect
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.navigation.Navigation
+import com.canhub.cropper.CropImageView
 import com.example.navsample.R
 import com.example.navsample.databinding.FragmentImageImportBinding
 import com.example.navsample.guide.Guide
@@ -32,7 +33,6 @@ class ImageImportGuideFragment : Fragment(), Guide {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        Log.d("GUIDE1", "prepare")
         prepare()
         val dialog = configureDialog()
         dialog.show(childFragmentManager, "TAG")
@@ -44,35 +44,51 @@ class ImageImportGuideFragment : Fragment(), Guide {
         binding.receiptImage.setImageBitmap(null)
         binding.receiptImage.visibility = View.GONE
 
+
         instructions = listOf(
             { Navigation.findNavController(requireView()).popBackStack() },
             {
                 binding.receiptImage.visibility = View.VISIBLE
                 binding.receiptImage.setImageBitmap(null)
             },
-            { loadImage("original_receipt.jpg") },
+            {
+                loadCropImageView("original_receipt.jpg")
+            },
+            {
+                loadCropImageView("original_receipt.jpg")
+                val selectedArea = Rect(0, 100, 2464, 2467)
+                binding.receiptImage.cropRect = selectedArea
+            },
             {
                 Navigation.findNavController(requireView())
-                    .navigate(R.id.action_imageImportGuideFragment_to_cropReceiptGuideFragment)
+                    .navigate(R.id.action_imageImportGuideFragment_to_addReceiptGuideFragment)
             }
         )
         texts = listOf(
             "Load image",
             "Image loaded",
+            "Image cropping",
             ""
         )
         verticalLevel = listOf(
-            100, 100, 100
+            500, 500, 500, 500
         )
     }
 
     override fun loadImage(imageName: String) {
-        loadImage(imageName, requireContext())
+    }
+
+    override fun loadCropImageView(imageName: String) {
+        loadCropImageView(imageName, requireContext())
     }
 
 
     override fun getPhotoView(): PhotoView {
-        return PhotoView(requireContext())
+        TODO()
+    }
+
+    override fun getCropImageView(): CropImageView {
+        return binding.receiptImage
     }
 
 
