@@ -10,8 +10,10 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.navigation.Navigation
+import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import com.example.navsample.ApplicationContext
+import com.example.navsample.R
 import com.example.navsample.databinding.FragmentSignInBinding
 import com.example.navsample.entities.FirestoreHelperSingleton
 import com.example.navsample.viewmodels.SyncDatabaseViewModel
@@ -36,24 +38,31 @@ class SignInFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        initObserver()
         if (navArgs.signIn) {
             binding.confirmPasswordLayout.visibility = View.INVISIBLE
             actionOnClick = { email, password ->
-                validationMessage = validateSingIn()
+                validationMessage = validateSignIn()
                 if (validationMessage.isEmpty()) {
-                    signInViewModel.onSignInClick(email, password)
+                    signInViewModel.onSignInClick(
+                        email,
+                        password,
+                        { onLoginSuccess() },
+                        { onLoginFailure() }
+                    )
                 } else {
-
                     Toast.makeText(requireContext(), validationMessage, Toast.LENGTH_SHORT).show()
                 }
             }
         } else if (navArgs.signUp) {
             binding.confirmPasswordLayout.visibility = View.VISIBLE
             actionOnClick = { email, password ->
-                validationMessage = validateSingUp()
+                validationMessage = validateSignUp()
                 if (validationMessage.isEmpty()) {
-                    signInViewModel.onSignUpClick(email, password)
+                    signInViewModel.onSignUpClick(
+                        email,
+                        password,
+                        { onLoginSuccess() },
+                        { onLoginFailure() })
                 } else {
                     Toast.makeText(requireContext(), validationMessage, Toast.LENGTH_SHORT).show()
                 }
@@ -62,14 +71,14 @@ class SignInFragment : Fragment() {
         }
 
         binding.confirmButton.setOnClickListener { _ ->
-            val email = binding.usernameInput.text.toString()
+            val email = binding.usernameInput.text.toString().trim()
             val password = binding.passwordInput.text.toString()
             actionOnClick?.let { it(email, password) }
 
         }
     }
 
-    private fun validateSingUp(): String {
+    private fun validateSignUp(): String {
         if (!validateEmailInput()) {
             return "Bad email"
         } else if (!validatePasswordInput()) {
@@ -80,7 +89,7 @@ class SignInFragment : Fragment() {
         return ""
     }
 
-    private fun validateSingIn(): String {
+    private fun validateSignIn(): String {
         if (!validateEmailInput()) {
             return "Bad email"
         } else if (!validatePasswordInput()) {
@@ -89,26 +98,24 @@ class SignInFragment : Fragment() {
         return ""
     }
 
-    private fun initObserver() {
-        signInViewModel.loggingFinish.observe(viewLifecycleOwner) {
-            if (!it) {
-                return@observe
-            }
-            signInViewModel.loggingFinish.postValue(false)
+    private fun onLoginFailure() {
+        Log.d("Firestore1", "Error ${signInViewModel.errorMessage}")
+        Toast.makeText(requireContext(), "Auth error", Toast.LENGTH_SHORT).show()
 
-            if (it == null) {
-                val userId = signInViewModel.getUserId()
-                setUserIdToPreferences(userId)
-                FirestoreHelperSingleton.initialize(userId)
-                syncDatabaseViewModel.setFirebaseHelper()
-                syncDatabaseViewModel.loadNotAddedList()
-                Toast.makeText(requireContext(), "Auth success", Toast.LENGTH_SHORT).show()
-                Navigation.findNavController(requireView()).popBackStack()
-            } else {
-                Log.d("Firestore1", "Error ${signInViewModel.errorMessage}")
-                Toast.makeText(requireContext(), "Auth error", Toast.LENGTH_SHORT).show()
-            }
+    }
+
+    private fun onLoginSuccess() {
+        if (shouldInitLogin()) {
+            initLogInMarkAsDone()
+            changeStartDestination()
         }
+        val userId = signInViewModel.getUserId()
+        setUserIdToPreferences(userId)
+        FirestoreHelperSingleton.initialize(userId)
+        syncDatabaseViewModel.setFirebaseHelper()
+        syncDatabaseViewModel.loadNotAddedList()
+        Toast.makeText(requireContext(), "Auth success", Toast.LENGTH_SHORT).show()
+        Navigation.findNavController(requireView()).popBackStack()
     }
 
     private fun setUserIdToPreferences(id: String) {
@@ -126,20 +133,39 @@ class SignInFragment : Fragment() {
     }
 
     private fun validateEmailInput(): Boolean {
-        val email = binding.usernameInput.text
+        val email = binding.usernameInput.text.toString().trim()
         val emailRegex = "^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+$".toRegex()
         return email.matches(emailRegex)
     }
 
     private fun validatePasswordInput(): Boolean {
         val password = binding.passwordInput.text
-        return password.length > 6
+        return password.length >= 6
     }
 
     private fun validatePasswordConfirmationInput(): Boolean {
         val password = binding.passwordInput.text
         val confirmPassword = binding.confirmPasswordInput.text
         return password == confirmPassword
+    }
+
+    private fun changeStartDestination() {
+        val navGraph = findNavController().navInflater.inflate(R.navigation.main_nav)
+        navGraph.setStartDestination(R.id.listingFragment)
+        findNavController().graph = navGraph
+    }
+
+    private fun shouldInitLogin(): Boolean {
+        return ApplicationContext.context
+            ?.getSharedPreferences("preferences", AppCompatActivity.MODE_PRIVATE)
+            ?.getBoolean("shouldInitLogin", true)
+            ?: true
+    }
+
+    private fun initLogInMarkAsDone() {
+        val myPref = ApplicationContext.context
+            ?.getSharedPreferences("preferences", AppCompatActivity.MODE_PRIVATE)
+        myPref?.edit()?.putBoolean("shouldInitLogin", false)?.apply()
     }
 }
 

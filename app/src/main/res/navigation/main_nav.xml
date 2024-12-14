@@ -305,5 +305,10 @@
         <action
             android:id="@+id/action_signingPanelFragment_to_signInFragment"
             app:destination="@id/signInFragment" />
+        <action
+            android:id="@+id/action_signingPanelFragment_to_listingFragment"
+            app:destination="@id/listingFragment"
+            app:popUpTo="@id/listingFragment"
+            app:popUpToInclusive="true" />
     </fragment>
 </navigation>

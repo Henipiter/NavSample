@@ -31,6 +31,9 @@ class GuideFragment : Fragment() {
             Navigation.findNavController(it)
                 .navigate(R.id.action_guideFragment_to_imageImportGuideFragment)
         }
+        binding.skipTutorialButton.setOnClickListener {
+            requireActivity().onBackPressedDispatcher.onBackPressed()
+        }
 
     }
 }

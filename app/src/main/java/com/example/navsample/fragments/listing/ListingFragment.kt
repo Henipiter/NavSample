@@ -1,13 +1,17 @@
 package com.example.navsample.fragments.listing
 
+import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.viewpager2.widget.ViewPager2
+import com.example.navsample.ApplicationContext
+import com.example.navsample.activity.GuideActivity
 import com.example.navsample.adapters.ViewPagerAdapter
 import com.example.navsample.databinding.FragmentListingBinding
 import com.example.navsample.entities.dto.TranslateFirebaseEntity
@@ -33,8 +37,18 @@ class ListingFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         viewPagerAdapter = ViewPagerAdapter(this)
         binding.viewPager.adapter = viewPagerAdapter
+        Log.d("D", "ListingFragment onViewCreated")
+        if (shouldRunGuide()) {
+            markRunGuideAsDone()
+            val intent = Intent(requireContext(), GuideActivity::class.java)
+            startActivity(intent)
+            return
+        }
+
         initObserver()
         syncDatabaseViewModel.loadAllList()
+
+
         binding.tabLayout.addOnTabSelectedListener(object : TabLayout.OnTabSelectedListener {
 
             override fun onTabSelected(tab: TabLayout.Tab?) {
@@ -57,6 +71,21 @@ class ListingFragment : Fragment() {
                 binding.tabLayout.getTabAt(position)?.select()
             }
         })
+    }
+
+    private fun shouldRunGuide(): Boolean {
+        return ApplicationContext.context
+            ?.getSharedPreferences("preferences", AppCompatActivity.MODE_PRIVATE)
+            ?.getBoolean("shouldRunGuide", true)
+            ?: true
+    }
+
+
+    private fun markRunGuideAsDone() {
+        return
+        val myPref = ApplicationContext.context
+            ?.getSharedPreferences("preferences", AppCompatActivity.MODE_PRIVATE)
+        myPref?.edit()?.putBoolean("shouldRunGuide", false)?.apply()
     }
 
     private fun initNotSyncedLists() {
