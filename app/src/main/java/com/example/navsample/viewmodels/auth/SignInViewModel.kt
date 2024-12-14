@@ -10,9 +10,7 @@ import kotlinx.coroutines.launch
 
 class SignInViewModel : ViewModel() {
     private val accountService = AccountServiceImpl()
-    val loggingFinish = MutableLiveData(false) //TODO create listener
     val currentUser = MutableLiveData<User>()
-    var errorMessage: String? = null
 
 
     fun onSignInClick(

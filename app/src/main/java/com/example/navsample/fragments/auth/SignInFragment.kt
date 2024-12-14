@@ -26,7 +26,6 @@ class SignInFragment : Fragment() {
     private val signInViewModel: SignInViewModel by activityViewModels()
     private val syncDatabaseViewModel: SyncDatabaseViewModel by activityViewModels()
     private val navArgs: SignInFragmentArgs by navArgs()
-    private var actionOnClick: ((String, String) -> Unit)? = null
     private var validationMessage = ""
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -38,43 +37,52 @@ class SignInFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
         if (navArgs.signIn) {
             binding.confirmPasswordLayout.visibility = View.INVISIBLE
-            actionOnClick = { email, password ->
-                validationMessage = validateSignIn()
-                if (validationMessage.isEmpty()) {
-                    signInViewModel.onSignInClick(
-                        email,
-                        password,
-                        { onLoginSuccess() },
-                        { onLoginFailure() }
-                    )
-                } else {
-                    Toast.makeText(requireContext(), validationMessage, Toast.LENGTH_SHORT).show()
-                }
-            }
         } else if (navArgs.signUp) {
             binding.confirmPasswordLayout.visibility = View.VISIBLE
-            actionOnClick = { email, password ->
-                validationMessage = validateSignUp()
-                if (validationMessage.isEmpty()) {
-                    signInViewModel.onSignUpClick(
-                        email,
-                        password,
-                        { onLoginSuccess() },
-                        { onLoginFailure() })
-                } else {
-                    Toast.makeText(requireContext(), validationMessage, Toast.LENGTH_SHORT).show()
-                }
-
-            }
         }
 
-        binding.confirmButton.setOnClickListener { _ ->
-            val email = binding.usernameInput.text.toString().trim()
-            val password = binding.passwordInput.text.toString()
-            actionOnClick?.let { it(email, password) }
+        binding.confirmButton.setOnClickListener {
+            confirmButtonAction()
+        }
+    }
 
+    private fun confirmButtonAction() {
+        val email = binding.usernameInput.text.toString().trim()
+        val password = binding.passwordInput.text.toString()
+        if (navArgs.signIn) {
+            signInAction(email, password)
+        } else if (navArgs.signUp) {
+            signUpAction(email, password)
+        }
+    }
+
+    private fun signUpAction(email: String, password: String) {
+        validationMessage = validateSignUp()
+        if (validationMessage.isEmpty()) {
+            signInViewModel.onSignUpClick(
+                email,
+                password,
+                { onLoginSuccess() },
+                { onLoginFailure() })
+        } else {
+            Toast.makeText(requireContext(), validationMessage, Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    private fun signInAction(email: String, password: String) {
+        validationMessage = validateSignIn()
+        if (validationMessage.isEmpty()) {
+            signInViewModel.onSignInClick(
+                email,
+                password,
+                { onLoginSuccess() },
+                { onLoginFailure() }
+            )
+        } else {
+            Toast.makeText(requireContext(), validationMessage, Toast.LENGTH_SHORT).show()
         }
     }
 
@@ -99,9 +107,7 @@ class SignInFragment : Fragment() {
     }
 
     private fun onLoginFailure() {
-        Log.d("Firestore1", "Error ${signInViewModel.errorMessage}")
         Toast.makeText(requireContext(), "Auth error", Toast.LENGTH_SHORT).show()
-
     }
 
     private fun onLoginSuccess() {
@@ -168,4 +174,3 @@ class SignInFragment : Fragment() {
         myPref?.edit()?.putBoolean("shouldInitLogin", false)?.apply()
     }
 }
-
