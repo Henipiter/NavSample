@@ -45,6 +45,7 @@ class AddProductFragment : Fragment() {
 
     private var mode = DataMode.NEW
     private var productOriginalInput = ""
+    private var storeDefaultCategoryName = ""
     private var pickedCategory: Category? = null
     private var isValidPrices = true
     private var firstEntry = true
@@ -63,6 +64,9 @@ class AddProductFragment : Fragment() {
         return binding.root
     }
 
+    private fun getCategorySuggestionMessage(): String {
+        return "Use default category $storeDefaultCategoryName"
+    }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -108,6 +112,13 @@ class AddProductFragment : Fragment() {
             } else {
                 binding.productCategoryInput.setText(pickedCategory?.name)
                 binding.productCategoryInput.isEnabled = false
+
+                val storeCategory = addProductDataViewModel.storeById.value?.defaultCategoryId
+                if (storeCategory != null && storeCategory != pickedCategory?.id) {
+                    binding.productCategoryHelperText.text = getCategorySuggestionMessage()
+                } else {
+                    binding.productCategoryHelperText.text = ""
+                }
             }
         }
         binding.ptuTypeInput.setOnItemClickListener { adapter, _, i, _ ->
@@ -119,6 +130,7 @@ class AddProductFragment : Fragment() {
             binding.productCategoryLayout.helperText = null
             binding.productCategoryInput.isEnabled = true
             pickedCategory = null
+            binding.productCategoryHelperText.text = getCategorySuggestionMessage()
         }
 
         binding.productOriginalLayout.setEndIconOnClickListener {
@@ -217,6 +229,17 @@ class AddProductFragment : Fragment() {
             }
         }
 
+        binding.productCategoryHelperText.setOnClickListener {
+            if (binding.productCategoryHelperText.text != "") {
+                val storeCategory = addProductDataViewModel.storeById.value?.defaultCategoryId
+                if (storeCategory != null) {
+                    addProductDataViewModel.categoryId = storeCategory
+                    setCategory()
+                    binding.productCategoryHelperText.text = ""
+                }
+
+            }
+        }
         binding.productSubtotalPriceHelperText.setOnClickListener {
             if (binding.productSubtotalPriceHelperText.text.toString()
                     .contains(SUGGESTION_PREFIX)
@@ -612,6 +635,12 @@ class AddProductFragment : Fragment() {
                     setCategory()
                 }
             }
+            val storeCategoryId = addProductDataViewModel.storeById.value?.defaultCategoryId
+            if (storeCategoryId != null) {
+                categoryList.first { category -> category.id == storeCategoryId }.name.let { name ->
+                    name.let { storeDefaultCategoryName = it }
+                }
+            }
 
         }
         addProductDataViewModel.productById.observe(viewLifecycleOwner) {
@@ -638,6 +667,9 @@ class AddProductFragment : Fragment() {
                 if (addProductDataViewModel.receiptById.value == null && addProductDataViewModel.categoryId == "") {
                     addProductDataViewModel.categoryId = store.defaultCategoryId
                     setCategory()
+                }
+                addProductDataViewModel.categoryList.value?.first { category -> category.id == store.defaultCategoryId }?.name.let { name ->
+                    name?.let { storeDefaultCategoryName = it }
                 }
             }
         }

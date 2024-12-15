@@ -274,6 +274,14 @@
                         tools:ignore="LabelFor" />
                 </com.google.android.material.textfield.TextInputLayout>
 
+                <TextView
+                    android:id="@+id/product_category_helper_text"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="8dp"
+                    app:layout_constraintStart_toStartOf="@+id/product_category_layout"
+                    app:layout_constraintTop_toBottomOf="@+id/product_category_layout" />
+
 
                 <com.google.android.material.textfield.TextInputLayout
                     android:id="@+id/product_original_layout"
