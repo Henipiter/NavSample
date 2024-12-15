@@ -100,6 +100,10 @@ class ImageImportFragment : Fragment() {
                 imageAnalyzerViewModel.analyzeReceipt(analyzedImage)
             }
         }
+        binding.captureImage.setOnClickListener {
+            val action = ImageImportFragmentDirections.actionImageImportFragmentToCameraFragment()
+            Navigation.findNavController(requireView()).navigate(action)
+        }
 
         binding.manualButton.setOnClickListener {
             imageViewModel.clearData()

@@ -137,6 +137,9 @@
                 android:name="inputType"
                 android:defaultValue="EMPTY" />
         </action>
+        <action
+            android:id="@+id/action_imageImportFragment_to_cameraFragment"
+            app:destination="@id/cameraFragment" />
     </fragment>
     <fragment
         android:id="@+id/experimentRecycleFragment"
@@ -317,4 +320,8 @@
             app:popUpTo="@id/listingFragment"
             app:popUpToInclusive="true" />
     </fragment>
+    <fragment
+        android:id="@+id/cameraFragment"
+        android:name="com.example.navsample.CameraFragment"
+        android:label="CameraFragment" />
 </navigation>
