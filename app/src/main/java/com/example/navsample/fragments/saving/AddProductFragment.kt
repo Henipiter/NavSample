@@ -331,7 +331,7 @@ class AddProductFragment : Fragment() {
                 addProductDataViewModel.receiptId.ifEmpty { throw NoReceiptIdException() },
                 binding.productNameInput.text.toString(),
                 pickedCategory?.id ?: throw NoCategoryIdException(),
-                doublePriceTextToInt(binding.productQuantityInput.text.toString()),
+                doubleQuantityTextToInt(binding.productQuantityInput.text.toString()),
                 doublePriceTextToInt(binding.productUnitPriceInput.text.toString()),
                 doublePriceTextToInt(binding.productSubtotalPriceInput.text.toString()),
                 doublePriceTextToInt(binding.productDiscountInput.text.toString()),
@@ -350,7 +350,7 @@ class AddProductFragment : Fragment() {
             val product = addProductDataViewModel.productById.value!!
             product.name = binding.productNameInput.text.toString()
             product.categoryId = pickedCategory?.id ?: throw NoCategoryIdException()
-            product.quantity = doublePriceTextToInt(binding.productQuantityInput.text.toString())
+            product.quantity = doubleQuantityTextToInt(binding.productQuantityInput.text.toString())
             product.unitPrice = doublePriceTextToInt(binding.productUnitPriceInput.text.toString())
             product.subtotalPrice =
                 doublePriceTextToInt(binding.productSubtotalPriceInput.text.toString())
@@ -364,6 +364,11 @@ class AddProductFragment : Fragment() {
             when (addProductDataViewModel.inputType) {
                 AddingInputType.ID.name -> {
                     addProductDataViewModel.updateSingleProduct(product)
+                    addProductDataViewModel.receiptById.value?.let {
+                        addProductDataViewModel.updateReceipt(it) {
+                            listingViewModel.loadDataByCategoryFilter()
+                        }
+                    }
                 }
 
                 AddingInputType.INDEX.name -> {
@@ -610,6 +615,9 @@ class AddProductFragment : Fragment() {
         }
         addProductDataViewModel.productById.observe(viewLifecycleOwner) {
             it?.let { product ->
+                if (addProductDataViewModel.receiptById.value == null) {
+                    addProductDataViewModel.getReceiptById(product.receiptId)
+                }
                 if (navArgs.sourceFragment != FragmentName.ADD_CATEGORY_FRAGMENT) {
                     addProductDataViewModel.categoryId = it.categoryId
                     setCategory()

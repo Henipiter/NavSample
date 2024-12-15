@@ -2,38 +2,38 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
     <item
-        android:id="@+id/aiParser"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:title="AI Parser"
-        android:icon="@drawable/robot"
-        app:showAsAction="ifRoom" />
-    <item
-        android:id="@+id/importImage"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:title="Import image"
-        android:icon="@drawable/gallery"
-        app:showAsAction="ifRoom" />
-    <item
-        android:id="@+id/reorder"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:title="Reorder"
-        android:icon="@drawable/reorder"
-        app:showAsAction="ifRoom" />
-    <item
         android:id="@+id/add_new"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:title="Add"
         android:icon="@drawable/add"
+        android:title="Add"
         app:showAsAction="ifRoom" />
     <item
         android:id="@+id/confirm"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:title="Confirm"
         android:icon="@drawable/confirm"
+        android:title="Confirm"
+        app:showAsAction="ifRoom" />
+    <item
+        android:id="@+id/aiParser"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:icon="@drawable/robot"
+        android:title="AI Parser"
+        app:showAsAction="ifRoom" />
+    <item
+        android:id="@+id/importImage"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:icon="@drawable/gallery"
+        android:title="Import image"
+        app:showAsAction="ifRoom" />
+    <item
+        android:id="@+id/reorder"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:icon="@drawable/reorder"
+        android:title="Reorder"
         app:showAsAction="ifRoom" />
 </menu>

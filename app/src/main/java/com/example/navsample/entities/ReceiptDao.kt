@@ -119,6 +119,32 @@ interface ReceiptDao {
         updatedAt: String
     )
 
+    @Query("SELECT validPrice FROM  receipt WHERE id = :id")
+    suspend fun getReceiptValidField(id: String): Boolean
+
+    @Query("SELECT count(*) FROM  product WHERE receiptId = :receiptId AND validPrice = 0")
+    suspend fun getNumberOfInvalidPricesInReceipt(receiptId: String): Int
+
+    @Transaction
+    suspend fun updateReceiptValidFieldIfNecessary(
+        id: String,
+        updatedAt: String
+    ): Boolean {
+
+        Log.d("ADADAD", "receipt id $id")
+        val savedStateOfValidPrice = getReceiptValidField(id)
+        val currentStateOfValidPrice = getNumberOfInvalidPricesInReceipt(id) == 0
+        Log.d("ADADAD", "savedStateOfValidPrice $savedStateOfValidPrice")
+        Log.d("ADADAD", "currentStateOfValidPrice $currentStateOfValidPrice")
+        return if (savedStateOfValidPrice != currentStateOfValidPrice) {
+            updateReceiptValidField(id, currentStateOfValidPrice, updatedAt)
+            true
+        } else {
+            false
+        }
+
+    }
+
     @Query(
         "UPDATE product " +
                 "SET name = :name, " +
