@@ -85,7 +85,7 @@ class ExportDataFragment : Fragment() {
 
     private fun prepareFileContents(): String {
         val data = StringBuilder(
-            "storeName;storeNip;receiptPln;receiptPtu;receiptDate;receiptTime;receiptValidPrice;" +
+            "storeName;storeNip;receiptPln;receiptPtu;receiptDate;receiptTime;" +
                     "productName;productQuantity;productUnitPrice;productSubtotalPrice;productDiscount;" +
                     "productFinalPrice;productPtuType;productRaw;productValidPrice;categoryName;categoryColor\n"
         )
@@ -97,7 +97,6 @@ class ExportDataFragment : Fragment() {
             data.append(products.receiptPtu).append(";")
             data.append(products.receiptDate).append(";")
             data.append(products.receiptTime).append(";")
-            data.append(products.receiptValidPrice).append(";")
             data.append(products.productName).append(";")
             data.append(products.productQuantity).append(";")
             data.append(products.productUnitPrice).append(";")

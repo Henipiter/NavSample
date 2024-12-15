@@ -85,8 +85,6 @@ class AddProductDataViewModel : ViewModel() {
                     viewModelScope.launch { roomDatabaseHelper.markProductAsUpdated(product.id) }
                 }
             }
-
-
         }
     }
 
@@ -96,25 +94,6 @@ class AddProductDataViewModel : ViewModel() {
                 insertSingleProduct(product)
             } else {
                 updateSingleProduct(product)
-            }
-        }
-    }
-
-    fun updateReceipt(newReceipt: Receipt, refreshReceiptListAction: () -> Unit) {
-        viewModelScope.launch {
-            val updatedReceipt = roomDatabaseHelper.updateReceiptValid(newReceipt)
-            updatedReceipt?.let {
-                refreshReceiptListAction.invoke()
-                if (newReceipt.firestoreId.isNotEmpty()) {
-                    FirestoreHelperSingleton.getInstance()
-                        .updateFirestore(updatedReceipt, newReceipt.updateValidData()) {
-                            viewModelScope.launch {
-                                roomDatabaseHelper.markReceiptAsUpdated(
-                                    newReceipt.id
-                                )
-                            }
-                        }
-                }
             }
         }
     }

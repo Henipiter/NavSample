@@ -32,15 +32,16 @@ class QueryDaoHelper {
             dateTo: String,
             orderBy: SortProperty<ReceiptWithStoreSort>
         ): SupportSQLiteQuery {
-
             val sql = StringBuilder()
-                .append("SELECT r.id as id, storeId, nip, s.name, s.defaultCategoryId, pln, ptu, date, time, r.validPrice as validPriceSum, sum(p.validPrice)  as validProductCount , count(p.id)  as productCount ")
+                .append("SELECT r.id as id, storeId, nip, s.name, s.defaultCategoryId, pln, ptu, date, time, productPriceSum, validProductCount, productCount ")
                 .append("FROM receipt r ")
                 .append("INNER JOIN  store s ON  s.id = r.storeId ")
-                .append("LEFT JOIN product p ON  r.id = p.receiptId ")
+                .append("LEFT JOIN (")
+                .append("   SELECT receiptId, SUM(validPrice) AS validProductCount, SUM(finalPrice) AS productPriceSum, COUNT(id) AS productCount ")
+                .append("   FROM product WHERE deletedAt = '' GROUP BY receiptId")
+                .append(") p ON r.id = p.receiptId ")
                 .append("WHERE s.name LIKE '%${name}%' ")
                 .append("AND r.deletedAt == '' ")
-                .append("AND p.deletedAt == '' ")
                 .append("AND s.deletedAt == '' ")
                 .append("AND r.date >= '$dateFrom' ")
                 .append("AND r.date <= '$dateTo' ")
@@ -80,3 +81,8 @@ class QueryDaoHelper {
         }
     }
 }
+/*
+select isValidd, * from receipt r left join (
+select receiptId, sum( finalPrice) as isValidd from product where deletedAt = '' group by receiptId
+) a on r.id = a.receiptId;
+ */

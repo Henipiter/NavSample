@@ -388,11 +388,6 @@ class AddProductFragment : Fragment() {
             when (addProductDataViewModel.inputType) {
                 AddingInputType.ID.name -> {
                     addProductDataViewModel.updateSingleProduct(product)
-                    addProductDataViewModel.receiptById.value?.let {
-                        addProductDataViewModel.updateReceipt(it) {
-                            listingViewModel.loadDataByCategoryFilter()
-                        }
-                    }
                 }
 
                 AddingInputType.INDEX.name -> {
@@ -652,6 +647,7 @@ class AddProductFragment : Fragment() {
                     addProductDataViewModel.categoryId = it.categoryId
                     setCategory()
                 }
+
                 binding.productNameInput.setText(product.name)
                 binding.productSubtotalPriceInput.setText(intPriceToString(product.subtotalPrice))
                 binding.productUnitPriceInput.setText(intPriceToString(product.unitPrice))

@@ -263,8 +263,7 @@ class AddReceiptFragment : Fragment() {
                     pln,
                     ptu,
                     date,
-                    time,
-                    true
+                    time
                 )
                 addReceiptDataViewModel.insertReceipt(receipt)
                 //TODO zoptymalizować - odswiezać w zależnosci czy bylo dodane czy zupdatowane
@@ -280,8 +279,7 @@ class AddReceiptFragment : Fragment() {
                         pln,
                         ptu,
                         date,
-                        time,
-                        true
+                        time
                     )
                     receipt.id = it.id
                     addReceiptDataViewModel.updateReceipt(receipt)

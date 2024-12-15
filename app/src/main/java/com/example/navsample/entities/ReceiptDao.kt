@@ -88,7 +88,6 @@ interface ReceiptDao {
                 "time = :time, " +
                 "pln = :pln, " +
                 "ptu = :ptu, " +
-                "validPrice = :validPrice, " +
                 "storeId = :storeId, " +
                 "updatedAt = :updatedAt, " +
                 "toUpdate = :toUpdate " +
@@ -100,50 +99,10 @@ interface ReceiptDao {
         time: String,
         pln: Int,
         ptu: Int,
-        validPrice: Boolean,
         storeId: String,
         updatedAt: String,
         toUpdate: Boolean = true
     )
-
-    @Query(
-        "UPDATE receipt " +
-                "SET validPrice = :validPrice, " +
-                "updatedAt = :updatedAt, " +
-                "toUpdate = 1 " +
-                "WHERE id = :id"
-    )
-    suspend fun updateReceiptValidField(
-        id: String,
-        validPrice: Boolean,
-        updatedAt: String
-    )
-
-    @Query("SELECT validPrice FROM  receipt WHERE id = :id")
-    suspend fun getReceiptValidField(id: String): Boolean
-
-    @Query("SELECT count(*) FROM  product WHERE receiptId = :receiptId AND validPrice = 0")
-    suspend fun getNumberOfInvalidPricesInReceipt(receiptId: String): Int
-
-    @Transaction
-    suspend fun updateReceiptValidFieldIfNecessary(
-        id: String,
-        updatedAt: String
-    ): Boolean {
-
-        Log.d("ADADAD", "receipt id $id")
-        val savedStateOfValidPrice = getReceiptValidField(id)
-        val currentStateOfValidPrice = getNumberOfInvalidPricesInReceipt(id) == 0
-        Log.d("ADADAD", "savedStateOfValidPrice $savedStateOfValidPrice")
-        Log.d("ADADAD", "currentStateOfValidPrice $currentStateOfValidPrice")
-        return if (savedStateOfValidPrice != currentStateOfValidPrice) {
-            updateReceiptValidField(id, currentStateOfValidPrice, updatedAt)
-            true
-        } else {
-            false
-        }
-
-    }
 
     @Query(
         "UPDATE product " +
@@ -237,7 +196,6 @@ interface ReceiptDao {
                     receipt.time,
                     receipt.pln,
                     receipt.ptu,
-                    receipt.validPrice,
                     receipt.storeId,
                     receipt.updatedAt,
                     false
@@ -576,7 +534,6 @@ interface ReceiptDao {
         "SELECT s.name AS storeName, s.nip AS storeNip, s.defaultCategoryId AS storeDefaultCategoryId, " +
                 "r.pln AS receiptPln, r.ptu AS receiptPtu, " +
                 "r.date AS receiptDate, r.time AS receiptTime, " +
-                "r.validPrice AS receiptValidPrice, " +
                 "p.name AS productName, p.quantity AS productQuantity, " +
                 "p.unitPrice AS productUnitPrice, p.subtotalPrice AS productSubtotalPrice, " +
                 "p.discount AS productDiscount, p.finalPrice AS productFinalPrice, " +

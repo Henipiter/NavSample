@@ -60,6 +60,7 @@ class AddProductListFragment : Fragment(), ItemClickListener {
     private lateinit var productListAdapter: ProductListAdapter
     private var shouldOpenCropFragment = true
     private var firstEntry = true
+    private var isPricesSumValid = true
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?,
@@ -226,8 +227,10 @@ class AddProductListFragment : Fragment(), ItemClickListener {
 
         val receiptPrice = binding.receiptValueText.text
         if (receiptPrice != textSum) {
+            isPricesSumValid = false
             binding.cartValueText.setTextColor(Color.RED)
         } else {
+            isPricesSumValid = true
             binding.cartValueText.setTextColor(
                 resources.getColor(
                     R.color.basic_text_grey, requireContext().theme
@@ -241,11 +244,6 @@ class AddProductListFragment : Fragment(), ItemClickListener {
         addProductDataViewModel.insertProducts(
             addProductDataViewModel.productList.value?.toList() ?: listOf()
         )
-        addProductDataViewModel.receiptById.value?.let {
-            addProductDataViewModel.updateReceipt(it) {
-                listingViewModel.loadDataByCategoryFilter()
-            }
-        }
         imageAnalyzerViewModel.clearData()
         imageViewModel.clearData()
         listingViewModel.loadDataByProductFilter()
@@ -265,7 +263,6 @@ class AddProductListFragment : Fragment(), ItemClickListener {
 
     private fun importImage() {
         popUpButtonSheet()
-        //TODO add popup and import file OR make photo OR just crop existing
     }
 
     private fun popUpButtonSheet() {
