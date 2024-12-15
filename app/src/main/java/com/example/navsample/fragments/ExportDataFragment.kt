@@ -85,9 +85,9 @@ class ExportDataFragment : Fragment() {
 
     private fun prepareFileContents(): String {
         val data = StringBuilder(
-            "storeName;storeNip;receiptPln;receiptPtu;receiptDate;receiptTime;" +
-                    "productName;productQuantity;productUnitPrice;productSubtotalPrice;productPtuType;" +
-                    "productRaw;categoryName;categoryColor\n"
+            "storeName;storeNip;receiptPln;receiptPtu;receiptDate;receiptTime;receiptValidPrice;" +
+                    "productName;productQuantity;productUnitPrice;productSubtotalPrice;productDiscount;" +
+                    "productFinalPrice;productPtuType;productRaw;productValidPrice;categoryName;categoryColor\n"
         )
 
         exportDataViewModel.allData.value?.forEach { products ->
@@ -97,12 +97,16 @@ class ExportDataFragment : Fragment() {
             data.append(products.receiptPtu).append(";")
             data.append(products.receiptDate).append(";")
             data.append(products.receiptTime).append(";")
+            data.append(products.receiptValidPrice).append(";")
             data.append(products.productName).append(";")
             data.append(products.productQuantity).append(";")
             data.append(products.productUnitPrice).append(";")
             data.append(products.productSubtotalPrice).append(";")
+            data.append(products.productDiscount).append(";")
+            data.append(products.productFinalPrice).append(";")
             data.append(products.productPtuType).append(";")
             data.append(products.productRaw).append(";")
+            data.append(products.productValidPrice).append(";")
             data.append(products.categoryName).append(";")
             data.append(products.categoryColor).append("\n")
         }
@@ -112,7 +116,7 @@ class ExportDataFragment : Fragment() {
     private fun saveCsvFile(data: String) {
 
 
-        val fileName = "receipts.csv"
+        val fileName = "receipts45.csv"
         var fileOutputStream: FileOutputStream? = null
         var outputStreamWriter: OutputStreamWriter? = null
 

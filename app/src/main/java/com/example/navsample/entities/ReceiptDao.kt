@@ -576,6 +576,7 @@ interface ReceiptDao {
         "SELECT s.name AS storeName, s.nip AS storeNip, s.defaultCategoryId AS storeDefaultCategoryId, " +
                 "r.pln AS receiptPln, r.ptu AS receiptPtu, " +
                 "r.date AS receiptDate, r.time AS receiptTime, " +
+                "r.validPrice AS receiptValidPrice, " +
                 "p.name AS productName, p.quantity AS productQuantity, " +
                 "p.unitPrice AS productUnitPrice, p.subtotalPrice AS productSubtotalPrice, " +
                 "p.discount AS productDiscount, p.finalPrice AS productFinalPrice, " +

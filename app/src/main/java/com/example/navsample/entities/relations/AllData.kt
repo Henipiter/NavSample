@@ -9,6 +9,7 @@ data class AllData(
     var receiptPtu: Int,
     var receiptDate: String,
     var receiptTime: String,
+    var receiptValidPrice: Boolean,
 
     var productName: String,
     var productQuantity: Int,
