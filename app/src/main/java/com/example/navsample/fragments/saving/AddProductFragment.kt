@@ -388,6 +388,8 @@ class AddProductFragment : Fragment() {
             when (addProductDataViewModel.inputType) {
                 AddingInputType.ID.name -> {
                     addProductDataViewModel.updateSingleProduct(product)
+                    listingViewModel.loadDataByReceiptFilter()
+                    listingViewModel.loadDataByProductFilter()
                 }
 
                 AddingInputType.INDEX.name -> {
