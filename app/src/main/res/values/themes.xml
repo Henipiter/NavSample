@@ -4,6 +4,8 @@
         <item name="colorPrimary">@color/primaryColor</item>
         <item name="colorOnPrimary">@color/colorOnPrimary</item>
         <item name="android:textColorHighlight">@color/colorOnPrimary</item>
+
+        <item name="bottomSheetDialogTheme">@style/ThemeOverlay.App.BottomSheetDialog</item>
     </style>
 
     <color name="primaryColor">@color/orange_500</color>
@@ -15,4 +17,8 @@
     <color name="background_tile_default">@color/basic_text_grey</color>
     <color name="background_tile_blocked">@color/mid_grey</color>
 
+
+    <style name="ThemeOverlay.App.BottomSheetDialog" parent="ThemeOverlay.MaterialComponents.BottomSheetDialog">
+        <item name="bottomSheetStyle">@style/ModalBottomSheetDialog</item>
+    </style>
 </resources>

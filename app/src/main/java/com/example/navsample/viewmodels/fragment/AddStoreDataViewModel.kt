@@ -65,7 +65,7 @@ class AddStoreDataViewModel : ViewModel() {
 
     fun getStoreById(id: String) {
         viewModelScope.launch {
-            roomDatabaseHelper.getStoreById(id)
+            storeById.postValue(roomDatabaseHelper.getStoreById(id))
         }
     }
 
