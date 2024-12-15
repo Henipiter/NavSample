@@ -41,6 +41,7 @@ import com.example.navsample.viewmodels.ImageAnalyzerViewModel
 import com.example.navsample.viewmodels.ImageViewModel
 import com.example.navsample.viewmodels.ListingViewModel
 import com.example.navsample.viewmodels.fragment.AddProductDataViewModel
+import kotlinx.coroutines.runBlocking
 
 
 @ExperimentalGetImage
@@ -256,13 +257,16 @@ class AddProductListFragment : Fragment(), ItemClickListener {
     }
 
     private fun save() {
-        addProductDataViewModel.insertProducts(
-            addProductDataViewModel.productList.value?.toList() ?: listOf()
-        )
+
+        runBlocking {
+            addProductDataViewModel.insertProducts(
+                addProductDataViewModel.productList.value?.toList() ?: listOf()
+            )
+            listingViewModel.loadDataByProductFilter()
+            listingViewModel.loadDataByReceiptFilter()
+        }
         imageAnalyzerViewModel.clearData()
         imageViewModel.clearData()
-        listingViewModel.loadDataByProductFilter()
-        listingViewModel.loadDataByReceiptFilter()
         addProductDataViewModel.cropImageFragmentOnStart = true
         Navigation.findNavController(binding.root).popBackStack(R.id.listingFragment, false)
     }

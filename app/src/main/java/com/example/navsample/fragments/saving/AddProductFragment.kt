@@ -31,6 +31,7 @@ import com.example.navsample.imageanalyzer.ReceiptParser
 import com.example.navsample.viewmodels.ImageViewModel
 import com.example.navsample.viewmodels.ListingViewModel
 import com.example.navsample.viewmodels.fragment.AddProductDataViewModel
+import kotlinx.coroutines.runBlocking
 import kotlin.math.roundToInt
 
 class AddProductFragment : Fragment() {
@@ -398,9 +399,11 @@ class AddProductFragment : Fragment() {
 
             when (addProductDataViewModel.inputType) {
                 AddingInputType.ID.name -> {
-                    addProductDataViewModel.updateSingleProduct(product)
-                    listingViewModel.loadDataByReceiptFilter()
-                    listingViewModel.loadDataByProductFilter()
+                    runBlocking {
+                        addProductDataViewModel.updateSingleProduct(product)
+                        listingViewModel.loadDataByReceiptFilter()
+                        listingViewModel.loadDataByProductFilter()
+                    }
                 }
 
                 AddingInputType.INDEX.name -> {
