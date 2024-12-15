@@ -4,20 +4,22 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import com.example.navsample.databinding.BottomSheetReceiptBinding
+import com.example.navsample.databinding.BottomSheetProductBinding
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 
-class ReceiptBottomSheetFragment(
+class ProductBottomSheetFragment(
     private var onDelete: () -> Unit,
-    private var onJumpToStore: () -> Unit
+    private var onJumpToStore: () -> Unit,
+    private var onJumpToCategory: () -> Unit,
+    private var onJumpToReceipt: () -> Unit
 ) : BottomSheetDialogFragment() {
 
-    private var _binding: BottomSheetReceiptBinding? = null
+    private var _binding: BottomSheetProductBinding? = null
     private val binding get() = _binding!!
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?,
     ): View {
-        _binding = BottomSheetReceiptBinding.inflate(inflater, container, false)
+        _binding = BottomSheetProductBinding.inflate(inflater, container, false)
         return binding.root
     }
 
@@ -31,9 +33,17 @@ class ReceiptBottomSheetFragment(
             onJumpToStore.invoke()
             dismiss()
         }
+        binding.jumpToCategoryButton.setOnClickListener {
+            onJumpToCategory.invoke()
+            dismiss()
+        }
+        binding.jumpToReceiptButton.setOnClickListener {
+            onJumpToReceipt.invoke()
+            dismiss()
+        }
     }
 
     companion object {
-        const val TAG = "ReceiptBottomSheetFragment"
+        const val TAG = "ProductBottomSheetFragment"
     }
 }

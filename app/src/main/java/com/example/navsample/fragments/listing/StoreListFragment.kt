@@ -20,8 +20,11 @@ import com.example.navsample.dto.FragmentName
 import com.example.navsample.dto.inputmode.AddingInputType
 import com.example.navsample.dto.sort.SortProperty
 import com.example.navsample.dto.sort.StoreSort
+import com.example.navsample.entities.Store
 import com.example.navsample.fragments.dialogs.ConfirmDialog
 import com.example.navsample.fragments.dialogs.SortingDialog
+import com.example.navsample.sheets.ReceiptBottomSheetFragment
+import com.example.navsample.sheets.StoreBottomSheetFragment
 import com.example.navsample.viewmodels.ListingViewModel
 import com.example.navsample.viewmodels.fragment.AddStoreDataViewModel
 
@@ -75,29 +78,9 @@ class StoreListFragment : Fragment(), ItemClickListener {
         storeListAdapter = StoreListAdapter(
             requireContext(),
             listingViewModel.storeList.value ?: arrayListOf(), this
-        ) { i: Int ->
-            listingViewModel.storeList.value?.get(i)?.let {
-                if (it.id.isEmpty()) {
-                    Toast.makeText(requireContext(), "STORE HAS NOT ID", Toast.LENGTH_SHORT).show()
-                } else {
-                    ConfirmDialog(
-                        "Delete",
-                        "$i Are you sure you want to delete the store with dependent receipts and" +
-                                " products??\n\n" + "Name: " + it.name + "\nNIP: " + it.nip
-                    ) {
-                        addStoreDataViewModel.deleteStore(it.id)
-                        listingViewModel.storeList.value?.let { storeList ->
-                            storeList.removeAt(i)
-                            storeListAdapter.storeList = storeList
-                            storeListAdapter.notifyItemRemoved(i)
-                            storeListAdapter.notifyItemRangeChanged(
-                                i, storeListAdapter.storeList.size
-                            )
-                        }
-                        listingViewModel.loadDataByProductFilter()
-                        listingViewModel.loadDataByReceiptFilter()
-                    }.show(childFragmentManager, "TAG")
-                }
+        ) { index: Int ->
+            listingViewModel.storeList.value?.get(index)?.let { store ->
+                popUpButtonSheet(index, store)
             }
         }
         recyclerViewEvent.adapter = storeListAdapter
@@ -134,6 +117,7 @@ class StoreListFragment : Fragment(), ItemClickListener {
         }
     }
 
+
     override fun onItemClick(index: Int) {
         listingViewModel.storeList.value?.let { storeList ->
             val storeId = storeList[index].id
@@ -153,8 +137,43 @@ class StoreListFragment : Fragment(), ItemClickListener {
                 Navigation.findNavController(requireView()).navigate(action)
             }
         }
+    }
 
+    private fun popUpButtonSheet(index: Int, store: Store) {
+        val modalBottomSheet = StoreBottomSheetFragment(
+            { onDelete(index, store) },
+            { onJumpToCategory(store.defaultCategoryId) }
+        )
+        modalBottomSheet.show(parentFragmentManager, ReceiptBottomSheetFragment.TAG)
+    }
 
+    private fun onDelete(index: Int, store: Store) {
+        ConfirmDialog(
+            "Delete",
+            "Are you sure you want to delete the store with dependent receipts and" +
+                    " products?\n\nName: ${store.name}\nNIP: ${store.nip}"
+        ) {
+            addStoreDataViewModel.deleteStore(store.id)
+            listingViewModel.storeList.value?.let { storeList ->
+                storeList.removeAt(index)
+                storeListAdapter.storeList = storeList
+                storeListAdapter.notifyItemRemoved(index)
+                storeListAdapter.notifyItemRangeChanged(
+                    index, storeListAdapter.storeList.size
+                )
+            }
+            listingViewModel.loadDataByProductFilter()
+            listingViewModel.loadDataByReceiptFilter()
+        }.show(childFragmentManager, "TAG")
+    }
+
+    private fun onJumpToCategory(categoryId: String) {
+        val action = ListingFragmentDirections.actionListingFragmentToAddCategoryFragment(
+            categoryId = categoryId,
+            inputType = AddingInputType.ID.name,
+            sourceFragment = FragmentName.CATEGORY_LIST_FRAGMENT
+        )
+        Navigation.findNavController(requireView()).navigate(action)
     }
 
     private fun putFilterDefinitionIntoInputs() {

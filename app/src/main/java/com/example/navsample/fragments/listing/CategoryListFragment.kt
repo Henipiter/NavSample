@@ -17,7 +17,10 @@ import com.example.navsample.adapters.CategoryListAdapter
 import com.example.navsample.databinding.FragmentCategoryListBinding
 import com.example.navsample.dto.FragmentName
 import com.example.navsample.dto.inputmode.AddingInputType
+import com.example.navsample.entities.Category
 import com.example.navsample.fragments.dialogs.ConfirmDialog
+import com.example.navsample.sheets.CategoryBottomSheetFragment
+import com.example.navsample.sheets.ReceiptBottomSheetFragment
 import com.example.navsample.viewmodels.ListingViewModel
 import com.example.navsample.viewmodels.fragment.AddCategoryDataViewModel
 
@@ -39,6 +42,7 @@ class CategoryListFragment : Fragment(), ItemClickListener {
         return binding.root
     }
 
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         initObserver()
@@ -47,32 +51,9 @@ class CategoryListFragment : Fragment(), ItemClickListener {
         recyclerViewEvent = binding.recyclerViewEventReceipts
         categoryListAdapter = CategoryListAdapter(
             requireContext(), listingViewModel.categoryList.value ?: arrayListOf(), this
-        ) { i ->
-            listingViewModel.categoryList.value?.get(i)?.let {
-                ConfirmDialog(
-                    "Delete",
-                    "$i Are you sure you want to delete the category products??\n\nName: " + it.name
-                ) {
-                    if (listingViewModel.productRichList.value?.none { product -> product.categoryId == it.id } != true) {
-                        Toast.makeText(
-                            requireContext(),
-                            "Cannot delete beacuse of existing products",
-                            Toast.LENGTH_LONG
-                        ).show()
-
-                    } else {
-                        addCategoryDataViewModel.deleteCategory(it.id)
-                        listingViewModel.categoryList.value?.let { categoryList ->
-                            categoryList.removeAt(i)
-                            categoryListAdapter.categoryList = categoryList
-                            categoryListAdapter.notifyItemRemoved(i)
-                            categoryListAdapter.notifyItemRangeChanged(
-                                i, categoryListAdapter.categoryList.size
-                            )
-                        }
-
-                    }
-                }.show(childFragmentManager, "TAG")
+        ) { index ->
+            listingViewModel.categoryList.value?.get(index)?.let { category ->
+                popUpButtonSheet(index, category)
             }
         }
         recyclerViewEvent.adapter = categoryListAdapter
@@ -110,6 +91,38 @@ class CategoryListFragment : Fragment(), ItemClickListener {
         listingViewModel.filterCategoryList.observe(viewLifecycleOwner) {
             putFilterDefinitionIntoInputs()
         }
+    }
+
+    private fun onDelete(index: Int, category: Category) {
+        ConfirmDialog(
+            "Delete",
+            "Are you sure you want to delete the category products??\n\nName: ${category.name}"
+        ) {
+            if (listingViewModel.productRichList.value?.none { product -> product.categoryId == category.id } != true) {
+                Toast.makeText(
+                    requireContext(),
+                    "Cannot delete because of existing products",
+                    Toast.LENGTH_LONG
+                ).show()
+
+            } else {
+                addCategoryDataViewModel.deleteCategory(category.id)
+                listingViewModel.categoryList.value?.let { categoryList ->
+                    categoryList.removeAt(index)
+                    categoryListAdapter.categoryList = categoryList
+                    categoryListAdapter.notifyItemRemoved(index)
+                    categoryListAdapter.notifyItemRangeChanged(
+                        index, categoryListAdapter.categoryList.size
+                    )
+                }
+
+            }
+        }.show(childFragmentManager, "TAG")
+    }
+
+    private fun popUpButtonSheet(index: Int, category: Category) {
+        val modalBottomSheet = CategoryBottomSheetFragment { onDelete(index, category) }
+        modalBottomSheet.show(parentFragmentManager, ReceiptBottomSheetFragment.TAG)
     }
 
     private fun putFilterDefinitionIntoInputs() {
