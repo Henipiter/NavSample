@@ -185,7 +185,13 @@ class AddProductListFragment : Fragment(), ItemClickListener {
         }
     }
 
-    private fun delegateToCropImage() {
+    private fun delegateToCropImage(showToast: Boolean = false) {
+        if (imageViewModel.bitmapCroppedReceipt.value == null) {
+            if (showToast) {
+                Toast.makeText(requireContext(), "NO IMAGE LOADED", Toast.LENGTH_SHORT).show()
+            }
+            return
+        }
         val action =
             AddProductListFragmentDirections.actionAddProductListFragmentToCropImageFragment(
                 receiptId = navArgs.receiptId,
@@ -260,7 +266,6 @@ class AddProductListFragment : Fragment(), ItemClickListener {
     private fun importImage() {
         popUpButtonSheet()
         //TODO add popup and import file OR make photo OR just crop existing
-        //TODO delegateToCropImage()
     }
 
     private fun popUpButtonSheet() {
@@ -271,7 +276,7 @@ class AddProductListFragment : Fragment(), ItemClickListener {
             onBrowseGallery = {
                 pickMedia.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly))
             },
-            onCrop = { delegateToCropImage() }
+            onCrop = { delegateToCropImage(true) }
         )
         modalBottomSheet.show(parentFragmentManager, ReceiptBottomSheetFragment.TAG)
     }
@@ -388,7 +393,6 @@ class AddProductListFragment : Fragment(), ItemClickListener {
                 imageViewModel.uri.value = uri
                 val source = ImageDecoder.createSource(requireContext().contentResolver, uri)
                 val bitmap = ImageDecoder.decodeBitmap(source)
-                imageViewModel.bitmapOriginal.value = bitmap
                 imageViewModel.bitmapCroppedReceipt.value = bitmap
                 binding.receiptImage.setImageBitmap(bitmap)
 

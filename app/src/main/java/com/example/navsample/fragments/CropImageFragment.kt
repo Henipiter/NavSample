@@ -45,7 +45,6 @@ class CropImageFragment : Fragment() {
             if (bitmap != null) {
                 binding.receiptImage.setImageBitmap(bitmap)
             } else {
-                Toast.makeText(requireContext(), "NO IMAGE LOADED", Toast.LENGTH_SHORT).show()
                 Navigation.findNavController(requireView()).popBackStack()
             }
         }

@@ -15,6 +15,7 @@ import com.example.navsample.activity.GuideActivity
 import com.example.navsample.adapters.ViewPagerAdapter
 import com.example.navsample.databinding.FragmentListingBinding
 import com.example.navsample.entities.dto.TranslateFirebaseEntity
+import com.example.navsample.viewmodels.ImageViewModel
 import com.example.navsample.viewmodels.SyncDatabaseViewModel
 import com.google.android.material.tabs.TabLayout
 
@@ -23,6 +24,7 @@ class ListingFragment : Fragment() {
     private var _binding: FragmentListingBinding? = null
     private val binding get() = _binding!!
     private lateinit var viewPagerAdapter: ViewPagerAdapter
+    private val imageViewModel: ImageViewModel by activityViewModels()
     private val syncDatabaseViewModel: SyncDatabaseViewModel by activityViewModels()
 
     override fun onCreateView(
@@ -36,6 +38,8 @@ class ListingFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         viewPagerAdapter = ViewPagerAdapter(this)
+
+        imageViewModel.clearData()
         binding.viewPager.adapter = viewPagerAdapter
         if (shouldRunGuide()) {
             markRunGuideAsDone()

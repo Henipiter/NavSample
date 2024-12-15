@@ -71,8 +71,6 @@ class AddReceiptFragment : Fragment() {
         ).also { adapter ->
             binding.storeNameInput.setAdapter(adapter)
         }
-        Toast.makeText(requireContext(), navArgs.sourceFragment, Toast.LENGTH_SHORT).show()
-
         consumeNavArgs()
 
         initObserver()
