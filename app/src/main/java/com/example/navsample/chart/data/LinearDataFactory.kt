@@ -57,7 +57,7 @@ interface LinearDataFactory<
     private fun getChartDataEntries(categoryList: List<Float>): List<ENTRY> {
         val values = ArrayList<ENTRY>()
         categoryList.forEachIndexed { index, value ->
-            values.add(getSpecificEntry(index.toFloat(), value))
+            values.add(getSpecificEntry(index.toFloat(), value / 100))
         }
         return values
     }
