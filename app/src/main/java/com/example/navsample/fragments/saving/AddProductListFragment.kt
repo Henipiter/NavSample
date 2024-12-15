@@ -202,6 +202,15 @@ class AddProductListFragment : Fragment(), ItemClickListener {
         }
     }
 
+
+    private fun delegateToCamera() {
+        shouldOpenCropFragment = true
+        val action = AddProductListFragmentDirections.actionAddProductListFragmentToCameraFragment(
+            source = FragmentName.ADD_PRODUCT_LIST_FRAGMENT
+        )
+        Navigation.findNavController(requireView()).navigate(action)
+    }
+
     private fun delegateToCropImage(showToast: Boolean = false) {
         if (imageViewModel.bitmapCroppedReceipt.value == null) {
             if (showToast) {
@@ -287,7 +296,7 @@ class AddProductListFragment : Fragment(), ItemClickListener {
     private fun popUpButtonSheet() {
         val modalBottomSheet = ImportImageBottomSheetFragment(
             onCameraCapture = {
-                Toast.makeText(requireContext(), "Not implemented yet", Toast.LENGTH_SHORT).show()
+                delegateToCamera()
             },
             onBrowseGallery = {
                 pickMedia.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly))

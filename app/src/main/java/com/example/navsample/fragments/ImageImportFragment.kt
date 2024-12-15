@@ -101,7 +101,9 @@ class ImageImportFragment : Fragment() {
             }
         }
         binding.captureImage.setOnClickListener {
-            val action = ImageImportFragmentDirections.actionImageImportFragmentToCameraFragment()
+            val action = ImageImportFragmentDirections.actionImageImportFragmentToCameraFragment(
+                source = FragmentName.IMAGE_IMPORT_FRAGMENT
+            )
             Navigation.findNavController(requireView()).navigate(action)
         }
 

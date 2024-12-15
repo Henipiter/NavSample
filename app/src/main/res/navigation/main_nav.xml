@@ -61,6 +61,9 @@
             android:id="@+id/action_addProductListFragment_to_addReceiptFragment"
             app:destination="@id/addReceiptFragment"
             app:popUpTo="@id/addReceiptFragment" />
+        <action
+            android:id="@+id/action_addProductListFragment_to_cameraFragment"
+            app:destination="@id/cameraFragment" />
     </fragment>
     <fragment
         android:id="@+id/addProductFragment"
@@ -322,6 +325,10 @@
     </fragment>
     <fragment
         android:id="@+id/cameraFragment"
-        android:name="com.example.navsample.CameraFragment"
-        android:label="CameraFragment" />
+        android:name="com.example.navsample.fragments.CameraFragment"
+        android:label="CameraFragment">
+        <argument
+            android:name="source"
+            app:argType="string" />
+    </fragment>
 </navigation>

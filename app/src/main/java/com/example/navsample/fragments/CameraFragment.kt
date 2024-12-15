@@ -1,4 +1,4 @@
-package com.example.navsample
+package com.example.navsample.fragments
 
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
@@ -21,7 +21,9 @@ import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.navigation.Navigation
+import androidx.navigation.fragment.navArgs
 import com.example.navsample.databinding.FragmentCameraBinding
+import com.example.navsample.dto.FragmentName
 import com.example.navsample.viewmodels.ImageViewModel
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
@@ -29,6 +31,7 @@ import java.util.concurrent.Executors
 class CameraFragment : Fragment() {
     private var _binding: FragmentCameraBinding? = null
     private val binding get() = _binding!!
+    private val navArgs: CameraFragmentArgs by navArgs()
 
     private val imageViewModel: ImageViewModel by activityViewModels()
     private var imageCapture: ImageCapture? = null
@@ -37,10 +40,8 @@ class CameraFragment : Fragment() {
 
 
     override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?,
-        savedInstanceState: Bundle?
+        inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
     ): View {
-
         _binding = FragmentCameraBinding.inflate(inflater, container, false)
         return binding.root
     }
@@ -48,7 +49,6 @@ class CameraFragment : Fragment() {
     override fun onDestroy() {
         super.onDestroy()
         cameraExecutor.shutdown()
-
     }
 
 
@@ -83,21 +83,16 @@ class CameraFragment : Fragment() {
             ContextCompat.getMainExecutor(requireContext()),
             object : ImageCapture.OnImageCapturedCallback() {
                 override fun onError(exception: ImageCaptureException) {
-                    Log.e("DADADA", "Photo capture failed: ${exception.message}", exception)
                     Toast.makeText(requireContext(), "Photo capture failed", Toast.LENGTH_SHORT)
                         .show()
                 }
 
                 override fun onCaptureSuccess(image: ImageProxy) {
-                    Log.d("DADADA", "Rotation Degrees: ${image.imageInfo.rotationDegrees}")
-                    Log.d(
-                        "DADADA",
-                        "Screen Rotation: ${requireActivity().windowManager.defaultDisplay.rotation}"
-                    )
-
-
-                    Log.d("DADADA", "${image.imageInfo.rotationDegrees}")
-                    imageViewModel.bitmapOriginal.postValue(fixImageRotation(image))
+                    if (navArgs.source == FragmentName.IMAGE_IMPORT_FRAGMENT) {
+                        imageViewModel.bitmapOriginal.postValue(fixImageRotation(image))
+                    } else if (navArgs.source == FragmentName.ADD_PRODUCT_LIST_FRAGMENT) {
+                        imageViewModel.bitmapCroppedReceipt.postValue(fixImageRotation(image))
+                    }
                     image.close()
                     Navigation.findNavController(requireView()).popBackStack()
                 }
