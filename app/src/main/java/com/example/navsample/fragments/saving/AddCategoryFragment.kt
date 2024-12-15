@@ -98,6 +98,9 @@ class AddCategoryFragment : Fragment() {
         binding.categoryColorLayout.setStartIconOnClickListener {
             colorPicker()
         }
+        binding.categoryColorLayout.setEndIconOnClickListener {
+            applyRandomColor()
+        }
         binding.categoryColorInput.doOnTextChanged { text, _, _, count ->
             if (count == 7 && text != null && text[0] == '#') {
                 try {
@@ -132,11 +135,26 @@ class AddCategoryFragment : Fragment() {
         }
     }
 
+    private fun generateRandomColor(): Pair<Int, String> {
+        val red = (0..255).random()
+        val green = (0..255).random()
+        val blue = (0..255).random()
+        return Pair(Color.rgb(red, green, blue), String.format("#%02X%02X%02X", red, green, blue))
+    }
+
+    private fun applyRandomColor() {
+        val pair = generateRandomColor()
+        pickedColor = pair.first
+        binding.colorSquare.setBackgroundColor(pickedColor)
+        binding.categoryColorInput.setText(pair.second)
+    }
+
     private fun applyInputParameters() {
         val inputType = AddingInputType.getByName(addCategoryDataViewModel.inputType)
         if (inputType == AddingInputType.EMPTY) {
             addCategoryDataViewModel.categoryById.value = null
             mode = DataMode.NEW
+            applyRandomColor()
             binding.categoryNameInput.setText("")
             binding.toolbar.title = "New category"
 
