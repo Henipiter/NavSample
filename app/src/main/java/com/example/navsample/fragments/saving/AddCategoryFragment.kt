@@ -135,19 +135,6 @@ class AddCategoryFragment : Fragment() {
         }
     }
 
-    private fun generateRandomColor(): Pair<Int, String> {
-        val red = (0..255).random()
-        val green = (0..255).random()
-        val blue = (0..255).random()
-        return Pair(Color.rgb(red, green, blue), String.format("#%02X%02X%02X", red, green, blue))
-    }
-
-    private fun applyRandomColor() {
-        val pair = generateRandomColor()
-        pickedColor = pair.first
-        binding.colorSquare.setBackgroundColor(pickedColor)
-        binding.categoryColorInput.setText(pair.second)
-    }
 
     private fun applyInputParameters() {
         val inputType = AddingInputType.getByName(addCategoryDataViewModel.inputType)
@@ -172,10 +159,8 @@ class AddCategoryFragment : Fragment() {
     }
 
     private fun colorPicker() {
-        ColorPickerDialog(pickedColor) {
-            pickedColor = it
-            binding.colorSquare.setBackgroundColor(it)
-            binding.categoryColorInput.setText(String.format("#%06X", 0xBBBBBB and it))
+        ColorPickerDialog(pickedColor) { color ->
+            applyColor(color)
             binding.categoryColorLayout.error = null
         }.show(childFragmentManager, "TAG")
     }
@@ -256,5 +241,29 @@ class AddCategoryFragment : Fragment() {
                 addCategoryDataViewModel.savedCategory.value = null
             }
         }
+    }
+
+    private fun generateRandomColor(): Int {
+        val red = (0..255).random()
+        val green = (0..255).random()
+        val blue = (0..255).random()
+        return Color.rgb(red, green, blue)
+    }
+
+    private fun applyRandomColor() {
+        applyColor(generateRandomColor())
+    }
+
+    private fun applyColor(color: Int) {
+        pickedColor = color
+        binding.colorSquare.setBackgroundColor(pickedColor)
+        binding.categoryColorInput.setText(intToColorString(pickedColor))
+    }
+
+    private fun intToColorString(colorInt: Int): String {
+        val red = (colorInt shr 16) and 0xFF
+        val green = (colorInt shr 8) and 0xFF
+        val blue = colorInt and 0xFF
+        return String.format("#%02X%02X%02X", red, green, blue)
     }
 }
