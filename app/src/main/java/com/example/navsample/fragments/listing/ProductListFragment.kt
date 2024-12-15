@@ -38,7 +38,6 @@ class ProductListFragment : Fragment(), ItemClickListener {
 
     private lateinit var recyclerViewEvent: RecyclerView
     private lateinit var richProductListAdapter: RichProductListAdapter
-    private lateinit var modalBottomSheet: ProductBottomSheetFragment
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?,
     ): View {
@@ -115,7 +114,7 @@ class ProductListFragment : Fragment(), ItemClickListener {
     }
 
     private fun popUpButtonSheet(index: Int, productRichData: ProductRichData) {
-        modalBottomSheet = ProductBottomSheetFragment(
+        val modalBottomSheet = ProductBottomSheetFragment(
             { onDelete(index, productRichData) },
             onJumpToCategory = { onJumpToCategory(productRichData.categoryId) },
             onJumpToStore = { onJumpToStore(productRichData.storeId) },

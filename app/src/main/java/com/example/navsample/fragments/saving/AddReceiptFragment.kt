@@ -61,6 +61,7 @@ class AddReceiptFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         binding.toolbar.inflateMenu(R.menu.top_menu_extended_add)
         binding.toolbar.setNavigationIcon(R.drawable.back)
+        binding.toolbar.menu.findItem(R.id.importImage).isVisible = false
         binding.toolbar.menu.findItem(R.id.aiParser).isVisible = false
         binding.toolbar.menu.findItem(R.id.reorder).isVisible = false
 

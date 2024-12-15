@@ -4,11 +4,15 @@ package com.example.navsample.fragments.saving
 import android.annotation.SuppressLint
 import android.content.SharedPreferences
 import android.graphics.Color
+import android.graphics.ImageDecoder
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import androidx.activity.result.PickVisualMediaRequest
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.camera.core.ExperimentalGetImage
 import androidx.fragment.app.Fragment
@@ -29,6 +33,8 @@ import com.example.navsample.dto.inputmode.AddingInputType
 import com.example.navsample.dto.sorting.AlgorithmItemAdapterArgument
 import com.example.navsample.entities.Product
 import com.example.navsample.fragments.dialogs.ConfirmDialog
+import com.example.navsample.sheets.ImportImageBottomSheetFragment
+import com.example.navsample.sheets.ReceiptBottomSheetFragment
 import com.example.navsample.viewmodels.ExperimentalDataViewModel
 import com.example.navsample.viewmodels.ImageAnalyzerViewModel
 import com.example.navsample.viewmodels.ImageViewModel
@@ -105,11 +111,6 @@ class AddProductListFragment : Fragment(), ItemClickListener {
             }
         }
 
-
-        binding.receiptImage.setOnLongClickListener {
-            delegateToCropImage()
-            true
-        }
         recyclerViewEvent.adapter = productListAdapter
         recyclerViewEvent.layoutManager =
             LinearLayoutManager(requireContext(), LinearLayoutManager.VERTICAL, false)
@@ -119,7 +120,6 @@ class AddProductListFragment : Fragment(), ItemClickListener {
             shouldOpenCropFragment = true
             Navigation.findNavController(it).popBackStack()
         }
-
         defineToolbarActions()
     }
 
@@ -258,10 +258,22 @@ class AddProductListFragment : Fragment(), ItemClickListener {
     }
 
     private fun importImage() {
+        popUpButtonSheet()
         //TODO add popup and import file OR make photo OR just crop existing
         //TODO delegateToCropImage()
-        Toast.makeText(requireContext(), "Not implemented yet", Toast.LENGTH_SHORT).show()
-        return
+    }
+
+    private fun popUpButtonSheet() {
+        val modalBottomSheet = ImportImageBottomSheetFragment(
+            onCameraCapture = {
+                Toast.makeText(requireContext(), "Not implemented yet", Toast.LENGTH_SHORT).show()
+            },
+            onBrowseGallery = {
+                pickMedia.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly))
+            },
+            onCrop = { delegateToCropImage() }
+        )
+        modalBottomSheet.show(parentFragmentManager, ReceiptBottomSheetFragment.TAG)
     }
 
     private fun reorderTilesWithProducts() {
@@ -368,6 +380,24 @@ class AddProductListFragment : Fragment(), ItemClickListener {
             }
         }
     }
+
+    private val pickMedia =
+        registerForActivityResult(ActivityResultContracts.PickVisualMedia()) { uri ->
+            if (uri != null) {
+
+                imageViewModel.uri.value = uri
+                val source = ImageDecoder.createSource(requireContext().contentResolver, uri)
+                val bitmap = ImageDecoder.decodeBitmap(source)
+                imageViewModel.bitmapOriginal.value = bitmap
+                imageViewModel.bitmapCroppedReceipt.value = bitmap
+                binding.receiptImage.setImageBitmap(bitmap)
+
+                binding.receiptImage.visibility = View.VISIBLE
+                delegateToCropImage()
+            } else {
+                Log.d("PhotoPicker", "No media selected")
+            }
+        }
 
     companion object {
 
