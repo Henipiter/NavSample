@@ -5,6 +5,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import androidx.activity.OnBackPressedCallback
 import androidx.core.widget.doOnTextChanged
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
@@ -100,7 +101,16 @@ class AddStoreFragment : Fragment() {
         }
 
 
+        requireActivity().onBackPressedDispatcher.addCallback(
+            viewLifecycleOwner, object : OnBackPressedCallback(true) {
+                override fun handleOnBackPressed() {
+                    clearInputs()
+                    Navigation.findNavController(requireView()).popBackStack()
+                }
+            }
+        )
         binding.toolbar.setNavigationOnClickListener {
+            clearInputs()
             Navigation.findNavController(it).popBackStack()
         }
 
@@ -282,6 +292,10 @@ class AddStoreFragment : Fragment() {
         }
         return true
 
+    }
+
+    private fun clearInputs() {
+        addStoreDataViewModel.storeById.value = null
     }
 
     private fun isStoreInputValid(): Boolean {

@@ -11,6 +11,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import androidx.activity.OnBackPressedCallback
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
@@ -112,6 +113,15 @@ class AddProductListFragment : Fragment(), ItemClickListener {
             }
         }
 
+        requireActivity().onBackPressedDispatcher.addCallback(
+            viewLifecycleOwner, object : OnBackPressedCallback(true) {
+                override fun handleOnBackPressed() {
+                    clearInputs()
+                    Navigation.findNavController(requireView()).popBackStack()
+                }
+            }
+        )
+
         recyclerViewEvent.adapter = productListAdapter
         recyclerViewEvent.layoutManager =
             LinearLayoutManager(requireContext(), LinearLayoutManager.VERTICAL, false)
@@ -119,9 +129,14 @@ class AddProductListFragment : Fragment(), ItemClickListener {
 
         binding.toolbar.setNavigationOnClickListener {
             shouldOpenCropFragment = true
+            clearInputs()
             Navigation.findNavController(it).popBackStack()
         }
         defineToolbarActions()
+    }
+
+    private fun clearInputs() {
+        addProductDataViewModel.productById.value = null
     }
 
     private fun defineToolbarActions() {

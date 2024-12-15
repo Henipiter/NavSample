@@ -5,6 +5,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import androidx.activity.OnBackPressedCallback
 import androidx.core.widget.doOnTextChanged
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
@@ -97,6 +98,15 @@ class AddProductFragment : Fragment() {
         if (productOriginalInput == "") {
             binding.productOriginalLayout.visibility = View.INVISIBLE
         }
+
+        requireActivity().onBackPressedDispatcher.addCallback(
+            viewLifecycleOwner, object : OnBackPressedCallback(true) {
+                override fun handleOnBackPressed() {
+                    clearInputs()
+                    Navigation.findNavController(requireView()).popBackStack()
+                }
+            }
+        )
         binding.productCategoryInput.setOnItemClickListener { adapter, _, position, _ ->
             pickedCategory = adapter.getItemAtPosition(position) as Category
 
@@ -211,6 +221,7 @@ class AddProductFragment : Fragment() {
 
         }
         binding.toolbar.setNavigationOnClickListener {
+            clearInputs()
             Navigation.findNavController(it).popBackStack()
         }
         binding.toolbar.setOnMenuItemClickListener {
@@ -671,6 +682,10 @@ class AddProductFragment : Fragment() {
                 }
             }
         }
+    }
+
+    private fun clearInputs() {
+        addProductDataViewModel.productById.value = null
     }
 
     private fun setCategory() {
