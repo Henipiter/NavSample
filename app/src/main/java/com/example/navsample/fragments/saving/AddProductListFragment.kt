@@ -377,7 +377,7 @@ class AddProductListFragment : Fragment(), ItemClickListener {
             if (it == null) {
                 return@observe
             }
-            addProductDataViewModel.productList.value = it.productList
+            addProductDataViewModel.productList.value?.addAll(it.productList)
             experimentalDataViewModel.algorithmOrderedNames.value =
                 it.receiptNameLines.map { AlgorithmItemAdapterArgument(it) } as ArrayList<AlgorithmItemAdapterArgument>
             experimentalDataViewModel.algorithmOrderedPrices.value =
