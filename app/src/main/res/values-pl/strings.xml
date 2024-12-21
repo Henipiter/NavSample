@@ -1,0 +1,35 @@
+<resources>
+    <string name="app_name">NavSample</string>
+
+    <!-- bottom sheets -->
+    <string name="delete_category">Usuń kategorię</string>
+    <string name="delete_product">Usuń produkt</string>
+    <string name="delete_receipt">Usuń paragon</string>
+    <string name="delete_store">Usuń sklep</string>
+    <string name="crop_current_image">Przytnij obecny obraz</string>
+    <string name="choose_from_gallery">Wybierz z galerii</string>
+    <string name="take_a_photo">Zrób zdjęcie</string>
+    <string name="jump_to_receipt">Skocz do paragonu</string>
+    <string name="jump_to_store">Skocz do sklepu</string>
+    <string name="jump_to_category">Skocz do kategorii</string>
+
+    <!-- hint-->
+    <string name="lower_price">Dolna granica ceny</string>
+    <string name="higher_price">Górna granica ceny</string>
+    <string name="ascending">Rosnąco</string>
+    <string name="descending">Malejąco</string>
+
+    <!-- button-->
+    <string name="cancel_button">Anuluj</string>
+    <string name="confirm_button">Potwierdź</string>
+    <string name="next_button">Dalej</string>
+    <string name="previous_button">Wstecz</string>
+
+    <!-- row -->
+    <string name="quantity">Ilość</string>
+    <string name="unit_price">Cena jednostkowa</string>
+    <string name="subtotal_price">Cena częściowa</string>
+    <string name="discount_price">Obniżka</string>
+    <string name="ptu_type">PTU</string>
+    <string name="products">Produktów: </string>
+</resources>

@@ -42,7 +42,7 @@
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="10"
-                        android:text="STORE"
+                        android:text="@string/store_name_stub"
                         android:textSize="14sp" />
 
                     <Space
@@ -56,7 +56,7 @@
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="10"
-                        android:text="CATEGORY"
+                        android:text="@string/category_name_stub"
                         android:textAlignment="textEnd"
                         android:textSize="14sp" />
                 </LinearLayout>
@@ -87,7 +87,7 @@
                         android:layout_marginTop="4dp"
                         android:layout_marginEnd="4dp"
                         android:paddingTop="4dp"
-                        android:text="Bread jdawd jwdoa dkwadawhd dawidbawdwj d"
+                        android:text="@string/product_name_stub"
                         android:textSize="20sp"
                         app:layout_constraintEnd_toStartOf="@+id/final_price_card"
 
@@ -110,7 +110,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:padding="5dp"
-                            android:text="117.01"
+                            android:text="@string/product_final_price"
                             android:textSize="25sp"
                             android:textStyle="bold" />
                     </androidx.cardview.widget.CardView>
@@ -119,9 +119,9 @@
 
                 <androidx.constraintlayout.widget.ConstraintLayout
                     android:id="@+id/option"
-                    android:paddingVertical="4dp"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:paddingVertical="4dp"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toBottomOf="@+id/main2_layout">
 
@@ -129,14 +129,14 @@
                         android:id="@+id/receipt_date"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="01-01-1999"
+                        android:text="@string/date"
                         android:textSize="14sp"
                         app:layout_constraintEnd_toEndOf="parent"
                         app:layout_constraintTop_toTopOf="parent" />
 
                     <androidx.cardview.widget.CardView
-                        style="@style/SortingCardViewStyle"
                         android:id="@+id/boundary_button"
+                        style="@style/SortingCardViewStyle"
                         android:layout_width="50dp"
                         android:layout_height="wrap_content"
                         app:cardCornerRadius="10dp"
@@ -180,7 +180,15 @@
 
                         <LinearLayout
                             android:layout_width="match_parent"
-                            android:layout_height="wrap_content">
+                            android:layout_height="40dp">
+
+                            <TextView
+                                android:layout_width="0dp"
+                                android:layout_height="match_parent"
+                                android:layout_weight="0.75"
+                                android:background="@drawable/obramowanie"
+                                android:gravity="center"
+                                android:text="@string/quantity" />
 
                             <TextView
                                 android:layout_width="0dp"
@@ -188,39 +196,32 @@
                                 android:layout_weight="1"
                                 android:background="@drawable/obramowanie"
                                 android:gravity="center"
-                                android:text="quantity" />
+                                android:text="@string/unit_price" />
 
                             <TextView
                                 android:layout_width="0dp"
-                                android:layout_height="wrap_content"
+                                android:paddingHorizontal="2dp"
+                                android:layout_height="match_parent"
                                 android:layout_weight="1"
                                 android:background="@drawable/obramowanie"
                                 android:gravity="center"
-                                android:text="unit\nprice" />
+                                android:text="@string/subtotal_price" />
 
                             <TextView
                                 android:layout_width="0dp"
-                                android:layout_height="wrap_content"
+                                android:layout_height="match_parent"
                                 android:layout_weight="1"
                                 android:background="@drawable/obramowanie"
                                 android:gravity="center"
-                                android:text="subtotal price" />
+                                android:text="@string/discount_price" />
 
                             <TextView
                                 android:layout_width="0dp"
-                                android:layout_height="wrap_content"
-                                android:layout_weight="1"
-                                android:background="@drawable/obramowanie"
-                                android:gravity="center"
-                                android:text="discount price" />
-
-                            <TextView
-                                android:layout_width="0dp"
-                                android:layout_height="wrap_content"
+                                android:layout_height="match_parent"
                                 android:layout_weight="0.5"
                                 android:background="@drawable/obramowanie"
                                 android:gravity="center"
-                                android:text="ptu type" />
+                                android:text="@string/ptu_type" />
 
                         </LinearLayout>
 
@@ -234,10 +235,10 @@
                                 android:id="@+id/quantity"
                                 android:layout_width="0dp"
                                 android:layout_height="wrap_content"
-                                android:layout_weight="1"
+                                android:layout_weight="0.75"
                                 android:background="@drawable/obramowanie"
                                 android:gravity="center"
-                                android:text="2" />
+                                android:text="@string/product_quantity_price" />
 
                             <TextView
                                 android:id="@+id/unit_price"
@@ -246,7 +247,7 @@
                                 android:layout_weight="1"
                                 android:background="@drawable/obramowanie"
                                 android:gravity="center"
-                                android:text="1.25" />
+                                android:text="@string/product_unit_price" />
 
                             <TextView
                                 android:id="@+id/subtotal_price"
@@ -255,7 +256,7 @@
                                 android:layout_weight="1"
                                 android:background="@drawable/obramowanie"
                                 android:gravity="center"
-                                android:text="2.50" />
+                                android:text="@string/product_subtotal_price" />
 
                             <TextView
                                 android:id="@+id/discount_price"
@@ -264,7 +265,7 @@
                                 android:layout_weight="1"
                                 android:background="@drawable/obramowanie"
                                 android:gravity="center"
-                                android:text="-0.49" />
+                                android:text="@string/product_discount_price" />
 
                             <TextView
                                 android:id="@+id/ptu_type"
@@ -273,22 +274,11 @@
                                 android:layout_weight="0.5"
                                 android:background="@drawable/obramowanie"
                                 android:gravity="center"
-                                android:text="A" />
+                                android:text="@string/product_ptu_type_stub" />
 
                         </LinearLayout>
                     </LinearLayout>
                 </androidx.constraintlayout.widget.ConstraintLayout>
-
-
-                <!--                <TextView-->
-                <!--                    android:id="@+id/pln2"-->
-                <!--                    android:layout_width="wrap_content"-->
-                <!--                    android:layout_height="wrap_content"-->
-                <!--                    android:text="PLN"-->
-                <!--                    android:textSize="14sp"-->
-                <!--                    app:layout_constraintEnd_toEndOf="@+id/final_price"-->
-                <!--                    app:layout_constraintStart_toStartOf="@+id/final_price"-->
-                <!--                    app:layout_constraintTop_toBottomOf="@+id/final_price" />-->
             </androidx.constraintlayout.widget.ConstraintLayout>
         </androidx.cardview.widget.CardView>
     </LinearLayout>

@@ -35,7 +35,6 @@
                 <ImageView
                     android:layout_width="24dp"
                     android:layout_height="24dp"
-                    android:contentDescription="Delete category"
                     android:src="@drawable/delete"
                     app:tint="@color/background_tile_blocked" />
 
@@ -43,7 +42,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="16dp"
-                    android:text="Delete category"
+                    android:text="@string/delete_category"
                     android:textSize="16sp" />
 
             </LinearLayout>

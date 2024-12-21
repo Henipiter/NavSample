@@ -33,7 +33,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="nnj"
+                android:text="@string/text"
                 android:textSize="16sp"
                 app:layout_constraintEnd_toStartOf="@+id/counter"
                 app:layout_constraintStart_toStartOf="parent"
@@ -45,7 +45,7 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="0"
                 android:background="@drawable/rounded_corner_red"
-                android:text="10"
+                android:text="@string/click_counter"
                 android:textAlignment="center"
                 android:textColor="#FFFFFF"
                 android:textSize="11sp" />

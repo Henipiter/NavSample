@@ -35,7 +35,6 @@
                 <ImageView
                     android:layout_width="24dp"
                     android:layout_height="24dp"
-                    android:contentDescription="Crop again"
                     android:src="@drawable/edit"
                     app:tint="@color/background_tile_blocked" />
 
@@ -43,7 +42,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="16dp"
-                    android:text="Crop again"
+                    android:text="@string/crop_current_image"
                     android:textSize="16sp" />
 
             </LinearLayout>
@@ -67,7 +66,6 @@
                 <ImageView
                     android:layout_width="24dp"
                     android:layout_height="24dp"
-                    android:contentDescription="Import from gallery"
                     android:src="@drawable/gallery"
                     app:tint="@color/background_tile_blocked" />
 
@@ -75,7 +73,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="16dp"
-                    android:text="Import from gallery"
+                    android:text="@string/choose_from_gallery"
                     android:textSize="16sp" />
 
             </LinearLayout>
@@ -99,7 +97,6 @@
                 <ImageView
                     android:layout_width="24dp"
                     android:layout_height="24dp"
-                    android:contentDescription="Take a photo"
                     android:src="@drawable/camera"
                     app:tint="@color/background_tile_blocked" />
 
@@ -107,7 +104,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="16dp"
-                    android:text="Take a photo"
+                    android:text="@string/take_a_photo"
                     android:textSize="16sp" />
 
             </LinearLayout>

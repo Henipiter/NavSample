@@ -35,7 +35,6 @@
                 <ImageView
                     android:layout_width="24dp"
                     android:layout_height="24dp"
-                    android:contentDescription="Delete store"
                     android:src="@drawable/delete"
                     app:tint="@color/background_tile_blocked" />
 
@@ -43,7 +42,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="16dp"
-                    android:text="Delete store"
+                    android:text="@string/delete_store"
                     android:textSize="16sp" />
 
             </LinearLayout>
@@ -67,7 +66,6 @@
                 <ImageView
                     android:layout_width="24dp"
                     android:layout_height="24dp"
-                    android:contentDescription="Jump to category"
                     android:src="@drawable/jump_to"
                     app:tint="@color/background_tile_blocked" />
 
@@ -75,7 +73,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="16dp"
-                    android:text="Jump to category"
+                    android:text="@string/delete_category"
                     android:textSize="16sp" />
 
             </LinearLayout>

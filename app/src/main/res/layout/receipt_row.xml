@@ -24,7 +24,7 @@
                 android:id="@+id/date"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="yyyy-MM-dd"
+                android:text="@string/date"
                 android:textSize="14sp"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
@@ -34,7 +34,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="8dp"
-                android:text="12:34"
+                android:text="@string/time"
                 android:textSize="14sp"
                 app:layout_constraintStart_toEndOf="@id/date"
                 app:layout_constraintTop_toTopOf="@+id/date" />
@@ -44,7 +44,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginEnd="4dp"
-                android:text="1200.00"
+                android:text="@string/product_final_price"
                 android:textSize="18sp"
                 android:textStyle="bold"
                 app:layout_constraintEnd_toStartOf="@+id/pln"
@@ -54,7 +54,7 @@
                 android:id="@+id/pln"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="PLN"
+                android:text="@string/currency"
                 android:textSize="18sp"
                 android:textStyle="bold"
                 app:layout_constraintEnd_toEndOf="parent"
@@ -67,27 +67,27 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="12dp"
                 android:layout_marginEnd="1dp"
-                android:text="Bread jdawd jdawodoaw da jwdoa dkwadawhd dawidbawdwj d"
+                android:text="@string/product_name_stub"
                 android:textSize="18sp"
                 app:layout_constraintEnd_toStartOf="@+id/subtotal_prize"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/date" />
 
             <TextView
-                android:id="@+id/product_count"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_marginEnd="4dp"
-                android:text="0"
-                android:textSize="14sp"
-                app:layout_constraintEnd_toStartOf="@+id/product_text"
-                app:layout_constraintTop_toTopOf="@+id/date" />
-
-            <TextView
                 android:id="@+id/product_text"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:text="products"
+                android:layout_marginEnd="4dp"
+                android:text="@string/products"
+                android:textSize="14sp"
+                app:layout_constraintEnd_toStartOf="@+id/product_count"
+                app:layout_constraintTop_toTopOf="@+id/date" />
+
+            <TextView
+                android:id="@+id/product_count"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:text="@string/product_counter"
                 android:textSize="14sp"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintTop_toTopOf="@+id/date" />
