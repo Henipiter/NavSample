@@ -27,10 +27,10 @@
                 android:padding="12dp">
 
                 <TextView
-                    android:layout_marginTop="4dp"
                     android:id="@+id/category_name"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
                     android:text="@string/category_name_stub"
                     android:textSize="14sp"
 
@@ -39,10 +39,10 @@
 
 
                 <TextView
-                    android:layout_marginTop="4dp"
                     android:id="@+id/product_name"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
                     android:text="@string/product_name_stub"
                     android:textSize="18sp"
                     app:layout_constraintEnd_toStartOf="@+id/price_layout"
@@ -61,10 +61,10 @@
                     app:layout_constraintTop_toTopOf="parent" />
 
                 <androidx.constraintlayout.widget.ConstraintLayout
-                    android:layout_marginTop="4dp"
                     android:id="@+id/price_layout"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintTop_toBottomOf="@+id/category_color">
 
@@ -96,15 +96,15 @@
                         android:layout_marginHorizontal="4dp"
                         android:text="@string/product_unit_price"
                         android:textSize="14sp"
-                        app:layout_constraintEnd_toEndOf="parent"
-                        app:layout_constraintBottom_toTopOf="@+id/discount_price" />
+                        app:layout_constraintBottom_toTopOf="@+id/discount_price"
+                        app:layout_constraintEnd_toEndOf="parent" />
 
                     <TextView
                         android:id="@+id/minus_sign"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginHorizontal="1dp"
-                        android:text="-"
+                        android:text="@string/minus_sign"
                         android:textSize="14sp"
                         app:layout_constraintBottom_toBottomOf="@+id/discount_price"
                         app:layout_constraintEnd_toStartOf="@+id/discount_price" />
