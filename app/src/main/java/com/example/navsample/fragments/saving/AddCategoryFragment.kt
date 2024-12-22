@@ -108,19 +108,19 @@ class AddCategoryFragment : Fragment() {
                     binding.colorSquare.setBackgroundColor(pickedColor)
                     binding.categoryColorLayout.error = null
                 } catch (e: Exception) {
-                    binding.categoryColorLayout.error = "Cannot parse"
+                    binding.categoryColorLayout.error = getString(R.string.invalid_color_format)
                 }
             } else {
-                binding.categoryColorLayout.error = "Cannot parse"
+                binding.categoryColorLayout.error = getString(R.string.invalid_color_format)
             }
         }
         binding.categoryNameInput.doOnTextChanged { text, _, _, count ->
             if (count == 0) {
-                binding.categoryNameLayout.error = "Cannot be empty"
+                binding.categoryNameLayout.error = getString(R.string.empty_value_error)
             } else if (text.toString() == addCategoryDataViewModel.categoryById.value?.name) {
                 binding.categoryNameLayout.error = null
             } else if (addCategoryDataViewModel.categoryList.value?.find { it.name == text.toString() } != null) {
-                binding.categoryNameLayout.error = "Category name already defined"
+                binding.categoryNameLayout.error = getString(R.string.category_already_exists)
             } else {
                 binding.categoryNameLayout.error = null
             }
@@ -183,7 +183,8 @@ class AddCategoryFragment : Fragment() {
 
     private fun isCategoryInputValid(): Boolean {
         if (binding.categoryColorLayout.error != null || binding.categoryNameLayout.error != null) {
-            Toast.makeText(requireContext(), "Incorrect input values", Toast.LENGTH_SHORT).show()
+            Toast.makeText(requireContext(), getString(R.string.bad_inputs), Toast.LENGTH_SHORT)
+                .show()
             return false
         }
         return true

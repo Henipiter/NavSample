@@ -93,4 +93,19 @@
     <string name="edit_receipt_title">Edycja paragonu</string>
     <string name="crop_product_title">Przytnij sekcję produktów</string>
     <string name="export_data_title">Eksport danych</string>
+
+    <string name="suggestion_prefix">Może</string>
+    <string name="empty_value_error">Pusta wartość</string>
+    <string name="bad_value_error">Błędna wartość</string>
+    <string name="use_default_category">Użyj domyślnej kategorii</string>
+    <string name="bad_inputs">Nieprawidłowe dane wejściowe</string>
+    <string name="invalid_color_format">Błędny format koloru</string>
+    <string name="category_already_exists">Kategoria już istnieje</string>
+    <string name="delete_confirmation_title">Potwierdź usunięcie</string>
+    <string name="delete_category_confirmation_dialog">Jesteś pewny, że chcesz usunąć element?</string>
+    <string name="delete_store_confirmation_dialog">Jesteś pewny, że chcesz usunąć element z zależnymi paragonami i produktami?</string>
+    <string name="delete_receipt_confirmation_dialog">Jesteś pewny, że chcesz usunąć element z zależnymi produkatmi?</string>
+    <string name="delete_product_confirmation_dialog">Jesteś pewny, że chcesz usunąć element?</string>
+
+
 </resources>

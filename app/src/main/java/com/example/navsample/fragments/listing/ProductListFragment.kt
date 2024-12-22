@@ -17,7 +17,6 @@ import com.example.navsample.R
 import com.example.navsample.adapters.RichProductListAdapter
 import com.example.navsample.databinding.FragmentProductListBinding
 import com.example.navsample.dto.FragmentName
-import com.example.navsample.dto.PriceUtils.Companion.intPriceToString
 import com.example.navsample.dto.inputmode.AddingInputType
 import com.example.navsample.dto.sort.RichProductSort
 import com.example.navsample.dto.sort.SortProperty
@@ -157,9 +156,8 @@ class ProductListFragment : Fragment(), ItemClickListener {
 
     private fun onDelete(index: Int, productRichData: ProductRichData) {
         ConfirmDialog(
-            "Delete",
-            "$index Are you sure you want to delete the product??\n\nName: " + productRichData.name +
-                    "\nPLN: " + intPriceToString(productRichData.subtotalPrice)
+            getString(R.string.delete_confirmation_title),
+            getString(R.string.delete_product_confirmation_dialog)
         ) {
             if (productRichData.id.isNotEmpty()) {
                 addProductDataViewModel.deleteProduct(productRichData.id)

@@ -126,4 +126,18 @@
     <string name="crop_product_title">Crop products section</string>
     <string name="export_data_title">Export data</string>
 
+    <string name="suggestion_prefix">Maybe</string>
+    <string name="empty_value_error">Empty value</string>
+    <string name="bad_value_error">Bad value</string>
+    <string name="use_default_category">Use default category</string>
+    <string name="bad_inputs">Incorrect input data</string>
+    <string name="invalid_color_format">Invalid color format</string>
+    <string name="category_already_exists">Category already exists</string>
+    <string name="delete_confirmation_title">Confirm delete</string>
+    <string name="delete_category_confirmation_dialog">Are you sure to delete the item?</string>
+    <string name="delete_store_confirmation_dialog">Are you sure to delete the item with dependent receipt and products?</string>
+    <string name="delete_receipt_confirmation_dialog">Are you sure to delete the item with dependent products?</string>
+    <string name="delete_product_confirmation_dialog">Are you sure to delete the item?</string>
+
+
 </resources>

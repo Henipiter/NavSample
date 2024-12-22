@@ -149,9 +149,8 @@ class StoreListFragment : Fragment(), ItemClickListener {
 
     private fun onDelete(index: Int, store: Store) {
         ConfirmDialog(
-            "Delete",
-            "Are you sure you want to delete the store with dependent receipts and" +
-                    " products?\n\nName: ${store.name}\nNIP: ${store.nip}"
+            getString(R.string.delete_confirmation_title),
+            getString(R.string.delete_store_confirmation_dialog)
         ) {
             addStoreDataViewModel.deleteStore(store.id)
             listingViewModel.storeList.value?.let { storeList ->

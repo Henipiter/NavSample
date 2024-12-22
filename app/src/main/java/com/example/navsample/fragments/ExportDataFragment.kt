@@ -5,6 +5,7 @@ import android.content.ContentValues
 import android.os.Bundle
 import android.os.Environment
 import android.provider.MediaStore
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -138,16 +139,16 @@ class ExportDataFragment : Fragment() {
                 values
             )
             Toast.makeText(requireContext(), "SUCCESS", Toast.LENGTH_SHORT).show()
-        } catch (e: IOException) {
-            e.printStackTrace()
-            Toast.makeText(requireContext(), e.message, Toast.LENGTH_SHORT).show()
+        } catch (exception: IOException) {
+            Log.e("Error", exception.toString(), exception)
+            Toast.makeText(requireContext(), exception.message, Toast.LENGTH_SHORT).show()
         } finally {
             try {
                 outputStreamWriter?.close()
                 fileOutputStream?.close()
-            } catch (e: IOException) {
-                e.printStackTrace();
-                Toast.makeText(requireContext(), e.message, Toast.LENGTH_SHORT).show()
+            } catch (exception: IOException) {
+                Log.e("Error", exception.toString(), exception)
+                Toast.makeText(requireContext(), exception.message, Toast.LENGTH_SHORT).show()
             }
         }
     }

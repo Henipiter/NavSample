@@ -13,6 +13,7 @@ import androidx.navigation.Navigation
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.navsample.ItemClickListener
+import com.example.navsample.R
 import com.example.navsample.adapters.CategoryListAdapter
 import com.example.navsample.databinding.FragmentCategoryListBinding
 import com.example.navsample.dto.FragmentName
@@ -95,8 +96,8 @@ class CategoryListFragment : Fragment(), ItemClickListener {
 
     private fun onDelete(index: Int, category: Category) {
         ConfirmDialog(
-            "Delete",
-            "Are you sure you want to delete the category products??\n\nName: ${category.name}"
+            getString(R.string.delete_confirmation_title),
+            getString(R.string.delete_category_confirmation_dialog)
         ) {
             if (listingViewModel.productRichList.value?.none { product -> product.categoryId == category.id } != true) {
                 Toast.makeText(

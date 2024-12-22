@@ -95,18 +95,17 @@ class AddProductListFragment : Fragment(), ItemClickListener {
             addProductDataViewModel.productList.value ?: mutableListOf(),
             addProductDataViewModel.categoryList.value ?: listOf(),
             this
-        ) { i: Int ->
+        ) { index: Int ->
             addProductDataViewModel.productList.value?.let { productList ->
-                val product = productList[i]
+                val product = productList[index]
                 ConfirmDialog(
-                    "Delete",
-                    "Are you sure you want to delete the product??\n\n" +
-                            "Name: ${product.name}\nPLN: ${product.subtotalPrice}"
+                    getString(R.string.delete_confirmation_title),
+                    getString(R.string.delete_product_confirmation_dialog)
                 ) {
                     if (product.id.isNotEmpty()) {
                         addProductDataViewModel.deleteProduct(product.id)
                     }
-                    productList.removeAt(i)
+                    productList.removeAt(index)
                     productListAdapter.productList = productList
                     productListAdapter.notifyDataSetChanged()
                     calculateSumOfProductPrices(productList)

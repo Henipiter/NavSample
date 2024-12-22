@@ -16,7 +16,6 @@ import com.example.navsample.R
 import com.example.navsample.adapters.ReceiptListAdapter
 import com.example.navsample.databinding.FragmentReceiptListBinding
 import com.example.navsample.dto.FragmentName
-import com.example.navsample.dto.PriceUtils.Companion.intPriceToString
 import com.example.navsample.dto.inputmode.AddingInputType
 import com.example.navsample.dto.sort.ReceiptWithStoreSort
 import com.example.navsample.dto.sort.SortProperty
@@ -122,13 +121,8 @@ class ReceiptListFragment : Fragment(), ItemClickListener {
 
     private fun onDelete(index: Int, receiptWithStore: ReceiptWithStore) {
         ConfirmDialog(
-            "Delete",
-            "Are you sure you want to delete the receipt with dependent products??\n\n" +
-                    "Store: " + receiptWithStore.name
-                    + "\nPLN: " + intPriceToString(receiptWithStore.pln)
-                    + "\nPTU: " + intPriceToString(receiptWithStore.ptu)
-                    + "\nDate: " + receiptWithStore.date
-                    + "\nTime: " + receiptWithStore.time
+            getString(R.string.delete_confirmation_title),
+            getString(R.string.delete_receipt_confirmation_dialog)
         ) {
             addReceiptDataViewModel.deleteReceipt(receiptWithStore.id)
             listingViewModel.receiptList.value?.let { receiptList ->
