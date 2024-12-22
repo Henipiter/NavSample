@@ -121,12 +121,12 @@ class AddReceiptFragment : Fragment() {
             binding.receiptPTUInput.setText("")
             binding.receiptDateInput.setText("")
             binding.receiptTimeInput.setText("")
-            binding.toolbar.title = "Add receipt"
+            binding.toolbar.title = getString(R.string.new_receipt_title)
             binding.toolbar.menu.findItem(R.id.add_new).isVisible = false
 
         } else if (inputType == AddingInputType.ID) {
             if (addReceiptDataViewModel.receiptId.isNotEmpty()) {
-                binding.toolbar.title = "Edit receipt"
+                binding.toolbar.title = getString(R.string.edit_receipt_title)
                 mode = DataMode.EDIT
                 addReceiptDataViewModel.getReceiptById(addReceiptDataViewModel.receiptId)
                 binding.toolbar.menu.findItem(R.id.add_new).isVisible = true
@@ -187,7 +187,6 @@ class AddReceiptFragment : Fragment() {
             binding.receiptPTUInput.setText(analyzedReceipt.valuePTU.toString())
             binding.receiptDateInput.setText(analyzedReceipt.valueDate)
             binding.receiptTimeInput.setText(analyzedReceipt.valueTime)
-            binding.toolbar.title = "Add store"
 
             val foundStore =
                 addReceiptDataViewModel.storeList.value?.find { it.nip == analyzedReceipt.valueNIP }

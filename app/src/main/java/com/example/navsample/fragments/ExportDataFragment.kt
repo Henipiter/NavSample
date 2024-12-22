@@ -47,7 +47,7 @@ class ExportDataFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         binding.toolbar.inflateMenu(R.menu.top_menu_export)
         binding.toolbar.setNavigationIcon(R.drawable.back)
-        binding.toolbar.title = "Export data"
+        binding.toolbar.title = getString(R.string.export_data_title)
 
         exportDataViewModel.getTableCounts()
         exportDataViewModel.getAllData()

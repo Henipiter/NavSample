@@ -164,11 +164,11 @@ class AddStoreFragment : Fragment() {
             binding.storeNIPInput.setText("")
             binding.storeNameInput.setText("")
             binding.storeDefaultCategoryInput.setText("")
-            binding.toolbar.title = "Add store"
+            binding.toolbar.title = getString(R.string.new_store_title)
 
         } else if (inputType == AddingInputType.ID) {
             if (addStoreDataViewModel.storeId.isNotEmpty()) {
-                binding.toolbar.title = "Edit store"
+                binding.toolbar.title = getString(R.string.edit_store_title)
                 mode = DataMode.EDIT
                 addStoreDataViewModel.getStoreById(addStoreDataViewModel.storeId)
             } else {

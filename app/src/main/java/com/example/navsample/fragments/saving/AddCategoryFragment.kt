@@ -143,11 +143,11 @@ class AddCategoryFragment : Fragment() {
             mode = DataMode.NEW
             applyRandomColor()
             binding.categoryNameInput.setText("")
-            binding.toolbar.title = "New category"
+            binding.toolbar.title = getString(R.string.new_category_title)
 
         } else if (inputType == AddingInputType.ID) {
             if (addCategoryDataViewModel.categoryId.isNotEmpty()) {
-                binding.toolbar.title = "Edit category"
+                binding.toolbar.title = getString(R.string.edit_category_title)
                 mode = DataMode.EDIT
                 addCategoryDataViewModel.getCategoryById(addCategoryDataViewModel.categoryId)
             } else {

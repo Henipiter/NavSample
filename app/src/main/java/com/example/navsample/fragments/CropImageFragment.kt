@@ -39,7 +39,7 @@ class CropImageFragment : Fragment() {
         binding.toolbar.inflateMenu(R.menu.top_menu_crop)
         binding.toolbar.setNavigationIcon(R.drawable.back)
 
-        binding.toolbar.title = "Crop only products section"
+        binding.toolbar.title = getString(R.string.crop_product_title)
 
         imageViewModel.bitmapCroppedReceipt.value.let { bitmap ->
             if (bitmap != null) {

@@ -80,4 +80,17 @@
     <string name="confirm">Zatwierdź</string>
     <string name="one_month_size">Jeden miesiąc</string>
     <string name="multiple_month_size">Wiele miesięcy</string>
+
+    <!-- toolbar -->
+    <string name="filter_title">Filter</string>
+    <string name="new_category_title">Nowa kategoria</string>
+    <string name="edit_category_title">Edycja kategorii</string>
+    <string name="new_product_title">Nowy produkt</string>
+    <string name="edit_product_title">Edycja produktu</string>
+    <string name="new_store_title">Nowy sklep</string>
+    <string name="edit_store_title">Edycja sklepu</string>
+    <string name="new_receipt_title">Nowy paragon</string>
+    <string name="edit_receipt_title">Edycja paragonu</string>
+    <string name="crop_product_title">Przytnij sekcję produktów</string>
+    <string name="export_data_title">Eksport danych</string>
 </resources>

@@ -112,4 +112,18 @@
     <string name="radar" translatable="false">Radar</string>
     <string name="line" translatable="false">Line</string>
     <string name="bar" translatable="false">Bar</string>
+
+    <!-- toolbar -->
+    <string name="filter_title">Filter</string>
+    <string name="new_category_title">New category</string>
+    <string name="edit_category_title">Edit category</string>
+    <string name="new_product_title">New product</string>
+    <string name="edit_product_title">Edit product</string>
+    <string name="new_store_title">New store</string>
+    <string name="edit_store_title">Edit store</string>
+    <string name="new_receipt_title">New receipt</string>
+    <string name="edit_receipt_title">Edit receipt</string>
+    <string name="crop_product_title">Crop products section</string>
+    <string name="export_data_title">Export data</string>
+
 </resources>

@@ -26,8 +26,6 @@ import com.example.navsample.entities.Category
 import com.example.navsample.entities.Product
 import com.example.navsample.exception.NoCategoryIdException
 import com.example.navsample.exception.NoReceiptIdException
-import com.example.navsample.exception.NoStoreIdException
-import com.example.navsample.imageanalyzer.ReceiptParser
 import com.example.navsample.viewmodels.ImageViewModel
 import com.example.navsample.viewmodels.ListingViewModel
 import com.example.navsample.viewmodels.fragment.AddProductDataViewModel
@@ -96,10 +94,6 @@ class AddProductFragment : Fragment() {
         addProductDataViewModel.refreshCategoryList()
         applyInputParameters()
 
-        if (productOriginalInput == "") {
-            binding.productOriginalLayout.visibility = View.INVISIBLE
-        }
-
         requireActivity().onBackPressedDispatcher.addCallback(
             viewLifecycleOwner, object : OnBackPressedCallback(true) {
                 override fun handleOnBackPressed() {
@@ -142,10 +136,6 @@ class AddProductFragment : Fragment() {
             binding.productCategoryInput.isEnabled = true
             pickedCategory = null
             binding.productCategoryHelperText.text = getCategorySuggestionMessage()
-        }
-
-        binding.productOriginalLayout.setEndIconOnClickListener {
-            binding.productOriginalInput.setText(productOriginalInput)
         }
 
         binding.productFinalPriceLayout.setEndIconOnClickListener {
@@ -191,36 +181,7 @@ class AddProductFragment : Fragment() {
         binding.productFinalPriceInput.doOnTextChanged { _, _, _, _ ->
             validateFinalPrice()
         }
-        binding.productOriginalInput.doOnTextChanged { actual, _, _, _ ->
-            if (addProductDataViewModel.receiptById.value == null || addProductDataViewModel.receiptById.value?.id?.isEmpty() == true) {
-                throw NoReceiptIdException()
-            }
-            if (addProductDataViewModel.storeById.value == null || addProductDataViewModel.storeById.value?.defaultCategoryId?.isEmpty() == true) {
-                throw NoStoreIdException()
-            }
 
-            val receiptParser = ReceiptParser(
-                addProductDataViewModel.receiptById.value!!.id,
-                addProductDataViewModel.storeById.value!!.defaultCategoryId
-            )
-            val product = receiptParser.parseStringToProduct(actual.toString())
-            pickedCategory = try {
-                addProductDataViewModel.categoryList.value?.first { it.id == product.categoryId }
-            } catch (e: Exception) {
-                null
-            }
-            binding.productNameInput.setText(product.name)
-            binding.productSubtotalPriceInput.setText(product.subtotalPrice.toString())
-            binding.productUnitPriceInput.setText(product.unitPrice.toString())
-            binding.productQuantityInput.setText(product.quantity.toString())
-            binding.productFinalPriceInput.setText(product.finalPrice.toString())
-            binding.productDiscountInput.setText(product.discount.toString())
-
-            binding.ptuTypeInput.setText(product.ptuType)
-            binding.productCategoryInput.setText(pickedCategory?.name)
-            binding.productCategoryInput.isEnabled = false
-
-        }
         binding.toolbar.setNavigationOnClickListener {
             clearInputs()
             Navigation.findNavController(it).popBackStack()
@@ -373,7 +334,7 @@ class AddProductFragment : Fragment() {
                 doublePriceTextToInt(binding.productDiscountInput.text.toString()),
                 doublePriceTextToInt(binding.productFinalPriceInput.text.toString()),
                 binding.ptuTypeInput.text.toString(),
-                binding.productOriginalInput.text.toString(),
+                "",
                 isValidPrices
             )
             val newList =
@@ -394,7 +355,6 @@ class AddProductFragment : Fragment() {
             product.finalPrice =
                 doublePriceTextToInt(binding.productFinalPriceInput.text.toString())
             product.ptuType = binding.ptuTypeInput.text.toString()
-            product.raw = binding.productOriginalInput.text.toString()
             product.validPrice = isValidPrices
 
             when (addProductDataViewModel.inputType) {

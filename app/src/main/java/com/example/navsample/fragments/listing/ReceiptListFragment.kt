@@ -54,8 +54,9 @@ class ReceiptListFragment : Fragment(), ItemClickListener {
         binding.toolbar.setOnMenuItemClickListener {
             when (it.itemId) {
                 R.id.filter -> {
-                    Navigation.findNavController(binding.root)
-                        .navigate(R.id.action_listingFragment_to_filterReceiptListFragment)
+                    val action =
+                        ListingFragmentDirections.actionListingFragmentToFilterReceiptListFragment()
+                    Navigation.findNavController(requireView()).navigate(action)
                     true
                 }
 
