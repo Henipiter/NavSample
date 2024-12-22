@@ -18,18 +18,66 @@
     <string name="higher_price">Górna granica ceny</string>
     <string name="ascending">Rosnąco</string>
     <string name="descending">Malejąco</string>
+    <string name="category_name">Nazwa kategorii</string>
+    <string name="store_name">Nazwa sklepu</string>
+    <string name="nip">NIP</string>
+    <string name="product_name">Nazwa produktu</string>
+    <string name="color_value">Kolor</string>
+    <string name="category">Kategoria</string>
+    <string name="current_price">Cena obecna</string>
+    <string name="receipt_price">Cena paragonu</string>
+    <string name="price_range">Zakres cen</string>
+    <string name="date_range">Zakres dat</string>
+    <string name="username">Nazwa użytkownika</string>
+    <string name="password">Hasło</string>
+    <string name="confirm_password">Powtórz hasło</string>
+
 
     <!-- button-->
+    <string name="camera_button">Aparat</string>
+    <string name="gallery_button">Galeria</string>
+    <string name="manual_button">Ręcznie</string>
     <string name="cancel_button">Anuluj</string>
     <string name="confirm_button">Potwierdź</string>
     <string name="next_button">Dalej</string>
     <string name="previous_button">Wstecz</string>
+    <string name="export_button">Eksport danych</string>
+    <string name="account_button">Konto</string>
+    <string name="guide_button">Samouczek</string>
+    <string name="sing_in_button">Zaloguj się</string>
+    <string name="sing_up_button">Zarejestruj się</string>
+    <string name="sing_out_button">Wyloguj</string>
+    <string name="delete_account_button">Usuń konto</string>
+    <string name="continue_anonymous_button">Kontunuuj bez logowanie</string>
 
     <!-- row -->
     <string name="quantity">Ilość</string>
+    <string name="date">Data</string>
+    <string name="time">Godzina</string>
+    <string name="ptu_value">Wartość podatku</string>
+    <string name="final_price">Cena końcowa</string>
     <string name="unit_price">Cena jednostkowa</string>
     <string name="subtotal_price">Cena częściowa</string>
     <string name="discount_price">Obniżka</string>
     <string name="ptu_type">PTU</string>
     <string name="products">Produktów: </string>
+
+    <!-- tiles -->
+    <string name="receipts_bar">Paragony</string>
+    <string name="products_bar">Produkty</string>
+    <string name="stores_bar">Sklepy</string>
+    <string name="categories_bar">Kategorie</string>
+    <string name="name_only">Tylko nazwa</string>
+    <string name="dynamic">Dynamicznie</string>
+    <string name="price_only">Tylko cena</string>
+    <string name="swap">Zamień</string>
+    <string name="clear">Wyczyść</string>
+    <string name="merge">Połącz</string>
+    <string name="delete">Usuń</string>
+    <string name="reset">Reset</string>
+    <string name="cancel">Anuluj</string>
+    <string name="edit">Edytuj</string>
+    <string name="confirm">Zatwierdź</string>
+    <string name="one_month_size">Jeden miesiąc</string>
+    <string name="multiple_month_size">Wiele miesięcy</string>
 </resources>

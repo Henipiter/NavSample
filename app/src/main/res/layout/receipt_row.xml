@@ -24,7 +24,7 @@
                 android:id="@+id/date"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@string/date"
+                android:text="@string/date_value_stub"
                 android:textSize="14sp"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
@@ -34,7 +34,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="8dp"
-                android:text="@string/time"
+                android:text="@string/time_value_stub"
                 android:textSize="14sp"
                 app:layout_constraintStart_toEndOf="@id/date"
                 app:layout_constraintTop_toTopOf="@+id/date" />
@@ -77,8 +77,18 @@
                 android:id="@+id/product_text"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_marginEnd="4dp"
+                android:layout_marginEnd="0dp"
                 android:text="@string/products"
+                android:textSize="14sp"
+                app:layout_constraintEnd_toStartOf="@+id/colon_text"
+                app:layout_constraintTop_toTopOf="@+id/date" />
+
+            <TextView
+                android:id="@+id/colon_text"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="4dp"
+                android:text="@string/colon_sign"
                 android:textSize="14sp"
                 app:layout_constraintEnd_toStartOf="@+id/product_count"
                 app:layout_constraintTop_toTopOf="@+id/date" />
