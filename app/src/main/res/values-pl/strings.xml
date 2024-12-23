@@ -107,5 +107,44 @@
     <string name="delete_receipt_confirmation_dialog">Jesteś pewny, że chcesz usunąć element z zależnymi produkatmi?</string>
     <string name="delete_product_confirmation_dialog">Jesteś pewny, że chcesz usunąć element?</string>
 
+    <string name="nip_correct">NIP poprawny</string>
+    <string name="nip_incorrect">NIP niepoprawny</string>
+    <string name="minimal_price_boundary_incorrect">Cena minimalna musi być mniejsza niż maksymalna</string>
+    <string name="maximal_price_boundary_incorrect">Cena maksymalna musi być większa niż minimalna</string>
+    <string name="conversion_error">Niepoprawna wartość</string>
+    <string name="pick_store">Wybierz sklep!</string>
+    <string name="fill_all_fields">Wypełnij wszystkie pola</string>
+    <string name="authentication_error">Uwierzytelnianie nie powiodło się</string>
+    <string name="empty_name">Wypełnij nazwę</string>
+    <string name="empty_nip">Wypełnij NIP</string>
+    <string name="pick_category">Wybierz kategorię</string>
+    <string name="nip_already_exists">NIP już istnieje</string>
+    <string name="check_internet_connection">Cannot get AI response. Check internet connection</string>
+    <string name="capture_image_failed">Wykonanie zdjęcia nie powiodło się</string>
+    <string name="open_camera_error">Nie można uruhcomić aparatu</string>
+    <string name="permission_denied">Nie nadano praw dostępu</string>
+    <string name="no_data_found">Nie znaleziono danych</string>
+    <string name="incorrect_email">Email jest niepoprawny</string>
+    <string name="password_too_short">Hasło jest za krótkie</string>
+    <string name="different_passwords">Hasła są różne</string>
+    <string name="category_not_set">Kategoria nie jest wybrana</string>
+    <string name="store_not_set">Sklep nie jest wybrany</string>
+    <string name="receipt_not_set">Paragon nie jest wybrany</string>
+    <string name="no_image_set">Żaden obraz nie został załadowany</string>
+    <string name="export_finisher">Wyeksportowano do pliku</string>
+
+    <!-- menu -->
+    <string name="add_new">Dodaj nowy</string>
+    <string name="ai_assistant">AI Asystent</string>
+    <string name="import_image">Załaduj obraz</string>
+    <string name="reorder">Zmien kolejność</string>
+    <string name="rotate">Obróć</string>
+    <string name="settings">Ustawienia</string>
+    <string name="list">Lista</string>
+    <string name="chart">Diagram</string>
+    <string name="expand">Rozwiń</string>
+    <string name="collapse">Zwiń</string>
+    <string name="sort">Sortuj</string>
+
 
 </resources>

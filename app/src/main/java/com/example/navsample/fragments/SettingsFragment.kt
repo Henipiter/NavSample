@@ -6,7 +6,6 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
@@ -51,14 +50,8 @@ class SettingsFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         binding.logInButton.setOnClickListener {
-            Toast.makeText(
-                requireContext(),
-                "EEE'${accountServiceImpl.currentUserId}'EEE",
-                Toast.LENGTH_SHORT
-            ).show()
             Navigation.findNavController(it)
                 .navigate(R.id.action_settingsFragment_to_signingPanelFragment)
-
         }
         binding.exportDataButton.setOnClickListener {
             Navigation.findNavController(it)

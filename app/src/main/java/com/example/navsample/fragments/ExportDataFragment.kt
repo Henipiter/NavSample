@@ -68,7 +68,11 @@ class ExportDataFragment : Fragment() {
 
                 R.id.export -> {
                     if (isDataExist()) {
-                        Toast.makeText(requireContext(), "No data found", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(
+                            requireContext(),
+                            getString(R.string.no_data_found),
+                            Toast.LENGTH_SHORT
+                        ).show()
                         return@setOnMenuItemClickListener true
                     }
                     saveCsvFile(prepareFileContents())
@@ -135,10 +139,13 @@ class ExportDataFragment : Fragment() {
             }
 
             requireContext().contentResolver.insert(
-                MediaStore.Downloads.EXTERNAL_CONTENT_URI,
-                values
+                MediaStore.Downloads.EXTERNAL_CONTENT_URI, values
             )
-            Toast.makeText(requireContext(), "SUCCESS", Toast.LENGTH_SHORT).show()
+            Toast.makeText(
+                requireContext(),
+                getString(R.string.export_finisher),
+                Toast.LENGTH_SHORT
+            ).show()
         } catch (exception: IOException) {
             Log.e("Error", exception.toString(), exception)
             Toast.makeText(requireContext(), exception.message, Toast.LENGTH_SHORT).show()
@@ -148,7 +155,6 @@ class ExportDataFragment : Fragment() {
                 fileOutputStream?.close()
             } catch (exception: IOException) {
                 Log.e("Error", exception.toString(), exception)
-                Toast.makeText(requireContext(), exception.message, Toast.LENGTH_SHORT).show()
             }
         }
     }

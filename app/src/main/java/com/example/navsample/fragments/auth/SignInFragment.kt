@@ -88,11 +88,11 @@ class SignInFragment : Fragment() {
 
     private fun validateSignUp(): String {
         if (!validateEmailInput()) {
-            return "Bad email"
+            return getString(R.string.incorrect_email)
         } else if (!validatePasswordInput()) {
-            return "Password have to be longer than 6 signs"
+            return getString(R.string.password_too_short)
         } else if (!validatePasswordConfirmationInput()) {
-            return "Passwords are different"
+            return getString(R.string.different_passwords)
         }
         return ""
     }
@@ -107,7 +107,11 @@ class SignInFragment : Fragment() {
     }
 
     private fun onLoginFailure() {
-        Toast.makeText(requireContext(), "Auth error", Toast.LENGTH_SHORT).show()
+        Toast.makeText(
+            requireContext(),
+            getString(R.string.authentication_error),
+            Toast.LENGTH_SHORT
+        ).show()
     }
 
     private fun onLoginSuccess() {
@@ -120,7 +124,6 @@ class SignInFragment : Fragment() {
         FirestoreHelperSingleton.initialize(userId)
         syncDatabaseViewModel.setFirebaseHelper()
         syncDatabaseViewModel.loadNotAddedList()
-        Toast.makeText(requireContext(), "Auth success", Toast.LENGTH_SHORT).show()
         Navigation.findNavController(requireView()).popBackStack()
     }
 

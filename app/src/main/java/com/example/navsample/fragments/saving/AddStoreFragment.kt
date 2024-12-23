@@ -185,11 +185,11 @@ class AddStoreFragment : Fragment() {
 
     private fun validateNip(text: String) {
         if (!isCorrectNIP(text)) {
-            binding.storeNIPLayout.error = "Bad NIP"
+            binding.storeNIPLayout.error = getString(R.string.nip_incorrect)
             binding.storeNIPLayout.helperText = null
         } else {
             binding.storeNIPLayout.error = null
-            binding.storeNIPLayout.helperText = "Correct NIP"
+            binding.storeNIPLayout.helperText = getString(R.string.nip_correct)
         }
     }
 
@@ -300,19 +300,26 @@ class AddStoreFragment : Fragment() {
 
     private fun isStoreInputValid(): Boolean {
         if (binding.storeNameInput.text.toString() == "") {
-            Toast.makeText(requireContext(), "Name cannot be empty", Toast.LENGTH_SHORT).show()
+            Toast.makeText(requireContext(), getString(R.string.empty_name), Toast.LENGTH_SHORT)
+                .show()
             return false
         }
         if (binding.storeNIPInput.text.toString() == "") {
-            Toast.makeText(requireContext(), "NIP cannot be empty", Toast.LENGTH_SHORT).show()
+            Toast.makeText(requireContext(), getString(R.string.empty_nip), Toast.LENGTH_SHORT)
+                .show()
             return false
         }
         if (pickedCategory?.id == null || pickedCategory?.id?.isEmpty() == true) {
-            Toast.makeText(requireContext(), "Category cannot be empty", Toast.LENGTH_SHORT).show()
+            Toast.makeText(requireContext(), getString(R.string.pick_category), Toast.LENGTH_SHORT)
+                .show()
             return false
         }
         if (!isNIPUnique(binding.storeNIPInput.text.toString())) {
-            Toast.makeText(requireContext(), "NIP cannot be duplicated", Toast.LENGTH_SHORT).show()
+            Toast.makeText(
+                requireContext(),
+                getString(R.string.nip_already_exists),
+                Toast.LENGTH_SHORT
+            ).show()
             return false
         }
         return true

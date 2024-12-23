@@ -80,7 +80,7 @@ class SigningPanelFragment : Fragment() {
     private fun initObserver() {
         signInViewModel.currentUser.observe(viewLifecycleOwner) {
             if (it == null) {
-                binding.usernameInfo.text = "Not logged"
+                binding.usernameInfo.text = ""
             } else {
                 binding.usernameInfo.text = it.email
             }

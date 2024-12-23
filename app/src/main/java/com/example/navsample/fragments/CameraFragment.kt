@@ -22,6 +22,7 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.navigation.Navigation
 import androidx.navigation.fragment.navArgs
+import com.example.navsample.R
 import com.example.navsample.databinding.FragmentCameraBinding
 import com.example.navsample.dto.FragmentName
 import com.example.navsample.viewmodels.ImageViewModel
@@ -83,7 +84,11 @@ class CameraFragment : Fragment() {
             ContextCompat.getMainExecutor(requireContext()),
             object : ImageCapture.OnImageCapturedCallback() {
                 override fun onError(exception: ImageCaptureException) {
-                    Toast.makeText(requireContext(), "Photo capture failed", Toast.LENGTH_SHORT)
+                    Toast.makeText(
+                        requireContext(),
+                        getString(R.string.capture_image_failed),
+                        Toast.LENGTH_SHORT
+                    )
                         .show()
                 }
 
@@ -118,7 +123,8 @@ class CameraFragment : Fragment() {
                 }
 
             if (activity == null) {
-                Toast.makeText(requireContext(), "Activity null", Toast.LENGTH_SHORT).show()
+                Toast.makeText(requireContext(), R.string.open_camera_error, Toast.LENGTH_SHORT)
+                    .show()
             } else {
                 val rotation = requireActivity().windowManager.defaultDisplay.rotation
                 imageCapture = ImageCapture.Builder().setTargetRotation(rotation).build()
@@ -150,7 +156,11 @@ class CameraFragment : Fragment() {
                     permissionGranted = false
             }
             if (!permissionGranted) {
-                Toast.makeText(requireContext(), "Permission request denied", Toast.LENGTH_SHORT)
+                Toast.makeText(
+                    requireContext(),
+                    getString(R.string.permission_denied),
+                    Toast.LENGTH_SHORT
+                )
                     .show()
             } else {
                 startCamera()

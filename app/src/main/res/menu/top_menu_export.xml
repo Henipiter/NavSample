@@ -6,7 +6,7 @@
         android:id="@+id/export"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:title="Export"
+        android:title="@string/export_button"
         android:icon="@drawable/export"
         app:showAsAction="ifRoom" />
 </menu>

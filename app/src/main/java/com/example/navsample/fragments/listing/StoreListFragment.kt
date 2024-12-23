@@ -66,7 +66,6 @@ class StoreListFragment : Fragment(), ItemClickListener {
                         val appliedSort = SortProperty(StoreSort::class, name, dir)
                         listingViewModel.storeSort.value = appliedSort
                         listingViewModel.updateSorting(appliedSort)
-                        Toast.makeText(requireContext(), "$appliedSort", Toast.LENGTH_SHORT).show()
                     }.show(childFragmentManager, "Test")
                     true
                 }
@@ -122,7 +121,11 @@ class StoreListFragment : Fragment(), ItemClickListener {
         listingViewModel.storeList.value?.let { storeList ->
             val storeId = storeList[index].id
             if (storeId.isEmpty()) {
-                Toast.makeText(requireContext(), "STORE ID IS NULL", Toast.LENGTH_SHORT).show()
+                Toast.makeText(
+                    requireContext(),
+                    getString(R.string.store_not_set),
+                    Toast.LENGTH_SHORT
+                ).show()
 
             } else {
                 val action =

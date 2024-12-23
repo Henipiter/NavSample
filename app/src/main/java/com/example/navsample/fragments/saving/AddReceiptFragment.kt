@@ -232,19 +232,19 @@ class AddReceiptFragment : Fragment() {
     private fun validateObligatoryFields(): Boolean {
         var succeedValidation = true
         if (binding.receiptPLNInput.text.isNullOrEmpty()) {
-            binding.receiptPLNLayout.error = "Empty"
+            binding.receiptPLNLayout.error = getString(R.string.empty_value_error)
             succeedValidation = false
         }
         if (binding.receiptPTUInput.text.isNullOrEmpty()) {
-            binding.receiptPTULayout.error = "Empty"
+            binding.receiptPTULayout.error = getString(R.string.empty_value_error)
             succeedValidation = false
         }
         if (binding.receiptDateInput.text.isNullOrEmpty()) {
-            binding.receiptDateLayout.error = "Empty"
+            binding.receiptDateLayout.error = getString(R.string.empty_value_error)
             succeedValidation = false
         }
         if (binding.receiptTimeInput.text.isNullOrEmpty()) {
-            binding.receiptTimeLayout.error = "Empty"
+            binding.receiptTimeLayout.error = getString(R.string.empty_value_error)
             succeedValidation = false
         }
         return succeedValidation
@@ -252,11 +252,16 @@ class AddReceiptFragment : Fragment() {
 
     private fun isReceiptInputValid(): Boolean {
         if (pickedStore == null || pickedStore?.id?.isEmpty() == true) {
-            Toast.makeText(requireContext(), "Pick store!", Toast.LENGTH_SHORT).show()
+            Toast.makeText(requireContext(), getString(R.string.pick_store), Toast.LENGTH_SHORT)
+                .show()
             return false
         }
         if (!validateObligatoryFields()) {
-            Toast.makeText(requireContext(), "Fill all fields", Toast.LENGTH_SHORT).show()
+            Toast.makeText(
+                requireContext(),
+                getString(R.string.fill_all_fields),
+                Toast.LENGTH_SHORT
+            ).show()
             return false
         }
         return true
@@ -326,7 +331,11 @@ class AddReceiptFragment : Fragment() {
                         Navigation.findNavController(requireView()).navigate(action)
                         return@setOnMenuItemClickListener true
                     }
-                    Toast.makeText(requireContext(), "Receipt not set", Toast.LENGTH_SHORT)
+                    Toast.makeText(
+                        requireContext(),
+                        getString(R.string.receipt_not_set),
+                        Toast.LENGTH_SHORT
+                    )
 
                     return@setOnMenuItemClickListener true
                 }

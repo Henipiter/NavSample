@@ -188,7 +188,11 @@ class AddProductFragment : Fragment() {
             when (it.itemId) {
                 R.id.confirm -> {
                     if (!validateObligatoryFields()) {
-                        Toast.makeText(requireContext(), "Bad inputs", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(
+                            requireContext(),
+                            getString(R.string.bad_inputs),
+                            Toast.LENGTH_SHORT
+                        ).show()
                         return@setOnMenuItemClickListener false
                     }
 

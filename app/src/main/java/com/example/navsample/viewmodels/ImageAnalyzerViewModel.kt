@@ -54,7 +54,6 @@ class ImageAnalyzerViewModel : ViewModel() {
             }
 
             if (response == null || response == "") {
-                geminiError.value = "Empty AI response"
                 isGeminiWorking.value = false
                 return@launch
             }
@@ -63,7 +62,6 @@ class ImageAnalyzerViewModel : ViewModel() {
                 onFinish.invoke(correctedProducts, response)
             } catch (exception: Exception) {
                 Log.e("Gemini", exception.message, exception)
-                geminiError.value = "Cannot parse AI response"
                 isGeminiWorking.value = false
                 onFinish.invoke(productList, response)
             }

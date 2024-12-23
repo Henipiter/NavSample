@@ -2,9 +2,12 @@ package com.example.navsample.fragments.saving
 
 
 import android.annotation.SuppressLint
+import android.content.Context
 import android.content.SharedPreferences
 import android.graphics.Color
 import android.graphics.ImageDecoder
+import android.net.ConnectivityManager
+import android.net.NetworkCapabilities
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -154,10 +157,17 @@ class AddProductListFragment : Fragment(), ItemClickListener {
                         ArrayList(),
                         addProductDataViewModel.productList.value ?: arrayListOf()
                     )
-
-                    imageAnalyzerViewModel.aiAnalyze(
-                        productsData, addProductDataViewModel.categoryList.value ?: listOf()
-                    )
+                    if (isInternetAvailable()) {
+                        imageAnalyzerViewModel.aiAnalyze(
+                            productsData, addProductDataViewModel.categoryList.value ?: listOf()
+                        )
+                    } else {
+                        Toast.makeText(
+                            requireContext(),
+                            getString(R.string.check_internet_connection),
+                            Toast.LENGTH_SHORT
+                        ).show()
+                    }
                     true
                 }
 
@@ -213,7 +223,11 @@ class AddProductListFragment : Fragment(), ItemClickListener {
     private fun delegateToCropImage(showToast: Boolean = false) {
         if (imageViewModel.bitmapCroppedReceipt.value == null) {
             if (showToast) {
-                Toast.makeText(requireContext(), "NO IMAGE LOADED", Toast.LENGTH_SHORT).show()
+                Toast.makeText(
+                    requireContext(),
+                    getString(R.string.no_image_set),
+                    Toast.LENGTH_SHORT
+                ).show()
             }
             return
         }
@@ -366,8 +380,8 @@ class AddProductListFragment : Fragment(), ItemClickListener {
             }
         }
         imageAnalyzerViewModel.geminiError.observe(viewLifecycleOwner) {
-            it?.let {
-                Toast.makeText(requireContext(), "ERROR: '$it'", Toast.LENGTH_SHORT).show()
+            it?.let { errorMessage ->
+                Toast.makeText(requireContext(), errorMessage, Toast.LENGTH_SHORT).show()
                 imageAnalyzerViewModel.geminiError.value = null
             }
         }
@@ -408,6 +422,14 @@ class AddProductListFragment : Fragment(), ItemClickListener {
                 productListAdapter.notifyDataSetChanged()
             }
         }
+    }
+
+    private fun isInternetAvailable(): Boolean {
+        val connectivityManager =
+            requireContext().getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+        val network = connectivityManager.activeNetwork ?: return false
+        val capabilities = connectivityManager.getNetworkCapabilities(network) ?: return false
+        return capabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)
     }
 
     private val pickMedia =
