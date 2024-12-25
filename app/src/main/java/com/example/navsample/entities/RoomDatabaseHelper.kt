@@ -378,20 +378,24 @@ class RoomDatabaseHelper(
         }
     }
 
-    suspend fun saveCategoryFromFirestore(category: Category) {
-        dao.saveCategoryFromFirestore(category)
-    }
+    suspend fun <T : TranslateEntity> saveEntityFromFirestore(entity: T) {
+        when (entity) {
+            is Category -> {
+                dao.saveCategoryFromFirestore(entity as Category)
+            }
 
-    suspend fun saveStoreFromFirestore(store: Store) {
-        dao.saveStoreFromFirestore(store)
-    }
+            is Store -> {
+                dao.saveStoreFromFirestore(entity as Store)
+            }
 
-    suspend fun saveReceiptFromFirestore(receipt: Receipt) {
-        dao.saveReceiptFromFirestore(receipt)
-    }
+            is Receipt -> {
+                dao.saveReceiptFromFirestore(entity as Receipt)
+            }
 
-    suspend fun saveProductFromFirestore(product: Product) {
-        dao.saveProductFromFirestore(product)
+            is Product -> {
+                dao.saveProductFromFirestore(entity as Product)
+            }
+        }
     }
 
     suspend fun deleteAllData() {

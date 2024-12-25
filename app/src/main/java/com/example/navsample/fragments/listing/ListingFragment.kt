@@ -49,6 +49,7 @@ class ListingFragment : Fragment() {
 
         initObserver()
         syncDatabaseViewModel.loadAllList()
+        syncDatabaseViewModel.readFirestoreChanges()
 
 
         binding.tabLayout.addOnTabSelectedListener(object : TabLayout.OnTabSelectedListener {

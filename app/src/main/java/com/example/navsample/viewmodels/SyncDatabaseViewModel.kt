@@ -1,6 +1,7 @@
 package com.example.navsample.viewmodels
 
 import android.util.Log
+import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -14,16 +15,28 @@ import com.example.navsample.entities.ReceiptDatabase
 import com.example.navsample.entities.RoomDatabaseHelper
 import com.example.navsample.entities.RoomDatabaseHelperFirebaseSync
 import com.example.navsample.entities.Store
+import com.example.navsample.entities.TranslateEntity
 import com.example.navsample.entities.dto.CategoryFirebase
 import com.example.navsample.entities.dto.ProductFirebase
 import com.example.navsample.entities.dto.ReceiptFirebase
 import com.example.navsample.entities.dto.StoreFirebase
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.tasks.await
 import kotlinx.coroutines.withContext
+import java.util.UUID
+import kotlin.reflect.KClass
 
 
 class SyncDatabaseViewModel : ViewModel() {
+
+    companion object {
+        const val CATEGORY_LAST_UPDATE_KEY = "newestCategoryUpdateDate"
+        const val STORE_LAST_UPDATE_KEY = "newestStoreUpdateDate"
+        const val RECEIPT_LAST_UPDATE_KEY = "newestReceiptUpdateDate"
+        const val PRODUCT_LAST_UPDATE_KEY = "newestProductUpdateDate"
+    }
+
     private var roomDatabaseHelper: RoomDatabaseHelper
     private var roomDatabaseHelperFirebase: RoomDatabaseHelperFirebaseSync
 
@@ -43,14 +56,63 @@ class SyncDatabaseViewModel : ViewModel() {
         roomDatabaseHelper = RoomDatabaseHelper(dao)
         roomDatabaseHelperFirebase = RoomDatabaseHelperFirebaseSync(dao)
 
-        setFirebaseHelper()
+        readFirestoreChanges()
     }
 
-    fun setFirebaseHelper() {
+    fun readFirestoreChanges() {
         if (isFirebaseActive()) {
             loadAllList()
-            firestoreListener()
+            readCategoryFirebaseChanges()
         }
+    }
+
+    private fun <T : TranslateEntity> readFirebaseChangesTemplate(
+        entityClass: KClass<out T>,
+        preferencesKey: String
+    ) {
+        val temp = UUID.randomUUID().toString()
+        val date = getPreferencesKey(preferencesKey)
+        val query =
+            FirestoreHelperSingleton.getInstance().getDataByQuery(entityClass, date) ?: return
+        viewModelScope.launch {
+            withContext(Dispatchers.IO) {
+                Log.d("AAAA", "$temp 1 before get with date $date")
+                val snapshot = query.get().await()
+                val elements = FirestoreHelperSingleton.getInstance()
+                    .convertQueryResponse(entityClass, snapshot)
+                Log.d("AAAA", "$temp 2 after convert")
+                if (elements.isNotEmpty()) {
+                    elements.forEach { entity ->
+                        Log.d("AAAA", "$temp 3 for element - saving")
+                        roomDatabaseHelper.saveEntityFromFirestore(entity)
+                    }
+                    Log.d("AAAA", "$temp 4 set key with date ${elements.last().updatedAt}")
+                    setPreferencesKey(preferencesKey, elements.last().updatedAt)
+                    //recursion
+                    readFirebaseChangesTemplate(entityClass, preferencesKey)
+                }
+            }
+        }
+    }
+
+    private fun readCategoryFirebaseChanges() {
+        readFirebaseChangesTemplate(Category::class, CATEGORY_LAST_UPDATE_KEY)
+        readFirebaseChangesTemplate(Store::class, STORE_LAST_UPDATE_KEY)
+        readFirebaseChangesTemplate(Receipt::class, RECEIPT_LAST_UPDATE_KEY)
+        readFirebaseChangesTemplate(Product::class, PRODUCT_LAST_UPDATE_KEY)
+    }
+
+    private fun getPreferencesKey(key: String): String {
+        return ApplicationContext.context
+            ?.getSharedPreferences("preferences", AppCompatActivity.MODE_PRIVATE)
+            ?.getString(key, "")
+            ?: ""
+    }
+
+    private fun setPreferencesKey(key: String, date: String) {
+        val myPref = ApplicationContext.context
+            ?.getSharedPreferences("preferences", AppCompatActivity.MODE_PRIVATE)
+        myPref?.edit()?.putString(key, date)?.apply()
     }
 
     fun isFirebaseActive(): Boolean {
@@ -339,22 +401,6 @@ class SyncDatabaseViewModel : ViewModel() {
             withContext(Dispatchers.IO) {
                 roomDatabaseHelperFirebase.replaceProductWithDependencies(oldId)
             }
-        }
-    }
-
-
-    private fun firestoreListener() {
-        FirestoreHelperSingleton.getInstance().singleListener(Category::class) { category ->
-            viewModelScope.launch { roomDatabaseHelper.saveCategoryFromFirestore(category) }
-        }
-        FirestoreHelperSingleton.getInstance().singleListener(Store::class) { store ->
-            viewModelScope.launch { roomDatabaseHelper.saveStoreFromFirestore(store) }
-        }
-        FirestoreHelperSingleton.getInstance().singleListener(Receipt::class) { receipt ->
-            viewModelScope.launch { roomDatabaseHelper.saveReceiptFromFirestore(receipt) }
-        }
-        FirestoreHelperSingleton.getInstance().singleListener(Product::class) { product ->
-            viewModelScope.launch { roomDatabaseHelper.saveProductFromFirestore(product) }
         }
     }
 

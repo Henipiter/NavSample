@@ -64,6 +64,7 @@ class SigningPanelFragment : Fragment() {
             if (!signInViewModel.isLogged()) {
                 Log.d("USER_ID", "Clear user id")
                 clearUserIdInPreferences()
+                clearFirestoreUpdateDates()
                 FirestoreHelperSingleton.initialize("")
                 clearDatabase()
                 initButtons()
@@ -71,6 +72,15 @@ class SigningPanelFragment : Fragment() {
                 Log.d("USER_ID", "User is still logged")
             }
         }
+    }
+
+    private fun clearFirestoreUpdateDates() {
+        val myPref = ApplicationContext.context
+            ?.getSharedPreferences("preferences", AppCompatActivity.MODE_PRIVATE)
+        myPref?.edit()?.putString(SyncDatabaseViewModel.CATEGORY_LAST_UPDATE_KEY, "")?.apply()
+        myPref?.edit()?.putString(SyncDatabaseViewModel.STORE_LAST_UPDATE_KEY, "")?.apply()
+        myPref?.edit()?.putString(SyncDatabaseViewModel.RECEIPT_LAST_UPDATE_KEY, "")?.apply()
+        myPref?.edit()?.putString(SyncDatabaseViewModel.PRODUCT_LAST_UPDATE_KEY, "")?.apply()
     }
 
     private fun clearDatabase() {

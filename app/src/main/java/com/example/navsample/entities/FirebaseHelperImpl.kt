@@ -9,12 +9,35 @@ import com.example.navsample.entities.dto.TranslateFirebaseEntity
 import com.google.firebase.Firebase
 import com.google.firebase.firestore.CollectionReference
 import com.google.firebase.firestore.MetadataChanges
+import com.google.firebase.firestore.Query
+import com.google.firebase.firestore.QuerySnapshot
 import com.google.firebase.firestore.firestore
 import kotlin.reflect.KClass
 
 class FirebaseHelperImpl(
     private var userUuid: String
 ) : FirebaseHelper {
+
+    override fun <T : TranslateEntity> convertQueryResponse(
+        objectClass: KClass<out T>,
+        snapshot: QuerySnapshot?
+    ): List<T> {
+        val list = arrayListOf<T>()
+        if (snapshot != null && !snapshot.metadata.isFromCache) {
+            Log.d(
+                "Firestore",
+                "${objectClass.simpleName} docs size: ${snapshot.documents.size}"
+            )
+            for (document in snapshot.documents) {
+                val entity = document.toObject(objectClass.java)
+                entity?.let { list.add(it) }
+            }
+        } else {
+            Log.d("Firestore", "Ignored local cache update")
+        }
+        return list
+    }
+
     override fun <T : TranslateEntity> singleListener(
         objectClass: KClass<out T>,
         saveEntity: (T) -> Unit
@@ -40,6 +63,15 @@ class FirebaseHelperImpl(
                     Log.d("Firestore", "Ignored local cache update")
                 }
             }
+    }
+
+
+    override fun <T : TranslateEntity> getDataByQuery(type: KClass<out T>, date: String): Query {
+        return getFullFirestorePath(type)
+            .whereEqualTo("deletedAt", "")
+            .whereGreaterThan("updatedAt", date)
+            .orderBy("updatedAt")
+            .limit(1)
     }
 
     override fun <T : TranslateEntity> addFirestore(
