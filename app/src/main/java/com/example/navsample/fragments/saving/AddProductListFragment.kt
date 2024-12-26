@@ -95,25 +95,17 @@ class AddProductListFragment : Fragment(), ItemClickListener {
         recyclerViewEvent = binding.recyclerViewEvent
         productListAdapter = ProductListAdapter(
             requireContext(),
-            addProductDataViewModel.productList.value ?: mutableListOf(),
+            addProductDataViewModel.aggregatedProductList.value ?: mutableListOf(),
             addProductDataViewModel.categoryList.value ?: listOf(),
             this
         ) { index: Int ->
-            addProductDataViewModel.productList.value?.let { productList ->
-                val product = productList[index]
-                ConfirmDialog(
-                    getString(R.string.delete_confirmation_title),
-                    getString(R.string.delete_product_confirmation_dialog)
-                ) {
-                    if (product.id.isNotEmpty()) {
-                        addProductDataViewModel.deleteProduct(product.id)
-                    }
-                    productList.removeAt(index)
-                    productListAdapter.productList = productList
-                    productListAdapter.notifyDataSetChanged()
-                    calculateSumOfProductPrices(productList)
-                }.show(childFragmentManager, "TAG")
-            }
+            ConfirmDialog(
+                getString(R.string.delete_confirmation_title),
+                getString(R.string.delete_product_confirmation_dialog)
+            ) {
+                deleteFromLists(index)
+            }.show(childFragmentManager, "TAG")
+
         }
 
         requireActivity().onBackPressedDispatcher.addCallback(
@@ -138,6 +130,25 @@ class AddProductListFragment : Fragment(), ItemClickListener {
         defineToolbarActions()
     }
 
+    private fun deleteFromLists(index: Int) {
+        val databaseSize = addProductDataViewModel.databaseProductList.value?.size ?: 0
+        if (index < databaseSize) {
+            addProductDataViewModel.databaseProductList.value?.let { productList ->
+                addProductDataViewModel.deleteProduct(productList[index].id)
+                productList.removeAt(index)
+            }
+        } else {
+            val temporaryListIndex = index - databaseSize
+            addProductDataViewModel.temporaryProductList.value?.removeAt(temporaryListIndex)
+        }
+
+        addProductDataViewModel.aggregatedProductList.value?.removeAt(index)
+        productListAdapter.notifyItemRemoved(index)
+        calculateSumOfProductPrices(
+            addProductDataViewModel.databaseProductList.value ?: arrayListOf()
+        )
+    }
+
     private fun clearInputs() {
         addProductDataViewModel.productById.value = null
     }
@@ -151,13 +162,13 @@ class AddProductListFragment : Fragment(), ItemClickListener {
                 }
 
                 R.id.aiParser -> {
-                    val productsData = AnalyzedProductsData(
-                        ArrayList(addProductDataViewModel.productList.value?.map { product -> product.name }
-                            ?: arrayListOf()),
-                        ArrayList(),
-                        addProductDataViewModel.productList.value ?: arrayListOf()
-                    )
                     if (isInternetAvailable()) {
+                        val productsData = AnalyzedProductsData(
+                            ArrayList(addProductDataViewModel.aggregatedProductList.value?.map { product -> product.name }
+                                ?: arrayListOf()),
+                            ArrayList(),
+                            addProductDataViewModel.aggregatedProductList.value ?: arrayListOf()
+                        )
                         imageAnalyzerViewModel.aiAnalyze(
                             productsData, addProductDataViewModel.categoryList.value ?: listOf()
                         )
@@ -279,10 +290,9 @@ class AddProductListFragment : Fragment(), ItemClickListener {
     }
 
     private fun save() {
-
         runBlocking {
             addProductDataViewModel.insertProducts(
-                addProductDataViewModel.productList.value?.toList() ?: listOf()
+                addProductDataViewModel.aggregatedProductList.value?.toList() ?: listOf()
             )
             listingViewModel.loadDataByProductFilter()
             listingViewModel.loadDataByReceiptFilter()
@@ -308,9 +318,7 @@ class AddProductListFragment : Fragment(), ItemClickListener {
 
     private fun popUpButtonSheet() {
         val modalBottomSheet = ImportImageBottomSheetFragment(
-            onCameraCapture = {
-                delegateToCamera()
-            },
+            onCameraCapture = { delegateToCamera() },
             onBrowseGallery = {
                 pickMedia.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly))
             },
@@ -390,7 +398,7 @@ class AddProductListFragment : Fragment(), ItemClickListener {
             if (it == null) {
                 return@observe
             }
-            addProductDataViewModel.productList.value?.addAll(it.productList)
+            addProductDataViewModel.temporaryProductList.postValue(it.productList)
             experimentalDataViewModel.algorithmOrderedNames.value =
                 it.receiptNameLines.map { AlgorithmItemAdapterArgument(it) } as ArrayList<AlgorithmItemAdapterArgument>
             experimentalDataViewModel.algorithmOrderedPrices.value =
@@ -409,7 +417,13 @@ class AddProductListFragment : Fragment(), ItemClickListener {
                 binding.receiptValueText.text = intPriceToString(receipt.pln)
             }
         }
-        addProductDataViewModel.productList.observe(viewLifecycleOwner) { productList ->
+        addProductDataViewModel.databaseProductList.observe(viewLifecycleOwner) {
+            addProductDataViewModel.aggregateProductList()
+        }
+        addProductDataViewModel.temporaryProductList.observe(viewLifecycleOwner) {
+            addProductDataViewModel.aggregateProductList()
+        }
+        addProductDataViewModel.aggregatedProductList.observe(viewLifecycleOwner) { productList ->
             productListAdapter.productList = productList
             calculateSumOfProductPrices(productList)
             if (productListAdapter.categoryList.isNotEmpty()) {

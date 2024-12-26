@@ -126,7 +126,7 @@ class ImageAnalyzerViewModel : ViewModel() {
     ) {
         productAnalyzed.value = analyzedProducts
         isGeminiWorking.value = true
-        aiProductCorrection(analyzedProducts.productList, categories) ///daw
+        aiProductCorrection(analyzedProducts.productList, categories)
         { list, response ->
             analyzedProducts.productList = list
             productAnalyzed.value = analyzedProducts

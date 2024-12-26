@@ -302,7 +302,9 @@ class AddProductFragment : Fragment() {
                 binding.toolbar.title = getString(R.string.edit_product_title)
                 isArgSetOrThrow(addProductDataViewModel.productIndex, "NO PRODUCT INDEX SET: ") {
                     addProductDataViewModel.productById.value =
-                        addProductDataViewModel.productList.value?.get(addProductDataViewModel.productIndex)
+                        addProductDataViewModel.aggregatedProductList.value?.get(
+                            addProductDataViewModel.productIndex
+                        )
                 }
             }
 
@@ -340,9 +342,10 @@ class AddProductFragment : Fragment() {
                 isValidPrices
             )
             val newList =
-                addProductDataViewModel.productList.value?.let { ArrayList(it) } ?: arrayListOf()
+                addProductDataViewModel.temporaryProductList.value?.let { ArrayList(it) }
+                    ?: arrayListOf()
             newList.add(product)
-            addProductDataViewModel.productList.value = newList
+            addProductDataViewModel.temporaryProductList.postValue(newList)
 
 
         } else if (mode == DataMode.EDIT) {
@@ -369,7 +372,7 @@ class AddProductFragment : Fragment() {
                 }
 
                 AddingInputType.INDEX.name -> {
-                    addProductDataViewModel.productList.value!![addProductDataViewModel.productIndex] =
+                    addProductDataViewModel.aggregatedProductList.value!![addProductDataViewModel.productIndex] =
                         product
                     listingViewModel.loadDataByCategoryFilter()
                 }
