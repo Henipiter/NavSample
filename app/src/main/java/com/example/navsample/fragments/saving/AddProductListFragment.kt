@@ -322,7 +322,8 @@ class AddProductListFragment : Fragment(), ItemClickListener {
             onBrowseGallery = {
                 pickMedia.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly))
             },
-            onCrop = { delegateToCropImage(true) }
+            onCrop = { delegateToCropImage(true) },
+            visibleOnCrop = imageViewModel.bitmapCroppedReceipt.value != null
         )
         modalBottomSheet.show(parentFragmentManager, ReceiptBottomSheetFragment.TAG)
     }

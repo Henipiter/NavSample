@@ -136,7 +136,7 @@
     <!-- menu -->
     <string name="add_new">Dodaj nowy</string>
     <string name="ai_assistant">AI Asystent</string>
-    <string name="import_image">Załaduj obraz</string>
+    <string name="import_image">Załaduj/edytuj obraz</string>
     <string name="reorder">Zmien kolejność</string>
     <string name="rotate">Obróć</string>
     <string name="settings">Ustawienia</string>
