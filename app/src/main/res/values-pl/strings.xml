@@ -145,6 +145,7 @@
     <string name="expand">Rozwiń</string>
     <string name="collapse">Zwiń</string>
     <string name="sort">Sortuj</string>
+    <string name="refresh">Odśwież</string>
 
 
 </resources>

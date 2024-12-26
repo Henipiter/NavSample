@@ -45,12 +45,42 @@ class ReceiptListFragment : Fragment(), ItemClickListener {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         initObserver()
+        defineToolbar()
+        binding.refreshLayout.isRefreshing = false
+        binding.refreshLayout.setOnRefreshListener {
+            refreshList()
+        }
 
+        binding.newButton.setOnClickListener {
+            val action =
+                ListingFragmentDirections.actionListingFragmentToImageImportFragment()
+            Navigation.findNavController(requireView()).navigate(action)
+        }
+        recyclerViewEvent = binding.recyclerViewEventReceipts
+        receiptListAdapter = ReceiptListAdapter(
+            requireContext(),
+            listingViewModel.receiptList.value ?: arrayListOf(), this
+        ) { index: Int ->
+            listingViewModel.receiptList.value?.get(index)?.let { receiptWithStore ->
+                popUpButtonSheet(index, receiptWithStore)
+            }
+        }
+        recyclerViewEvent.adapter = receiptListAdapter
+        recyclerViewEvent.layoutManager =
+            LinearLayoutManager(requireContext(), LinearLayoutManager.VERTICAL, false)
+    }
+
+    private fun defineToolbar() {
         binding.toolbar.inflateMenu(R.menu.top_menu_list_filter)
         binding.toolbar.menu.findItem(R.id.collapse).isVisible = false
         binding.toolbar.menu.findItem(R.id.expand).isVisible = false
         binding.toolbar.setOnMenuItemClickListener {
             when (it.itemId) {
+                R.id.refresh -> {
+                    refreshList()
+                    true
+                }
+
                 R.id.filter -> {
                     val action =
                         ListingFragmentDirections.actionListingFragmentToFilterReceiptListFragment()
@@ -75,25 +105,6 @@ class ReceiptListFragment : Fragment(), ItemClickListener {
                 else -> false
             }
         }
-
-
-        binding.newButton.setOnClickListener {
-            val action =
-                ListingFragmentDirections.actionListingFragmentToImageImportFragment()
-            Navigation.findNavController(requireView()).navigate(action)
-        }
-        recyclerViewEvent = binding.recyclerViewEventReceipts
-        receiptListAdapter = ReceiptListAdapter(
-            requireContext(),
-            listingViewModel.receiptList.value ?: arrayListOf(), this
-        ) { index: Int ->
-            listingViewModel.receiptList.value?.get(index)?.let { receiptWithStore ->
-                popUpButtonSheet(index, receiptWithStore)
-            }
-        }
-        recyclerViewEvent.adapter = receiptListAdapter
-        recyclerViewEvent.layoutManager =
-            LinearLayoutManager(requireContext(), LinearLayoutManager.VERTICAL, false)
     }
 
     private fun popUpButtonSheet(index: Int, receiptWithStore: ReceiptWithStore) {
@@ -115,6 +126,10 @@ class ReceiptListFragment : Fragment(), ItemClickListener {
                 categoryId = ""
             )
         Navigation.findNavController(requireView()).navigate(action)
+    }
+
+    private fun refreshList() {
+        listingViewModel.loadDataByReceiptFilter()
     }
 
     private fun onDelete(index: Int, receiptWithStore: ReceiptWithStore) {
@@ -143,6 +158,7 @@ class ReceiptListFragment : Fragment(), ItemClickListener {
             it?.let {
                 receiptListAdapter.receiptList = it
                 receiptListAdapter.notifyDataSetChanged()
+                binding.refreshLayout.isRefreshing = false
             }
         }
     }

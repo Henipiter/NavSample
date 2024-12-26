@@ -40,6 +40,11 @@ class SyncDatabaseViewModel : ViewModel() {
     private var roomDatabaseHelper: RoomDatabaseHelper
     private var roomDatabaseHelperFirebase: RoomDatabaseHelperFirebaseSync
 
+    var categoryRead = MutableLiveData(false)
+    var storeRead = MutableLiveData(false)
+    var receiptRead = MutableLiveData(false)
+    var productRead = MutableLiveData(false)
+
     var notSyncedProductList = MutableLiveData<List<ProductFirebase>>()
     var notSyncedReceiptList = MutableLiveData<List<ReceiptFirebase>>()
     var notSyncedCategoryList = MutableLiveData<List<CategoryFirebase>>()
@@ -56,7 +61,6 @@ class SyncDatabaseViewModel : ViewModel() {
         roomDatabaseHelper = RoomDatabaseHelper(dao)
         roomDatabaseHelperFirebase = RoomDatabaseHelperFirebaseSync(dao)
 
-        readFirestoreChanges()
     }
 
     fun readFirestoreChanges() {
@@ -68,7 +72,8 @@ class SyncDatabaseViewModel : ViewModel() {
 
     private fun <T : TranslateEntity> readFirebaseChangesTemplate(
         entityClass: KClass<out T>,
-        preferencesKey: String
+        preferencesKey: String,
+        onFinish: () -> Unit
     ) {
         val temp = UUID.randomUUID().toString()
         val date = getPreferencesKey(preferencesKey)
@@ -89,17 +94,28 @@ class SyncDatabaseViewModel : ViewModel() {
                     Log.d("AAAA", "$temp 4 set key with date ${elements.last().updatedAt}")
                     setPreferencesKey(preferencesKey, elements.last().updatedAt)
                     //recursion
-                    readFirebaseChangesTemplate(entityClass, preferencesKey)
+                    readFirebaseChangesTemplate(entityClass, preferencesKey, onFinish)
+                } else {
+                    onFinish.invoke()
                 }
             }
         }
     }
 
+
     private fun readCategoryFirebaseChanges() {
-        readFirebaseChangesTemplate(Category::class, CATEGORY_LAST_UPDATE_KEY)
-        readFirebaseChangesTemplate(Store::class, STORE_LAST_UPDATE_KEY)
-        readFirebaseChangesTemplate(Receipt::class, RECEIPT_LAST_UPDATE_KEY)
-        readFirebaseChangesTemplate(Product::class, PRODUCT_LAST_UPDATE_KEY)
+        readFirebaseChangesTemplate(Category::class, CATEGORY_LAST_UPDATE_KEY) {
+            categoryRead.postValue(true)
+        }
+        readFirebaseChangesTemplate(Store::class, STORE_LAST_UPDATE_KEY) {
+            storeRead.postValue(true)
+        }
+        readFirebaseChangesTemplate(Receipt::class, RECEIPT_LAST_UPDATE_KEY) {
+            receiptRead.postValue(true)
+        }
+        readFirebaseChangesTemplate(Product::class, PRODUCT_LAST_UPDATE_KEY) {
+            productRead.postValue(true)
+        }
     }
 
     private fun getPreferencesKey(key: String): String {
@@ -117,6 +133,17 @@ class SyncDatabaseViewModel : ViewModel() {
 
     fun isFirebaseActive(): Boolean {
         return FirestoreHelperSingleton.getInstance() is FirebaseHelperImpl
+    }
+
+    fun clearAllList() {
+        notSyncedProductList.postValue(listOf())
+        notSyncedReceiptList.postValue(listOf())
+        notSyncedCategoryList.postValue(listOf())
+        notSyncedStoreList.postValue(listOf())
+        outdatedProductList.postValue(listOf())
+        outdatedReceiptList.postValue(listOf())
+        outdatedCategoryList.postValue(listOf())
+        outdatedStoreList.postValue(listOf())
     }
 
     fun loadNotAddedList() {

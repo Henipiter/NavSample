@@ -16,6 +16,7 @@ import com.example.navsample.ApplicationContext
 import com.example.navsample.R
 import com.example.navsample.databinding.FragmentSignInBinding
 import com.example.navsample.entities.FirestoreHelperSingleton
+import com.example.navsample.viewmodels.ListingViewModel
 import com.example.navsample.viewmodels.SyncDatabaseViewModel
 import com.example.navsample.viewmodels.auth.SignInViewModel
 
@@ -25,6 +26,7 @@ class SignInFragment : Fragment() {
     private val binding get() = _binding!!
     private val signInViewModel: SignInViewModel by activityViewModels()
     private val syncDatabaseViewModel: SyncDatabaseViewModel by activityViewModels()
+    private val listingViewModel: ListingViewModel by activityViewModels()
     private val navArgs: SignInFragmentArgs by navArgs()
     private var validationMessage = ""
     override fun onCreateView(

@@ -177,5 +177,6 @@
     <string name="expand">Expand</string>
     <string name="collapse">Collapse</string>
     <string name="sort">Sort</string>
+    <string name="refresh">Refresh</string>
 
 </resources>

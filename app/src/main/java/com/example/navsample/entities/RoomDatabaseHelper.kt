@@ -116,20 +116,6 @@ class RoomDatabaseHelper(
         return dao.getAllProductsOrderedWithHigherPrice(query)
     }
 
-    suspend fun getAllProductsOrderedWithHigherPrice(
-        sort: SortProperty<RichProductSort>
-    ): List<ProductRichData> {
-        Log.i(
-            "Database",
-            "Refresh products filtered by: sort '$sort'"
-        )
-        val query = QueryDaoHelper.getAllProductsOrdered(
-            "", "", "0", "9", 0, -1, sort
-        )
-        return dao.getAllProductsOrderedWithHigherPrice(query)
-    }
-
-
     // GET BY ID
     suspend fun getCategoryById(id: String): Category? {
         Log.i("Database", "Get category by id '$id'")

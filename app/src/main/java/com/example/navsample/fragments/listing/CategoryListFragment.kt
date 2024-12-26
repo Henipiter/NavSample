@@ -47,7 +47,12 @@ class CategoryListFragment : Fragment(), ItemClickListener {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         initObserver()
-        listingViewModel.refreshProductList()
+        defineToolbar()
+
+        binding.refreshLayout.isRefreshing = false
+        binding.refreshLayout.setOnRefreshListener {
+            refreshList()
+        }
 
         recyclerViewEvent = binding.recyclerViewEventReceipts
         categoryListAdapter = CategoryListAdapter(
@@ -81,12 +86,34 @@ class CategoryListFragment : Fragment(), ItemClickListener {
 
     }
 
+    private fun defineToolbar() {
+        binding.toolbar.inflateMenu(R.menu.top_menu_list_filter)
+        binding.toolbar.menu.findItem(R.id.filter).isVisible = false
+        binding.toolbar.menu.findItem(R.id.collapse).isVisible = false
+        binding.toolbar.menu.findItem(R.id.expand).isVisible = false
+        binding.toolbar.setOnMenuItemClickListener {
+            when (it.itemId) {
+                R.id.refresh -> {
+                    refreshList()
+                    true
+                }
+
+                else -> false
+            }
+        }
+    }
+
+    private fun refreshList() {
+        listingViewModel.loadDataByCategoryFilter()
+    }
+
     @SuppressLint("NotifyDataSetChanged")
     private fun initObserver() {
         listingViewModel.categoryList.observe(viewLifecycleOwner) {
             it?.let {
                 categoryListAdapter.categoryList = it
                 categoryListAdapter.notifyDataSetChanged()
+                binding.refreshLayout.isRefreshing = false
             }
         }
         listingViewModel.filterCategoryList.observe(viewLifecycleOwner) {

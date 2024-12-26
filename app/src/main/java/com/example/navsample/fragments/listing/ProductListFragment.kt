@@ -46,10 +46,39 @@ class ProductListFragment : Fragment(), ItemClickListener {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         initObserver()
+        defineToolbar()
 
+        binding.refreshLayout.isRefreshing = false
+        binding.refreshLayout.setOnRefreshListener {
+            refreshList()
+        }
+
+        recyclerViewEvent = binding.recyclerViewEventProducts
+        richProductListAdapter = RichProductListAdapter(
+            requireContext(),
+            listingViewModel.productRichList.value ?: arrayListOf(), this
+        ) { index ->
+            listingViewModel.productRichList.value?.get(index)?.let { productRichData ->
+                popUpButtonSheet(index, productRichData)
+            }
+        }
+        recyclerViewEvent.adapter = richProductListAdapter
+        recyclerViewEvent.layoutManager =
+            LinearLayoutManager(requireContext(), LinearLayoutManager.VERTICAL, false)
+
+        listingViewModel.refreshStoreList()
+        listingViewModel.refreshCategoryList()
+    }
+
+    private fun defineToolbar() {
         binding.toolbar.inflateMenu(R.menu.top_menu_list_filter)
         binding.toolbar.setOnMenuItemClickListener {
             when (it.itemId) {
+                R.id.refresh -> {
+                    refreshList()
+                    true
+                }
+
                 R.id.collapse -> {
                     for (i in 0..richProductListAdapter.productList.lastIndex) {
                         if (!richProductListAdapter.productList[i].collapse) {
@@ -93,21 +122,10 @@ class ProductListFragment : Fragment(), ItemClickListener {
                 else -> false
             }
         }
-        recyclerViewEvent = binding.recyclerViewEventProducts
-        richProductListAdapter = RichProductListAdapter(
-            requireContext(),
-            listingViewModel.productRichList.value ?: arrayListOf(), this
-        ) { index ->
-            listingViewModel.productRichList.value?.get(index)?.let { productRichData ->
-                popUpButtonSheet(index, productRichData)
-            }
-        }
-        recyclerViewEvent.adapter = richProductListAdapter
-        recyclerViewEvent.layoutManager =
-            LinearLayoutManager(requireContext(), LinearLayoutManager.VERTICAL, false)
+    }
 
-        listingViewModel.refreshStoreList()
-        listingViewModel.refreshCategoryList()
+    private fun refreshList() {
+        listingViewModel.loadDataByProductFilter()
     }
 
     private fun popUpButtonSheet(index: Int, productRichData: ProductRichData) {
@@ -178,6 +196,7 @@ class ProductListFragment : Fragment(), ItemClickListener {
             it?.let {
                 richProductListAdapter.productList = it
                 richProductListAdapter.notifyDataSetChanged()
+                binding.refreshLayout.isRefreshing = false
             }
         }
     }
