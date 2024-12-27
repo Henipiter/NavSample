@@ -42,7 +42,7 @@ class ImageAnalyzer(private var uid: String) {
                 AnalyzedProductsData(
                     receiptPriceLines = imageProductAnalyzer.receiptPriceLines,
                     receiptNameLines = imageProductAnalyzer.receiptNameLines,
-                    productList = receiptParser.parseToProducts(
+                    temporaryProductList = receiptParser.parseToProducts(
                         imageProductAnalyzer.receiptNameLines,
                         imageProductAnalyzer.receiptPriceLines
                     )

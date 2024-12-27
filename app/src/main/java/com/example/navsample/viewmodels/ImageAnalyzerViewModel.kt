@@ -37,22 +37,8 @@ class ImageAnalyzerViewModel : ViewModel() {
         categories: List<Category>?,
         onFinish: (ArrayList<Product>, String) -> Unit
     ) {
-
-        val categoriesPrompt = categories?.joinToString(separator = ",") { it.name } ?: "INNE"
-        val productNamesPrompt =
-            productList.joinToString(separator = "\n") { if (it.name == "") "-" else it.name }
         viewModelScope.launch {
-            val geminiAssistant = GeminiAssistant()
-
-            var response: String? = null
-            try {
-                response = geminiAssistant.sendRequest(categoriesPrompt + "\n" + productNamesPrompt)
-            } catch (exception: Exception) {
-                Log.e("Gemini", exception.message, exception)
-                geminiError.value = "Cannot get AI response. Check internet connection"
-                isGeminiWorking.value = false
-            }
-
+            val response = sendGeminiRequest(productList, categories)
             if (response == null || response == "") {
                 isGeminiWorking.value = false
                 return@launch
@@ -66,9 +52,27 @@ class ImageAnalyzerViewModel : ViewModel() {
                 onFinish.invoke(productList, response)
             }
         }
-
     }
 
+    private suspend fun sendGeminiRequest(
+        productList: ArrayList<Product>,
+        categories: List<Category>?,
+    ): String? {
+
+        val categoriesPrompt = categories?.joinToString(separator = ",") { it.name } ?: "INNE"
+        val productNamesPrompt =
+            productList.joinToString(separator = "\n") { if (it.name == "") "-" else it.name }
+
+        val geminiAssistant = GeminiAssistant()
+        return try {
+            geminiAssistant.sendRequest(categoriesPrompt + "\n" + productNamesPrompt)
+        } catch (exception: Exception) {
+            Log.e("Gemini", exception.message, exception)
+            geminiError.value = "Cannot get AI response. Check internet connection"
+            isGeminiWorking.value = false
+            null
+        }
+    }
 
     private fun parseGeminiResponse(
         productList: ArrayList<Product>,
@@ -84,20 +88,28 @@ class ImageAnalyzerViewModel : ViewModel() {
             Log.i("Gemini", "Product: ${productList[i]}")
             Log.i("Gemini", "Response: ${responseList[i]}")
             val split = responseList[i].split("|")
-            if (split.size == 2) {
-
+            if (split.size == 2 && split[0] != "-") {
                 Log.i("Gemini", "Name: '${split[0].trim()}'")
                 Log.i("Gemini", "Category: '${split[1].trim()}'")
-                productList[i].name = split[0].trim()
-                categories?.find { it.name == split[1].trim() }?.let {
-                    if (it.id.isNotEmpty()) {
-                        Log.i("Gemini", "Name: '${it.id}'")
-                        productList[i].categoryId = it.id
-                    }
-                }
+                updateNameAndCategory(productList, categories, i, split)
             }
         }
         return productList
+    }
+
+    private fun updateNameAndCategory(
+        productList: ArrayList<Product>,
+        categories: List<Category>?,
+        index: Int,
+        split: List<String>
+    ) {
+        productList[index].name = split[0].trim()
+        categories?.find { it.name == split[1].trim() }?.let {
+            if (it.id.isNotEmpty()) {
+                Log.i("Gemini", "Name: '${it.id}'")
+                productList[index].categoryId = it.id
+            }
+        }
     }
 
     fun analyzeProductList(
@@ -124,14 +136,21 @@ class ImageAnalyzerViewModel : ViewModel() {
         analyzedProducts: AnalyzedProductsData,
         categories: List<Category>?
     ) {
-        productAnalyzed.value = analyzedProducts
-        isGeminiWorking.value = true
-        aiProductCorrection(analyzedProducts.productList, categories)
+        productAnalyzed.postValue(analyzedProducts)
+        isGeminiWorking.postValue(true)
+
+        val aggregated = arrayListOf<Product>()
+        aggregated.addAll(analyzedProducts.temporaryProductList)
+        aggregated.addAll(analyzedProducts.databaseProductList)
+        aiProductCorrection(aggregated, categories)
         { list, response ->
-            analyzedProducts.productList = list
-            productAnalyzed.value = analyzedProducts
-            geminiResponse.value = response
-            isGeminiWorking.value = false
+            analyzedProducts.temporaryProductList =
+                list.take(analyzedProducts.temporaryProductList.size)
+            analyzedProducts.databaseProductList =
+                list.takeLast(analyzedProducts.databaseProductList.size)
+            productAnalyzed.postValue(analyzedProducts)
+            geminiResponse.postValue(response)
+            isGeminiWorking.postValue(false)
         }
     }
 

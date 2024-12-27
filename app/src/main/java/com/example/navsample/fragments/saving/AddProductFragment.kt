@@ -69,7 +69,7 @@ class AddProductFragment : Fragment() {
         binding.toolbar.menu.findItem(R.id.importImage).isVisible = false
         binding.toolbar.menu.findItem(R.id.reorder).isVisible = false
         binding.toolbar.menu.findItem(R.id.add_new).isVisible = false
-        binding.toolbar.menu.findItem(R.id.aiParser).isVisible = false
+        binding.toolbar.menu.findItem(R.id.aiAssistant).isVisible = false
 
 
         dropdownAdapter = CategoryDropdownAdapter(

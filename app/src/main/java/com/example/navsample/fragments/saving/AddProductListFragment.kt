@@ -150,6 +150,9 @@ class AddProductListFragment : Fragment(), ItemClickListener {
     }
 
     private fun clearInputs() {
+        addProductDataViewModel.temporaryProductList.value?.clear()
+        addProductDataViewModel.databaseProductList.value?.clear()
+        addProductDataViewModel.aggregatedProductList.value?.clear()
         addProductDataViewModel.productById.value = null
     }
 
@@ -161,13 +164,14 @@ class AddProductListFragment : Fragment(), ItemClickListener {
                     true
                 }
 
-                R.id.aiParser -> {
+                R.id.aiAssistant -> {
                     if (isInternetAvailable()) {
                         val productsData = AnalyzedProductsData(
                             ArrayList(addProductDataViewModel.aggregatedProductList.value?.map { product -> product.name }
                                 ?: arrayListOf()),
                             ArrayList(),
-                            addProductDataViewModel.aggregatedProductList.value ?: arrayListOf()
+                            addProductDataViewModel.temporaryProductList.value ?: arrayListOf(),
+                            addProductDataViewModel.databaseProductList.value ?: arrayListOf()
                         )
                         imageAnalyzerViewModel.aiAnalyze(
                             productsData, addProductDataViewModel.categoryList.value ?: listOf()
@@ -369,7 +373,7 @@ class AddProductListFragment : Fragment(), ItemClickListener {
 
         reorderedProductTiles.observe(viewLifecycleOwner) {
             if (myPref.getBoolean(OPEN_REORDER_FRAGMENT, false) && it == true) {
-                reorderedProductTiles.value = false
+                reorderedProductTiles.postValue(false)
                 reorderTilesWithProducts()
             }
         }
@@ -399,13 +403,16 @@ class AddProductListFragment : Fragment(), ItemClickListener {
             if (it == null) {
                 return@observe
             }
-            addProductDataViewModel.temporaryProductList.postValue(it.productList)
-            experimentalDataViewModel.algorithmOrderedNames.value =
-                it.receiptNameLines.map { AlgorithmItemAdapterArgument(it) } as ArrayList<AlgorithmItemAdapterArgument>
-            experimentalDataViewModel.algorithmOrderedPrices.value =
-                it.receiptPriceLines.map { AlgorithmItemAdapterArgument(it) } as ArrayList<AlgorithmItemAdapterArgument>
+            addProductDataViewModel.temporaryProductList.postValue(ArrayList(it.temporaryProductList))
+            addProductDataViewModel.databaseProductList.postValue(ArrayList(it.databaseProductList))
+            experimentalDataViewModel.algorithmOrderedNames.postValue(
+                ArrayList(it.receiptNameLines.map { AlgorithmItemAdapterArgument(it) })
+            )
+            experimentalDataViewModel.algorithmOrderedPrices.postValue(
+                ArrayList(it.receiptPriceLines.map { AlgorithmItemAdapterArgument(it) })
+            )
 
-            reorderedProductTiles.value = true
+            reorderedProductTiles.postValue(true)
         }
 
         addProductDataViewModel.storeById.observe(viewLifecycleOwner) { store ->
