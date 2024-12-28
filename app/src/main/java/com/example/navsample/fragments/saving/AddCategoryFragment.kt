@@ -2,7 +2,6 @@ package com.example.navsample.fragments.saving
 
 import android.graphics.Color
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -16,6 +15,7 @@ import androidx.navigation.fragment.navArgs
 import com.example.navsample.R
 import com.example.navsample.chart.ChartColors
 import com.example.navsample.databinding.FragmentAddCategoryBinding
+import com.example.navsample.dto.ColorManager
 import com.example.navsample.dto.DataMode
 import com.example.navsample.dto.FragmentName
 import com.example.navsample.dto.inputmode.AddingInputType
@@ -195,14 +195,7 @@ class AddCategoryFragment : Fragment() {
             it?.let {
                 binding.categoryNameInput.setText(it.name)
                 binding.categoryColorInput.setText(it.color)
-                try {
-                    binding.colorSquare.setBackgroundColor(Color.parseColor(it.color))
-                } catch (e: Exception) {
-                    Log.e(
-                        "AddCategoryFragment",
-                        "cannot parse category color" + it.color,
-                    )
-                }
+                binding.colorSquare.setBackgroundColor(ColorManager.parseColor(it.color))
             }
         }
         addCategoryDataViewModel.savedCategory.observe(viewLifecycleOwner) {

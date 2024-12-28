@@ -1,13 +1,12 @@
 package com.example.navsample.adapters
 
 import android.content.Context
-import android.graphics.Color
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.example.navsample.ItemClickListener
 import com.example.navsample.databinding.CategoryRowBinding
+import com.example.navsample.dto.ColorManager
 import com.example.navsample.entities.Category
 
 class CategoryListAdapter(
@@ -16,7 +15,6 @@ class CategoryListAdapter(
     private var itemClickListener: ItemClickListener,
     private var onDelete: (Int) -> Unit,
 ) : RecyclerView.Adapter<CategoryListAdapter.MyViewHolder>() {
-    var position = 0
 
 
     class MyViewHolder(val binding: CategoryRowBinding) : RecyclerView.ViewHolder(binding.root)
@@ -26,26 +24,22 @@ class CategoryListAdapter(
         return MyViewHolder(binding)
     }
 
-
     override fun onBindViewHolder(holder: MyViewHolder, position: Int) {
-        this.position = position
-        holder.binding.categoryName.text = categoryList[position].name
-        try {
-            holder.binding.colorSquare.setBackgroundColor(Color.parseColor(categoryList[position].color))
-        } catch (e: Exception) {
-            Log.e(
-                "CategoryListAdapter",
-                "cannot parse category color" + categoryList[position].color,
-            )
-        }
+        val binding = holder.binding
+        setTexts(binding, position)
 
-        holder.binding.mainLayout.setOnClickListener {
+        binding.mainLayout.setOnClickListener {
             itemClickListener.onItemClick(position)
         }
-        holder.binding.mainLayout.setOnLongClickListener {
+        binding.mainLayout.setOnLongClickListener {
             onDelete.invoke(position)
             true
         }
+    }
+
+    private fun setTexts(binding: CategoryRowBinding, position: Int) {
+        binding.categoryName.text = categoryList[position].name
+        binding.colorSquare.setBackgroundColor(ColorManager.parseColor(categoryList[position].color))
     }
 
     override fun getItemCount(): Int {

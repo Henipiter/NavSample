@@ -216,13 +216,17 @@ class AddReceiptFragment : Fragment() {
                 addReceiptDataViewModel.inputType = AddingInputType.ID.name
                 if (goNext && pickedStore?.defaultCategoryId != null) {
                     goNext = false
-                    val action =
-                        AddReceiptFragmentDirections.actionAddReceiptFragmentToAddProductListFragment(
-                            receiptId = it.id,
-                            storeId = it.storeId,
-                            categoryId = pickedStore?.defaultCategoryId!!
-                        )
-                    Navigation.findNavController(requireView()).navigate(action)
+                    if (mode == DataMode.NEW) {
+                        val action =
+                            AddReceiptFragmentDirections.actionAddReceiptFragmentToAddProductListFragment(
+                                receiptId = it.id,
+                                storeId = it.storeId,
+                                categoryId = pickedStore?.defaultCategoryId!!
+                            )
+                        Navigation.findNavController(requireView()).navigate(action)
+                    } else {
+                        Navigation.findNavController(requireView()).popBackStack()
+                    }
                 }
                 addReceiptDataViewModel.savedReceipt.value = null
             }
