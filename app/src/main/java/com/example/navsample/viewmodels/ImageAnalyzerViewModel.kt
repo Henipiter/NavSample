@@ -12,6 +12,8 @@ import com.example.navsample.entities.Product
 import com.example.navsample.imageanalyzer.GeminiAssistant
 import com.example.navsample.imageanalyzer.ImageAnalyzer
 import com.google.mlkit.vision.common.InputImage
+import com.google.mlkit.vision.text.TextRecognition
+import com.google.mlkit.vision.text.latin.TextRecognizerOptions
 import kotlinx.coroutines.launch
 import kotlin.math.min
 
@@ -24,6 +26,8 @@ class ImageAnalyzerViewModel : ViewModel() {
     val geminiResponse = MutableLiveData<String?>(null)
     val geminiError = MutableLiveData<String?>(null)
     val isGeminiWorking = MutableLiveData(false)
+
+    private val recognizer = TextRecognition.getClient(TextRecognizerOptions.DEFAULT_OPTIONS)
 
     fun clearData() {
         productAnalyzed.value = null
@@ -119,7 +123,7 @@ class ImageAnalyzerViewModel : ViewModel() {
         categories: ArrayList<Category>?
     ) {
         productAnalyzed.value = null
-        val imageAnalyzer = ImageAnalyzer(uid)
+        val imageAnalyzer = ImageAnalyzer(uid, recognizer)
         viewModelScope.launch {
             imageAnalyzer.analyzeProductList(
                 InputImage.fromBitmap(bitmap, 0),
@@ -157,7 +161,7 @@ class ImageAnalyzerViewModel : ViewModel() {
 
     fun analyzeReceipt(analyzedImage: InputImage) {
         receiptAnalyzed.value = null
-        val imageAnalyzer = ImageAnalyzer(uid)
+        val imageAnalyzer = ImageAnalyzer(uid, recognizer)
         viewModelScope.launch {
             imageAnalyzer.analyzeReceipt(analyzedImage) {
                 receiptAnalyzed.value = it

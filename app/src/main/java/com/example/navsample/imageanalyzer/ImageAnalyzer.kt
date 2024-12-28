@@ -5,17 +5,18 @@ import com.example.navsample.dto.analyzer.AnalyzedProductsData
 import com.example.navsample.dto.analyzer.AnalyzedReceiptData
 import com.google.mlkit.vision.common.InputImage
 import com.google.mlkit.vision.text.Text
-import com.google.mlkit.vision.text.TextRecognition
-import com.google.mlkit.vision.text.latin.TextRecognizerOptions
+import com.google.mlkit.vision.text.TextRecognizer
 import java.io.File
 import java.io.FileOutputStream
 import java.io.OutputStreamWriter
 
 
-class ImageAnalyzer(private var uid: String) {
+class ImageAnalyzer(
+    private var uid: String,
+    private var recognizer: TextRecognizer
+) {
 
 
-    private val recognizer = TextRecognition.getClient(TextRecognizerOptions.DEFAULT_OPTIONS)
     private var imageWidth = 0
 
     private val imageProductAnalyzer = ImageProductAnalyzer()

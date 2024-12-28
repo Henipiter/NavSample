@@ -15,9 +15,9 @@ class LinearDataFactoryTest {
     fun testCreatingTimelineData() {
         //given
         val list = ArrayList<PriceByCategory>()
-        list.add(PriceByCategory(100F, "FOOD", "2023-09"))
-        list.add(PriceByCategory(10F, "FOOD", "2023-11"))
-        list.add(PriceByCategory(20F, "SPORT", "2023-10"))
+        list.add(PriceByCategory(10000, "FOOD", "2023-09"))
+        list.add(PriceByCategory(1000, "FOOD", "2023-11"))
+        list.add(PriceByCategory(2000, "SPORT", "2023-10"))
         //when
         val result = LinearDataFactory.createTimelineData("2023-09", "2023-11", list)
         //then
@@ -33,9 +33,9 @@ class LinearDataFactoryTest {
     fun testCreatingTimelineData2() {
         //given
         val list = ArrayList<PriceByCategory>()
-        list.add(PriceByCategory(100F, "FOOD", "2023-09"))
-        list.add(PriceByCategory(10F, "FOOD", "2023-11"))
-        list.add(PriceByCategory(20F, "SPORT", "2023-10"))
+        list.add(PriceByCategory(10000, "FOOD", "2023-09"))
+        list.add(PriceByCategory(1000, "FOOD", "2023-11"))
+        list.add(PriceByCategory(2000, "SPORT", "2023-10"))
         //when
         val result = LinearDataFactory.createTimelineData("2023-10", "2023-11", list)
         //then
