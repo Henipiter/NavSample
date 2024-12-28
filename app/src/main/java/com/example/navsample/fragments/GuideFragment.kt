@@ -27,9 +27,12 @@ class GuideFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        binding.test.setOnClickListener {
+        binding.addingReceiptsButton.setOnClickListener {
             Navigation.findNavController(it)
                 .navigate(R.id.action_guideFragment_to_imageImportGuideFragment)
+        }
+        binding.skipTutorialButton.setOnClickListener {
+            requireActivity().onBackPressedDispatcher.onBackPressed()
         }
 
     }

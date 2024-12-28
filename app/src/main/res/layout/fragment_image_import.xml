@@ -41,7 +41,7 @@
                 android:drawableTop="@drawable/camera"
                 android:drawableTint="@color/colorOnPrimary"
                 android:gravity="center"
-                android:text="Camera" />
+                android:text="@string/camera_button" />
 
             <Button
                 android:id="@+id/load_image"
@@ -53,7 +53,7 @@
                 android:drawableTop="@drawable/gallery"
                 android:drawableTint="@color/colorOnPrimary"
                 android:gravity="center"
-                android:text="Storage" />
+                android:text="@string/gallery_button" />
 
             <Button
                 android:id="@+id/manual_button"
@@ -65,7 +65,7 @@
                 android:drawableTop="@drawable/edit"
                 android:drawableTint="@color/colorOnPrimary"
                 android:gravity="center"
-                android:text="Manual" />
+                android:text="@string/manual_button" />
 
         </LinearLayout>
 

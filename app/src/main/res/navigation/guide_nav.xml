@@ -19,8 +19,8 @@
         android:name="com.example.navsample.guide.fragment.ImageImportGuideFragment"
         android:label="ImageImportFragment">
         <action
-            android:id="@+id/action_imageImportGuideFragment_to_cropReceiptGuideFragment"
-            app:destination="@id/cropReceiptGuideFragment" />
+            android:id="@+id/action_imageImportGuideFragment_to_addReceiptGuideFragment"
+            app:destination="@id/addReceiptGuideFragment" />
     </fragment>
     <fragment
         android:id="@+id/addReceiptGuideFragment"
@@ -31,31 +31,23 @@
             app:destination="@id/cropProductGuideFragment" />
     </fragment>
     <fragment
-        android:id="@+id/cropReceiptGuideFragment"
-        android:name="com.example.navsample.guide.fragment.CropReceiptGuideFragment"
-        android:label="CropReceiptGuideFragment">
-        <action
-            android:id="@+id/action_cropReceiptGuideFragment_to_addReceiptGuideFragment"
-            app:destination="@id/addReceiptGuideFragment" />
-    </fragment>
-    <fragment
         android:id="@+id/cropProductGuideFragment"
         android:name="com.example.navsample.guide.fragment.CropProductGuideFragment"
         android:label="CropProductGuideFragment">
         <action
-            android:id="@+id/action_cropProductGuideFragment_to_experimentalListGuideFragment"
-            app:destination="@id/experimentalListGuideFragment" />
+            android:id="@+id/action_cropProductGuideFragment_to_addProductListGuideFragment"
+            app:destination="@id/addProductListGuideFragment" />
     </fragment>
     <fragment
         android:id="@+id/experimentalListGuideFragment"
         android:name="com.example.navsample.guide.fragment.ExperimentalListGuideFragment"
-        android:label="ExperimentalListGuideFragment">
-        <action
-            android:id="@+id/action_experimentalListGuideFragment_to_addProductListGuideFragment"
-            app:destination="@id/addProductListGuideFragment" />
-    </fragment>
+        android:label="ExperimentalListGuideFragment" />
     <fragment
         android:id="@+id/addProductListGuideFragment"
         android:name="com.example.navsample.guide.fragment.AddProductListGuideFragment"
-        android:label="AddProductListGuideFragment" />
+        android:label="AddProductListGuideFragment">
+        <action
+            android:id="@+id/action_addProductListGuideFragment_to_experimentalListGuideFragment"
+            app:destination="@id/experimentalListGuideFragment" />
+    </fragment>
 </navigation>

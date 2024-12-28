@@ -6,6 +6,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import androidx.activity.OnBackPressedCallback
 import androidx.core.widget.doOnTextChanged
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
@@ -61,6 +62,7 @@ class AddReceiptFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         binding.toolbar.inflateMenu(R.menu.top_menu_extended_add)
         binding.toolbar.setNavigationIcon(R.drawable.back)
+        binding.toolbar.menu.findItem(R.id.importImage).isVisible = false
         binding.toolbar.menu.findItem(R.id.aiParser).isVisible = false
         binding.toolbar.menu.findItem(R.id.reorder).isVisible = false
 
@@ -70,8 +72,6 @@ class AddReceiptFragment : Fragment() {
         ).also { adapter ->
             binding.storeNameInput.setAdapter(adapter)
         }
-        Toast.makeText(requireContext(), navArgs.sourceFragment, Toast.LENGTH_SHORT).show()
-
         consumeNavArgs()
 
         initObserver()
@@ -82,7 +82,19 @@ class AddReceiptFragment : Fragment() {
             binding.receiptImage.setImageBitmap(it)
         }
 
+        requireActivity().onBackPressedDispatcher.addCallback(
+            viewLifecycleOwner, object : OnBackPressedCallback(true) {
+                override fun handleOnBackPressed() {
+                    clearInputs()
+                    Navigation.findNavController(requireView()).popBackStack()
+                }
+            }
+        )
         defineClickListeners()
+    }
+
+    private fun clearInputs() {
+        addReceiptDataViewModel.receiptById.value = null
     }
 
     private fun consumeNavArgs() {
@@ -109,12 +121,12 @@ class AddReceiptFragment : Fragment() {
             binding.receiptPTUInput.setText("")
             binding.receiptDateInput.setText("")
             binding.receiptTimeInput.setText("")
-            binding.toolbar.title = "Add receipt"
+            binding.toolbar.title = getString(R.string.new_receipt_title)
             binding.toolbar.menu.findItem(R.id.add_new).isVisible = false
 
         } else if (inputType == AddingInputType.ID) {
             if (addReceiptDataViewModel.receiptId.isNotEmpty()) {
-                binding.toolbar.title = "Edit receipt"
+                binding.toolbar.title = getString(R.string.edit_receipt_title)
                 mode = DataMode.EDIT
                 addReceiptDataViewModel.getReceiptById(addReceiptDataViewModel.receiptId)
                 binding.toolbar.menu.findItem(R.id.add_new).isVisible = true
@@ -175,7 +187,6 @@ class AddReceiptFragment : Fragment() {
             binding.receiptPTUInput.setText(analyzedReceipt.valuePTU.toString())
             binding.receiptDateInput.setText(analyzedReceipt.valueDate)
             binding.receiptTimeInput.setText(analyzedReceipt.valueTime)
-            binding.toolbar.title = "Add store"
 
             val foundStore =
                 addReceiptDataViewModel.storeList.value?.find { it.nip == analyzedReceipt.valueNIP }
@@ -221,19 +232,19 @@ class AddReceiptFragment : Fragment() {
     private fun validateObligatoryFields(): Boolean {
         var succeedValidation = true
         if (binding.receiptPLNInput.text.isNullOrEmpty()) {
-            binding.receiptPLNLayout.error = "Empty"
+            binding.receiptPLNLayout.error = getString(R.string.empty_value_error)
             succeedValidation = false
         }
         if (binding.receiptPTUInput.text.isNullOrEmpty()) {
-            binding.receiptPTULayout.error = "Empty"
+            binding.receiptPTULayout.error = getString(R.string.empty_value_error)
             succeedValidation = false
         }
         if (binding.receiptDateInput.text.isNullOrEmpty()) {
-            binding.receiptDateLayout.error = "Empty"
+            binding.receiptDateLayout.error = getString(R.string.empty_value_error)
             succeedValidation = false
         }
         if (binding.receiptTimeInput.text.isNullOrEmpty()) {
-            binding.receiptTimeLayout.error = "Empty"
+            binding.receiptTimeLayout.error = getString(R.string.empty_value_error)
             succeedValidation = false
         }
         return succeedValidation
@@ -241,11 +252,16 @@ class AddReceiptFragment : Fragment() {
 
     private fun isReceiptInputValid(): Boolean {
         if (pickedStore == null || pickedStore?.id?.isEmpty() == true) {
-            Toast.makeText(requireContext(), "Pick store!", Toast.LENGTH_SHORT).show()
+            Toast.makeText(requireContext(), getString(R.string.pick_store), Toast.LENGTH_SHORT)
+                .show()
             return false
         }
         if (!validateObligatoryFields()) {
-            Toast.makeText(requireContext(), "Fill all fields", Toast.LENGTH_SHORT).show()
+            Toast.makeText(
+                requireContext(),
+                getString(R.string.fill_all_fields),
+                Toast.LENGTH_SHORT
+            ).show()
             return false
         }
         return true
@@ -264,8 +280,7 @@ class AddReceiptFragment : Fragment() {
                     pln,
                     ptu,
                     date,
-                    time,
-                    true
+                    time
                 )
                 addReceiptDataViewModel.insertReceipt(receipt)
                 //TODO zoptymalizować - odswiezać w zależnosci czy bylo dodane czy zupdatowane
@@ -281,8 +296,7 @@ class AddReceiptFragment : Fragment() {
                         pln,
                         ptu,
                         date,
-                        time,
-                        true
+                        time
                     )
                     receipt.id = it.id
                     addReceiptDataViewModel.updateReceipt(receipt)
@@ -317,7 +331,11 @@ class AddReceiptFragment : Fragment() {
                         Navigation.findNavController(requireView()).navigate(action)
                         return@setOnMenuItemClickListener true
                     }
-                    Toast.makeText(requireContext(), "Receipt not set", Toast.LENGTH_SHORT)
+                    Toast.makeText(
+                        requireContext(),
+                        getString(R.string.receipt_not_set),
+                        Toast.LENGTH_SHORT
+                    )
 
                     return@setOnMenuItemClickListener true
                 }
@@ -327,6 +345,7 @@ class AddReceiptFragment : Fragment() {
         }
 
         binding.toolbar.setNavigationOnClickListener {
+            clearInputs()
             Navigation.findNavController(it).popBackStack()
         }
 

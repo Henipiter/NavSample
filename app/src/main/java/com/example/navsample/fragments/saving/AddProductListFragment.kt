@@ -2,13 +2,21 @@ package com.example.navsample.fragments.saving
 
 
 import android.annotation.SuppressLint
+import android.content.Context
 import android.content.SharedPreferences
 import android.graphics.Color
+import android.graphics.ImageDecoder
+import android.net.ConnectivityManager
+import android.net.NetworkCapabilities
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import androidx.activity.OnBackPressedCallback
+import androidx.activity.result.PickVisualMediaRequest
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.camera.core.ExperimentalGetImage
 import androidx.fragment.app.Fragment
@@ -29,11 +37,14 @@ import com.example.navsample.dto.inputmode.AddingInputType
 import com.example.navsample.dto.sorting.AlgorithmItemAdapterArgument
 import com.example.navsample.entities.Product
 import com.example.navsample.fragments.dialogs.ConfirmDialog
+import com.example.navsample.sheets.ImportImageBottomSheetFragment
+import com.example.navsample.sheets.ReceiptBottomSheetFragment
 import com.example.navsample.viewmodels.ExperimentalDataViewModel
 import com.example.navsample.viewmodels.ImageAnalyzerViewModel
 import com.example.navsample.viewmodels.ImageViewModel
 import com.example.navsample.viewmodels.ListingViewModel
 import com.example.navsample.viewmodels.fragment.AddProductDataViewModel
+import kotlinx.coroutines.runBlocking
 
 
 @ExperimentalGetImage
@@ -63,9 +74,7 @@ class AddProductListFragment : Fragment(), ItemClickListener {
         return binding.root
     }
 
-
     @SuppressLint("NotifyDataSetChanged")
-    @ExperimentalGetImage
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         binding.toolbar.inflateMenu(R.menu.top_menu_extended_add)
@@ -81,12 +90,7 @@ class AddProductListFragment : Fragment(), ItemClickListener {
             requireContext().getSharedPreferences("preferences", AppCompatActivity.MODE_PRIVATE)
         if (shouldOpenCropFragment && imageViewModel.uriCroppedProduct.value == null) {
             shouldOpenCropFragment = false
-            val action =
-                AddProductListFragmentDirections.actionAddProductListFragmentToCropImageFragment(
-                    receiptId = navArgs.receiptId,
-                    categoryId = navArgs.categoryId
-                )
-            Navigation.findNavController(requireView()).navigate(action)
+            delegateToCropImage()
         }
         recyclerViewEvent = binding.recyclerViewEvent
         productListAdapter = ProductListAdapter(
@@ -94,18 +98,17 @@ class AddProductListFragment : Fragment(), ItemClickListener {
             addProductDataViewModel.productList.value ?: mutableListOf(),
             addProductDataViewModel.categoryList.value ?: listOf(),
             this
-        ) { i: Int ->
+        ) { index: Int ->
             addProductDataViewModel.productList.value?.let { productList ->
-                val product = productList[i]
+                val product = productList[index]
                 ConfirmDialog(
-                    "Delete",
-                    "Are you sure you want to delete the product??\n\n" +
-                            "Name: ${product.name}\nPLN: ${product.subtotalPrice}"
+                    getString(R.string.delete_confirmation_title),
+                    getString(R.string.delete_product_confirmation_dialog)
                 ) {
                     if (product.id.isNotEmpty()) {
                         addProductDataViewModel.deleteProduct(product.id)
                     }
-                    productList.removeAt(i)
+                    productList.removeAt(index)
                     productListAdapter.productList = productList
                     productListAdapter.notifyDataSetChanged()
                     calculateSumOfProductPrices(productList)
@@ -113,16 +116,15 @@ class AddProductListFragment : Fragment(), ItemClickListener {
             }
         }
 
+        requireActivity().onBackPressedDispatcher.addCallback(
+            viewLifecycleOwner, object : OnBackPressedCallback(true) {
+                override fun handleOnBackPressed() {
+                    clearInputs()
+                    Navigation.findNavController(requireView()).popBackStack()
+                }
+            }
+        )
 
-        binding.receiptImage.setOnLongClickListener {
-            val action =
-                AddProductListFragmentDirections.actionAddProductListFragmentToCropImageFragment(
-                    receiptId = navArgs.receiptId,
-                    categoryId = navArgs.categoryId
-                )
-            Navigation.findNavController(requireView()).navigate(action)
-            true
-        }
         recyclerViewEvent.adapter = productListAdapter
         recyclerViewEvent.layoutManager =
             LinearLayoutManager(requireContext(), LinearLayoutManager.VERTICAL, false)
@@ -130,11 +132,24 @@ class AddProductListFragment : Fragment(), ItemClickListener {
 
         binding.toolbar.setNavigationOnClickListener {
             shouldOpenCropFragment = true
+            clearInputs()
             Navigation.findNavController(it).popBackStack()
         }
+        defineToolbarActions()
+    }
 
+    private fun clearInputs() {
+        addProductDataViewModel.productById.value = null
+    }
+
+    private fun defineToolbarActions() {
         binding.toolbar.setOnMenuItemClickListener {
             when (it.itemId) {
+                R.id.importImage -> {
+                    importImage()
+                    true
+                }
+
                 R.id.aiParser -> {
                     val productsData = AnalyzedProductsData(
                         ArrayList(addProductDataViewModel.productList.value?.map { product -> product.name }
@@ -142,10 +157,17 @@ class AddProductListFragment : Fragment(), ItemClickListener {
                         ArrayList(),
                         addProductDataViewModel.productList.value ?: arrayListOf()
                     )
-
-                    imageAnalyzerViewModel.aiAnalyze(
-                        productsData, addProductDataViewModel.categoryList.value ?: listOf()
-                    )
+                    if (isInternetAvailable()) {
+                        imageAnalyzerViewModel.aiAnalyze(
+                            productsData, addProductDataViewModel.categoryList.value ?: listOf()
+                        )
+                    } else {
+                        Toast.makeText(
+                            requireContext(),
+                            getString(R.string.check_internet_connection),
+                            Toast.LENGTH_SHORT
+                        ).show()
+                    }
                     true
                 }
 
@@ -187,9 +209,35 @@ class AddProductListFragment : Fragment(), ItemClickListener {
                 else -> false
             }
         }
-
     }
 
+
+    private fun delegateToCamera() {
+        shouldOpenCropFragment = true
+        val action = AddProductListFragmentDirections.actionAddProductListFragmentToCameraFragment(
+            source = FragmentName.ADD_PRODUCT_LIST_FRAGMENT
+        )
+        Navigation.findNavController(requireView()).navigate(action)
+    }
+
+    private fun delegateToCropImage(showToast: Boolean = false) {
+        if (imageViewModel.bitmapCroppedReceipt.value == null) {
+            if (showToast) {
+                Toast.makeText(
+                    requireContext(),
+                    getString(R.string.no_image_set),
+                    Toast.LENGTH_SHORT
+                ).show()
+            }
+            return
+        }
+        val action =
+            AddProductListFragmentDirections.actionAddProductListFragmentToCropImageFragment(
+                receiptId = navArgs.receiptId,
+                categoryId = navArgs.categoryId
+            )
+        Navigation.findNavController(requireView()).navigate(action)
+    }
 
     private fun consumeNavArgs() {
         if (navArgs.storeId.isNotEmpty()) {
@@ -231,19 +279,16 @@ class AddProductListFragment : Fragment(), ItemClickListener {
     }
 
     private fun save() {
-        if (!isPricesSumValid) {
-            addProductDataViewModel.receiptById.value?.let {
-                it.validPrice = false
-                addProductDataViewModel.updateReceipt(it)
-            }
+
+        runBlocking {
+            addProductDataViewModel.insertProducts(
+                addProductDataViewModel.productList.value?.toList() ?: listOf()
+            )
+            listingViewModel.loadDataByProductFilter()
+            listingViewModel.loadDataByReceiptFilter()
         }
-        addProductDataViewModel.insertProducts(
-            addProductDataViewModel.productList.value?.toList() ?: listOf()
-        )
         imageAnalyzerViewModel.clearData()
         imageViewModel.clearData()
-        listingViewModel.loadDataByProductFilter()
-        listingViewModel.loadDataByReceiptFilter()
         addProductDataViewModel.cropImageFragmentOnStart = true
         Navigation.findNavController(binding.root).popBackStack(R.id.listingFragment, false)
     }
@@ -255,6 +300,23 @@ class AddProductListFragment : Fragment(), ItemClickListener {
             }
         }
         return true
+    }
+
+    private fun importImage() {
+        popUpButtonSheet()
+    }
+
+    private fun popUpButtonSheet() {
+        val modalBottomSheet = ImportImageBottomSheetFragment(
+            onCameraCapture = {
+                delegateToCamera()
+            },
+            onBrowseGallery = {
+                pickMedia.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly))
+            },
+            onCrop = { delegateToCropImage(true) }
+        )
+        modalBottomSheet.show(parentFragmentManager, ReceiptBottomSheetFragment.TAG)
     }
 
     private fun reorderTilesWithProducts() {
@@ -318,8 +380,8 @@ class AddProductListFragment : Fragment(), ItemClickListener {
             }
         }
         imageAnalyzerViewModel.geminiError.observe(viewLifecycleOwner) {
-            it?.let {
-                Toast.makeText(requireContext(), "ERROR: '$it'", Toast.LENGTH_SHORT).show()
+            it?.let { errorMessage ->
+                Toast.makeText(requireContext(), errorMessage, Toast.LENGTH_SHORT).show()
                 imageAnalyzerViewModel.geminiError.value = null
             }
         }
@@ -328,7 +390,7 @@ class AddProductListFragment : Fragment(), ItemClickListener {
             if (it == null) {
                 return@observe
             }
-            addProductDataViewModel.productList.value = it.productList
+            addProductDataViewModel.productList.value?.addAll(it.productList)
             experimentalDataViewModel.algorithmOrderedNames.value =
                 it.receiptNameLines.map { AlgorithmItemAdapterArgument(it) } as ArrayList<AlgorithmItemAdapterArgument>
             experimentalDataViewModel.algorithmOrderedPrices.value =
@@ -361,6 +423,31 @@ class AddProductListFragment : Fragment(), ItemClickListener {
             }
         }
     }
+
+    private fun isInternetAvailable(): Boolean {
+        val connectivityManager =
+            requireContext().getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+        val network = connectivityManager.activeNetwork ?: return false
+        val capabilities = connectivityManager.getNetworkCapabilities(network) ?: return false
+        return capabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)
+    }
+
+    private val pickMedia =
+        registerForActivityResult(ActivityResultContracts.PickVisualMedia()) { uri ->
+            if (uri != null) {
+
+                imageViewModel.uri.value = uri
+                val source = ImageDecoder.createSource(requireContext().contentResolver, uri)
+                val bitmap = ImageDecoder.decodeBitmap(source)
+                imageViewModel.bitmapCroppedReceipt.value = bitmap
+                binding.receiptImage.setImageBitmap(bitmap)
+
+                binding.receiptImage.visibility = View.VISIBLE
+                delegateToCropImage()
+            } else {
+                Log.d("PhotoPicker", "No media selected")
+            }
+        }
 
     companion object {
 

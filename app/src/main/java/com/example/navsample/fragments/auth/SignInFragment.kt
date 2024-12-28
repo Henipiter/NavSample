@@ -10,8 +10,10 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.navigation.Navigation
+import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import com.example.navsample.ApplicationContext
+import com.example.navsample.R
 import com.example.navsample.databinding.FragmentSignInBinding
 import com.example.navsample.entities.FirestoreHelperSingleton
 import com.example.navsample.viewmodels.SyncDatabaseViewModel
@@ -24,7 +26,6 @@ class SignInFragment : Fragment() {
     private val signInViewModel: SignInViewModel by activityViewModels()
     private val syncDatabaseViewModel: SyncDatabaseViewModel by activityViewModels()
     private val navArgs: SignInFragmentArgs by navArgs()
-    private var actionOnClick: ((String, String) -> Unit)? = null
     private var validationMessage = ""
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -36,51 +37,67 @@ class SignInFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        initObserver()
+
         if (navArgs.signIn) {
             binding.confirmPasswordLayout.visibility = View.INVISIBLE
-            actionOnClick = { email, password ->
-                validationMessage = validateSingIn()
-                if (validationMessage.isEmpty()) {
-                    signInViewModel.onSignInClick(email, password)
-                } else {
-
-                    Toast.makeText(requireContext(), validationMessage, Toast.LENGTH_SHORT).show()
-                }
-            }
         } else if (navArgs.signUp) {
             binding.confirmPasswordLayout.visibility = View.VISIBLE
-            actionOnClick = { email, password ->
-                validationMessage = validateSingUp()
-                if (validationMessage.isEmpty()) {
-                    signInViewModel.onSignUpClick(email, password)
-                } else {
-                    Toast.makeText(requireContext(), validationMessage, Toast.LENGTH_SHORT).show()
-                }
-
-            }
         }
 
-        binding.confirmButton.setOnClickListener { _ ->
-            val email = binding.usernameInput.text.toString()
-            val password = binding.passwordInput.text.toString()
-            actionOnClick?.let { it(email, password) }
-
+        binding.confirmButton.setOnClickListener {
+            confirmButtonAction()
         }
     }
 
-    private fun validateSingUp(): String {
+    private fun confirmButtonAction() {
+        val email = binding.usernameInput.text.toString().trim()
+        val password = binding.passwordInput.text.toString()
+        if (navArgs.signIn) {
+            signInAction(email, password)
+        } else if (navArgs.signUp) {
+            signUpAction(email, password)
+        }
+    }
+
+    private fun signUpAction(email: String, password: String) {
+        validationMessage = validateSignUp()
+        if (validationMessage.isEmpty()) {
+            signInViewModel.onSignUpClick(
+                email,
+                password,
+                { onLoginSuccess() },
+                { onLoginFailure() })
+        } else {
+            Toast.makeText(requireContext(), validationMessage, Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    private fun signInAction(email: String, password: String) {
+        validationMessage = validateSignIn()
+        if (validationMessage.isEmpty()) {
+            signInViewModel.onSignInClick(
+                email,
+                password,
+                { onLoginSuccess() },
+                { onLoginFailure() }
+            )
+        } else {
+            Toast.makeText(requireContext(), validationMessage, Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    private fun validateSignUp(): String {
         if (!validateEmailInput()) {
-            return "Bad email"
+            return getString(R.string.incorrect_email)
         } else if (!validatePasswordInput()) {
-            return "Password have to be longer than 6 signs"
+            return getString(R.string.password_too_short)
         } else if (!validatePasswordConfirmationInput()) {
-            return "Passwords are different"
+            return getString(R.string.different_passwords)
         }
         return ""
     }
 
-    private fun validateSingIn(): String {
+    private fun validateSignIn(): String {
         if (!validateEmailInput()) {
             return "Bad email"
         } else if (!validatePasswordInput()) {
@@ -89,26 +106,25 @@ class SignInFragment : Fragment() {
         return ""
     }
 
-    private fun initObserver() {
-        signInViewModel.loggingFinish.observe(viewLifecycleOwner) {
-            if (!it) {
-                return@observe
-            }
-            signInViewModel.loggingFinish.postValue(false)
+    private fun onLoginFailure() {
+        Toast.makeText(
+            requireContext(),
+            getString(R.string.authentication_error),
+            Toast.LENGTH_SHORT
+        ).show()
+    }
 
-            if (it == null) {
-                val userId = signInViewModel.getUserId()
-                setUserIdToPreferences(userId)
-                FirestoreHelperSingleton.initialize(userId)
-                syncDatabaseViewModel.setFirebaseHelper()
-                syncDatabaseViewModel.loadNotAddedList()
-                Toast.makeText(requireContext(), "Auth success", Toast.LENGTH_SHORT).show()
-                Navigation.findNavController(requireView()).popBackStack()
-            } else {
-                Log.d("Firestore1", "Error ${signInViewModel.errorMessage}")
-                Toast.makeText(requireContext(), "Auth error", Toast.LENGTH_SHORT).show()
-            }
+    private fun onLoginSuccess() {
+        if (shouldInitLogin()) {
+            initLogInMarkAsDone()
+            changeStartDestination()
         }
+        val userId = signInViewModel.getUserId()
+        setUserIdToPreferences(userId)
+        FirestoreHelperSingleton.initialize(userId)
+        syncDatabaseViewModel.setFirebaseHelper()
+        syncDatabaseViewModel.loadNotAddedList()
+        Navigation.findNavController(requireView()).popBackStack()
     }
 
     private fun setUserIdToPreferences(id: String) {
@@ -126,14 +142,14 @@ class SignInFragment : Fragment() {
     }
 
     private fun validateEmailInput(): Boolean {
-        val email = binding.usernameInput.text
+        val email = binding.usernameInput.text.toString().trim()
         val emailRegex = "^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+$".toRegex()
         return email.matches(emailRegex)
     }
 
     private fun validatePasswordInput(): Boolean {
         val password = binding.passwordInput.text
-        return password.length > 6
+        return password.length >= 6
     }
 
     private fun validatePasswordConfirmationInput(): Boolean {
@@ -141,5 +157,23 @@ class SignInFragment : Fragment() {
         val confirmPassword = binding.confirmPasswordInput.text
         return password == confirmPassword
     }
-}
 
+    private fun changeStartDestination() {
+        val navGraph = findNavController().navInflater.inflate(R.navigation.main_nav)
+        navGraph.setStartDestination(R.id.listingFragment)
+        findNavController().graph = navGraph
+    }
+
+    private fun shouldInitLogin(): Boolean {
+        return ApplicationContext.context
+            ?.getSharedPreferences("preferences", AppCompatActivity.MODE_PRIVATE)
+            ?.getBoolean("shouldInitLogin", true)
+            ?: true
+    }
+
+    private fun initLogInMarkAsDone() {
+        val myPref = ApplicationContext.context
+            ?.getSharedPreferences("preferences", AppCompatActivity.MODE_PRIVATE)
+        myPref?.edit()?.putBoolean("shouldInitLogin", false)?.apply()
+    }
+}

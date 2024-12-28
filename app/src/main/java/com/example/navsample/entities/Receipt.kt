@@ -10,7 +10,6 @@ data class Receipt(
     var ptu: Int,
     var date: String,
     var time: String,
-    var validPrice: Boolean,
     override var createdAt: String = "",
     override var updatedAt: String = "",
     override var deletedAt: String = "",
@@ -22,7 +21,7 @@ data class Receipt(
     @PrimaryKey
     var id: String = ""
 
-    constructor() : this("", -1, -1, "", "", false)
+    constructor() : this("", -1, -1, "", "")
     override fun insertData(): HashMap<String, Any?> {
         return hashMapOf(
             "id" to this.id,
@@ -47,14 +46,6 @@ data class Receipt(
             "ptu" to this.ptu,
             "date" to this.date,
             "time" to this.time,
-            "validPrice" to this.validPrice,
-            "updatedAt" to this.updatedAt
-        )
-    }
-
-    fun updateValidData(): HashMap<String, Any?> {
-        return hashMapOf(
-            "validPrice" to this.validPrice,
             "updatedAt" to this.updatedAt
         )
     }

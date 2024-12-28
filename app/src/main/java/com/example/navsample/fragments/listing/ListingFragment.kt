@@ -1,16 +1,21 @@
 package com.example.navsample.fragments.listing
 
+import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.viewpager2.widget.ViewPager2
+import com.example.navsample.ApplicationContext
+import com.example.navsample.activity.GuideActivity
 import com.example.navsample.adapters.ViewPagerAdapter
 import com.example.navsample.databinding.FragmentListingBinding
 import com.example.navsample.entities.dto.TranslateFirebaseEntity
+import com.example.navsample.viewmodels.ImageViewModel
 import com.example.navsample.viewmodels.SyncDatabaseViewModel
 import com.google.android.material.tabs.TabLayout
 
@@ -19,6 +24,7 @@ class ListingFragment : Fragment() {
     private var _binding: FragmentListingBinding? = null
     private val binding get() = _binding!!
     private lateinit var viewPagerAdapter: ViewPagerAdapter
+    private val imageViewModel: ImageViewModel by activityViewModels()
     private val syncDatabaseViewModel: SyncDatabaseViewModel by activityViewModels()
 
     override fun onCreateView(
@@ -32,9 +38,19 @@ class ListingFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         viewPagerAdapter = ViewPagerAdapter(this)
+
+        imageViewModel.clearData()
         binding.viewPager.adapter = viewPagerAdapter
+        if (shouldRunGuide()) {
+            markRunGuideAsDone()
+            val intent = Intent(requireContext(), GuideActivity::class.java)
+            startActivity(intent)
+        }
+
         initObserver()
         syncDatabaseViewModel.loadAllList()
+
+
         binding.tabLayout.addOnTabSelectedListener(object : TabLayout.OnTabSelectedListener {
 
             override fun onTabSelected(tab: TabLayout.Tab?) {
@@ -57,6 +73,20 @@ class ListingFragment : Fragment() {
                 binding.tabLayout.getTabAt(position)?.select()
             }
         })
+    }
+
+    private fun shouldRunGuide(): Boolean {
+        return ApplicationContext.context
+            ?.getSharedPreferences("preferences", AppCompatActivity.MODE_PRIVATE)
+            ?.getBoolean("shouldRunGuide", true)
+            ?: true
+    }
+
+
+    private fun markRunGuideAsDone() {
+        val myPref = ApplicationContext.context
+            ?.getSharedPreferences("preferences", AppCompatActivity.MODE_PRIVATE)
+        myPref?.edit()?.putBoolean("shouldRunGuide", false)?.apply()
     }
 
     private fun initNotSyncedLists() {

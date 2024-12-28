@@ -10,25 +10,39 @@ import kotlinx.coroutines.launch
 
 class SignInViewModel : ViewModel() {
     private val accountService = AccountServiceImpl()
-    val loggingFinish = MutableLiveData(false) //TODO create listener
     val currentUser = MutableLiveData<User>()
-    var errorMessage: String? = null
 
 
-    fun onSignInClick(email: String, password: String) {
+    fun onSignInClick(
+        email: String,
+        password: String,
+        onSuccess: () -> Unit,
+        onFailure: () -> Unit
+    ) {
         viewModelScope.launch {
-            accountService.signIn(email, password) { message ->
-                errorMessage = message
-                loggingFinish.postValue(true)
+            accountService.signIn(email, password) { isComplete, isSuccessful, message ->
+                if (isComplete && isSuccessful) {
+                    onSuccess.invoke()
+                } else {
+                    onFailure.invoke()
+                }
             }
         }
     }
 
-    fun onSignUpClick(email: String, password: String) {
+    fun onSignUpClick(
+        email: String,
+        password: String,
+        onSuccess: () -> Unit,
+        onFailure: () -> Unit
+    ) {
         viewModelScope.launch {
-            accountService.signUp(email, password) { message ->
-                errorMessage = message
-                loggingFinish.postValue(true)
+            accountService.signUp(email, password) { isComplete, isSuccessful, message ->
+                if (isComplete && isSuccessful) {
+                    onSuccess.invoke()
+                } else {
+                    onFailure.invoke()
+                }
             }
         }
     }

@@ -2,16 +2,16 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
 
     <item
-        android:title="Settings"
+        android:title="@string/settings"
         android:id="@+id/settingsFragment"
         android:icon="@drawable/setting" />
 
     <item
-        android:title="List"
+        android:title="@string/list"
         android:id="@+id/listingFragment"
         android:icon="@drawable/list" />
     <item
-        android:title="Chart"
+        android:title="@string/chart"
         android:id="@+id/diagramFragment"
         android:icon="@drawable/chart" />
 

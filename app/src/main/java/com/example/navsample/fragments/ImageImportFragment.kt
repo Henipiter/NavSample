@@ -8,7 +8,6 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts.PickVisualMedia
 import androidx.camera.core.ExperimentalGetImage
@@ -70,7 +69,6 @@ class ImageImportFragment : Fragment() {
                     imageViewModel.bitmapOriginal.value?.let { bitmap ->
                         imageViewModel.bitmapOriginal.value = rotateBitmap(bitmap)
                     }
-                    Toast.makeText(requireContext(), "ROTATE", Toast.LENGTH_SHORT).show()
                     true
                 }
 
@@ -99,6 +97,12 @@ class ImageImportFragment : Fragment() {
                 val analyzedImage = InputImage.fromBitmap(bitmap, 0)
                 imageAnalyzerViewModel.analyzeReceipt(analyzedImage)
             }
+        }
+        binding.captureImage.setOnClickListener {
+            val action = ImageImportFragmentDirections.actionImageImportFragmentToCameraFragment(
+                source = FragmentName.IMAGE_IMPORT_FRAGMENT
+            )
+            Navigation.findNavController(requireView()).navigate(action)
         }
 
         binding.manualButton.setOnClickListener {

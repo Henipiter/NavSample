@@ -39,13 +39,12 @@ class CropImageFragment : Fragment() {
         binding.toolbar.inflateMenu(R.menu.top_menu_crop)
         binding.toolbar.setNavigationIcon(R.drawable.back)
 
-        binding.toolbar.title = "Crop only products section"
+        binding.toolbar.title = getString(R.string.crop_product_title)
 
         imageViewModel.bitmapCroppedReceipt.value.let { bitmap ->
             if (bitmap != null) {
                 binding.receiptImage.setImageBitmap(bitmap)
             } else {
-                Toast.makeText(requireContext(), "NO IMAGE LOADED", Toast.LENGTH_SHORT).show()
                 Navigation.findNavController(requireView()).popBackStack()
             }
         }
@@ -61,7 +60,6 @@ class CropImageFragment : Fragment() {
                         imageViewModel.bitmapCroppedReceipt.value = rotatedBitmap
                         binding.receiptImage.setImageBitmap(rotatedBitmap)
                     }
-                    Toast.makeText(requireContext(), "ROTATE", Toast.LENGTH_SHORT).show()
                     true
                 }
 
@@ -85,11 +83,19 @@ class CropImageFragment : Fragment() {
     private fun analyzeImage(bitmap: Bitmap) {
         imageAnalyzerViewModel.uid = imageViewModel.uid.value ?: "temp"
         navArgs.receiptId.ifEmpty {
-            Toast.makeText(requireContext(), "NO RECEIPT ID", Toast.LENGTH_SHORT).show()
+            Toast.makeText(
+                requireContext(),
+                getString(R.string.receipt_not_set),
+                Toast.LENGTH_SHORT
+            ).show()
             return
         }
         navArgs.categoryId.ifEmpty {
-            Toast.makeText(requireContext(), "NO CATEGORY ID", Toast.LENGTH_SHORT).show()
+            Toast.makeText(
+                requireContext(),
+                getString(R.string.category_not_set),
+                Toast.LENGTH_SHORT
+            ).show()
             return
         }
         imageAnalyzerViewModel.analyzeProductList(

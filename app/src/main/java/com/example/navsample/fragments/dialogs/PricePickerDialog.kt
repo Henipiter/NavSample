@@ -9,6 +9,7 @@ import android.view.ViewGroup
 import android.widget.Toast
 import androidx.core.widget.doOnTextChanged
 import androidx.fragment.app.DialogFragment
+import com.example.navsample.R
 import com.example.navsample.databinding.DialogPricePickerBinding
 
 
@@ -40,14 +41,15 @@ class PricePickerDialog(
             if (higherPrice != "" && text.toString() != "") {
                 try {
                     if (higherPrice.toDouble() < text.toString().toDouble()) {
-                        binding.lowerPriceLayout.error = "Price too high"
+                        binding.lowerPriceLayout.error =
+                            getString(R.string.minimal_price_boundary_incorrect)
                         binding.higherPriceLayout.error = null
                     } else {
                         binding.lowerPriceLayout.error = null
                         binding.higherPriceLayout.error = null
                     }
                 } catch (e: Exception) {
-                    binding.lowerPriceLayout.error = "Cannot convert to Double"
+                    binding.lowerPriceLayout.error = getString(R.string.conversion_error)
                     binding.higherPriceLayout.error = null
                 }
             }
@@ -57,7 +59,8 @@ class PricePickerDialog(
             if (lowerPrice != "" && text.toString() != "") {
                 try {
                     if (lowerPrice.toDouble() > text.toString().toDouble()) {
-                        binding.higherPriceLayout.error = "Price too low"
+                        binding.higherPriceLayout.error =
+                            getString(R.string.maximal_price_boundary_incorrect)
                         binding.lowerPriceLayout.error = null
                     } else {
                         binding.lowerPriceLayout.error = null
@@ -65,7 +68,7 @@ class PricePickerDialog(
                     }
                 } catch (e: Exception) {
                     binding.lowerPriceLayout.error = null
-                    binding.higherPriceLayout.error = "Cannot convert to Double"
+                    binding.higherPriceLayout.error = getString(R.string.conversion_error)
                 }
             }
         }
@@ -88,7 +91,7 @@ class PricePickerDialog(
                 onConfirmClick.invoke(lowerPrice, higherPrice)
                 dismiss()
             } else {
-                Toast.makeText(requireContext(), "Incorrect input values", Toast.LENGTH_SHORT)
+                Toast.makeText(requireContext(), getString(R.string.bad_inputs), Toast.LENGTH_SHORT)
                     .show()
             }
         }

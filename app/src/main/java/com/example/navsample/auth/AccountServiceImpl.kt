@@ -37,27 +37,25 @@ class AccountServiceImpl : AccountService {
         Firebase.auth.currentUser!!.linkWithCredential(credential).await()
     }
 
-    override suspend fun signIn(email: String, password: String, onResult: (String?) -> Unit) {
+    override suspend fun signIn(
+        email: String,
+        password: String,
+        onResult: (Boolean, Boolean, String?) -> Unit
+    ) {
         Firebase.auth.signInWithEmailAndPassword(email, password)
             .addOnCompleteListener { task ->
-                val exceptionMessage = if (task.isSuccessful) {
-                    null
-                } else {
-                    task.exception?.message
-                }
-                onResult.invoke(exceptionMessage)
+                onResult.invoke(task.isComplete, task.isSuccessful, task.exception?.message)
             }
     }
 
-    override suspend fun signUp(email: String, password: String, onResult: (String?) -> Unit) {
+    override suspend fun signUp(
+        email: String,
+        password: String,
+        onResult: (Boolean, Boolean, String?) -> Unit
+    ) {
         Firebase.auth.createUserWithEmailAndPassword(email, password)
             .addOnCompleteListener { task ->
-                val exceptionMessage = if (task.isSuccessful) {
-                    null
-                } else {
-                    task.exception?.message
-                }
-                onResult.invoke(exceptionMessage)
+                onResult.invoke(task.isComplete, task.isSuccessful, task.exception?.message)
             }
     }
 

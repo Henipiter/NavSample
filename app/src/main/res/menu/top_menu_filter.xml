@@ -6,7 +6,7 @@
         android:id="@+id/clear_filter"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:title="Clear"
+        android:title="@string/clear"
 
         android:icon="@drawable/erase"
         app:showAsAction="ifRoom" />
@@ -14,7 +14,7 @@
         android:id="@+id/confirm"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:title="Confirm"
+        android:title="@string/confirm"
         android:icon="@drawable/confirm"
         app:showAsAction="ifRoom" />
 </menu>

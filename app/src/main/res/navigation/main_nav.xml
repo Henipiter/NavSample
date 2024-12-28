@@ -16,6 +16,12 @@
             <argument
                 android:name="developerMode"
                 android:defaultValue="true" />
+            <argument
+                android:name="categoryId"
+                android:defaultValue="&quot;&quot;" />
+            <argument
+                android:name="receiptId"
+                android:defaultValue="&quot;&quot;" />
         </action>
         <action
             android:id="@+id/action_settingsFragment_to_exportDataFragment"
@@ -55,6 +61,9 @@
             android:id="@+id/action_addProductListFragment_to_addReceiptFragment"
             app:destination="@id/addReceiptFragment"
             app:popUpTo="@id/addReceiptFragment" />
+        <action
+            android:id="@+id/action_addProductListFragment_to_cameraFragment"
+            app:destination="@id/cameraFragment" />
     </fragment>
     <fragment
         android:id="@+id/addProductFragment"
@@ -131,6 +140,9 @@
                 android:name="inputType"
                 android:defaultValue="EMPTY" />
         </action>
+        <action
+            android:id="@+id/action_imageImportFragment_to_cameraFragment"
+            app:destination="@id/cameraFragment" />
     </fragment>
     <fragment
         android:id="@+id/experimentRecycleFragment"
@@ -305,5 +317,18 @@
         <action
             android:id="@+id/action_signingPanelFragment_to_signInFragment"
             app:destination="@id/signInFragment" />
+        <action
+            android:id="@+id/action_signingPanelFragment_to_listingFragment"
+            app:destination="@id/listingFragment"
+            app:popUpTo="@id/listingFragment"
+            app:popUpToInclusive="true" />
+    </fragment>
+    <fragment
+        android:id="@+id/cameraFragment"
+        android:name="com.example.navsample.fragments.CameraFragment"
+        android:label="CameraFragment">
+        <argument
+            android:name="source"
+            app:argType="string" />
     </fragment>
 </navigation>

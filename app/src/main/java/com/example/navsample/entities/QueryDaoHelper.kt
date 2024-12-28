@@ -18,6 +18,7 @@ class QueryDaoHelper {
                 .append("SELECT * ")
                 .append("FROM store ")
                 .append("WHERE name LIKE '%${name}%' ")
+                .append("AND deletedAt == '' ")
                 .append("AND nip LIKE '%${nip}%' ")
                 .append("ORDER BY $orderBy")
                 .toString()
@@ -31,13 +32,17 @@ class QueryDaoHelper {
             dateTo: String,
             orderBy: SortProperty<ReceiptWithStoreSort>
         ): SupportSQLiteQuery {
-
             val sql = StringBuilder()
-                .append("SELECT r.id as id, storeId, nip, s.name, s.defaultCategoryId, pln, ptu, date, time, r.validPrice as validPriceSum, sum(p.validPrice)  as validProductCount , count(p.id)  as productCount ")
+                .append("SELECT r.id as id, storeId, nip, s.name, s.defaultCategoryId, pln, ptu, date, time, productPriceSum, validProductCount, productCount ")
                 .append("FROM receipt r ")
                 .append("INNER JOIN  store s ON  s.id = r.storeId ")
-                .append("LEFT JOIN product p ON  r.id = p.receiptId ")
+                .append("LEFT JOIN (")
+                .append("   SELECT receiptId, SUM(validPrice) AS validProductCount, SUM(finalPrice) AS productPriceSum, COUNT(id) AS productCount ")
+                .append("   FROM product WHERE deletedAt = '' GROUP BY receiptId")
+                .append(") p ON r.id = p.receiptId ")
                 .append("WHERE s.name LIKE '%${name}%' ")
+                .append("AND r.deletedAt == '' ")
+                .append("AND s.deletedAt == '' ")
                 .append("AND r.date >= '$dateFrom' ")
                 .append("AND r.date <= '$dateTo' ")
                 .append("GROUP BY r.id ")
@@ -59,6 +64,10 @@ class QueryDaoHelper {
                 .append("SELECT s.id as storeId, s.name as storeName, r.date, c.name as categoryName, c.color as categoryColor, p.* ")
                 .append("FROM product p, receipt r, store s, category c ")
                 .append("WHERE p.receiptId = r.id AND s.id = r.storeId AND p.categoryId = c.id ")
+                .append("AND p.deletedAt == '' ")
+                .append("AND r.deletedAt == '' ")
+                .append("AND s.deletedAt == '' ")
+                .append("AND c.deletedAt == '' ")
                 .append("AND s.name LIKE '%${storeName}%' ")
                 .append("AND c.name LIKE '%${categoryName}%' ")
                 .append("AND r.date >= '$dateFrom' ")
@@ -72,3 +81,8 @@ class QueryDaoHelper {
         }
     }
 }
+/*
+select isValidd, * from receipt r left join (
+select receiptId, sum( finalPrice) as isValidd from product where deletedAt = '' group by receiptId
+) a on r.id = a.receiptId;
+ */

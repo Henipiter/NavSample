@@ -6,7 +6,6 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.navigation.Navigation
@@ -17,13 +16,15 @@ import com.example.navsample.R
 import com.example.navsample.adapters.RichProductListAdapter
 import com.example.navsample.databinding.FragmentProductListBinding
 import com.example.navsample.dto.FragmentName
-import com.example.navsample.dto.PriceUtils.Companion.intPriceToString
 import com.example.navsample.dto.inputmode.AddingInputType
 import com.example.navsample.dto.sort.RichProductSort
 import com.example.navsample.dto.sort.SortProperty
 import com.example.navsample.entities.Product
+import com.example.navsample.entities.relations.ProductRichData
 import com.example.navsample.fragments.dialogs.ConfirmDialog
 import com.example.navsample.fragments.dialogs.SortingDialog
+import com.example.navsample.sheets.ProductBottomSheetFragment
+import com.example.navsample.sheets.ReceiptBottomSheetFragment
 import com.example.navsample.viewmodels.ListingViewModel
 import com.example.navsample.viewmodels.fragment.AddProductDataViewModel
 
@@ -85,7 +86,6 @@ class ProductListFragment : Fragment(), ItemClickListener {
                         val appliedSort = SortProperty(RichProductSort::class, name, dir)
                         listingViewModel.richProductSort.value = appliedSort
                         listingViewModel.updateSorting(appliedSort)
-                        Toast.makeText(requireContext(), "$appliedSort", Toast.LENGTH_SHORT).show()
                     }.show(childFragmentManager, "Test")
                     true
                 }
@@ -97,27 +97,9 @@ class ProductListFragment : Fragment(), ItemClickListener {
         richProductListAdapter = RichProductListAdapter(
             requireContext(),
             listingViewModel.productRichList.value ?: arrayListOf(), this
-
-        ) { i ->
-            listingViewModel.productRichList.value?.get(i)?.let {
-                ConfirmDialog(
-                    "Delete",
-                    "$i Are you sure you want to delete the product??\n\nName: " + it.name +
-                            "\nPLN: " + intPriceToString(it.subtotalPrice)
-                ) {
-                    if (it.id.isNotEmpty()) {
-                        addProductDataViewModel.deleteProduct(it.id)
-                    }
-                    listingViewModel.productRichList.value?.let { productRichList ->
-                        productRichList.removeAt(i)
-                        richProductListAdapter.productList = productRichList
-                        richProductListAdapter.notifyItemRemoved(i)
-                        richProductListAdapter.notifyItemRangeChanged(
-                            i, richProductListAdapter.productList.size
-                        )
-                    }
-
-                }.show(childFragmentManager, "TAG")
+        ) { index ->
+            listingViewModel.productRichList.value?.get(index)?.let { productRichData ->
+                popUpButtonSheet(index, productRichData)
             }
         }
         recyclerViewEvent.adapter = richProductListAdapter
@@ -126,6 +108,68 @@ class ProductListFragment : Fragment(), ItemClickListener {
 
         listingViewModel.refreshStoreList()
         listingViewModel.refreshCategoryList()
+    }
+
+    private fun popUpButtonSheet(index: Int, productRichData: ProductRichData) {
+        val modalBottomSheet = ProductBottomSheetFragment(
+            { onDelete(index, productRichData) },
+            onJumpToCategory = { onJumpToCategory(productRichData.categoryId) },
+            onJumpToStore = { onJumpToStore(productRichData.storeId) },
+            onJumpToReceipt = { onJumpToReceipt(productRichData.receiptId) }
+        )
+        modalBottomSheet.show(parentFragmentManager, ReceiptBottomSheetFragment.TAG)
+    }
+
+    private fun onJumpToReceipt(receiptId: String) {
+        val action = ListingFragmentDirections.actionListingFragmentToAddReceiptFragment(
+            inputType = AddingInputType.ID.name,
+            receiptId = receiptId,
+            sourceFragment = FragmentName.RECEIPT_LIST_FRAGMENT,
+            storeId = ""
+        )
+        Navigation.findNavController(requireView()).navigate(action)
+    }
+
+    private fun onJumpToStore(storeId: String) {
+        val action =
+            ListingFragmentDirections.actionListingFragmentToAddStoreFragment(
+                inputType = AddingInputType.ID.name,
+                storeId = storeId,
+                storeName = null,
+                storeNip = null,
+                sourceFragment = FragmentName.STORE_LIST_FRAGMENT,
+                categoryId = ""
+            )
+        Navigation.findNavController(requireView()).navigate(action)
+    }
+
+    private fun onJumpToCategory(categoryId: String) {
+        val action = ListingFragmentDirections.actionListingFragmentToAddCategoryFragment(
+            categoryId = categoryId,
+            inputType = AddingInputType.ID.name,
+            sourceFragment = FragmentName.CATEGORY_LIST_FRAGMENT
+        )
+        Navigation.findNavController(requireView()).navigate(action)
+    }
+
+    private fun onDelete(index: Int, productRichData: ProductRichData) {
+        ConfirmDialog(
+            getString(R.string.delete_confirmation_title),
+            getString(R.string.delete_product_confirmation_dialog)
+        ) {
+            if (productRichData.id.isNotEmpty()) {
+                addProductDataViewModel.deleteProduct(productRichData.id)
+            }
+            listingViewModel.productRichList.value?.let { productRichList ->
+                productRichList.removeAt(index)
+                richProductListAdapter.productList = productRichList
+                richProductListAdapter.notifyItemRemoved(index)
+                richProductListAdapter.notifyItemRangeChanged(
+                    index, richProductListAdapter.productList.size
+                )
+            }
+
+        }.show(childFragmentManager, "TAG")
     }
 
     @SuppressLint("NotifyDataSetChanged")

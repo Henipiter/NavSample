@@ -14,7 +14,7 @@ class ReceiptListAdapter(
     var context: Context,
     var receiptList: ArrayList<ReceiptWithStore>,
     private var itemClickListener: ItemClickListener,
-    private var onDelete: (Int) -> Unit
+    private var onLongClick: (Int) -> Unit
 ) : RecyclerView.Adapter<ReceiptListAdapter.MyViewHolder>() {
     var position = 0
 
@@ -39,7 +39,7 @@ class ReceiptListAdapter(
             holder.binding.productCount.setTextColor(Color.RED)
             holder.binding.productText.setTextColor(Color.RED)
         }
-        if (!receiptList[position].validPriceSum) {
+        if (receiptList[position].productPriceSum != receiptList[position].pln) {
             holder.binding.subtotalPrize.setTextColor(Color.RED)
             holder.binding.pln.setTextColor(Color.RED)
         }
@@ -48,7 +48,7 @@ class ReceiptListAdapter(
             itemClickListener.onItemClick(position)
         }
         holder.binding.mainLayout.setOnLongClickListener {
-            onDelete.invoke(position)
+            onLongClick.invoke(position)
             true
         }
     }

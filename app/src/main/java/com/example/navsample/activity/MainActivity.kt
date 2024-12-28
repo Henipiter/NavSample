@@ -27,9 +27,7 @@ class MainActivity : AppCompatActivity() {
         navController = navHostFragment.navController
 
         val navView: BottomNavigationView = binding.bottomNavigationView
-
         navView.itemIconTintList = null
-
         navView.setupWithNavController(navController)
 
         navController.addOnDestinationChangedListener { _, nd: NavDestination, _ ->
@@ -38,6 +36,19 @@ class MainActivity : AppCompatActivity() {
             } else {
                 binding.bottomNavigationView.visibility = View.GONE
             }
+        }
+
+        val shouldInitLogin =
+            getSharedPreferences("preferences", MODE_PRIVATE).getBoolean("shouldInitLogin", true)
+        if (shouldInitLogin) {
+            val navGraph = navController.navInflater.inflate(R.navigation.main_nav)
+            navGraph.setStartDestination(R.id.signingPanelFragment)
+            navController.graph = navGraph
+        } else {
+            val navGraph = navController.navInflater.inflate(R.navigation.main_nav)
+            navGraph.setStartDestination(R.id.listingFragment)
+            navController.graph = navGraph
+
         }
     }
 }

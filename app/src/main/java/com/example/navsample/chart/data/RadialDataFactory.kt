@@ -20,7 +20,7 @@ interface RadialDataFactory<
     fun getRadialEntries(dataset: List<ChartData>): List<ENTRY> {
         val entries = ArrayList<ENTRY>()
         dataset.forEach {
-            entries.add(getSpecificEntry(it.value, it.label))
+            entries.add(getSpecificEntry(it.value / 100, it.label))
         }
         return entries
     }

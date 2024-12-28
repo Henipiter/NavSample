@@ -8,6 +8,7 @@ interface TranslateEntity {
 
     fun deleteData(): HashMap<String, Any?> {
         return hashMapOf(
+            "updatedAt" to this.updatedAt,
             "deletedAt" to this.deletedAt
         )
     }

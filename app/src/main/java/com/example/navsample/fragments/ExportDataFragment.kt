@@ -5,6 +5,7 @@ import android.content.ContentValues
 import android.os.Bundle
 import android.os.Environment
 import android.provider.MediaStore
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -47,7 +48,7 @@ class ExportDataFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         binding.toolbar.inflateMenu(R.menu.top_menu_export)
         binding.toolbar.setNavigationIcon(R.drawable.back)
-        binding.toolbar.title = "Export data"
+        binding.toolbar.title = getString(R.string.export_data_title)
 
         exportDataViewModel.getTableCounts()
         exportDataViewModel.getAllData()
@@ -67,7 +68,11 @@ class ExportDataFragment : Fragment() {
 
                 R.id.export -> {
                     if (isDataExist()) {
-                        Toast.makeText(requireContext(), "No data found", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(
+                            requireContext(),
+                            getString(R.string.no_data_found),
+                            Toast.LENGTH_SHORT
+                        ).show()
                         return@setOnMenuItemClickListener true
                     }
                     saveCsvFile(prepareFileContents())
@@ -86,8 +91,8 @@ class ExportDataFragment : Fragment() {
     private fun prepareFileContents(): String {
         val data = StringBuilder(
             "storeName;storeNip;receiptPln;receiptPtu;receiptDate;receiptTime;" +
-                    "productName;productQuantity;productUnitPrice;productSubtotalPrice;productPtuType;" +
-                    "productRaw;categoryName;categoryColor\n"
+                    "productName;productQuantity;productUnitPrice;productSubtotalPrice;productDiscount;" +
+                    "productFinalPrice;productPtuType;productRaw;productValidPrice;categoryName;categoryColor\n"
         )
 
         exportDataViewModel.allData.value?.forEach { products ->
@@ -101,8 +106,11 @@ class ExportDataFragment : Fragment() {
             data.append(products.productQuantity).append(";")
             data.append(products.productUnitPrice).append(";")
             data.append(products.productSubtotalPrice).append(";")
+            data.append(products.productDiscount).append(";")
+            data.append(products.productFinalPrice).append(";")
             data.append(products.productPtuType).append(";")
             data.append(products.productRaw).append(";")
+            data.append(products.productValidPrice).append(";")
             data.append(products.categoryName).append(";")
             data.append(products.categoryColor).append("\n")
         }
@@ -112,7 +120,7 @@ class ExportDataFragment : Fragment() {
     private fun saveCsvFile(data: String) {
 
 
-        val fileName = "receipts.csv"
+        val fileName = "receipts45.csv"
         var fileOutputStream: FileOutputStream? = null
         var outputStreamWriter: OutputStreamWriter? = null
 
@@ -131,20 +139,22 @@ class ExportDataFragment : Fragment() {
             }
 
             requireContext().contentResolver.insert(
-                MediaStore.Downloads.EXTERNAL_CONTENT_URI,
-                values
+                MediaStore.Downloads.EXTERNAL_CONTENT_URI, values
             )
-            Toast.makeText(requireContext(), "SUCCESS", Toast.LENGTH_SHORT).show()
-        } catch (e: IOException) {
-            e.printStackTrace()
-            Toast.makeText(requireContext(), e.message, Toast.LENGTH_SHORT).show()
+            Toast.makeText(
+                requireContext(),
+                getString(R.string.export_finisher),
+                Toast.LENGTH_SHORT
+            ).show()
+        } catch (exception: IOException) {
+            Log.e("Error", exception.toString(), exception)
+            Toast.makeText(requireContext(), exception.message, Toast.LENGTH_SHORT).show()
         } finally {
             try {
                 outputStreamWriter?.close()
                 fileOutputStream?.close()
-            } catch (e: IOException) {
-                e.printStackTrace();
-                Toast.makeText(requireContext(), e.message, Toast.LENGTH_SHORT).show()
+            } catch (exception: IOException) {
+                Log.e("Error", exception.toString(), exception)
             }
         }
     }

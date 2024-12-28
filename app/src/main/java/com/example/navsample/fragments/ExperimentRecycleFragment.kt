@@ -71,12 +71,20 @@ open class ExperimentRecycleFragment : Fragment() {
 
     private fun configureReceiptParser() {
         args.receiptId.ifEmpty {
-            Toast.makeText(requireContext(), "NO RECEIPT ID", Toast.LENGTH_SHORT).show()
+            Toast.makeText(
+                requireContext(),
+                getString(R.string.receipt_not_set),
+                Toast.LENGTH_SHORT
+            ).show()
             Navigation.findNavController(requireView()).popBackStack()
             return
         }
         args.categoryId.ifEmpty {
-            Toast.makeText(requireContext(), "NO CATEGORY ID", Toast.LENGTH_SHORT).show()
+            Toast.makeText(
+                requireContext(),
+                getString(R.string.category_not_set),
+                Toast.LENGTH_SHORT
+            ).show()
             Navigation.findNavController(requireView()).popBackStack()
             return
         }

@@ -17,22 +17,22 @@
         <com.google.android.material.tabs.TabItem
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Pie" />
+            android:text="@string/pie" />
 
         <com.google.android.material.tabs.TabItem
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Radar" />
+            android:text="@string/radar" />
 
         <com.google.android.material.tabs.TabItem
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Line" />
+            android:text="@string/line" />
 
         <com.google.android.material.tabs.TabItem
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Bar" />
+            android:text="@string/bar" />
 
     </com.google.android.material.tabs.TabLayout>
 
@@ -95,8 +95,8 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
-        android:text="2020-01-01 - 2020-02-05"
-        android:textSize="20dp"
+        android:text="@string/date_range"
+        android:textSize="20sp"
         app:layout_constraintEnd_toEndOf="@+id/month_range_slider"
         app:layout_constraintStart_toStartOf="@+id/month_range_slider"
         app:layout_constraintTop_toBottomOf="@+id/month_range_slider" />
@@ -105,7 +105,7 @@
         android:id="@+id/radioGroup"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:checkedButton="@+id/radio_button_1"
+        android:checkedButton="@+id/one_moth_button"
         android:orientation="horizontal"
         android:layout_marginTop="8dp"
         app:layout_constraintEnd_toEndOf="@+id/month_range_slider"
@@ -116,12 +116,12 @@
             android:id="@+id/one_moth_button"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
-            android:text="One month" />
+            android:text="@string/one_month_size" />
 
         <RadioButton
             android:id="@+id/sum_month_button"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
-            android:text="Sum months" />
+            android:text="@string/multiple_month_size" />
     </RadioGroup>
 </androidx.constraintlayout.widget.ConstraintLayout>

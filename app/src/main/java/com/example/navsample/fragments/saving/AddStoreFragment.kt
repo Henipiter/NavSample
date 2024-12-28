@@ -5,6 +5,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import androidx.activity.OnBackPressedCallback
 import androidx.core.widget.doOnTextChanged
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
@@ -100,7 +101,16 @@ class AddStoreFragment : Fragment() {
         }
 
 
+        requireActivity().onBackPressedDispatcher.addCallback(
+            viewLifecycleOwner, object : OnBackPressedCallback(true) {
+                override fun handleOnBackPressed() {
+                    clearInputs()
+                    Navigation.findNavController(requireView()).popBackStack()
+                }
+            }
+        )
         binding.toolbar.setNavigationOnClickListener {
+            clearInputs()
             Navigation.findNavController(it).popBackStack()
         }
 
@@ -154,11 +164,11 @@ class AddStoreFragment : Fragment() {
             binding.storeNIPInput.setText("")
             binding.storeNameInput.setText("")
             binding.storeDefaultCategoryInput.setText("")
-            binding.toolbar.title = "Add store"
+            binding.toolbar.title = getString(R.string.new_store_title)
 
         } else if (inputType == AddingInputType.ID) {
             if (addStoreDataViewModel.storeId.isNotEmpty()) {
-                binding.toolbar.title = "Edit store"
+                binding.toolbar.title = getString(R.string.edit_store_title)
                 mode = DataMode.EDIT
                 addStoreDataViewModel.getStoreById(addStoreDataViewModel.storeId)
             } else {
@@ -175,11 +185,11 @@ class AddStoreFragment : Fragment() {
 
     private fun validateNip(text: String) {
         if (!isCorrectNIP(text)) {
-            binding.storeNIPLayout.error = "Bad NIP"
+            binding.storeNIPLayout.error = getString(R.string.nip_incorrect)
             binding.storeNIPLayout.helperText = null
         } else {
             binding.storeNIPLayout.error = null
-            binding.storeNIPLayout.helperText = "Correct NIP"
+            binding.storeNIPLayout.helperText = getString(R.string.nip_correct)
         }
     }
 
@@ -284,21 +294,32 @@ class AddStoreFragment : Fragment() {
 
     }
 
+    private fun clearInputs() {
+        addStoreDataViewModel.storeById.value = null
+    }
+
     private fun isStoreInputValid(): Boolean {
         if (binding.storeNameInput.text.toString() == "") {
-            Toast.makeText(requireContext(), "Name cannot be empty", Toast.LENGTH_SHORT).show()
+            Toast.makeText(requireContext(), getString(R.string.empty_name), Toast.LENGTH_SHORT)
+                .show()
             return false
         }
         if (binding.storeNIPInput.text.toString() == "") {
-            Toast.makeText(requireContext(), "NIP cannot be empty", Toast.LENGTH_SHORT).show()
+            Toast.makeText(requireContext(), getString(R.string.empty_nip), Toast.LENGTH_SHORT)
+                .show()
             return false
         }
         if (pickedCategory?.id == null || pickedCategory?.id?.isEmpty() == true) {
-            Toast.makeText(requireContext(), "Category cannot be empty", Toast.LENGTH_SHORT).show()
+            Toast.makeText(requireContext(), getString(R.string.pick_category), Toast.LENGTH_SHORT)
+                .show()
             return false
         }
-        if (!isUniqueNIP) {
-            Toast.makeText(requireContext(), "NIP cannot be duplicated", Toast.LENGTH_SHORT).show()
+        if (!isNIPUnique(binding.storeNIPInput.text.toString())) {
+            Toast.makeText(
+                requireContext(),
+                getString(R.string.nip_already_exists),
+                Toast.LENGTH_SHORT
+            ).show()
             return false
         }
         return true

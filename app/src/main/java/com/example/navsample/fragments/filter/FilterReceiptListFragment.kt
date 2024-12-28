@@ -40,7 +40,7 @@ class FilterReceiptListFragment : Fragment() {
 
         binding.toolbar.inflateMenu(R.menu.top_menu_filter)
         binding.toolbar.setNavigationIcon(R.drawable.back)
-        binding.toolbar.title = "Filter"
+        binding.toolbar.title = getString(R.string.filter_title)
 
         initObserver()
         putFilterDefinitionIntoInputs()

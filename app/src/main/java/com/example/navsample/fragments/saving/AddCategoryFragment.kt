@@ -7,6 +7,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import androidx.activity.OnBackPressedCallback
 import androidx.core.widget.doOnTextChanged
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
@@ -44,6 +45,10 @@ class AddCategoryFragment : Fragment() {
         return binding.root
     }
 
+    private fun clearInputs() {
+        addCategoryDataViewModel.categoryById.value = null
+    }
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
@@ -58,6 +63,15 @@ class AddCategoryFragment : Fragment() {
         consumeNavArgs()
         applyInputParameters()
 
+
+        requireActivity().onBackPressedDispatcher.addCallback(
+            viewLifecycleOwner, object : OnBackPressedCallback(true) {
+                override fun handleOnBackPressed() {
+                    clearInputs()
+                    Navigation.findNavController(requireView()).popBackStack()
+                }
+            }
+        )
         binding.toolbar.setOnMenuItemClickListener {
             when (it.itemId) {
                 R.id.confirm -> {
@@ -75,6 +89,7 @@ class AddCategoryFragment : Fragment() {
         }
 
         binding.toolbar.setNavigationOnClickListener {
+            clearInputs()
             Navigation.findNavController(it).popBackStack()
         }
         binding.colorView.setOnClickListener { _ ->
@@ -83,6 +98,9 @@ class AddCategoryFragment : Fragment() {
         binding.categoryColorLayout.setStartIconOnClickListener {
             colorPicker()
         }
+        binding.categoryColorLayout.setEndIconOnClickListener {
+            applyRandomColor()
+        }
         binding.categoryColorInput.doOnTextChanged { text, _, _, count ->
             if (count == 7 && text != null && text[0] == '#') {
                 try {
@@ -90,19 +108,19 @@ class AddCategoryFragment : Fragment() {
                     binding.colorSquare.setBackgroundColor(pickedColor)
                     binding.categoryColorLayout.error = null
                 } catch (e: Exception) {
-                    binding.categoryColorLayout.error = "Cannot parse"
+                    binding.categoryColorLayout.error = getString(R.string.invalid_color_format)
                 }
             } else {
-                binding.categoryColorLayout.error = "Cannot parse"
+                binding.categoryColorLayout.error = getString(R.string.invalid_color_format)
             }
         }
         binding.categoryNameInput.doOnTextChanged { text, _, _, count ->
             if (count == 0) {
-                binding.categoryNameLayout.error = "Cannot be empty"
+                binding.categoryNameLayout.error = getString(R.string.empty_value_error)
             } else if (text.toString() == addCategoryDataViewModel.categoryById.value?.name) {
                 binding.categoryNameLayout.error = null
             } else if (addCategoryDataViewModel.categoryList.value?.find { it.name == text.toString() } != null) {
-                binding.categoryNameLayout.error = "Category name already defined"
+                binding.categoryNameLayout.error = getString(R.string.category_already_exists)
             } else {
                 binding.categoryNameLayout.error = null
             }
@@ -117,17 +135,19 @@ class AddCategoryFragment : Fragment() {
         }
     }
 
+
     private fun applyInputParameters() {
         val inputType = AddingInputType.getByName(addCategoryDataViewModel.inputType)
         if (inputType == AddingInputType.EMPTY) {
             addCategoryDataViewModel.categoryById.value = null
             mode = DataMode.NEW
+            applyRandomColor()
             binding.categoryNameInput.setText("")
-            binding.toolbar.title = "New category"
+            binding.toolbar.title = getString(R.string.new_category_title)
 
         } else if (inputType == AddingInputType.ID) {
             if (addCategoryDataViewModel.categoryId.isNotEmpty()) {
-                binding.toolbar.title = "Edit category"
+                binding.toolbar.title = getString(R.string.edit_category_title)
                 mode = DataMode.EDIT
                 addCategoryDataViewModel.getCategoryById(addCategoryDataViewModel.categoryId)
             } else {
@@ -139,10 +159,8 @@ class AddCategoryFragment : Fragment() {
     }
 
     private fun colorPicker() {
-        ColorPickerDialog(pickedColor) {
-            pickedColor = it
-            binding.colorSquare.setBackgroundColor(it)
-            binding.categoryColorInput.setText(String.format("#%06X", 0xBBBBBB and it))
+        ColorPickerDialog(pickedColor) { color ->
+            applyColor(color)
             binding.categoryColorLayout.error = null
         }.show(childFragmentManager, "TAG")
     }
@@ -165,7 +183,8 @@ class AddCategoryFragment : Fragment() {
 
     private fun isCategoryInputValid(): Boolean {
         if (binding.categoryColorLayout.error != null || binding.categoryNameLayout.error != null) {
-            Toast.makeText(requireContext(), "Incorrect input values", Toast.LENGTH_SHORT).show()
+            Toast.makeText(requireContext(), getString(R.string.bad_inputs), Toast.LENGTH_SHORT)
+                .show()
             return false
         }
         return true
@@ -223,5 +242,29 @@ class AddCategoryFragment : Fragment() {
                 addCategoryDataViewModel.savedCategory.value = null
             }
         }
+    }
+
+    private fun generateRandomColor(): Int {
+        val red = (0..255).random()
+        val green = (0..255).random()
+        val blue = (0..255).random()
+        return Color.rgb(red, green, blue)
+    }
+
+    private fun applyRandomColor() {
+        applyColor(generateRandomColor())
+    }
+
+    private fun applyColor(color: Int) {
+        pickedColor = color
+        binding.colorSquare.setBackgroundColor(pickedColor)
+        binding.categoryColorInput.setText(intToColorString(pickedColor))
+    }
+
+    private fun intToColorString(colorInt: Int): String {
+        val red = (colorInt shr 16) and 0xFF
+        val green = (colorInt shr 8) and 0xFF
+        val blue = colorInt and 0xFF
+        return String.format("#%02X%02X%02X", red, green, blue)
     }
 }

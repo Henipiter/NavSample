@@ -315,22 +315,7 @@ class RoomDatabaseHelper(
             receipt.time,
             receipt.pln,
             receipt.ptu,
-            receipt.validPrice,
             receipt.storeId,
-            receipt.updatedAt
-        )
-        return receipt
-    }
-
-    suspend fun updateReceiptValid(receipt: Receipt): Receipt {
-        Log.i(
-            "Database",
-            "Update receipt from ${receipt.date} payed ${receipt.pln} with id '${receipt.id}'"
-        )
-        receipt.updatedAt = DateUtil.getCurrentUtcTime()
-        dao.updateReceiptValidField(
-            receipt.id,
-            receipt.validPrice,
             receipt.updatedAt
         )
         return receipt

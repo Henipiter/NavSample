@@ -6,7 +6,6 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
@@ -17,24 +16,19 @@ import com.example.navsample.activity.GuideActivity
 import com.example.navsample.auth.AccountServiceImpl
 import com.example.navsample.databinding.FragmentSettingsBinding
 import com.example.navsample.entities.init.InitDatabaseHelper
-import com.example.navsample.viewmodels.ImageViewModel
-import com.example.navsample.viewmodels.InitDatabaseViewModel
 import com.example.navsample.viewmodels.fragment.AddCategoryDataViewModel
 import com.example.navsample.viewmodels.fragment.AddProductDataViewModel
 import com.example.navsample.viewmodels.fragment.AddReceiptDataViewModel
 import com.example.navsample.viewmodels.fragment.AddStoreDataViewModel
-import java.util.UUID
 
 class SettingsFragment : Fragment() {
     private var _binding: FragmentSettingsBinding? = null
 
     private val binding get() = _binding!!
-    private val initDatabaseViewModel: InitDatabaseViewModel by activityViewModels()
     private val addStoreDataViewModel: AddStoreDataViewModel by activityViewModels()
     private val addCategoryDataViewModel: AddCategoryDataViewModel by activityViewModels()
     private val addReceiptDataViewModel: AddReceiptDataViewModel by activityViewModels()
     private val addProductDataViewModel: AddProductDataViewModel by activityViewModels()
-    private val imageViewModel: ImageViewModel by activityViewModels()
 
 
     companion object {
@@ -56,25 +50,13 @@ class SettingsFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         binding.logInButton.setOnClickListener {
-            Toast.makeText(
-                requireContext(),
-                "EEE'${accountServiceImpl.currentUserId}'EEE",
-                Toast.LENGTH_SHORT
-            ).show()
             Navigation.findNavController(it)
                 .navigate(R.id.action_settingsFragment_to_signingPanelFragment)
-
         }
         binding.exportDataButton.setOnClickListener {
             Navigation.findNavController(it)
                 .navigate(R.id.action_settingsFragment_to_exportDataFragment)
         }
-        imageViewModel.clearData()
-
-        val myUuid = UUID.randomUUID()
-        initDatabaseViewModel.imageUuid.value = myUuid.toString()
-        imageViewModel.uid.value = myUuid.toString()
-
         if (BuildConfig.DEVELOPER) {
             devButton()
         }

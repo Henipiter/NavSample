@@ -56,7 +56,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginHorizontal="32dp"
                     android:layout_marginTop="16dp"
-                    android:hint="Product name"
+                    android:hint="@string/product_name"
                     app:endIconMode="clear_text"
                     app:errorEnabled="true"
                     app:layout_constraintEnd_toEndOf="parent"
@@ -81,7 +81,7 @@
                     android:layout_marginStart="32dp"
                     android:layout_marginTop="32dp"
                     android:layout_marginEnd="20dp"
-                    android:hint="Subtotal price"
+                    android:hint="@string/subtotal_price"
                     app:endIconMode="clear_text"
                     app:layout_constraintEnd_toStartOf="@+id/ptu_type_layout"
                     app:layout_constraintStart_toStartOf="parent"
@@ -112,7 +112,7 @@
                     android:layout_marginStart="32dp"
                     android:layout_marginEnd="10dp"
                     android:layout_marginTop="32dp"
-                    android:hint="Discount"
+                    android:hint="@string/discount_price"
                     app:endIconMode="clear_text"
 
                     app:layout_constraintEnd_toStartOf="@+id/center"
@@ -144,7 +144,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginStart="10dp"
                     android:layout_marginEnd="32dp"
-                    android:hint="Final price"
+                    android:hint="@string/final_price"
                     app:endIconMode="clear_text"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="@id/center"
@@ -174,7 +174,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginStart="40dp"
                     android:layout_marginEnd="32dp"
-                    android:hint="ptuType"
+                    android:hint="@string/ptu_type"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="@id/center"
                     app:layout_constraintTop_toTopOf="@+id/product_subtotal_price_layout">
@@ -186,7 +186,6 @@
                         android:inputType="numberDecimal"
                         android:focusable="false"
                         android:padding="13dp"
-                        android:text="A"
                         tools:ignore="LabelFor" />
                 </com.google.android.material.textfield.TextInputLayout>
 
@@ -198,7 +197,7 @@
                     android:layout_marginTop="16dp"
                     android:layout_marginStart="32dp"
                     android:layout_marginEnd="10dp"
-                    android:hint="Quantity"
+                    android:hint="@string/quantity"
                     app:endIconMode="clear_text"
 
                     app:layout_constraintEnd_toStartOf="@+id/center"
@@ -229,7 +228,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginStart="10dp"
                     android:layout_marginEnd="32dp"
-                    android:hint="Unit price"
+                    android:hint="@string/unit_price"
                     app:endIconMode="clear_text"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="@id/center"
@@ -259,7 +258,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginHorizontal="32dp"
                     android:layout_marginTop="32dp"
-                    android:hint="Category"
+                    android:hint="@string/category"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toBottomOf="@+id/product_discount_layout"
@@ -274,30 +273,13 @@
                         tools:ignore="LabelFor" />
                 </com.google.android.material.textfield.TextInputLayout>
 
-
-                <com.google.android.material.textfield.TextInputLayout
-                    android:id="@+id/product_original_layout"
-                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
-                    android:layout_width="match_parent"
+                <TextView
+                    android:id="@+id/product_category_helper_text"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginHorizontal="32dp"
-                    android:layout_marginTop="16dp"
-                    android:hint="Not parsed"
-                    app:endIconDrawable="@drawable/renew"
-                    app:endIconMode="custom"
-                    app:errorEnabled="true"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@id/product_category_layout">
-
-                    <AutoCompleteTextView
-                        android:id="@+id/product_original_input"
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:inputType="textNoSuggestions"
-                        android:padding="13dp"
-                        tools:ignore="LabelFor" />
-                </com.google.android.material.textfield.TextInputLayout>
+                    android:layout_marginStart="8dp"
+                    app:layout_constraintStart_toStartOf="@+id/product_category_layout"
+                    app:layout_constraintTop_toBottomOf="@+id/product_category_layout" />
 
                 <Space
                     android:id="@+id/center"
