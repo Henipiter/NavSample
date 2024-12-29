@@ -84,31 +84,14 @@ class SyncDatabaseViewModel : ViewModel() {
             FirestoreHelperSingleton.getInstance().getDataByQuery(entityClass, date) ?: return
         viewModelScope.launch {
             withContext(Dispatchers.IO) {
-                Log.d("AAAA", "====================")
-                Log.d(
-                    "AAAA", "${getEntityName(entityClass)} $temp 1 before get with date $date"
-                )
                 val snapshot = query.get().await()
                 val elements = FirestoreHelperSingleton.getInstance()
                     .convertQueryResponse(entityClass, snapshot)
-                Log.d(
-                    "AAAA", "${getEntityName(entityClass)} $temp 2 after convert ${elements.size}"
-                )
                 if (elements.isNotEmpty()) {
                     var isSaved = false
                     elements.forEach { entity ->
-                        logName(entity, temp)
-                        Log.d(
-                            "AAAA",
-                            "${getEntityName(entityClass)} $temp 3 for element - saving ${entity.firestoreId}"
-                        )
                         isSaved = roomDatabaseHelper.saveEntityFromFirestore(entity)
                     }
-                    Log.d(
-                        "AAAA",
-                        "${getEntityName(entityClass)} $temp 4 set key with date ${elements.last().updatedAt} isSaved $isSaved"
-                    )
-
                     if (isSaved) {
                         setPreferencesKey(preferencesKey, elements.last().updatedAt)
                         readFirebaseChangesTemplate(entityClass, preferencesKey)
@@ -120,34 +103,6 @@ class SyncDatabaseViewModel : ViewModel() {
                 }
             }
         }
-    }
-
-    private fun <T : TranslateEntity> getEntityName(entity: KClass<T>): String {
-        return entity.java.canonicalName?.split(".")?.last() ?: "-"
-    }
-
-    private fun <T : TranslateEntity> logName(entity: T, temp: String) {
-        var name = ""
-        val entityName = getEntityName(entity::class)
-        when (entity) {
-            is Category -> {
-                name = (entity as Category).name
-            }
-
-            is Store -> {
-                name = (entity as Store).name
-            }
-
-            is Product -> {
-                name = (entity as Product).name
-            }
-
-            is Receipt -> {
-                val receipt = entity as Receipt
-                name = "${receipt.date} ${receipt.pln}"
-            }
-        }
-        Log.d("AAAA", "$entityName $name  $temp 3")
     }
 
     private fun readCategoryFirebaseChanges() {
@@ -509,6 +464,5 @@ class SyncDatabaseViewModel : ViewModel() {
     fun deleteAllData() {
         viewModelScope.launch { roomDatabaseHelper.deleteAllData() }
     }
-
 
 }

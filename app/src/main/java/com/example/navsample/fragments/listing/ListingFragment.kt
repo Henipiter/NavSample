@@ -168,12 +168,16 @@ class ListingFragment : Fragment() {
             if (it) {
                 syncDatabaseViewModel.categoryRead.postValue(false)
                 listingViewModel.loadDataByCategoryFilter()
+                listingViewModel.loadDataByStoreFilter()
+                listingViewModel.loadDataByProductFilter()
             }
         }
         syncDatabaseViewModel.storeRead.observe(viewLifecycleOwner) {
             if (it) {
                 syncDatabaseViewModel.storeRead.postValue(false)
                 listingViewModel.loadDataByStoreFilter()
+                listingViewModel.loadDataByReceiptFilter()
+                listingViewModel.loadDataByProductFilter()
             }
         }
         syncDatabaseViewModel.receiptRead.observe(viewLifecycleOwner) {
@@ -186,6 +190,7 @@ class ListingFragment : Fragment() {
             if (it) {
                 syncDatabaseViewModel.productRead.postValue(false)
                 listingViewModel.loadDataByProductFilter()
+                listingViewModel.loadDataByReceiptFilter()
             }
         }
     }
