@@ -138,13 +138,14 @@ interface ReceiptDao {
 
 
     @Transaction
-    suspend fun saveCategoryFromFirestore(category: Category) {
+    suspend fun saveCategoryFromFirestore(category: Category): Boolean {
         if (category.id == "") {
-            return
+            return false
         }
         val localCategory = getCategoryById(category.id)
         if (localCategory == null) {
             insertCategory(category)
+            return true
         } else {
             if (localCategory.updatedAt < category.updatedAt) {
                 updateCategoryFields(
@@ -154,18 +155,21 @@ interface ReceiptDao {
                     category.updatedAt,
                     false
                 )
+                return true
             }
         }
+        return false
     }
 
     @Transaction
-    suspend fun saveStoreFromFirestore(store: Store) {
+    suspend fun saveStoreFromFirestore(store: Store): Boolean {
         if (store.id == "") {
-            return
+            return false
         }
         val localStore = getStoreById(store.id)
         if (localStore == null) {
             insertStore(store)
+            return true
         } else {
             if (localStore.updatedAt < store.updatedAt) {
                 updateStoreFields(
@@ -176,18 +180,21 @@ interface ReceiptDao {
                     store.updatedAt,
                     false
                 )
+                return true
             }
         }
+        return false
     }
 
     @Transaction
-    suspend fun saveReceiptFromFirestore(receipt: Receipt) {
+    suspend fun saveReceiptFromFirestore(receipt: Receipt): Boolean {
         if (receipt.id == "") {
-            return
+            return false
         }
         val localReceipt = getReceiptById(receipt.id)
         if (localReceipt == null) {
             insertReceipt(receipt)
+            return true
         } else {
             if (localReceipt.updatedAt < receipt.updatedAt) {
                 updateReceiptFields(
@@ -200,18 +207,21 @@ interface ReceiptDao {
                     receipt.updatedAt,
                     false
                 )
+                return true
             }
         }
+        return false
     }
 
     @Transaction
-    suspend fun saveProductFromFirestore(product: Product) {
+    suspend fun saveProductFromFirestore(product: Product): Boolean {
         if (product.id == "") {
-            return
+            return false
         }
         val localProduct = getProductById(product.id)
         if (localProduct == null) {
             insertProduct(product)
+            return true
         } else {
             if (localProduct.updatedAt < product.updatedAt) {
                 updateProductFields(
@@ -229,8 +239,10 @@ interface ReceiptDao {
                     product.updatedAt,
                     false
                 )
+                return true
             }
         }
+        return false
     }
 
     @Query("UPDATE category SET firestoreId = :firestoreId WHERE id = :id")

@@ -364,24 +364,25 @@ class RoomDatabaseHelper(
         }
     }
 
-    suspend fun <T : TranslateEntity> saveEntityFromFirestore(entity: T) {
+    suspend fun <T : TranslateEntity> saveEntityFromFirestore(entity: T): Boolean {
         when (entity) {
             is Category -> {
-                dao.saveCategoryFromFirestore(entity as Category)
+                return dao.saveCategoryFromFirestore(entity as Category)
             }
 
             is Store -> {
-                dao.saveStoreFromFirestore(entity as Store)
+                return dao.saveStoreFromFirestore(entity as Store)
             }
 
             is Receipt -> {
-                dao.saveReceiptFromFirestore(entity as Receipt)
+                return dao.saveReceiptFromFirestore(entity as Receipt)
             }
 
             is Product -> {
-                dao.saveProductFromFirestore(entity as Product)
+                return dao.saveProductFromFirestore(entity as Product)
             }
         }
+        return false
     }
 
     suspend fun deleteAllData() {

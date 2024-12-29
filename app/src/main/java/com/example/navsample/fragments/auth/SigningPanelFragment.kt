@@ -70,6 +70,7 @@ class SigningPanelFragment : Fragment() {
                 FirestoreHelperSingleton.initialize("")
                 clearDatabase()
                 initButtons()
+                Navigation.findNavController(binding.root).popBackStack(R.id.listingFragment, false)
             } else {
                 Log.d("USER_ID", "User is still logged")
             }

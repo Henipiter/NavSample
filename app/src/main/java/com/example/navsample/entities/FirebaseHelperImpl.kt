@@ -67,11 +67,15 @@ class FirebaseHelperImpl(
 
 
     override fun <T : TranslateEntity> getDataByQuery(type: KClass<out T>, date: String): Query {
-        return getFullFirestorePath(type)
+        var query = getFullFirestorePath(type)
             .whereEqualTo("deletedAt", "")
-            .whereGreaterThan("updatedAt", date)
             .orderBy("updatedAt")
-            .limit(1)
+            .limit(100)
+
+        if (date != "") {
+            query = query.whereGreaterThanOrEqualTo("updatedAt", date)
+        }
+        return query
     }
 
     override fun <T : TranslateEntity> addFirestore(

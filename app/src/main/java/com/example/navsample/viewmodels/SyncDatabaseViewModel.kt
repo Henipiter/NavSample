@@ -40,6 +40,10 @@ class SyncDatabaseViewModel : ViewModel() {
     private var roomDatabaseHelper: RoomDatabaseHelper
     private var roomDatabaseHelperFirebase: RoomDatabaseHelperFirebaseSync
 
+    private var categoryReading = false
+    private var storeReading = false
+    private var receiptReading = false
+    private var productReading = false
     var categoryRead = MutableLiveData(false)
     var storeRead = MutableLiveData(false)
     var receiptRead = MutableLiveData(false)
@@ -72,8 +76,7 @@ class SyncDatabaseViewModel : ViewModel() {
 
     private fun <T : TranslateEntity> readFirebaseChangesTemplate(
         entityClass: KClass<out T>,
-        preferencesKey: String,
-        onFinish: () -> Unit
+        preferencesKey: String
     ) {
         val temp = UUID.randomUUID().toString()
         val date = getPreferencesKey(preferencesKey)
@@ -81,40 +84,112 @@ class SyncDatabaseViewModel : ViewModel() {
             FirestoreHelperSingleton.getInstance().getDataByQuery(entityClass, date) ?: return
         viewModelScope.launch {
             withContext(Dispatchers.IO) {
-                Log.d("AAAA", "$temp 1 before get with date $date")
+                Log.d("AAAA", "====================")
+                Log.d(
+                    "AAAA", "${getEntityName(entityClass)} $temp 1 before get with date $date"
+                )
                 val snapshot = query.get().await()
                 val elements = FirestoreHelperSingleton.getInstance()
                     .convertQueryResponse(entityClass, snapshot)
-                Log.d("AAAA", "$temp 2 after convert")
+                Log.d(
+                    "AAAA", "${getEntityName(entityClass)} $temp 2 after convert ${elements.size}"
+                )
                 if (elements.isNotEmpty()) {
+                    var isSaved = false
                     elements.forEach { entity ->
-                        Log.d("AAAA", "$temp 3 for element - saving")
-                        roomDatabaseHelper.saveEntityFromFirestore(entity)
+                        logName(entity, temp)
+                        Log.d(
+                            "AAAA",
+                            "${getEntityName(entityClass)} $temp 3 for element - saving ${entity.firestoreId}"
+                        )
+                        isSaved = roomDatabaseHelper.saveEntityFromFirestore(entity)
                     }
-                    Log.d("AAAA", "$temp 4 set key with date ${elements.last().updatedAt}")
-                    setPreferencesKey(preferencesKey, elements.last().updatedAt)
-                    //recursion
-                    readFirebaseChangesTemplate(entityClass, preferencesKey, onFinish)
+                    Log.d(
+                        "AAAA",
+                        "${getEntityName(entityClass)} $temp 4 set key with date ${elements.last().updatedAt} isSaved $isSaved"
+                    )
+
+                    if (isSaved) {
+                        setPreferencesKey(preferencesKey, elements.last().updatedAt)
+                        readFirebaseChangesTemplate(entityClass, preferencesKey)
+                    } else {
+                        markAsFinished(entityClass)
+                    }
                 } else {
-                    onFinish.invoke()
+                    markAsFinished(entityClass)
                 }
             }
         }
     }
 
+    private fun <T : TranslateEntity> getEntityName(entity: KClass<T>): String {
+        return entity.java.canonicalName?.split(".")?.last() ?: "-"
+    }
+
+    private fun <T : TranslateEntity> logName(entity: T, temp: String) {
+        var name = ""
+        val entityName = getEntityName(entity::class)
+        when (entity) {
+            is Category -> {
+                name = (entity as Category).name
+            }
+
+            is Store -> {
+                name = (entity as Store).name
+            }
+
+            is Product -> {
+                name = (entity as Product).name
+            }
+
+            is Receipt -> {
+                val receipt = entity as Receipt
+                name = "${receipt.date} ${receipt.pln}"
+            }
+        }
+        Log.d("AAAA", "$entityName $name  $temp 3")
+    }
 
     private fun readCategoryFirebaseChanges() {
-        readFirebaseChangesTemplate(Category::class, CATEGORY_LAST_UPDATE_KEY) {
-            categoryRead.postValue(true)
+        if (!categoryReading) {
+            categoryReading = true
+            readFirebaseChangesTemplate(Category::class, CATEGORY_LAST_UPDATE_KEY)
         }
-        readFirebaseChangesTemplate(Store::class, STORE_LAST_UPDATE_KEY) {
-            storeRead.postValue(true)
+        if (!storeReading) {
+            storeReading = true
+            readFirebaseChangesTemplate(Store::class, STORE_LAST_UPDATE_KEY)
         }
-        readFirebaseChangesTemplate(Receipt::class, RECEIPT_LAST_UPDATE_KEY) {
-            receiptRead.postValue(true)
+        if (!receiptReading) {
+            receiptReading = true
+            readFirebaseChangesTemplate(Receipt::class, RECEIPT_LAST_UPDATE_KEY)
         }
-        readFirebaseChangesTemplate(Product::class, PRODUCT_LAST_UPDATE_KEY) {
-            productRead.postValue(true)
+        if (!productReading) {
+            productReading = true
+            readFirebaseChangesTemplate(Product::class, PRODUCT_LAST_UPDATE_KEY)
+        }
+    }
+
+    private fun <T : TranslateEntity> markAsFinished(entity: KClass<out T>) {
+        when (entity) {
+            Category::class -> {
+                categoryReading = false
+                categoryRead.postValue(true)
+            }
+
+            Store::class -> {
+                storeReading = false
+                storeRead.postValue(true)
+            }
+
+            Receipt::class -> {
+                receiptReading = false
+                receiptRead.postValue(true)
+            }
+
+            Product::class -> {
+                productReading = false
+                productRead.postValue(true)
+            }
         }
     }
 

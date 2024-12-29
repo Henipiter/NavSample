@@ -9,7 +9,7 @@ class DateUtil {
     companion object {
         fun getCurrentUtcTime(): String {
             val currentTime = LocalDateTime.now(ZoneOffset.UTC)
-            val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")
+            val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSS")
             return currentTime.format(formatter)
         }
     }
