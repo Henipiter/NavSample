@@ -42,7 +42,7 @@ class RichProductListAdapter(
             onDelete.invoke(position)
             true
         }
-        binding.boundaryButton.setOnClickListener {
+        binding.finalPriceCard.setOnClickListener {
             val isCollapse = productList[position].collapse
             productList[position].collapse = !isCollapse
             setCollapseOrExpandTile(binding, position)
