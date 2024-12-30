@@ -417,7 +417,7 @@ class AddProductListFragment : Fragment(), ItemClickListener {
 
         addProductDataViewModel.storeById.observe(viewLifecycleOwner) { store ->
             store?.let {
-                binding.toolbar.title = store.name
+                binding.storeName.text = store.name
             }
         }
         addProductDataViewModel.receiptById.observe(viewLifecycleOwner) { receipt ->
