@@ -7,8 +7,8 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.navsample.dto.analyzer.AnalyzedProductsData
 import com.example.navsample.dto.analyzer.AnalyzedReceiptData
-import com.example.navsample.entities.Category
-import com.example.navsample.entities.Product
+import com.example.navsample.entities.database.Category
+import com.example.navsample.entities.database.Product
 import com.example.navsample.imageanalyzer.GeminiAssistant
 import com.example.navsample.imageanalyzer.ImageAnalyzer
 import com.google.mlkit.vision.common.InputImage

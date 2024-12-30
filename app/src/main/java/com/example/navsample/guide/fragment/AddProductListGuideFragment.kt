@@ -13,8 +13,8 @@ import com.example.navsample.ItemClickListener
 import com.example.navsample.R
 import com.example.navsample.adapters.ProductListAdapter
 import com.example.navsample.databinding.FragmentAddProductListBinding
-import com.example.navsample.entities.Category
-import com.example.navsample.entities.Product
+import com.example.navsample.entities.database.Category
+import com.example.navsample.entities.database.Product
 import com.example.navsample.guide.Guide
 import com.github.chrisbanes.photoview.PhotoView
 

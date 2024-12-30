@@ -18,8 +18,8 @@ import com.example.navsample.dto.DataMode
 import com.example.navsample.dto.FragmentName
 import com.example.navsample.dto.NipValidator
 import com.example.navsample.dto.inputmode.AddingInputType
-import com.example.navsample.entities.Category
-import com.example.navsample.entities.Store
+import com.example.navsample.entities.database.Category
+import com.example.navsample.entities.database.Store
 import com.example.navsample.exception.NoCategoryIdException
 import com.example.navsample.fragments.dialogs.ConfirmDialog
 import com.example.navsample.viewmodels.ImageViewModel

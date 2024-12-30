@@ -4,6 +4,10 @@ import android.content.Context
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
+import com.example.navsample.entities.database.Category
+import com.example.navsample.entities.database.Product
+import com.example.navsample.entities.database.Receipt
+import com.example.navsample.entities.database.Store
 
 @Database(
     entities = [

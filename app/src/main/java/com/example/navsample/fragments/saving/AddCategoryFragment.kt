@@ -19,7 +19,7 @@ import com.example.navsample.dto.ColorManager
 import com.example.navsample.dto.DataMode
 import com.example.navsample.dto.FragmentName
 import com.example.navsample.dto.inputmode.AddingInputType
-import com.example.navsample.entities.Category
+import com.example.navsample.entities.database.Category
 import com.example.navsample.fragments.dialogs.ColorPickerDialog
 import com.example.navsample.viewmodels.ListingViewModel
 import com.example.navsample.viewmodels.fragment.AddCategoryDataViewModel

@@ -6,6 +6,10 @@ import com.example.navsample.dto.sort.ReceiptWithStoreSort
 import com.example.navsample.dto.sort.RichProductSort
 import com.example.navsample.dto.sort.SortProperty
 import com.example.navsample.dto.sort.StoreSort
+import com.example.navsample.entities.database.Category
+import com.example.navsample.entities.database.Product
+import com.example.navsample.entities.database.Receipt
+import com.example.navsample.entities.database.Store
 import com.example.navsample.entities.relations.AllData
 import com.example.navsample.entities.relations.PriceByCategory
 import com.example.navsample.entities.relations.ProductRichData

@@ -14,7 +14,7 @@ import com.example.navsample.ApplicationContext
 import com.example.navsample.activity.GuideActivity
 import com.example.navsample.adapters.ViewPagerAdapter
 import com.example.navsample.databinding.FragmentListingBinding
-import com.example.navsample.entities.dto.TranslateFirebaseEntity
+import com.example.navsample.entities.firestore.TranslateFirebaseEntity
 import com.example.navsample.viewmodels.ImageViewModel
 import com.example.navsample.viewmodels.ListingViewModel
 import com.example.navsample.viewmodels.SyncDatabaseViewModel

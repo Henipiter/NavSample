@@ -14,10 +14,10 @@ import com.example.navsample.dto.sort.ReceiptWithStoreSort
 import com.example.navsample.dto.sort.RichProductSort
 import com.example.navsample.dto.sort.SortProperty
 import com.example.navsample.dto.sort.StoreSort
-import com.example.navsample.entities.Category
 import com.example.navsample.entities.ReceiptDatabase
 import com.example.navsample.entities.RoomDatabaseHelper
-import com.example.navsample.entities.Store
+import com.example.navsample.entities.database.Category
+import com.example.navsample.entities.database.Store
 import com.example.navsample.entities.relations.ProductRichData
 import com.example.navsample.entities.relations.ReceiptWithStore
 import kotlinx.coroutines.launch

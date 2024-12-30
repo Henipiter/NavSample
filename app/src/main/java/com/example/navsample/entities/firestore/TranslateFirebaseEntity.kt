@@ -1,4 +1,4 @@
-package com.example.navsample.entities.dto
+package com.example.navsample.entities.firestore
 
 interface TranslateFirebaseEntity {
 

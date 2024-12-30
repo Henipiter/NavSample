@@ -35,7 +35,7 @@ import com.example.navsample.dto.PriceUtils.Companion.intPriceToString
 import com.example.navsample.dto.analyzer.AnalyzedProductsData
 import com.example.navsample.dto.inputmode.AddingInputType
 import com.example.navsample.dto.sorting.AlgorithmItemAdapterArgument
-import com.example.navsample.entities.Product
+import com.example.navsample.entities.database.Product
 import com.example.navsample.fragments.dialogs.ConfirmDialog
 import com.example.navsample.sheets.ImportImageBottomSheetFragment
 import com.example.navsample.sheets.ReceiptBottomSheetFragment

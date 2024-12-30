@@ -1,15 +1,14 @@
-package com.example.navsample.entities
+package com.example.navsample.entities.database
 
 import androidx.room.Entity
+import androidx.room.Index
 import androidx.room.PrimaryKey
+import com.example.navsample.entities.TranslateEntity
 
-@Entity
-data class Receipt(
-    var storeId: String,
-    var pln: Int,
-    var ptu: Int,
-    var date: String,
-    var time: String,
+@Entity(indices = [Index(value = ["name"], unique = true)])
+data class Category(
+    var name: String,
+    var color: String,
     override var createdAt: String = "",
     override var updatedAt: String = "",
     override var deletedAt: String = "",
@@ -21,15 +20,12 @@ data class Receipt(
     @PrimaryKey
     var id: String = ""
 
-    constructor() : this("", -1, -1, "", "")
+    constructor() : this("", "")
     override fun insertData(): HashMap<String, Any?> {
         return hashMapOf(
             "id" to this.id,
-            "storeId" to this.storeId,
-            "pln" to this.pln,
-            "ptu" to this.ptu,
-            "date" to this.date,
-            "time" to this.time,
+            "name" to this.name,
+            "color" to this.color,
             "createdAt" to this.createdAt,
             "updatedAt" to this.updatedAt,
             "deletedAt" to this.deletedAt,
@@ -41,11 +37,8 @@ data class Receipt(
     override fun updateData(): HashMap<String, Any?> {
         return hashMapOf(
             "id" to this.id,
-            "storeId" to this.storeId,
-            "pln" to this.pln,
-            "ptu" to this.ptu,
-            "date" to this.date,
-            "time" to this.time,
+            "name" to this.name,
+            "color" to this.color,
             "updatedAt" to this.updatedAt
         )
     }

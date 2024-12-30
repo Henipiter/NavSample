@@ -22,8 +22,8 @@ import com.example.navsample.dto.PriceUtils.Companion.doubleQuantityTextToInt
 import com.example.navsample.dto.PriceUtils.Companion.intPriceToString
 import com.example.navsample.dto.PriceUtils.Companion.intQuantityToString
 import com.example.navsample.dto.inputmode.AddingInputType
-import com.example.navsample.entities.Category
-import com.example.navsample.entities.Product
+import com.example.navsample.entities.database.Category
+import com.example.navsample.entities.database.Product
 import com.example.navsample.exception.NoCategoryIdException
 import com.example.navsample.exception.NoReceiptIdException
 import com.example.navsample.viewmodels.ImageViewModel

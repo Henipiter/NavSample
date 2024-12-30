@@ -1,6 +1,6 @@
 package com.example.navsample.entities
 
-import com.example.navsample.entities.dto.TranslateFirebaseEntity
+import com.example.navsample.entities.firestore.TranslateFirebaseEntity
 import com.google.firebase.firestore.Query
 import com.google.firebase.firestore.QuerySnapshot
 import kotlin.reflect.KClass

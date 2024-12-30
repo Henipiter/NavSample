@@ -20,8 +20,8 @@ import com.example.navsample.dto.FragmentName
 import com.example.navsample.dto.PriceUtils.Companion.doublePriceTextToInt
 import com.example.navsample.dto.PriceUtils.Companion.intPriceToString
 import com.example.navsample.dto.inputmode.AddingInputType
-import com.example.navsample.entities.Receipt
-import com.example.navsample.entities.Store
+import com.example.navsample.entities.database.Receipt
+import com.example.navsample.entities.database.Store
 import com.example.navsample.viewmodels.ImageAnalyzerViewModel
 import com.example.navsample.viewmodels.ImageViewModel
 import com.example.navsample.viewmodels.ListingViewModel

@@ -19,7 +19,7 @@ import com.example.navsample.dto.FragmentName
 import com.example.navsample.dto.inputmode.AddingInputType
 import com.example.navsample.dto.sort.RichProductSort
 import com.example.navsample.dto.sort.SortProperty
-import com.example.navsample.entities.Product
+import com.example.navsample.entities.database.Product
 import com.example.navsample.entities.relations.ProductRichData
 import com.example.navsample.fragments.dialogs.ConfirmDialog
 import com.example.navsample.fragments.dialogs.SortingDialog

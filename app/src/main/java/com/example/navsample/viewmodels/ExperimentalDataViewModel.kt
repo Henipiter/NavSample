@@ -6,9 +6,9 @@ import androidx.lifecycle.viewModelScope
 import com.example.navsample.ApplicationContext
 import com.example.navsample.dto.sorting.AlgorithmItemAdapterArgument
 import com.example.navsample.dto.sorting.UserItemAdapterArgument
-import com.example.navsample.entities.Category
 import com.example.navsample.entities.ReceiptDatabase
 import com.example.navsample.entities.RoomDatabaseHelper
+import com.example.navsample.entities.database.Category
 import kotlinx.coroutines.launch
 
 class ExperimentalDataViewModel : ViewModel() {

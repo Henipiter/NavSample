@@ -7,7 +7,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.navsample.ItemClickListener
 import com.example.navsample.databinding.CategoryRowBinding
 import com.example.navsample.dto.ColorManager
-import com.example.navsample.entities.Category
+import com.example.navsample.entities.database.Category
 
 class CategoryListAdapter(
     var context: Context,

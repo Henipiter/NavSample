@@ -8,7 +8,7 @@ import com.example.navsample.ItemClickListener
 import com.example.navsample.databinding.StoreRowBinding
 import com.example.navsample.dto.ColorManager
 import com.example.navsample.dto.NipValidator
-import com.example.navsample.entities.Store
+import com.example.navsample.entities.database.Store
 
 class StoreListAdapter(
     var context: Context,

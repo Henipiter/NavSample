@@ -10,8 +10,8 @@ import com.example.navsample.databinding.ProductDtoRowBinding
 import com.example.navsample.dto.ColorManager
 import com.example.navsample.dto.PriceUtils.Companion.intPriceToString
 import com.example.navsample.dto.PriceUtils.Companion.intQuantityToString
-import com.example.navsample.entities.Category
-import com.example.navsample.entities.Product
+import com.example.navsample.entities.database.Category
+import com.example.navsample.entities.database.Product
 
 class ProductListAdapter(
     var context: Context,

@@ -3,12 +3,12 @@ package com.example.navsample.viewmodels
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.example.navsample.ApplicationContext
-import com.example.navsample.entities.Category
-import com.example.navsample.entities.Product
-import com.example.navsample.entities.Receipt
 import com.example.navsample.entities.ReceiptDatabase
 import com.example.navsample.entities.RoomDatabaseHelper
-import com.example.navsample.entities.Store
+import com.example.navsample.entities.database.Category
+import com.example.navsample.entities.database.Product
+import com.example.navsample.entities.database.Receipt
+import com.example.navsample.entities.database.Store
 
 class InitDatabaseViewModel : ViewModel() {
 

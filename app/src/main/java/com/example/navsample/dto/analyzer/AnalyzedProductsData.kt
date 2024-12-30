@@ -1,6 +1,6 @@
 package com.example.navsample.dto.analyzer
 
-import com.example.navsample.entities.Product
+import com.example.navsample.entities.database.Product
 
 data class AnalyzedProductsData(
     var receiptNameLines: List<String> = ArrayList(),

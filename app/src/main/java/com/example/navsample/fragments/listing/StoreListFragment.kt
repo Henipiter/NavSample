@@ -20,7 +20,7 @@ import com.example.navsample.dto.FragmentName
 import com.example.navsample.dto.inputmode.AddingInputType
 import com.example.navsample.dto.sort.SortProperty
 import com.example.navsample.dto.sort.StoreSort
-import com.example.navsample.entities.Store
+import com.example.navsample.entities.database.Store
 import com.example.navsample.fragments.dialogs.ConfirmDialog
 import com.example.navsample.fragments.dialogs.SortingDialog
 import com.example.navsample.sheets.ReceiptBottomSheetFragment

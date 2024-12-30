@@ -1,10 +1,14 @@
 package com.example.navsample.entities
 
 import android.util.Log
-import com.example.navsample.entities.dto.CategoryFirebase
-import com.example.navsample.entities.dto.ProductFirebase
-import com.example.navsample.entities.dto.ReceiptFirebase
-import com.example.navsample.entities.dto.StoreFirebase
+import com.example.navsample.entities.database.Category
+import com.example.navsample.entities.database.Product
+import com.example.navsample.entities.database.Receipt
+import com.example.navsample.entities.database.Store
+import com.example.navsample.entities.firestore.CategoryFirebase
+import com.example.navsample.entities.firestore.ProductFirebase
+import com.example.navsample.entities.firestore.ReceiptFirebase
+import com.example.navsample.entities.firestore.StoreFirebase
 
 class RoomDatabaseHelperFirebaseSync(
     private var dao: ReceiptDao

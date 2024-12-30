@@ -1,10 +1,10 @@
 package com.example.navsample.entities.init
 
 import com.example.navsample.chart.ChartColors
-import com.example.navsample.entities.Category
-import com.example.navsample.entities.Product
-import com.example.navsample.entities.Receipt
-import com.example.navsample.entities.Store
+import com.example.navsample.entities.database.Category
+import com.example.navsample.entities.database.Product
+import com.example.navsample.entities.database.Receipt
+import com.example.navsample.entities.database.Store
 
 class InitDatabaseHelper {
 

@@ -18,7 +18,7 @@ import com.example.navsample.adapters.CategoryListAdapter
 import com.example.navsample.databinding.FragmentCategoryListBinding
 import com.example.navsample.dto.FragmentName
 import com.example.navsample.dto.inputmode.AddingInputType
-import com.example.navsample.entities.Category
+import com.example.navsample.entities.database.Category
 import com.example.navsample.fragments.dialogs.ConfirmDialog
 import com.example.navsample.sheets.CategoryBottomSheetFragment
 import com.example.navsample.sheets.ReceiptBottomSheetFragment
