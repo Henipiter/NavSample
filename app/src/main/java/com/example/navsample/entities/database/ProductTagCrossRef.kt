@@ -1,10 +1,11 @@
 package com.example.navsample.entities.database
 
 import androidx.room.Entity
+import androidx.room.Index
 import androidx.room.PrimaryKey
 import com.example.navsample.entities.TranslateEntity
 
-@Entity
+@Entity(indices = [Index(value = ["productId"], unique = false)])
 data class ProductTagCrossRef(
     var productId: String,
     var tagId: String,

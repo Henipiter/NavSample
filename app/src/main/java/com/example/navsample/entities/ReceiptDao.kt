@@ -12,6 +12,7 @@ import androidx.sqlite.db.SupportSQLiteQuery
 import com.example.navsample.dto.DateUtil
 import com.example.navsample.entities.database.Category
 import com.example.navsample.entities.database.Product
+import com.example.navsample.entities.database.ProductTagCrossRef
 import com.example.navsample.entities.database.Receipt
 import com.example.navsample.entities.database.Store
 import com.example.navsample.entities.database.Tag
@@ -527,11 +528,17 @@ interface ReceiptDao {
     @Query("SELECT * FROM tag WHERE deletedAt == '' ORDER BY name")
     suspend fun getAllTags(): List<Tag>
 
+    @Query("SELECT * FROM productTagCrossRef WHERE deletedAt == '' ORDER BY productId")
+    suspend fun getAllProductTags(): List<ProductTagCrossRef>
+
     @Query("SELECT * FROM category WHERE name LIKE '%'||:name||'%' AND deletedAt == '' ORDER BY name")
     suspend fun getAllCategories(name: String): List<Category>
 
     @Query("SELECT * FROM tag WHERE name LIKE '%'||:name||'%' AND deletedAt == '' ORDER BY name")
     suspend fun getAllTags(name: String): List<Tag>
+
+    @Query("SELECT * FROM productTagCrossRef WHERE productId = :productId AND deletedAt == ''")
+    suspend fun getAllProductTags(productId: String): List<ProductTagCrossRef>
 
     @Query("SELECT * FROM product WHERE receiptId=:receiptId AND deletedAt == ''")
     suspend fun getAllProducts(receiptId: String): List<Product>

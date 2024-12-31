@@ -85,6 +85,7 @@ class AddProductFragment : Fragment() {
 
         consumeNavArgs()
         initObserver()
+        addProductDataViewModel.refreshTagsList(requireContext())
         addProductDataViewModel.refreshCategoryList()
         applyInputParameters()
 
@@ -597,6 +598,14 @@ class AddProductFragment : Fragment() {
     }
 
     private fun initObserver() {
+        addProductDataViewModel.chips.observe(viewLifecycleOwner) {
+            it?.let { chips ->
+                binding.chipGroup.removeAllViews()
+                chips.forEach { chip ->
+                    binding.chipGroup.addView(chip)
+                }
+            }
+        }
         imageViewModel.bitmapCroppedProduct.observe(viewLifecycleOwner) {
             if (it != null) {
                 binding.receiptImage.visibility = View.VISIBLE

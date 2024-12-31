@@ -154,6 +154,7 @@
     <string name="search_tag">Wyszukaj tag</string>
     <string name="tag_name_stub">Nazwa tagu</string>
     <string name="delete_tag">Usuń tag</string>
+    <string name="add_tag">+ Dodaj tag</string>
 
 
 </resources>

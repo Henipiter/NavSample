@@ -1,5 +1,6 @@
 package com.example.navsample.viewmodels.fragment
 
+import android.content.Context
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -12,6 +13,8 @@ import com.example.navsample.entities.database.Category
 import com.example.navsample.entities.database.Product
 import com.example.navsample.entities.database.Receipt
 import com.example.navsample.entities.database.Store
+import com.example.navsample.entities.database.Tag
+import com.google.android.material.chip.Chip
 import kotlinx.coroutines.launch
 
 class AddProductDataViewModel : ViewModel() {
@@ -25,6 +28,7 @@ class AddProductDataViewModel : ViewModel() {
     var storeId = ""
     var categoryId = ""
 
+    var chips = MutableLiveData<List<Chip>>()
     var categoryList = MutableLiveData<List<Category>>()
     var databaseProductList = MutableLiveData<ArrayList<Product>>()
     var temporaryProductList = MutableLiveData<ArrayList<Product>>()
@@ -52,6 +56,50 @@ class AddProductDataViewModel : ViewModel() {
         viewModelScope.launch {
             categoryList.postValue(roomDatabaseHelper.getAllCategories())
         }
+    }
+
+    fun refreshTagsList(context: Context) {
+        if (productId.isEmpty()) {
+            return
+        }
+        viewModelScope.launch {
+            val currentTagList = roomDatabaseHelper.getAllTags()
+            val productTagIds = roomDatabaseHelper.getAllProductTags(productId).map { it.tagId }
+
+            val selectedTags = arrayListOf<Tag>()
+            val notSelectedTags = arrayListOf<Tag>()
+            currentTagList.forEach { tag ->
+                if (productTagIds.contains(tag.id)) {
+                    selectedTags.add(tag)
+                } else {
+                    notSelectedTags.add(tag)
+                }
+            }
+            chips.postValue(createChips(context, selectedTags, notSelectedTags))
+
+
+        }
+    }
+
+    private fun createChips(
+        context: Context, selectedTags: ArrayList<Tag>, notSelectedTags: ArrayList<Tag>
+    ): MutableList<Chip> {
+        val chips = mutableListOf<Chip>()
+        selectedTags.forEach {
+            val chip = Chip(context).apply {
+                text = it.name
+                isCheckable = true
+            }
+            chips.add(chip)
+        }
+        notSelectedTags.forEach {
+            val chip = Chip(context).apply {
+                text = it.name
+                isCheckable = false
+            }
+            chips.add(chip)
+        }
+        return chips
     }
 
     fun deleteProduct(productId: String) {

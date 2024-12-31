@@ -155,7 +155,7 @@ class ListingViewModel : ViewModel() {
         }
     }
 
-    fun refreshTagList() {
+    fun refreshTagList() { //TODO wywolanie w hookUpFragment
         viewModelScope.launch {
             tagList.postValue(roomDatabaseHelper.getAllTags() as ArrayList<Tag>)
         }
@@ -164,6 +164,18 @@ class ListingViewModel : ViewModel() {
     private fun refreshTagList(tagName: String) {
         viewModelScope.launch {
             tagList.postValue(roomDatabaseHelper.getAllTags(tagName) as ArrayList<Tag>)
+        }
+    }
+
+    fun refreshProductTagList() {
+        viewModelScope.launch {
+            productTagList.postValue(roomDatabaseHelper.getAllProductTags() as ArrayList<ProductTagCrossRef>)
+        }
+    }
+
+    private fun refreshProductTagList(productId: String) {
+        viewModelScope.launch {
+            productTagList.postValue(roomDatabaseHelper.getAllProductTags(productId) as ArrayList<ProductTagCrossRef>)
         }
     }
 

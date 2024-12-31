@@ -8,6 +8,7 @@ import com.example.navsample.dto.sort.SortProperty
 import com.example.navsample.dto.sort.StoreSort
 import com.example.navsample.entities.database.Category
 import com.example.navsample.entities.database.Product
+import com.example.navsample.entities.database.ProductTagCrossRef
 import com.example.navsample.entities.database.Receipt
 import com.example.navsample.entities.database.Store
 import com.example.navsample.entities.database.Tag
@@ -43,6 +44,11 @@ class RoomDatabaseHelper(
         return dao.getAllTags()
     }
 
+    suspend fun getAllProductTags(): List<ProductTagCrossRef> {
+        Log.i("Database", "Refresh product tag list")
+        return dao.getAllProductTags()
+    }
+
 
     suspend fun getAllStores(): List<Store> {
         Log.i("Database", "Refresh store list")
@@ -75,6 +81,11 @@ class RoomDatabaseHelper(
     suspend fun getAllTags(tagName: String): List<Tag> {
         Log.i("Database", "Refresh tag list filtered by name '$tagName'")
         return dao.getAllTags(tagName)
+    }
+
+    suspend fun getAllProductTags(productId: String): List<ProductTagCrossRef> {
+        Log.i("Database", "Refresh product tag list filtered by name '$productId'")
+        return dao.getAllProductTags(productId)
     }
 
     suspend fun getAllStoresOrdered(

@@ -186,5 +186,6 @@
     <string name="search_tag">Search tag</string>
     <string name="tag_name_stub">Tag name</string>
     <string name="delete_tag">Delete tag</string>
+    <string name="add_tag">+ Add tag</string>
 
 </resources>

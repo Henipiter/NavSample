@@ -25,11 +25,11 @@
             android:id="@+id/horizontalView"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
             android:layout_marginHorizontal="32dp"
-            android:scrollbars="horizontal"
+            android:layout_marginTop="16dp"
             android:fadeScrollbars="false"
             android:scrollbarThumbVertical="@color/orange_800"
+            android:scrollbars="horizontal"
             app:layout_constraintTop_toBottomOf="@id/toolbar">
 
             <com.google.android.material.chip.ChipGroup
@@ -47,32 +47,6 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="chip1" />
-
-                <com.google.android.material.chip.Chip
-                    style="@style/Widget.MaterialComponents.Chip.Entry"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="chip2" />
-
-                <com.google.android.material.chip.Chip
-                    style="@style/Widget.MaterialComponents.Chip.Entry"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="chip3" />
-
-                <com.google.android.material.chip.Chip
-                    style="@style/Widget.MaterialComponents.Chip.Entry"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="chip4" />
-
-                <com.google.android.material.chip.Chip
-                    style="@style/Widget.MaterialComponents.Chip.Entry"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="chip5" />
-
-
             </com.google.android.material.chip.ChipGroup>
         </HorizontalScrollView>
 
