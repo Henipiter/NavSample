@@ -27,9 +27,6 @@ import com.example.navsample.entities.relations.TableCounts
 @Dao
 interface ReceiptDao {
 
-    @Insert(onConflict = OnConflictStrategy.IGNORE)
-    suspend fun insertUser(user: User): Long
-
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertCategory(category: Category)
 
