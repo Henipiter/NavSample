@@ -38,7 +38,7 @@ import com.example.navsample.dto.sorting.AlgorithmItemAdapterArgument
 import com.example.navsample.entities.database.Product
 import com.example.navsample.fragments.dialogs.ConfirmDialog
 import com.example.navsample.sheets.ImportImageBottomSheetFragment
-import com.example.navsample.sheets.ReceiptBottomSheetFragment
+import com.example.navsample.sheets.ProductBottomSheetFragment
 import com.example.navsample.viewmodels.ExperimentalDataViewModel
 import com.example.navsample.viewmodels.ImageAnalyzerViewModel
 import com.example.navsample.viewmodels.ImageViewModel
@@ -329,7 +329,7 @@ class AddProductListFragment : Fragment(), ItemClickListener {
             onCrop = { delegateToCropImage(true) },
             visibleOnCrop = imageViewModel.bitmapCroppedReceipt.value != null
         )
-        modalBottomSheet.show(parentFragmentManager, ReceiptBottomSheetFragment.TAG)
+        modalBottomSheet.show(parentFragmentManager, ProductBottomSheetFragment.TAG)
     }
 
     private fun reorderTilesWithProducts() {

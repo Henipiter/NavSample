@@ -23,7 +23,6 @@ import com.example.navsample.dto.sort.StoreSort
 import com.example.navsample.entities.database.Store
 import com.example.navsample.fragments.dialogs.ConfirmDialog
 import com.example.navsample.fragments.dialogs.SortingDialog
-import com.example.navsample.sheets.ReceiptBottomSheetFragment
 import com.example.navsample.sheets.StoreBottomSheetFragment
 import com.example.navsample.viewmodels.ListingViewModel
 import com.example.navsample.viewmodels.fragment.AddStoreDataViewModel
@@ -165,7 +164,7 @@ class StoreListFragment : Fragment(), ItemClickListener {
             { onDelete(index, store) },
             { onJumpToCategory(store.defaultCategoryId) }
         )
-        modalBottomSheet.show(parentFragmentManager, ReceiptBottomSheetFragment.TAG)
+        modalBottomSheet.show(parentFragmentManager, StoreBottomSheetFragment.TAG)
     }
 
     private fun onDelete(index: Int, store: Store) {

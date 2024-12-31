@@ -244,6 +244,9 @@
                 android:name="inputType"
                 android:defaultValue="EMPTY" />
         </action>
+        <action
+            android:id="@+id/action_listingFragment_to_addTagFragment"
+            app:destination="@id/addTagFragment" />
     </fragment>
     <fragment
         android:id="@+id/addCategoryFragment"
@@ -329,6 +332,21 @@
         android:label="CameraFragment">
         <argument
             android:name="source"
+            app:argType="string" />
+    </fragment>
+    <fragment
+        android:id="@+id/addTagFragment"
+        android:name="com.example.navsample.fragments.saving.AddTagFragment"
+        android:label="AddTagFragment">
+        <argument
+            android:name="inputType"
+            app:argType="string"
+            android:defaultValue="EMPTY" />
+        <argument
+            android:name="tagId"
+            app:argType="string" />
+        <argument
+            android:name="sourceFragment"
             app:argType="string" />
     </fragment>
 </navigation>

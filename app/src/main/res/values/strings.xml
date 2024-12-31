@@ -46,6 +46,7 @@
     <string name="ascending">Ascending</string>
     <string name="descending">Descending</string>
     <string name="category_name">Category name</string>
+    <string name="tag_name">Tag name</string>
     <string name="store_name">Store name</string>
     <string name="nip">NIP</string>
     <string name="product_name">Product name</string>
@@ -94,6 +95,7 @@
     <string name="products_bar">Products</string>
     <string name="stores_bar">Stores</string>
     <string name="categories_bar">Categories</string>
+    <string name="tags_bar">Tags</string>
     <string name="name_only">Name only</string>
     <string name="dynamic">Dynamic</string>
     <string name="price_only">Price only</string>
@@ -117,6 +119,8 @@
     <string name="filter_title">Filter</string>
     <string name="new_category_title">New category</string>
     <string name="edit_category_title">Edit category</string>
+    <string name="new_tag_title">New tag</string>
+    <string name="edit_tag_title">Edit tag</string>
     <string name="new_product_title">New product</string>
     <string name="edit_product_title">Edit product</string>
     <string name="new_store_title">New store</string>
@@ -133,6 +137,7 @@
     <string name="bad_inputs">Incorrect input data</string>
     <string name="invalid_color_format">Invalid color format</string>
     <string name="category_already_exists">Category already exists</string>
+    <string name="tag_already_exists">Tag already exists</string>
     <string name="delete_confirmation_title">Confirm delete</string>
     <string name="delete_category_confirmation_dialog">Are you sure to delete the item?</string>
     <string name="delete_store_confirmation_dialog">Are you sure to delete the item with dependent receipt and products?</string>
@@ -179,5 +184,7 @@
     <string name="sort">Sort</string>
     <string name="refresh">Refresh</string>
     <string name="search_tag">Search tag</string>
+    <string name="tag_name_stub">Tag name</string>
+    <string name="delete_tag">Delete tag</string>
 
 </resources>

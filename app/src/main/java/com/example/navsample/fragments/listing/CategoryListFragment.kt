@@ -21,7 +21,6 @@ import com.example.navsample.dto.inputmode.AddingInputType
 import com.example.navsample.entities.database.Category
 import com.example.navsample.fragments.dialogs.ConfirmDialog
 import com.example.navsample.sheets.CategoryBottomSheetFragment
-import com.example.navsample.sheets.ReceiptBottomSheetFragment
 import com.example.navsample.viewmodels.ListingViewModel
 import com.example.navsample.viewmodels.fragment.AddCategoryDataViewModel
 
@@ -150,7 +149,7 @@ class CategoryListFragment : Fragment(), ItemClickListener {
 
     private fun popUpButtonSheet(index: Int, category: Category) {
         val modalBottomSheet = CategoryBottomSheetFragment { onDelete(index, category) }
-        modalBottomSheet.show(parentFragmentManager, ReceiptBottomSheetFragment.TAG)
+        modalBottomSheet.show(parentFragmentManager, CategoryBottomSheetFragment.TAG)
     }
 
     private fun putFilterDefinitionIntoInputs() {

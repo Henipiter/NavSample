@@ -37,7 +37,7 @@ class AddCategoryDataViewModel : ViewModel() {
 
     fun deleteCategory(categoryId: String) {
         viewModelScope.launch {
-            val deletedCategory = roomDatabaseHelper.deleteCategory(categoryId)
+            val deletedCategory = roomDatabaseHelper.deleteTag(categoryId)
             FirestoreHelperSingleton.getInstance().delete(deletedCategory) { id ->
                 viewModelScope.launch { roomDatabaseHelper.markCategoryAsDeleted(id) }
             }

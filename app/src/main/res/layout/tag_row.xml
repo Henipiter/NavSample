@@ -19,23 +19,13 @@
             android:padding="12dp">
 
             <TextView
-                android:id="@+id/nip"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/store_name_stub"
-                android:textSize="12sp"
-                app:layout_constraintBottom_toBottomOf="@+id/store_name"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
-
-            <TextView
-                android:id="@+id/store_name"
+                android:id="@+id/tag_name"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginEnd="16dp"
-                android:text="@string/store_nip_stub"
+                android:text="@string/tag_name_stub"
                 android:textSize="18sp"
-                app:layout_constraintEnd_toStartOf="@+id/nip"
+                app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
 

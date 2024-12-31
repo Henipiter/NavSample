@@ -10,6 +10,7 @@ import com.example.navsample.entities.database.Category
 import com.example.navsample.entities.database.Product
 import com.example.navsample.entities.database.Receipt
 import com.example.navsample.entities.database.Store
+import com.example.navsample.entities.database.Tag
 import com.example.navsample.entities.relations.AllData
 import com.example.navsample.entities.relations.PriceByCategory
 import com.example.navsample.entities.relations.ProductRichData
@@ -37,6 +38,12 @@ class RoomDatabaseHelper(
         return dao.getAllCategories()
     }
 
+    suspend fun getAllTags(): List<Tag> {
+        Log.i("Database", "Refresh tag list")
+        return dao.getAllTags()
+    }
+
+
     suspend fun getAllStores(): List<Store> {
         Log.i("Database", "Refresh store list")
         return dao.getAllStores()
@@ -63,6 +70,11 @@ class RoomDatabaseHelper(
     suspend fun getAllCategories(categoryName: String): List<Category> {
         Log.i("Database", "Refresh category list filtered by name '$categoryName'")
         return dao.getAllCategories(categoryName)
+    }
+
+    suspend fun getAllTags(tagName: String): List<Tag> {
+        Log.i("Database", "Refresh tag list filtered by name '$tagName'")
+        return dao.getAllTags(tagName)
     }
 
     suspend fun getAllStoresOrdered(
@@ -131,6 +143,11 @@ class RoomDatabaseHelper(
         return dao.getReceiptById(id)
     }
 
+    suspend fun getTagById(id: String): Tag? {
+        Log.i("Database", "Get tag by id '$id'")
+        return dao.getTagById(id)
+    }
+
     suspend fun getStoreById(id: String): Store? {
         Log.i("Database", "Get store by id '$id'")
         return dao.getStoreById(id)
@@ -157,6 +174,18 @@ class RoomDatabaseHelper(
         Log.i("Database", "Insert category '${category.name}' with id '${category.id}'")
         dao.insertCategory(category)
         return category
+    }
+
+    suspend fun insertTag(tag: Tag, generateId: Boolean = true): Tag {
+        if (generateId) {
+            tag.id = UUID.randomUUID().toString()
+        }
+        val timestamp = DateUtil.getCurrentUtcTime()
+        tag.createdAt = timestamp
+        tag.updatedAt = timestamp
+        Log.i("Database", "Insert category '${tag.name}' with id '${tag.id}'")
+        dao.insertTag(tag)
+        return tag
     }
 
     suspend fun insertProduct(product: Product, generateId: Boolean = true): Product {
@@ -204,6 +233,11 @@ class RoomDatabaseHelper(
         dao.updateCategoryFirestoreId(categoryId, firestoreId)
     }
 
+    suspend fun updateTagFirestoreId(tagId: String, firestoreId: String) {
+        Log.i("Database", "Update tag '${tagId}' with firestore id '${firestoreId}'")
+        dao.updateTagFirestoreId(tagId, firestoreId)
+    }
+
     suspend fun updateStoreFirestoreId(storeId: String, firestoreId: String) {
         Log.i("Database", "Update store '${storeId}' with firestore id '${firestoreId}'")
         dao.updateStoreFirestoreId(storeId, firestoreId)
@@ -232,6 +266,10 @@ class RoomDatabaseHelper(
         dao.markCategoryAsUpdated(id)
     }
 
+    suspend fun markTagAsUpdated(id: String) {
+        dao.markTagAsUpdated(id)
+    }
+
     suspend fun markStoreAsUpdated(id: String) {
         dao.markStoreAsUpdated(id)
     }
@@ -246,6 +284,10 @@ class RoomDatabaseHelper(
 
     suspend fun markCategoryAsDeleted(id: String) {
         dao.markCategoryAsDeleted(id)
+    }
+
+    suspend fun markTagAsDeleted(id: String) {
+        dao.markTagAsDeleted(id)
     }
 
     suspend fun markStoreAsDeleted(id: String) {
@@ -293,6 +335,17 @@ class RoomDatabaseHelper(
         return store
     }
 
+    suspend fun updateTag(tag: Tag): Tag {
+        Log.i("Database", "Update tag '${tag.name}' with id '${tag.id}'")
+        tag.updatedAt = DateUtil.getCurrentUtcTime()
+        dao.updateTagFields(
+            tag.id,
+            tag.name,
+            tag.updatedAt
+        )
+        return tag
+    }
+
     suspend fun updateReceipt(receipt: Receipt): Receipt {
         Log.i(
             "Database",
@@ -312,7 +365,7 @@ class RoomDatabaseHelper(
     }
 
     // DELETE
-    suspend fun deleteCategory(categoryId: String): Category {
+    suspend fun deleteTag(categoryId: String): Category {
         Log.i("Database", "Delete category with id '${categoryId}'")
         val deletedAt = DateUtil.getCurrentUtcTime()
         return dao.deleteAndSelectCategoryById(categoryId, deletedAt)

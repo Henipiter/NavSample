@@ -24,7 +24,6 @@ import com.example.navsample.entities.relations.ProductRichData
 import com.example.navsample.fragments.dialogs.ConfirmDialog
 import com.example.navsample.fragments.dialogs.SortingDialog
 import com.example.navsample.sheets.ProductBottomSheetFragment
-import com.example.navsample.sheets.ReceiptBottomSheetFragment
 import com.example.navsample.viewmodels.ListingViewModel
 import com.example.navsample.viewmodels.fragment.AddProductDataViewModel
 
@@ -135,7 +134,7 @@ class ProductListFragment : Fragment(), ItemClickListener {
             onJumpToStore = { onJumpToStore(productRichData.storeId) },
             onJumpToReceipt = { onJumpToReceipt(productRichData.receiptId) }
         )
-        modalBottomSheet.show(parentFragmentManager, ReceiptBottomSheetFragment.TAG)
+        modalBottomSheet.show(parentFragmentManager, ProductBottomSheetFragment.TAG)
     }
 
     private fun onJumpToReceipt(receiptId: String) {

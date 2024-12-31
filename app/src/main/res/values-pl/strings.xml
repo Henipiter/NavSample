@@ -19,6 +19,7 @@
     <string name="ascending">Rosnąco</string>
     <string name="descending">Malejąco</string>
     <string name="category_name">Nazwa kategorii</string>
+    <string name="tag_name">Nazwa tagu</string>
     <string name="store_name">Nazwa sklepu</string>
     <string name="nip">NIP</string>
     <string name="product_name">Nazwa produktu</string>
@@ -67,6 +68,7 @@
     <string name="products_bar">Produkty</string>
     <string name="stores_bar">Sklepy</string>
     <string name="categories_bar">Kategorie</string>
+    <string name="tags_bar">Tagi</string>
     <string name="name_only">Tylko nazwa</string>
     <string name="dynamic">Dynamicznie</string>
     <string name="price_only">Tylko cena</string>
@@ -85,6 +87,8 @@
     <string name="filter_title">Filter</string>
     <string name="new_category_title">Nowa kategoria</string>
     <string name="edit_category_title">Edycja kategorii</string>
+    <string name="new_tag_title">Nowy tag</string>
+    <string name="edit_tag_title">Edycja tagu</string>
     <string name="new_product_title">Nowy produkt</string>
     <string name="edit_product_title">Edycja produktu</string>
     <string name="new_store_title">Nowy sklep</string>
@@ -101,6 +105,7 @@
     <string name="bad_inputs">Nieprawidłowe dane wejściowe</string>
     <string name="invalid_color_format">Błędny format koloru</string>
     <string name="category_already_exists">Kategoria już istnieje</string>
+    <string name="tag_already_exists">Tag już istnieje</string>
     <string name="delete_confirmation_title">Potwierdź usunięcie</string>
     <string name="delete_category_confirmation_dialog">Jesteś pewny, że chcesz usunąć element?</string>
     <string name="delete_store_confirmation_dialog">Jesteś pewny, że chcesz usunąć element z zależnymi paragonami i produktami?</string>
@@ -147,6 +152,8 @@
     <string name="sort">Sortuj</string>
     <string name="refresh">Odśwież</string>
     <string name="search_tag">Wyszukaj tag</string>
+    <string name="tag_name_stub">Nazwa tagu</string>
+    <string name="delete_tag">Usuń tag</string>
 
 
 </resources>

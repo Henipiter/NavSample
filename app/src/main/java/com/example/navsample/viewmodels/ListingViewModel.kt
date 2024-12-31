@@ -8,6 +8,7 @@ import com.example.navsample.dto.filter.FilterCategoryList
 import com.example.navsample.dto.filter.FilterProductList
 import com.example.navsample.dto.filter.FilterReceiptList
 import com.example.navsample.dto.filter.FilterStoreList
+import com.example.navsample.dto.filter.FilterTagList
 import com.example.navsample.dto.sort.Direction
 import com.example.navsample.dto.sort.ParentSort
 import com.example.navsample.dto.sort.ReceiptWithStoreSort
@@ -17,7 +18,9 @@ import com.example.navsample.dto.sort.StoreSort
 import com.example.navsample.entities.ReceiptDatabase
 import com.example.navsample.entities.RoomDatabaseHelper
 import com.example.navsample.entities.database.Category
+import com.example.navsample.entities.database.ProductTagCrossRef
 import com.example.navsample.entities.database.Store
+import com.example.navsample.entities.database.Tag
 import com.example.navsample.entities.relations.ProductRichData
 import com.example.navsample.entities.relations.ReceiptWithStore
 import kotlinx.coroutines.launch
@@ -37,6 +40,7 @@ class ListingViewModel : ViewModel() {
     val richProductSort = MutableLiveData(defaultRichProductSort)
 
 
+    val filterTagList = MutableLiveData(FilterTagList())
     val filterCategoryList = MutableLiveData(FilterCategoryList())
     val filterStoreList = MutableLiveData(FilterStoreList())
     val filterProductList = MutableLiveData(FilterProductList())
@@ -45,6 +49,8 @@ class ListingViewModel : ViewModel() {
     var productRichList = MutableLiveData<ArrayList<ProductRichData>>()
     var receiptList = MutableLiveData<ArrayList<ReceiptWithStore>>()
     var categoryList = MutableLiveData<ArrayList<Category>>()
+    var productTagList = MutableLiveData<ArrayList<ProductTagCrossRef>>()
+    var tagList = MutableLiveData<ArrayList<Tag>>()
     var storeList = MutableLiveData<ArrayList<Store>>()
 
     init {
@@ -55,6 +61,7 @@ class ListingViewModel : ViewModel() {
         loadDataByReceiptFilter()
         loadDataByProductFilter()
         loadDataByCategoryFilter()
+        loadDataByTagFilter()
     }
 
     fun clearData() {
@@ -81,6 +88,12 @@ class ListingViewModel : ViewModel() {
             is RichProductSort -> {
                 loadDataByProductFilter()
             }
+        }
+    }
+
+    fun loadDataByTagFilter() {
+        filterTagList.value?.let {
+            refreshTagList(it.tagName)
         }
     }
 
@@ -139,6 +152,18 @@ class ListingViewModel : ViewModel() {
     private fun refreshCategoryList(categoryName: String) {
         viewModelScope.launch {
             categoryList.postValue(roomDatabaseHelper.getAllCategories(categoryName) as ArrayList<Category>)
+        }
+    }
+
+    fun refreshTagList() {
+        viewModelScope.launch {
+            tagList.postValue(roomDatabaseHelper.getAllTags() as ArrayList<Tag>)
+        }
+    }
+
+    private fun refreshTagList(tagName: String) {
+        viewModelScope.launch {
+            tagList.postValue(roomDatabaseHelper.getAllTags(tagName) as ArrayList<Tag>)
         }
     }
 

@@ -4,7 +4,7 @@ import androidx.room.Entity
 import androidx.room.PrimaryKey
 import com.example.navsample.entities.TranslateEntity
 
-@Entity(primaryKeys = ["productId", "tagId"])
+@Entity
 data class ProductTagCrossRef(
     var productId: String,
     var tagId: String,

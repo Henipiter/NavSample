@@ -24,7 +24,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 import kotlinx.coroutines.withContext
-import java.util.UUID
 import kotlin.reflect.KClass
 
 
@@ -78,7 +77,6 @@ class SyncDatabaseViewModel : ViewModel() {
         entityClass: KClass<out T>,
         preferencesKey: String
     ) {
-        val temp = UUID.randomUUID().toString()
         val date = getPreferencesKey(preferencesKey)
         val query =
             FirestoreHelperSingleton.getInstance().getDataByQuery(entityClass, date) ?: return

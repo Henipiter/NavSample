@@ -45,9 +45,6 @@ class AddCategoryFragment : Fragment() {
         return binding.root
     }
 
-    private fun clearInputs() {
-        addCategoryDataViewModel.categoryById.value = null
-    }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -135,6 +132,9 @@ class AddCategoryFragment : Fragment() {
         }
     }
 
+    private fun clearInputs() {
+        addCategoryDataViewModel.categoryById.value = null
+    }
 
     private fun applyInputParameters() {
         val inputType = AddingInputType.getByName(addCategoryDataViewModel.inputType)
