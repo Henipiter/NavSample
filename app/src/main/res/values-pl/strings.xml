@@ -146,6 +146,7 @@
     <string name="collapse">Zwiń</string>
     <string name="sort">Sortuj</string>
     <string name="refresh">Odśwież</string>
+    <string name="search_tag">Wyszukaj tag</string>
 
 
 </resources>

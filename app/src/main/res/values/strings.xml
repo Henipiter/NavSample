@@ -178,5 +178,6 @@
     <string name="collapse">Collapse</string>
     <string name="sort">Sort</string>
     <string name="refresh">Refresh</string>
+    <string name="search_tag">Search tag</string>
 
 </resources>
