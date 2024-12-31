@@ -14,10 +14,10 @@ import com.example.navsample.dto.sort.ReceiptWithStoreSort
 import com.example.navsample.dto.sort.RichProductSort
 import com.example.navsample.dto.sort.SortProperty
 import com.example.navsample.dto.sort.StoreSort
-import com.example.navsample.entities.Category
 import com.example.navsample.entities.ReceiptDatabase
 import com.example.navsample.entities.RoomDatabaseHelper
-import com.example.navsample.entities.Store
+import com.example.navsample.entities.database.Category
+import com.example.navsample.entities.database.Store
 import com.example.navsample.entities.relations.ProductRichData
 import com.example.navsample.entities.relations.ReceiptWithStore
 import kotlinx.coroutines.launch
@@ -55,6 +55,17 @@ class ListingViewModel : ViewModel() {
         loadDataByReceiptFilter()
         loadDataByProductFilter()
         loadDataByCategoryFilter()
+    }
+
+    fun clearData() {
+        filterCategoryList.postValue(FilterCategoryList())
+        filterStoreList.postValue(FilterStoreList())
+        filterProductList.postValue(FilterProductList())
+        filterReceiptList.postValue(FilterReceiptList())
+        productRichList.value?.clear()
+        receiptList.value?.clear()
+        categoryList.value?.clear()
+        storeList.value?.clear()
     }
 
     fun <Sort : ParentSort> updateSorting(sort: SortProperty<Sort>) {
@@ -166,16 +177,6 @@ class ListingViewModel : ViewModel() {
                     dateTo,
                     lowerPrice,
                     higherPrice,
-                    richProductSort.value ?: defaultRichProductSort
-                ) as ArrayList<ProductRichData>
-            )
-        }
-    }
-
-    fun refreshProductList() {
-        viewModelScope.launch {
-            productRichList.postValue(
-                roomDatabaseHelper.getAllProductsOrderedWithHigherPrice(
                     richProductSort.value ?: defaultRichProductSort
                 ) as ArrayList<ProductRichData>
             )

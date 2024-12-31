@@ -1,31 +1,53 @@
 package com.example.navsample.viewmodels
 
 import android.util.Log
+import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.navsample.ApplicationContext
-import com.example.navsample.entities.Category
 import com.example.navsample.entities.FirebaseHelperImpl
 import com.example.navsample.entities.FirestoreHelperSingleton
-import com.example.navsample.entities.Product
-import com.example.navsample.entities.Receipt
 import com.example.navsample.entities.ReceiptDatabase
 import com.example.navsample.entities.RoomDatabaseHelper
 import com.example.navsample.entities.RoomDatabaseHelperFirebaseSync
-import com.example.navsample.entities.Store
-import com.example.navsample.entities.dto.CategoryFirebase
-import com.example.navsample.entities.dto.ProductFirebase
-import com.example.navsample.entities.dto.ReceiptFirebase
-import com.example.navsample.entities.dto.StoreFirebase
+import com.example.navsample.entities.TranslateEntity
+import com.example.navsample.entities.database.Category
+import com.example.navsample.entities.database.Product
+import com.example.navsample.entities.database.Receipt
+import com.example.navsample.entities.database.Store
+import com.example.navsample.entities.firestore.CategoryFirebase
+import com.example.navsample.entities.firestore.ProductFirebase
+import com.example.navsample.entities.firestore.ReceiptFirebase
+import com.example.navsample.entities.firestore.StoreFirebase
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.tasks.await
 import kotlinx.coroutines.withContext
+import java.util.UUID
+import kotlin.reflect.KClass
 
 
 class SyncDatabaseViewModel : ViewModel() {
+
+    companion object {
+        const val CATEGORY_LAST_UPDATE_KEY = "newestCategoryUpdateDate"
+        const val STORE_LAST_UPDATE_KEY = "newestStoreUpdateDate"
+        const val RECEIPT_LAST_UPDATE_KEY = "newestReceiptUpdateDate"
+        const val PRODUCT_LAST_UPDATE_KEY = "newestProductUpdateDate"
+    }
+
     private var roomDatabaseHelper: RoomDatabaseHelper
     private var roomDatabaseHelperFirebase: RoomDatabaseHelperFirebaseSync
+
+    private var categoryReading = false
+    private var storeReading = false
+    private var receiptReading = false
+    private var productReading = false
+    var categoryRead = MutableLiveData(false)
+    var storeRead = MutableLiveData(false)
+    var receiptRead = MutableLiveData(false)
+    var productRead = MutableLiveData(false)
 
     var notSyncedProductList = MutableLiveData<List<ProductFirebase>>()
     var notSyncedReceiptList = MutableLiveData<List<ReceiptFirebase>>()
@@ -43,18 +65,115 @@ class SyncDatabaseViewModel : ViewModel() {
         roomDatabaseHelper = RoomDatabaseHelper(dao)
         roomDatabaseHelperFirebase = RoomDatabaseHelperFirebaseSync(dao)
 
-        setFirebaseHelper()
     }
 
-    fun setFirebaseHelper() {
+    fun readFirestoreChanges() {
         if (isFirebaseActive()) {
             loadAllList()
-            firestoreListener()
+            readCategoryFirebaseChanges()
         }
+    }
+
+    private fun <T : TranslateEntity> readFirebaseChangesTemplate(
+        entityClass: KClass<out T>,
+        preferencesKey: String
+    ) {
+        val temp = UUID.randomUUID().toString()
+        val date = getPreferencesKey(preferencesKey)
+        val query =
+            FirestoreHelperSingleton.getInstance().getDataByQuery(entityClass, date) ?: return
+        viewModelScope.launch {
+            withContext(Dispatchers.IO) {
+                val snapshot = query.get().await()
+                val elements = FirestoreHelperSingleton.getInstance()
+                    .convertQueryResponse(entityClass, snapshot)
+                if (elements.isNotEmpty()) {
+                    var isSaved = false
+                    elements.forEach { entity ->
+                        isSaved = roomDatabaseHelper.saveEntityFromFirestore(entity)
+                    }
+                    if (isSaved) {
+                        setPreferencesKey(preferencesKey, elements.last().updatedAt)
+                        readFirebaseChangesTemplate(entityClass, preferencesKey)
+                    } else {
+                        markAsFinished(entityClass)
+                    }
+                } else {
+                    markAsFinished(entityClass)
+                }
+            }
+        }
+    }
+
+    private fun readCategoryFirebaseChanges() {
+        if (!categoryReading) {
+            categoryReading = true
+            readFirebaseChangesTemplate(Category::class, CATEGORY_LAST_UPDATE_KEY)
+        }
+        if (!storeReading) {
+            storeReading = true
+            readFirebaseChangesTemplate(Store::class, STORE_LAST_UPDATE_KEY)
+        }
+        if (!receiptReading) {
+            receiptReading = true
+            readFirebaseChangesTemplate(Receipt::class, RECEIPT_LAST_UPDATE_KEY)
+        }
+        if (!productReading) {
+            productReading = true
+            readFirebaseChangesTemplate(Product::class, PRODUCT_LAST_UPDATE_KEY)
+        }
+    }
+
+    private fun <T : TranslateEntity> markAsFinished(entity: KClass<out T>) {
+        when (entity) {
+            Category::class -> {
+                categoryReading = false
+                categoryRead.postValue(true)
+            }
+
+            Store::class -> {
+                storeReading = false
+                storeRead.postValue(true)
+            }
+
+            Receipt::class -> {
+                receiptReading = false
+                receiptRead.postValue(true)
+            }
+
+            Product::class -> {
+                productReading = false
+                productRead.postValue(true)
+            }
+        }
+    }
+
+    private fun getPreferencesKey(key: String): String {
+        return ApplicationContext.context
+            ?.getSharedPreferences("preferences", AppCompatActivity.MODE_PRIVATE)
+            ?.getString(key, "")
+            ?: ""
+    }
+
+    private fun setPreferencesKey(key: String, date: String) {
+        val myPref = ApplicationContext.context
+            ?.getSharedPreferences("preferences", AppCompatActivity.MODE_PRIVATE)
+        myPref?.edit()?.putString(key, date)?.apply()
     }
 
     fun isFirebaseActive(): Boolean {
         return FirestoreHelperSingleton.getInstance() is FirebaseHelperImpl
+    }
+
+    fun clearAllList() {
+        notSyncedProductList.postValue(listOf())
+        notSyncedReceiptList.postValue(listOf())
+        notSyncedCategoryList.postValue(listOf())
+        notSyncedStoreList.postValue(listOf())
+        outdatedProductList.postValue(listOf())
+        outdatedReceiptList.postValue(listOf())
+        outdatedCategoryList.postValue(listOf())
+        outdatedStoreList.postValue(listOf())
     }
 
     fun loadNotAddedList() {
@@ -342,25 +461,8 @@ class SyncDatabaseViewModel : ViewModel() {
         }
     }
 
-
-    private fun firestoreListener() {
-        FirestoreHelperSingleton.getInstance().singleListener(Category::class) { category ->
-            viewModelScope.launch { roomDatabaseHelper.saveCategoryFromFirestore(category) }
-        }
-        FirestoreHelperSingleton.getInstance().singleListener(Store::class) { store ->
-            viewModelScope.launch { roomDatabaseHelper.saveStoreFromFirestore(store) }
-        }
-        FirestoreHelperSingleton.getInstance().singleListener(Receipt::class) { receipt ->
-            viewModelScope.launch { roomDatabaseHelper.saveReceiptFromFirestore(receipt) }
-        }
-        FirestoreHelperSingleton.getInstance().singleListener(Product::class) { product ->
-            viewModelScope.launch { roomDatabaseHelper.saveProductFromFirestore(product) }
-        }
-    }
-
     fun deleteAllData() {
         viewModelScope.launch { roomDatabaseHelper.deleteAllData() }
     }
-
 
 }

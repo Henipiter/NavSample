@@ -6,6 +6,10 @@ import com.example.navsample.dto.sort.ReceiptWithStoreSort
 import com.example.navsample.dto.sort.RichProductSort
 import com.example.navsample.dto.sort.SortProperty
 import com.example.navsample.dto.sort.StoreSort
+import com.example.navsample.entities.database.Category
+import com.example.navsample.entities.database.Product
+import com.example.navsample.entities.database.Receipt
+import com.example.navsample.entities.database.Store
 import com.example.navsample.entities.relations.AllData
 import com.example.navsample.entities.relations.PriceByCategory
 import com.example.navsample.entities.relations.ProductRichData
@@ -115,20 +119,6 @@ class RoomDatabaseHelper(
         )
         return dao.getAllProductsOrderedWithHigherPrice(query)
     }
-
-    suspend fun getAllProductsOrderedWithHigherPrice(
-        sort: SortProperty<RichProductSort>
-    ): List<ProductRichData> {
-        Log.i(
-            "Database",
-            "Refresh products filtered by: sort '$sort'"
-        )
-        val query = QueryDaoHelper.getAllProductsOrdered(
-            "", "", "0", "9", 0, -1, sort
-        )
-        return dao.getAllProductsOrderedWithHigherPrice(query)
-    }
-
 
     // GET BY ID
     suspend fun getCategoryById(id: String): Category? {
@@ -378,20 +368,25 @@ class RoomDatabaseHelper(
         }
     }
 
-    suspend fun saveCategoryFromFirestore(category: Category) {
-        dao.saveCategoryFromFirestore(category)
-    }
+    suspend fun <T : TranslateEntity> saveEntityFromFirestore(entity: T): Boolean {
+        when (entity) {
+            is Category -> {
+                return dao.saveCategoryFromFirestore(entity as Category)
+            }
 
-    suspend fun saveStoreFromFirestore(store: Store) {
-        dao.saveStoreFromFirestore(store)
-    }
+            is Store -> {
+                return dao.saveStoreFromFirestore(entity as Store)
+            }
 
-    suspend fun saveReceiptFromFirestore(receipt: Receipt) {
-        dao.saveReceiptFromFirestore(receipt)
-    }
+            is Receipt -> {
+                return dao.saveReceiptFromFirestore(entity as Receipt)
+            }
 
-    suspend fun saveProductFromFirestore(product: Product) {
-        dao.saveProductFromFirestore(product)
+            is Product -> {
+                return dao.saveProductFromFirestore(entity as Product)
+            }
+        }
+        return false
     }
 
     suspend fun deleteAllData() {

@@ -8,6 +8,7 @@ import com.example.navsample.databinding.BottomSheetImportImageBinding
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 
 class ImportImageBottomSheetFragment(
+    private var visibleOnCrop: Boolean,
     private var onCrop: () -> Unit,
     private var onBrowseGallery: () -> Unit,
     private var onCameraCapture: () -> Unit
@@ -24,6 +25,10 @@ class ImportImageBottomSheetFragment(
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        if (!visibleOnCrop) {
+            binding.cropButton.visibility = View.GONE
+            binding.firstLineSeparator.visibility = View.GONE
+        }
         binding.cropButton.setOnClickListener {
             onCrop.invoke()
             dismiss()

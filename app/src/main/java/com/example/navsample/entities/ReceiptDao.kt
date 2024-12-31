@@ -10,10 +10,14 @@ import androidx.room.Transaction
 import androidx.room.Update
 import androidx.sqlite.db.SupportSQLiteQuery
 import com.example.navsample.dto.DateUtil
-import com.example.navsample.entities.dto.CategoryFirebase
-import com.example.navsample.entities.dto.ProductFirebase
-import com.example.navsample.entities.dto.ReceiptFirebase
-import com.example.navsample.entities.dto.StoreFirebase
+import com.example.navsample.entities.database.Category
+import com.example.navsample.entities.database.Product
+import com.example.navsample.entities.database.Receipt
+import com.example.navsample.entities.database.Store
+import com.example.navsample.entities.firestore.CategoryFirebase
+import com.example.navsample.entities.firestore.ProductFirebase
+import com.example.navsample.entities.firestore.ReceiptFirebase
+import com.example.navsample.entities.firestore.StoreFirebase
 import com.example.navsample.entities.relations.AllData
 import com.example.navsample.entities.relations.PriceByCategory
 import com.example.navsample.entities.relations.ProductRichData
@@ -138,13 +142,14 @@ interface ReceiptDao {
 
 
     @Transaction
-    suspend fun saveCategoryFromFirestore(category: Category) {
+    suspend fun saveCategoryFromFirestore(category: Category): Boolean {
         if (category.id == "") {
-            return
+            return false
         }
         val localCategory = getCategoryById(category.id)
         if (localCategory == null) {
             insertCategory(category)
+            return true
         } else {
             if (localCategory.updatedAt < category.updatedAt) {
                 updateCategoryFields(
@@ -154,18 +159,21 @@ interface ReceiptDao {
                     category.updatedAt,
                     false
                 )
+                return true
             }
         }
+        return false
     }
 
     @Transaction
-    suspend fun saveStoreFromFirestore(store: Store) {
+    suspend fun saveStoreFromFirestore(store: Store): Boolean {
         if (store.id == "") {
-            return
+            return false
         }
         val localStore = getStoreById(store.id)
         if (localStore == null) {
             insertStore(store)
+            return true
         } else {
             if (localStore.updatedAt < store.updatedAt) {
                 updateStoreFields(
@@ -176,18 +184,21 @@ interface ReceiptDao {
                     store.updatedAt,
                     false
                 )
+                return true
             }
         }
+        return false
     }
 
     @Transaction
-    suspend fun saveReceiptFromFirestore(receipt: Receipt) {
+    suspend fun saveReceiptFromFirestore(receipt: Receipt): Boolean {
         if (receipt.id == "") {
-            return
+            return false
         }
         val localReceipt = getReceiptById(receipt.id)
         if (localReceipt == null) {
             insertReceipt(receipt)
+            return true
         } else {
             if (localReceipt.updatedAt < receipt.updatedAt) {
                 updateReceiptFields(
@@ -200,18 +211,21 @@ interface ReceiptDao {
                     receipt.updatedAt,
                     false
                 )
+                return true
             }
         }
+        return false
     }
 
     @Transaction
-    suspend fun saveProductFromFirestore(product: Product) {
+    suspend fun saveProductFromFirestore(product: Product): Boolean {
         if (product.id == "") {
-            return
+            return false
         }
         val localProduct = getProductById(product.id)
         if (localProduct == null) {
             insertProduct(product)
+            return true
         } else {
             if (localProduct.updatedAt < product.updatedAt) {
                 updateProductFields(
@@ -229,8 +243,10 @@ interface ReceiptDao {
                     product.updatedAt,
                     false
                 )
+                return true
             }
         }
+        return false
     }
 
     @Query("UPDATE category SET firestoreId = :firestoreId WHERE id = :id")

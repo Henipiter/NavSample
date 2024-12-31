@@ -8,7 +8,7 @@ import android.widget.ArrayAdapter
 import android.widget.Filter
 import android.widget.Filterable
 import com.example.navsample.databinding.ArrayAdapterRowBinding
-import com.example.navsample.entities.Category
+import com.example.navsample.entities.database.Category
 
 class CategoryDropdownAdapter(
     ctx: Context,

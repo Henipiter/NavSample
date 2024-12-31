@@ -1,14 +1,16 @@
-package com.example.navsample.entities
+package com.example.navsample.entities.database
 
 import androidx.room.Entity
-import androidx.room.Index
 import androidx.room.PrimaryKey
+import com.example.navsample.entities.TranslateEntity
 
-@Entity(indices = [Index(value = ["nip"], unique = true)])
-data class Store(
-    var nip: String,
-    var name: String,
-    var defaultCategoryId: String,
+@Entity
+data class Receipt(
+    var storeId: String,
+    var pln: Int,
+    var ptu: Int,
+    var date: String,
+    var time: String,
     override var createdAt: String = "",
     override var updatedAt: String = "",
     override var deletedAt: String = "",
@@ -20,18 +22,19 @@ data class Store(
     @PrimaryKey
     var id: String = ""
 
-    constructor() : this("", "", "")
-
+    constructor() : this("", -1, -1, "", "")
     override fun insertData(): HashMap<String, Any?> {
         return hashMapOf(
             "id" to this.id,
-            "nip" to this.nip,
-            "name" to this.name,
-            "defaultCategoryId" to this.defaultCategoryId,
+            "storeId" to this.storeId,
+            "pln" to this.pln,
+            "ptu" to this.ptu,
+            "date" to this.date,
+            "time" to this.time,
             "createdAt" to this.createdAt,
             "updatedAt" to this.updatedAt,
             "deletedAt" to this.deletedAt,
-            "firestoreId" to this.firestoreId,
+            "firestoreId" to this.firestoreId, //TODO DELETE
             "isSync" to this.isSync
         )
     }
@@ -39,10 +42,11 @@ data class Store(
     override fun updateData(): HashMap<String, Any?> {
         return hashMapOf(
             "id" to this.id,
-            "nip" to this.nip,
-            "name" to this.name,
-            "defaultCategoryId" to this.defaultCategoryId,
-            "createdAt" to this.createdAt,
+            "storeId" to this.storeId,
+            "pln" to this.pln,
+            "ptu" to this.ptu,
+            "date" to this.date,
+            "time" to this.time,
             "updatedAt" to this.updatedAt
         )
     }

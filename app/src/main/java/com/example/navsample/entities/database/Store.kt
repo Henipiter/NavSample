@@ -1,13 +1,15 @@
-package com.example.navsample.entities
+package com.example.navsample.entities.database
 
 import androidx.room.Entity
 import androidx.room.Index
 import androidx.room.PrimaryKey
+import com.example.navsample.entities.TranslateEntity
 
-@Entity(indices = [Index(value = ["name"], unique = true)])
-data class Category(
+@Entity(indices = [Index(value = ["nip"], unique = true)])
+data class Store(
+    var nip: String,
     var name: String,
-    var color: String,
+    var defaultCategoryId: String,
     override var createdAt: String = "",
     override var updatedAt: String = "",
     override var deletedAt: String = "",
@@ -19,16 +21,18 @@ data class Category(
     @PrimaryKey
     var id: String = ""
 
-    constructor() : this("", "")
+    constructor() : this("", "", "")
+
     override fun insertData(): HashMap<String, Any?> {
         return hashMapOf(
             "id" to this.id,
+            "nip" to this.nip,
             "name" to this.name,
-            "color" to this.color,
+            "defaultCategoryId" to this.defaultCategoryId,
             "createdAt" to this.createdAt,
             "updatedAt" to this.updatedAt,
             "deletedAt" to this.deletedAt,
-            "firestoreId" to this.firestoreId, //TODO DELETE
+            "firestoreId" to this.firestoreId,
             "isSync" to this.isSync
         )
     }
@@ -36,8 +40,10 @@ data class Category(
     override fun updateData(): HashMap<String, Any?> {
         return hashMapOf(
             "id" to this.id,
+            "nip" to this.nip,
             "name" to this.name,
-            "color" to this.color,
+            "defaultCategoryId" to this.defaultCategoryId,
+            "createdAt" to this.createdAt,
             "updatedAt" to this.updatedAt
         )
     }

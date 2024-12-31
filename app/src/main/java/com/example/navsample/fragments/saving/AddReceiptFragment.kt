@@ -20,8 +20,8 @@ import com.example.navsample.dto.FragmentName
 import com.example.navsample.dto.PriceUtils.Companion.doublePriceTextToInt
 import com.example.navsample.dto.PriceUtils.Companion.intPriceToString
 import com.example.navsample.dto.inputmode.AddingInputType
-import com.example.navsample.entities.Receipt
-import com.example.navsample.entities.Store
+import com.example.navsample.entities.database.Receipt
+import com.example.navsample.entities.database.Store
 import com.example.navsample.viewmodels.ImageAnalyzerViewModel
 import com.example.navsample.viewmodels.ImageViewModel
 import com.example.navsample.viewmodels.ListingViewModel
@@ -63,7 +63,7 @@ class AddReceiptFragment : Fragment() {
         binding.toolbar.inflateMenu(R.menu.top_menu_extended_add)
         binding.toolbar.setNavigationIcon(R.drawable.back)
         binding.toolbar.menu.findItem(R.id.importImage).isVisible = false
-        binding.toolbar.menu.findItem(R.id.aiParser).isVisible = false
+        binding.toolbar.menu.findItem(R.id.aiAssistant).isVisible = false
         binding.toolbar.menu.findItem(R.id.reorder).isVisible = false
 
 
@@ -216,13 +216,17 @@ class AddReceiptFragment : Fragment() {
                 addReceiptDataViewModel.inputType = AddingInputType.ID.name
                 if (goNext && pickedStore?.defaultCategoryId != null) {
                     goNext = false
-                    val action =
-                        AddReceiptFragmentDirections.actionAddReceiptFragmentToAddProductListFragment(
-                            receiptId = it.id,
-                            storeId = it.storeId,
-                            categoryId = pickedStore?.defaultCategoryId!!
-                        )
-                    Navigation.findNavController(requireView()).navigate(action)
+                    if (mode == DataMode.NEW) {
+                        val action =
+                            AddReceiptFragmentDirections.actionAddReceiptFragmentToAddProductListFragment(
+                                receiptId = it.id,
+                                storeId = it.storeId,
+                                categoryId = pickedStore?.defaultCategoryId!!
+                            )
+                        Navigation.findNavController(requireView()).navigate(action)
+                    } else {
+                        Navigation.findNavController(requireView()).popBackStack()
+                    }
                 }
                 addReceiptDataViewModel.savedReceipt.value = null
             }

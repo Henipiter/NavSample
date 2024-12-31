@@ -6,32 +6,40 @@
         android:id="@+id/expand"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:title="@string/expand"
-        android:iconTint="@color/colorOnPrimary"
         android:icon="@drawable/expand"
+        android:iconTint="@color/colorOnPrimary"
+        android:title="@string/expand"
         app:showAsAction="always" />
     <item
         android:id="@+id/collapse"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:title="@string/collapse"
-        android:iconTint="@color/colorOnPrimary"
         android:icon="@drawable/collapse"
+        android:iconTint="@color/colorOnPrimary"
+        android:title="@string/collapse"
         app:showAsAction="always" />
     <item
         android:id="@+id/filter"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:title="@string/filter_title"
-        android:iconTint="@color/colorOnPrimary"
         android:icon="@drawable/filter"
+        android:iconTint="@color/colorOnPrimary"
+        android:title="@string/filter_title"
         app:showAsAction="always" />
     <item
         android:id="@+id/sort"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:title="@string/sort"
-        android:iconTint="@color/colorOnPrimary"
         android:icon="@drawable/sorting"
+        android:iconTint="@color/colorOnPrimary"
+        android:title="@string/sort"
+        app:showAsAction="always" />
+    <item
+        android:id="@+id/refresh"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:icon="@drawable/renew"
+        android:iconTint="@color/colorOnPrimary"
+        android:title="@string/refresh"
         app:showAsAction="always" />
 </menu>

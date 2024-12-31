@@ -35,7 +35,7 @@ import com.example.navsample.dto.PriceUtils.Companion.intPriceToString
 import com.example.navsample.dto.analyzer.AnalyzedProductsData
 import com.example.navsample.dto.inputmode.AddingInputType
 import com.example.navsample.dto.sorting.AlgorithmItemAdapterArgument
-import com.example.navsample.entities.Product
+import com.example.navsample.entities.database.Product
 import com.example.navsample.fragments.dialogs.ConfirmDialog
 import com.example.navsample.sheets.ImportImageBottomSheetFragment
 import com.example.navsample.sheets.ReceiptBottomSheetFragment
@@ -95,25 +95,17 @@ class AddProductListFragment : Fragment(), ItemClickListener {
         recyclerViewEvent = binding.recyclerViewEvent
         productListAdapter = ProductListAdapter(
             requireContext(),
-            addProductDataViewModel.productList.value ?: mutableListOf(),
+            addProductDataViewModel.aggregatedProductList.value ?: mutableListOf(),
             addProductDataViewModel.categoryList.value ?: listOf(),
             this
         ) { index: Int ->
-            addProductDataViewModel.productList.value?.let { productList ->
-                val product = productList[index]
-                ConfirmDialog(
-                    getString(R.string.delete_confirmation_title),
-                    getString(R.string.delete_product_confirmation_dialog)
-                ) {
-                    if (product.id.isNotEmpty()) {
-                        addProductDataViewModel.deleteProduct(product.id)
-                    }
-                    productList.removeAt(index)
-                    productListAdapter.productList = productList
-                    productListAdapter.notifyDataSetChanged()
-                    calculateSumOfProductPrices(productList)
-                }.show(childFragmentManager, "TAG")
-            }
+            ConfirmDialog(
+                getString(R.string.delete_confirmation_title),
+                getString(R.string.delete_product_confirmation_dialog)
+            ) {
+                deleteFromLists(index)
+            }.show(childFragmentManager, "TAG")
+
         }
 
         requireActivity().onBackPressedDispatcher.addCallback(
@@ -138,7 +130,29 @@ class AddProductListFragment : Fragment(), ItemClickListener {
         defineToolbarActions()
     }
 
+    private fun deleteFromLists(index: Int) {
+        val databaseSize = addProductDataViewModel.databaseProductList.value?.size ?: 0
+        if (index < databaseSize) {
+            addProductDataViewModel.databaseProductList.value?.let { productList ->
+                addProductDataViewModel.deleteProduct(productList[index].id)
+                productList.removeAt(index)
+            }
+        } else {
+            val temporaryListIndex = index - databaseSize
+            addProductDataViewModel.temporaryProductList.value?.removeAt(temporaryListIndex)
+        }
+
+        addProductDataViewModel.aggregatedProductList.value?.removeAt(index)
+        productListAdapter.notifyItemRemoved(index)
+        calculateSumOfProductPrices(
+            addProductDataViewModel.databaseProductList.value ?: arrayListOf()
+        )
+    }
+
     private fun clearInputs() {
+        addProductDataViewModel.temporaryProductList.value?.clear()
+        addProductDataViewModel.databaseProductList.value?.clear()
+        addProductDataViewModel.aggregatedProductList.value?.clear()
         addProductDataViewModel.productById.value = null
     }
 
@@ -150,14 +164,15 @@ class AddProductListFragment : Fragment(), ItemClickListener {
                     true
                 }
 
-                R.id.aiParser -> {
-                    val productsData = AnalyzedProductsData(
-                        ArrayList(addProductDataViewModel.productList.value?.map { product -> product.name }
-                            ?: arrayListOf()),
-                        ArrayList(),
-                        addProductDataViewModel.productList.value ?: arrayListOf()
-                    )
+                R.id.aiAssistant -> {
                     if (isInternetAvailable()) {
+                        val productsData = AnalyzedProductsData(
+                            ArrayList(addProductDataViewModel.aggregatedProductList.value?.map { product -> product.name }
+                                ?: arrayListOf()),
+                            ArrayList(),
+                            addProductDataViewModel.temporaryProductList.value ?: arrayListOf(),
+                            addProductDataViewModel.databaseProductList.value ?: arrayListOf()
+                        )
                         imageAnalyzerViewModel.aiAnalyze(
                             productsData, addProductDataViewModel.categoryList.value ?: listOf()
                         )
@@ -279,10 +294,9 @@ class AddProductListFragment : Fragment(), ItemClickListener {
     }
 
     private fun save() {
-
         runBlocking {
             addProductDataViewModel.insertProducts(
-                addProductDataViewModel.productList.value?.toList() ?: listOf()
+                addProductDataViewModel.aggregatedProductList.value?.toList() ?: listOf()
             )
             listingViewModel.loadDataByProductFilter()
             listingViewModel.loadDataByReceiptFilter()
@@ -308,13 +322,12 @@ class AddProductListFragment : Fragment(), ItemClickListener {
 
     private fun popUpButtonSheet() {
         val modalBottomSheet = ImportImageBottomSheetFragment(
-            onCameraCapture = {
-                delegateToCamera()
-            },
+            onCameraCapture = { delegateToCamera() },
             onBrowseGallery = {
                 pickMedia.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly))
             },
-            onCrop = { delegateToCropImage(true) }
+            onCrop = { delegateToCropImage(true) },
+            visibleOnCrop = imageViewModel.bitmapCroppedReceipt.value != null
         )
         modalBottomSheet.show(parentFragmentManager, ReceiptBottomSheetFragment.TAG)
     }
@@ -360,7 +373,7 @@ class AddProductListFragment : Fragment(), ItemClickListener {
 
         reorderedProductTiles.observe(viewLifecycleOwner) {
             if (myPref.getBoolean(OPEN_REORDER_FRAGMENT, false) && it == true) {
-                reorderedProductTiles.value = false
+                reorderedProductTiles.postValue(false)
                 reorderTilesWithProducts()
             }
         }
@@ -390,18 +403,21 @@ class AddProductListFragment : Fragment(), ItemClickListener {
             if (it == null) {
                 return@observe
             }
-            addProductDataViewModel.productList.value?.addAll(it.productList)
-            experimentalDataViewModel.algorithmOrderedNames.value =
-                it.receiptNameLines.map { AlgorithmItemAdapterArgument(it) } as ArrayList<AlgorithmItemAdapterArgument>
-            experimentalDataViewModel.algorithmOrderedPrices.value =
-                it.receiptPriceLines.map { AlgorithmItemAdapterArgument(it) } as ArrayList<AlgorithmItemAdapterArgument>
+            addProductDataViewModel.temporaryProductList.postValue(ArrayList(it.temporaryProductList))
+            addProductDataViewModel.databaseProductList.postValue(ArrayList(it.databaseProductList))
+            experimentalDataViewModel.algorithmOrderedNames.postValue(
+                ArrayList(it.receiptNameLines.map { AlgorithmItemAdapterArgument(it) })
+            )
+            experimentalDataViewModel.algorithmOrderedPrices.postValue(
+                ArrayList(it.receiptPriceLines.map { AlgorithmItemAdapterArgument(it) })
+            )
 
-            reorderedProductTiles.value = true
+            reorderedProductTiles.postValue(true)
         }
 
         addProductDataViewModel.storeById.observe(viewLifecycleOwner) { store ->
             store?.let {
-                binding.toolbar.title = store.name
+                binding.storeName.text = store.name
             }
         }
         addProductDataViewModel.receiptById.observe(viewLifecycleOwner) { receipt ->
@@ -409,7 +425,13 @@ class AddProductListFragment : Fragment(), ItemClickListener {
                 binding.receiptValueText.text = intPriceToString(receipt.pln)
             }
         }
-        addProductDataViewModel.productList.observe(viewLifecycleOwner) { productList ->
+        addProductDataViewModel.databaseProductList.observe(viewLifecycleOwner) {
+            addProductDataViewModel.aggregateProductList()
+        }
+        addProductDataViewModel.temporaryProductList.observe(viewLifecycleOwner) {
+            addProductDataViewModel.aggregateProductList()
+        }
+        addProductDataViewModel.aggregatedProductList.observe(viewLifecycleOwner) { productList ->
             productListAdapter.productList = productList
             calculateSumOfProductPrices(productList)
             if (productListAdapter.categoryList.isNotEmpty()) {

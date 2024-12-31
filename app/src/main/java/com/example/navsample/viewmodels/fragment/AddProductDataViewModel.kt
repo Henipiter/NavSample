@@ -5,13 +5,13 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.navsample.ApplicationContext
 import com.example.navsample.dto.inputmode.AddingInputType
-import com.example.navsample.entities.Category
 import com.example.navsample.entities.FirestoreHelperSingleton
-import com.example.navsample.entities.Product
-import com.example.navsample.entities.Receipt
 import com.example.navsample.entities.ReceiptDatabase
 import com.example.navsample.entities.RoomDatabaseHelper
-import com.example.navsample.entities.Store
+import com.example.navsample.entities.database.Category
+import com.example.navsample.entities.database.Product
+import com.example.navsample.entities.database.Receipt
+import com.example.navsample.entities.database.Store
 import kotlinx.coroutines.launch
 
 class AddProductDataViewModel : ViewModel() {
@@ -26,7 +26,9 @@ class AddProductDataViewModel : ViewModel() {
     var categoryId = ""
 
     var categoryList = MutableLiveData<List<Category>>()
-    var productList = MutableLiveData<ArrayList<Product>>()
+    var databaseProductList = MutableLiveData<ArrayList<Product>>()
+    var temporaryProductList = MutableLiveData<ArrayList<Product>>()
+    var aggregatedProductList = MutableLiveData<ArrayList<Product>>()
     var receiptById = MutableLiveData<Receipt?>()
     var productById = MutableLiveData<Product?>()
     var storeById = MutableLiveData<Store?>()
@@ -36,6 +38,14 @@ class AddProductDataViewModel : ViewModel() {
         val dao = ApplicationContext.context?.let { ReceiptDatabase.getInstance(it).receiptDao }
             ?: throw Exception("NOT SET DATABASE")
         roomDatabaseHelper = RoomDatabaseHelper(dao)
+    }
+
+    fun aggregateProductList(): List<Product> {
+        val aggregatedList = arrayListOf<Product>()
+        databaseProductList.value?.let { aggregatedList.addAll(it) }
+        temporaryProductList.value?.let { aggregatedList.addAll(it) }
+        aggregatedProductList.postValue(aggregatedList)
+        return aggregatedList
     }
 
     fun refreshCategoryList() {
@@ -73,7 +83,7 @@ class AddProductDataViewModel : ViewModel() {
 
     fun getProductsByReceiptId(receiptId: String) {
         viewModelScope.launch {
-            productList.postValue(roomDatabaseHelper.getProductsByReceiptId(receiptId) as ArrayList)
+            databaseProductList.postValue(roomDatabaseHelper.getProductsByReceiptId(receiptId) as ArrayList)
         }
     }
 

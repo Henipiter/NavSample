@@ -16,9 +16,10 @@ import com.example.navsample.adapters.CategoryDropdownAdapter
 import com.example.navsample.databinding.FragmentAddStoreBinding
 import com.example.navsample.dto.DataMode
 import com.example.navsample.dto.FragmentName
+import com.example.navsample.dto.NipValidator
 import com.example.navsample.dto.inputmode.AddingInputType
-import com.example.navsample.entities.Category
-import com.example.navsample.entities.Store
+import com.example.navsample.entities.database.Category
+import com.example.navsample.entities.database.Store
 import com.example.navsample.exception.NoCategoryIdException
 import com.example.navsample.fragments.dialogs.ConfirmDialog
 import com.example.navsample.viewmodels.ImageViewModel
@@ -184,7 +185,7 @@ class AddStoreFragment : Fragment() {
     }
 
     private fun validateNip(text: String) {
-        if (!isCorrectNIP(text)) {
+        if (!NipValidator.validate(text)) {
             binding.storeNIPLayout.error = getString(R.string.nip_incorrect)
             binding.storeNIPLayout.helperText = null
         } else {
@@ -209,18 +210,6 @@ class AddStoreFragment : Fragment() {
             store.defaultCategoryId = pickedCategory?.id ?: throw NoCategoryIdException()
             addStoreDataViewModel.updateStore(store)
         }
-    }
-
-    private fun isCorrectNIP(valueNIP: String?): Boolean {
-        if (valueNIP == null || !Regex("""[0-9]{10}""").matches(valueNIP)) {
-            return false
-        }
-        val weight = arrayOf(6, 5, 7, 2, 3, 4, 5, 6, 7)
-        var sum = 0
-        for (i in 0..8) {
-            sum += valueNIP[i].digitToInt() * weight[i]
-        }
-        return sum % 11 == valueNIP[9].digitToInt()
     }
 
     private fun initObserver() {

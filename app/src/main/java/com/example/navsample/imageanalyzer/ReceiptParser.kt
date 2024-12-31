@@ -1,7 +1,7 @@
 package com.example.navsample.imageanalyzer
 
 import com.example.navsample.dto.PriceUtils.Companion.roundInt
-import com.example.navsample.entities.Product
+import com.example.navsample.entities.database.Product
 import kotlin.math.min
 import kotlin.math.roundToInt
 

@@ -14,8 +14,9 @@ import com.example.navsample.ApplicationContext
 import com.example.navsample.activity.GuideActivity
 import com.example.navsample.adapters.ViewPagerAdapter
 import com.example.navsample.databinding.FragmentListingBinding
-import com.example.navsample.entities.dto.TranslateFirebaseEntity
+import com.example.navsample.entities.firestore.TranslateFirebaseEntity
 import com.example.navsample.viewmodels.ImageViewModel
+import com.example.navsample.viewmodels.ListingViewModel
 import com.example.navsample.viewmodels.SyncDatabaseViewModel
 import com.google.android.material.tabs.TabLayout
 
@@ -26,6 +27,7 @@ class ListingFragment : Fragment() {
     private lateinit var viewPagerAdapter: ViewPagerAdapter
     private val imageViewModel: ImageViewModel by activityViewModels()
     private val syncDatabaseViewModel: SyncDatabaseViewModel by activityViewModels()
+    private val listingViewModel: ListingViewModel by activityViewModels()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -49,6 +51,7 @@ class ListingFragment : Fragment() {
 
         initObserver()
         syncDatabaseViewModel.loadAllList()
+        syncDatabaseViewModel.readFirestoreChanges()
 
 
         binding.tabLayout.addOnTabSelectedListener(object : TabLayout.OnTabSelectedListener {
@@ -157,6 +160,39 @@ class ListingFragment : Fragment() {
         }
         initOutdatedLists()
         initNotSyncedLists()
+        readEntitiesList()
+    }
+
+    private fun readEntitiesList() {
+        syncDatabaseViewModel.categoryRead.observe(viewLifecycleOwner) {
+            if (it) {
+                syncDatabaseViewModel.categoryRead.postValue(false)
+                listingViewModel.loadDataByCategoryFilter()
+                listingViewModel.loadDataByStoreFilter()
+                listingViewModel.loadDataByProductFilter()
+            }
+        }
+        syncDatabaseViewModel.storeRead.observe(viewLifecycleOwner) {
+            if (it) {
+                syncDatabaseViewModel.storeRead.postValue(false)
+                listingViewModel.loadDataByStoreFilter()
+                listingViewModel.loadDataByReceiptFilter()
+                listingViewModel.loadDataByProductFilter()
+            }
+        }
+        syncDatabaseViewModel.receiptRead.observe(viewLifecycleOwner) {
+            if (it) {
+                syncDatabaseViewModel.receiptRead.postValue(false)
+                listingViewModel.loadDataByReceiptFilter()
+            }
+        }
+        syncDatabaseViewModel.productRead.observe(viewLifecycleOwner) {
+            if (it) {
+                syncDatabaseViewModel.productRead.postValue(false)
+                listingViewModel.loadDataByProductFilter()
+                listingViewModel.loadDataByReceiptFilter()
+            }
+        }
     }
 
     private fun <T : TranslateFirebaseEntity> observerForNotSynced(

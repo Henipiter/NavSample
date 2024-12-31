@@ -6,10 +6,10 @@ import androidx.lifecycle.viewModelScope
 import com.example.navsample.ApplicationContext
 import com.example.navsample.dto.inputmode.AddingInputType
 import com.example.navsample.entities.FirestoreHelperSingleton
-import com.example.navsample.entities.Receipt
 import com.example.navsample.entities.ReceiptDatabase
 import com.example.navsample.entities.RoomDatabaseHelper
-import com.example.navsample.entities.Store
+import com.example.navsample.entities.database.Receipt
+import com.example.navsample.entities.database.Store
 import kotlinx.coroutines.launch
 
 class AddReceiptDataViewModel : ViewModel() {

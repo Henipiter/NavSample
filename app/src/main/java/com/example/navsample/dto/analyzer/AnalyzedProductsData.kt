@@ -1,9 +1,10 @@
 package com.example.navsample.dto.analyzer
 
-import com.example.navsample.entities.Product
+import com.example.navsample.entities.database.Product
 
 data class AnalyzedProductsData(
-    var receiptNameLines: ArrayList<String> = ArrayList(),
-    var receiptPriceLines: ArrayList<String> = ArrayList(),
-    var productList: ArrayList<Product> = ArrayList()
+    var receiptNameLines: List<String> = ArrayList(),
+    var receiptPriceLines: List<String> = ArrayList(),
+    var temporaryProductList: List<Product> = ArrayList(),
+    var databaseProductList: List<Product> = ArrayList()
 )

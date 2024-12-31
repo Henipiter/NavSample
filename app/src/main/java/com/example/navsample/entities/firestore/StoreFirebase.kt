@@ -1,7 +1,9 @@
-package com.example.navsample.entities.dto
+package com.example.navsample.entities.firestore
 
-class CategoryFirebase(
+class StoreFirebase(
     var id: String,
+    var defaultCategoryId: String,
+    var isCategorySync: Boolean,
     override var firestoreId: String,
     override var isSync: Boolean,
     override var toUpdate: Boolean,
@@ -10,7 +12,9 @@ class CategoryFirebase(
     override fun synchronizeEntity(): HashMap<String, Any?> {
         return hashMapOf(
             "id" to this.id,
+            "defaultCategoryId" to this.defaultCategoryId,
             "firestoreId" to this.firestoreId, //TODO DELETE
+            "isCategorySync" to this.isCategorySync,
             "isSync" to this.isSync
         )
     }

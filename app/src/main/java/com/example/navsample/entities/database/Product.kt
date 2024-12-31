@@ -1,7 +1,8 @@
-package com.example.navsample.entities
+package com.example.navsample.entities.database
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey
+import com.example.navsample.entities.TranslateEntity
 
 @Entity
 data class Product(

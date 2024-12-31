@@ -168,7 +168,7 @@
     <!-- menu -->
     <string name="add_new">Add new</string>
     <string name="ai_assistant">AI Assistant</string>
-    <string name="import_image">Import image</string>
+    <string name="import_image">Import/edit image</string>
     <string name="reorder">Reorder</string>
     <string name="rotate">Rotate</string>
     <string name="settings">Settings</string>
@@ -177,5 +177,6 @@
     <string name="expand">Expand</string>
     <string name="collapse">Collapse</string>
     <string name="sort">Sort</string>
+    <string name="refresh">Refresh</string>
 
 </resources>
