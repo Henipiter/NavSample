@@ -246,8 +246,8 @@ class ListingFragment : Fragment() {
     ) {
         Log.i("Firebase", "$logName size: ${notSyncedList.size}")
         var operationPerformed = true
-        notSyncedList.forEach { product ->
-            if (!syncStatus(product)) {
+        notSyncedList.forEach { entity ->
+            if (!syncStatus(entity)) {
                 operationPerformed = false
 
             }

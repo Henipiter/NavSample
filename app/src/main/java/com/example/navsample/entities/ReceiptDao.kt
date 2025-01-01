@@ -572,7 +572,7 @@ interface ReceiptDao {
 
     @Query(
         "SELECT  pt.id,p.id as productId, t.id as categoryId,pt.firestoreId,pt.isSync, p.isSync as isProductSync, t.isSync as isTagSync, pt.toUpdate, pt.toDelete " +
-                "FROM ProductTagCrossRef pt INNER JOIN product p ON pt.id = p.id " +
+                "FROM ProductTagCrossRef pt INNER JOIN product p ON pt.productId = p.id " +
                 "INNER JOIN tag t ON pt.tagId = t.id " +
                 "WHERE pt.isSync = 0 and pt.firestoreId != '' "
     )
@@ -687,12 +687,12 @@ interface ReceiptDao {
         val category = getCategoryById(oldId)
         Log.d("Firestore", "Current category: $category")
         if (category != null) {
-            updateDependentStoreByCategoryId(oldId, category.id, category.updatedAt)
-            updateDependentProductByCategoryId(oldId, category.id, category.updatedAt)
             deleteCategoryById(oldId)
             category.id = category.firestoreId
             category.updatedAt = DateUtil.getCurrentUtcTime()
             insertCategory(category)
+            updateDependentStoreByCategoryId(oldId, category.id, category.updatedAt)
+            updateDependentProductByCategoryId(oldId, category.id, category.updatedAt)
         } else {
             Log.d("Firestore", "Current category id not found: $oldId")
         }

@@ -516,7 +516,7 @@ class SyncDatabaseViewModel : ViewModel() {
     }
 
     fun storeSyncStatusOperation(store: StoreFirebase): Boolean {
-        if (store.firestoreId != "" && store.firestoreId != store.id) {
+        if (store.firestoreId != "" && store.firestoreId != store.id && store.isCategorySync) {
             updateStoreFirebaseIdWithDependentReceipts(store.id)
         } else if (store.id == store.firestoreId && store.isCategorySync) {
             store.isSync = true
@@ -530,7 +530,7 @@ class SyncDatabaseViewModel : ViewModel() {
     }
 
     fun receiptSyncStatusOperation(receipt: ReceiptFirebase): Boolean {
-        if (receipt.firestoreId != "" && receipt.firestoreId != receipt.id) {
+        if (receipt.firestoreId != "" && receipt.firestoreId != receipt.id && receipt.isStoreSync) {
             updateReceiptFirebaseIdWithDependentProducts(receipt.id)
         } else if (receipt.id == receipt.firestoreId && receipt.isStoreSync) {
             receipt.isSync = true
@@ -544,7 +544,7 @@ class SyncDatabaseViewModel : ViewModel() {
     }
 
     fun productSyncStatusOperation(product: ProductFirebase): Boolean {
-        if (product.firestoreId != "" && product.firestoreId != product.id) {
+        if (product.firestoreId != "" && product.firestoreId != product.id && product.isCategorySync) {
             updateProductFirebaseId(product.id)
         } else if (product.id == product.firestoreId && product.isReceiptSync && product.isCategorySync) {
             product.isSync = true
@@ -572,7 +572,7 @@ class SyncDatabaseViewModel : ViewModel() {
     }
 
     fun productTagSyncStatusOperation(productTag: ProductTagCrossRefFirebase): Boolean {
-        if (productTag.firestoreId != "" && productTag.firestoreId != productTag.id) {
+        if (productTag.firestoreId != "" && productTag.firestoreId != productTag.id && productTag.isProductSync && productTag.isTagSync) {
             updateProductTagFirebaseId(productTag.id)
         } else if (productTag.id == productTag.firestoreId && productTag.isProductSync && productTag.isTagSync) {
             productTag.isSync = true
