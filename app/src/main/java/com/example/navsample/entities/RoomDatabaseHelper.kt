@@ -15,6 +15,7 @@ import com.example.navsample.entities.database.Tag
 import com.example.navsample.entities.relations.AllData
 import com.example.navsample.entities.relations.PriceByCategory
 import com.example.navsample.entities.relations.ProductRichData
+import com.example.navsample.entities.relations.ProductWithTag
 import com.example.navsample.entities.relations.ReceiptWithStore
 import com.example.navsample.entities.relations.TableCounts
 import java.util.UUID
@@ -97,6 +98,12 @@ class RoomDatabaseHelper(
         )
         val query = QueryDaoHelper.getAllStoresOrdered(storeName, nip, sort)
         return dao.getAllStoresOrdered(query)
+    }
+
+    suspend fun getProductWithTag(): List<ProductWithTag>? {
+        Log.i("Database", "Get product with tag")
+        val query = QueryDaoHelper.getProductWithTag()
+        return dao.getProductWithTag(query)
     }
 
     suspend fun getReceiptWithStoreOrdered(

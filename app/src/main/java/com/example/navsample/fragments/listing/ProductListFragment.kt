@@ -55,7 +55,8 @@ class ProductListFragment : Fragment(), ItemClickListener {
         recyclerViewEvent = binding.recyclerViewEventProducts
         richProductListAdapter = RichProductListAdapter(
             requireContext(),
-            listingViewModel.productRichList.value ?: arrayListOf(), this
+            listingViewModel.productRichList.value ?: arrayListOf(),
+            listingViewModel.productTagList.value ?: arrayListOf(), this
         ) { index ->
             listingViewModel.productRichList.value?.get(index)?.let { productRichData ->
                 popUpButtonSheet(index, productRichData)

@@ -124,7 +124,9 @@ class TagListingFragment : Fragment(), ItemClickListener {
             getString(R.string.delete_confirmation_title),
             getString(R.string.delete_category_confirmation_dialog)
         ) {
-            if (listingViewModel.productTagList.value?.none { productTag -> productTag.tagId == tag.id } != true) {
+            if (listingViewModel.productTagList.value?.none { productTag ->
+                    productTag.id == tag.id
+                } != true) {
                 Toast.makeText(
                     requireContext(),
                     "Cannot delete because of existing products",

@@ -213,6 +213,7 @@ class ListingFragment : Fragment() {
                 listingViewModel.loadDataByStoreFilter()
                 listingViewModel.loadDataByReceiptFilter()
                 listingViewModel.loadDataByProductFilter()
+                listingViewModel.refreshProductTagList()
             }
         }
         syncDatabaseViewModel.receiptRead.observe(viewLifecycleOwner) {
@@ -225,6 +226,7 @@ class ListingFragment : Fragment() {
             if (it) {
                 syncDatabaseViewModel.productRead.postValue(false)
                 listingViewModel.loadDataByProductFilter()
+                listingViewModel.refreshProductTagList()
                 listingViewModel.loadDataByReceiptFilter()
             }
         }
@@ -233,6 +235,7 @@ class ListingFragment : Fragment() {
                 syncDatabaseViewModel.tagRead.postValue(false)
                 listingViewModel.loadDataByTagFilter()
                 listingViewModel.loadDataByProductFilter()
+                listingViewModel.refreshProductTagList()
             }
         }
         syncDatabaseViewModel.productTagRead.observe(viewLifecycleOwner) {
@@ -240,6 +243,7 @@ class ListingFragment : Fragment() {
                 syncDatabaseViewModel.productTagRead.postValue(false)
                 listingViewModel.loadDataByProductFilter()
                 listingViewModel.loadDataByTagFilter()
+                listingViewModel.refreshProductTagList()
             }
         }
     }

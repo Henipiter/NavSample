@@ -18,9 +18,9 @@ import com.example.navsample.dto.sort.StoreSort
 import com.example.navsample.entities.ReceiptDatabase
 import com.example.navsample.entities.RoomDatabaseHelper
 import com.example.navsample.entities.database.Category
-import com.example.navsample.entities.database.ProductTagCrossRef
 import com.example.navsample.entities.database.Store
 import com.example.navsample.entities.database.Tag
+import com.example.navsample.entities.relations.GroupedProductWithTag
 import com.example.navsample.entities.relations.ProductRichData
 import com.example.navsample.entities.relations.ReceiptWithStore
 import kotlinx.coroutines.launch
@@ -49,7 +49,7 @@ class ListingViewModel : ViewModel() {
     var productRichList = MutableLiveData<ArrayList<ProductRichData>>()
     var receiptList = MutableLiveData<ArrayList<ReceiptWithStore>>()
     var categoryList = MutableLiveData<ArrayList<Category>>()
-    var productTagList = MutableLiveData<ArrayList<ProductTagCrossRef>>()
+    var productTagList = MutableLiveData<ArrayList<GroupedProductWithTag>>()
     var tagList = MutableLiveData<ArrayList<Tag>>()
     var storeList = MutableLiveData<ArrayList<Store>>()
 
@@ -60,6 +60,7 @@ class ListingViewModel : ViewModel() {
         loadDataByStoreFilter()
         loadDataByReceiptFilter()
         loadDataByProductFilter()
+        refreshProductTagList()
         loadDataByCategoryFilter()
         loadDataByTagFilter()
     }
@@ -171,13 +172,13 @@ class ListingViewModel : ViewModel() {
 
     fun refreshProductTagList() {
         viewModelScope.launch {
-            productTagList.postValue(roomDatabaseHelper.getAllProductTags() as ArrayList<ProductTagCrossRef>)
-        }
-    }
-
-    private fun refreshProductTagList(productId: String) {
-        viewModelScope.launch {
-            productTagList.postValue(roomDatabaseHelper.getAllProductTags(productId) as ArrayList<ProductTagCrossRef>)
+            val list = roomDatabaseHelper.getProductWithTag()
+            val ids = list?.map { it.id }
+            val groupedProductWithTags = arrayListOf<GroupedProductWithTag>()
+            ids?.forEach {
+                groupedProductWithTags.add(GroupedProductWithTag.convert(it, list))
+            }
+            productTagList.postValue(groupedProductWithTags)
         }
     }
 

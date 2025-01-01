@@ -16,8 +16,8 @@
             android:id="@+id/main_layout"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:paddingTop="6dp"
             android:paddingHorizontal="12dp"
+            android:paddingTop="6dp"
             android:paddingBottom="12dp">
 
 
@@ -78,7 +78,6 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="4dp"
-                    android:layout_marginBottom="40dp"
                     android:layout_marginEnd="4dp"
                     android:paddingTop="4dp"
                     android:text="@string/product_name_stub"
@@ -95,8 +94,8 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="4dp"
                     android:backgroundTint="@color/background_tile_chosen"
-                    app:cardCornerRadius="10dp"
                     android:clickable="true"
+                    app:cardCornerRadius="10dp"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintTop_toTopOf="parent">
 
@@ -126,6 +125,25 @@
                             android:textAlignment="center" />
                     </LinearLayout>
                 </androidx.cardview.widget.CardView>
+
+                <com.google.android.flexbox.FlexboxLayout
+                    android:id="@+id/flexboxLayout"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    app:flexWrap="wrap"
+                    app:layout_constraintTop_toBottomOf="@+id/product_name"
+                    app:layout_constraintEnd_toStartOf="@+id/final_price_card"
+                    app:layout_constraintStart_toStartOf="parent">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:paddingHorizontal="20dp"
+                        android:text="dupa" />
+                </com.google.android.flexbox.FlexboxLayout>
+
+
             </androidx.constraintlayout.widget.ConstraintLayout>
 
             <androidx.constraintlayout.widget.ConstraintLayout

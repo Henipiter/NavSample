@@ -678,7 +678,6 @@ class AddProductFragment : Fragment() {
 
 
     private fun createChip(tag: Tag, isChecked: Boolean): Chip {
-
         val chip =
             layoutInflater.inflate(R.layout.single_chip_layout, binding.chipGroup, false) as Chip
 

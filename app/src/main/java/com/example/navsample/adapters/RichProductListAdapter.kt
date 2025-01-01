@@ -4,6 +4,7 @@ import android.content.Context
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.example.navsample.ItemClickListener
 import com.example.navsample.R
@@ -11,12 +12,16 @@ import com.example.navsample.databinding.ProductRowBinding
 import com.example.navsample.dto.ColorManager
 import com.example.navsample.dto.PriceUtils.Companion.intPriceToString
 import com.example.navsample.dto.PriceUtils.Companion.intQuantityToString
+import com.example.navsample.entities.database.Tag
+import com.example.navsample.entities.relations.GroupedProductWithTag
 import com.example.navsample.entities.relations.ProductRichData
+import com.google.android.flexbox.FlexboxLayout
 
 
 class RichProductListAdapter(
     var context: Context,
     var productList: ArrayList<ProductRichData>,
+    var productTags: ArrayList<GroupedProductWithTag>,
     private var itemClickListener: ItemClickListener,
     private var onDelete: (Int) -> Unit,
 ) : RecyclerView.Adapter<RichProductListAdapter.MyViewHolder>() {
@@ -34,6 +39,10 @@ class RichProductListAdapter(
         setTexts(binding, position)
         setCollapseOrExpandTile(binding, position)
         setColorOfPriceInfo(binding, position)
+        val tags = getTags(productList[position].id)
+        tags?.let {
+            addWordToFlexbox(holder, tags.tag)
+        }
 
         binding.mainLayout.setOnClickListener {
             itemClickListener.onItemClick(position)
@@ -48,6 +57,38 @@ class RichProductListAdapter(
             setCollapseOrExpandTile(binding, position)
             this.notifyItemChanged(position)
         }
+    }
+
+    private fun addWordToFlexbox(holder: MyViewHolder, tags: List<Tag>) {
+
+        holder.binding.flexboxLayout.removeAllViews()
+        tags.forEach {
+            val textView = createTextView(holder, it.name)
+            holder.binding.flexboxLayout.addView(textView)
+        }
+    }
+
+    private fun createTextView(holder: MyViewHolder, text: String): TextView {
+        val layoutInflater = LayoutInflater.from(holder.itemView.context)
+        val textView =
+            layoutInflater.inflate(
+                R.layout.tag_item_layout,
+                holder.binding.flexboxLayout,
+                false
+            ) as TextView
+
+        textView.apply {
+            this.text = text
+            setPadding(16, 8, 16, 8)
+            layoutParams = FlexboxLayout.LayoutParams(
+                FlexboxLayout.LayoutParams.WRAP_CONTENT,
+                FlexboxLayout.LayoutParams.WRAP_CONTENT
+            ).apply {
+                marginEnd = 8
+                bottomMargin = 8
+            }
+        }
+        return textView
     }
 
     private fun setTexts(binding: ProductRowBinding, position: Int) {
@@ -106,5 +147,13 @@ class RichProductListAdapter(
 
     override fun getItemCount(): Int {
         return productList.size
+    }
+
+    private fun getTags(productsId: String): GroupedProductWithTag? {
+        return try {
+            productTags.first { it.id == productsId }
+        } catch (exception: Exception) {
+            null
+        }
     }
 }

@@ -25,6 +25,7 @@ import com.example.navsample.entities.firestore.TagFirebase
 import com.example.navsample.entities.relations.AllData
 import com.example.navsample.entities.relations.PriceByCategory
 import com.example.navsample.entities.relations.ProductRichData
+import com.example.navsample.entities.relations.ProductWithTag
 import com.example.navsample.entities.relations.ReceiptWithStore
 import com.example.navsample.entities.relations.TableCounts
 
@@ -599,6 +600,9 @@ interface ReceiptDao {
 
     @RawQuery
     suspend fun getAllStoresOrdered(query: SupportSQLiteQuery): List<Store>
+
+    @RawQuery
+    suspend fun getProductWithTag(query: SupportSQLiteQuery): List<ProductWithTag>?
 
     @RawQuery
     suspend fun getReceiptWithStoreOrdered(query: SupportSQLiteQuery): List<ReceiptWithStore>

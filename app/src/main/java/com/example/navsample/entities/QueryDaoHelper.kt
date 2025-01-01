@@ -79,7 +79,19 @@ class QueryDaoHelper {
             sql.append("ORDER BY $orderBy")
             return SimpleSQLiteQuery(sql.toString())
         }
+
+        fun getProductWithTag(): SupportSQLiteQuery {
+            val sql = StringBuilder()
+                .append("SELECT p.id, p.name AS productName, t.name AS tagName ")
+                .append("FROM ProductTagCrossRef pt ")
+                .append("INNER JOIN product p ON pt.productId = p.id ")
+                .append("INNER JOIN tag t ON pt.tagId = t.id ")
+                .append("ORDER BY p.name")
+                .toString()
+            return SimpleSQLiteQuery(sql)
+        }
     }
+
 }
 /*
 select isValidd, * from receipt r left join (
