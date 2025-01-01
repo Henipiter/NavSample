@@ -18,8 +18,10 @@ import com.example.navsample.entities.database.Store
 import com.example.navsample.entities.database.Tag
 import com.example.navsample.entities.firestore.CategoryFirebase
 import com.example.navsample.entities.firestore.ProductFirebase
+import com.example.navsample.entities.firestore.ProductTagCrossRefFirebase
 import com.example.navsample.entities.firestore.ReceiptFirebase
 import com.example.navsample.entities.firestore.StoreFirebase
+import com.example.navsample.entities.firestore.TagFirebase
 import com.example.navsample.entities.relations.AllData
 import com.example.navsample.entities.relations.PriceByCategory
 import com.example.navsample.entities.relations.ProductRichData
@@ -451,12 +453,14 @@ interface ReceiptDao {
     @Query("SELECT * FROM product WHERE id = :id AND deletedAt == ''")
     suspend fun getProductById(id: String): Product?
 
+    @Query("SELECT * FROM ProductTagCrossRef WHERE id = :id AND deletedAt == ''")
+    suspend fun getProductTagById(id: String): ProductTagCrossRef?
+
     @Query("SELECT * FROM receipt WHERE id = :id AND deletedAt == ''")
     suspend fun getReceiptById(id: String): Receipt?
 
     @Query("SELECT * FROM store WHERE deletedAt == '' ORDER BY name")
     suspend fun getAllStores(): List<Store>
-
 
     @Query("UPDATE category SET isSync = 1 WHERE id = :id")
     suspend fun syncCategory(id: String)
@@ -470,6 +474,12 @@ interface ReceiptDao {
     @Query("UPDATE product SET isSync = 1 WHERE id = :id")
     suspend fun syncProduct(id: String)
 
+    @Query("UPDATE tag SET isSync = 1 WHERE id = :id")
+    suspend fun syncTag(id: String)
+
+    @Query("UPDATE ProductTagCrossRef SET isSync = 1 WHERE id = :id")
+    suspend fun syncProductTag(id: String)
+
     @Query("UPDATE category SET toUpdate = 0 WHERE id = :id")
     suspend fun markCategoryAsUpdated(id: String)
 
@@ -478,6 +488,9 @@ interface ReceiptDao {
 
     @Query("UPDATE tag SET toUpdate = 0 WHERE id = :id")
     suspend fun markTagAsUpdated(id: String)
+
+    @Query("UPDATE ProductTagCrossRef SET toUpdate = 0 WHERE id = :id")
+    suspend fun markProductTagAsUpdated(id: String)
 
     @Query("UPDATE receipt SET toUpdate = 0 WHERE id = :id")
     suspend fun markReceiptAsUpdated(id: String)
@@ -515,12 +528,25 @@ interface ReceiptDao {
     @Query("SELECT * FROM product WHERE firestoreId == ''")
     suspend fun getAllNotAddedProduct(): List<Product>
 
+    @Query("SELECT * FROM tag WHERE firestoreId == ''")
+    suspend fun getAllNotAddedTag(): List<Tag>
+
+    @Query("SELECT * FROM ProductTagCrossRef WHERE firestoreId == ''")
+    suspend fun getAllNotAddedProductTag(): List<ProductTagCrossRef>
+
     @Query(
         "SELECT id, firestoreId, isSync, toUpdate, toDelete " +
                 "FROM category " +
                 "WHERE isSync == 0 and firestoreId != '' "
     )
     suspend fun getAllNotSyncedCategories(): List<CategoryFirebase>
+
+    @Query(
+        "SELECT id, firestoreId, isSync, toUpdate, toDelete " +
+                "FROM tag " +
+                "WHERE isSync == 0 and firestoreId != '' "
+    )
+    suspend fun getNotSyncedTagForFirestore(): List<TagFirebase>
 
     @Query(
         "SELECT  s.id, c.id as defaultCategoryId, s.firestoreId, s.isSync, c.isSync as isCategorySync, s.toUpdate, s.toDelete " +
@@ -544,6 +570,14 @@ interface ReceiptDao {
     )
     suspend fun getNotSyncedProductForFirestore(): List<ProductFirebase>
 
+    @Query(
+        "SELECT  pt.id,p.id as productId, t.id as categoryId,pt.firestoreId,pt.isSync, p.isSync as isProductSync, t.isSync as isTagSync, pt.toUpdate, pt.toDelete " +
+                "FROM ProductTagCrossRef pt INNER JOIN product p ON pt.id = p.id " +
+                "INNER JOIN tag t ON pt.tagId = t.id " +
+                "WHERE pt.isSync = 0 and pt.firestoreId != '' "
+    )
+    suspend fun getNotSyncedProductTagForFirestore(): List<ProductTagCrossRefFirebase>
+
     @Query("SELECT * FROM category WHERE toUpdate == 1 OR toDelete == 1")
     suspend fun getAllOutdatedCategories(): List<Category>
 
@@ -555,6 +589,12 @@ interface ReceiptDao {
 
     @Query("SELECT * FROM product WHERE toUpdate == 1 OR toDelete == 1")
     suspend fun getOutdatedProductForFirestore(): List<Product>
+
+    @Query("SELECT * FROM ProductTagCrossRef WHERE toUpdate == 1 OR toDelete == 1")
+    suspend fun getOutdatedProductTagForFirestore(): List<ProductTagCrossRef>
+
+    @Query("SELECT * FROM tag WHERE toUpdate == 1 OR toDelete == 1")
+    suspend fun getOutdatedTagForFirestore(): List<Tag>
 
 
     @RawQuery
@@ -647,12 +687,12 @@ interface ReceiptDao {
         val category = getCategoryById(oldId)
         Log.d("Firestore", "Current category: $category")
         if (category != null) {
+            updateDependentStoreByCategoryId(oldId, category.id, category.updatedAt)
+            updateDependentProductByCategoryId(oldId, category.id, category.updatedAt)
             deleteCategoryById(oldId)
             category.id = category.firestoreId
             category.updatedAt = DateUtil.getCurrentUtcTime()
             insertCategory(category)
-            updateDependentStoreByCategoryId(oldId, category.id, category.updatedAt)
-            updateDependentProductByCategoryId(oldId, category.id, category.updatedAt)
         } else {
             Log.d("Firestore", "Current category id not found: $oldId")
         }
@@ -683,6 +723,18 @@ interface ReceiptDao {
     }
 
     @Transaction
+    suspend fun replaceTagWithDependencies(oldId: String) {
+        val tag = getTagById(oldId)
+        if (tag != null) {
+            deleteTagById(oldId)
+            tag.id = tag.firestoreId
+            tag.updatedAt = DateUtil.getCurrentUtcTime()
+            insertTag(tag)
+            updateDependentProductTagByTagId(oldId, tag.id, tag.updatedAt)
+        }
+    }
+
+    @Transaction
     suspend fun replaceProductWithDependencies(oldId: String) {
         val product = getProductById(oldId)
         if (product != null) {
@@ -690,7 +742,18 @@ interface ReceiptDao {
             product.id = product.firestoreId
             product.updatedAt = DateUtil.getCurrentUtcTime()
             insertProduct(product)
-            updateDependentProductByReceiptId(oldId, product.id, product.updatedAt)
+            updateDependentProductTagByProductId(oldId, product.id, product.updatedAt)
+        }
+    }
+
+    @Transaction
+    suspend fun replaceProductTagWithDependencies(oldId: String) {
+        val productTag = getProductTagById(oldId)
+        if (productTag != null) {
+            deleteProductTagById(oldId)
+            productTag.id = productTag.firestoreId
+            productTag.updatedAt = DateUtil.getCurrentUtcTime()
+            insertProductTag(productTag)
         }
     }
 
@@ -740,6 +803,20 @@ interface ReceiptDao {
         timestamp: String
     )
 
+    @Query("UPDATE ProductTagCrossRef SET tagId = :newTagId, updatedAt = :timestamp WHERE tagId = :oldTagId")
+    suspend fun updateDependentProductTagByTagId(
+        oldTagId: String,
+        newTagId: String,
+        timestamp: String
+    )
+
+    @Query("UPDATE ProductTagCrossRef SET productId = :newProductId, updatedAt = :timestamp WHERE productId = :oldProductId")
+    suspend fun updateDependentProductTagByProductId(
+        oldProductId: String,
+        newProductId: String,
+        timestamp: String
+    )
+
     @Query("DELETE FROM category")
     suspend fun clearCategory()
 
@@ -764,6 +841,8 @@ interface ReceiptDao {
         clearReceipt()
         clearStore()
         clearCategory()
+        clearTag()
+        clearProductTag()
     }
 
 }

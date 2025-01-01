@@ -304,6 +304,10 @@ class RoomDatabaseHelper(
         dao.markTagAsUpdated(id)
     }
 
+    suspend fun markProductTagAsUpdated(id: String) {
+        dao.markProductTagAsUpdated(id)
+    }
+
     suspend fun markStoreAsUpdated(id: String) {
         dao.markStoreAsUpdated(id)
     }

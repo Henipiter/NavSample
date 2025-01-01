@@ -3,12 +3,16 @@ package com.example.navsample.entities
 import android.util.Log
 import com.example.navsample.entities.database.Category
 import com.example.navsample.entities.database.Product
+import com.example.navsample.entities.database.ProductTagCrossRef
 import com.example.navsample.entities.database.Receipt
 import com.example.navsample.entities.database.Store
+import com.example.navsample.entities.database.Tag
 import com.example.navsample.entities.firestore.CategoryFirebase
 import com.example.navsample.entities.firestore.ProductFirebase
+import com.example.navsample.entities.firestore.ProductTagCrossRefFirebase
 import com.example.navsample.entities.firestore.ReceiptFirebase
 import com.example.navsample.entities.firestore.StoreFirebase
+import com.example.navsample.entities.firestore.TagFirebase
 import com.example.navsample.entities.firestore.TranslateFirebaseEntity
 import com.google.firebase.Firebase
 import com.google.firebase.firestore.CollectionReference
@@ -192,6 +196,14 @@ class FirebaseHelperImpl(
             Product::class, ProductFirebase::class -> {
                 return PRODUCT_FIRESTORE_PATH
             }
+
+            Tag::class, TagFirebase::class -> {
+                return TAG_FIRESTORE_PATH
+            }
+
+            ProductTagCrossRef::class, ProductTagCrossRefFirebase::class -> {
+                return PRODUCT_TAG_FIRESTORE_PATH
+            }
         }
         return "null"
     }
@@ -200,8 +212,10 @@ class FirebaseHelperImpl(
 
         private const val COLLECTION_PATH = "userTest2"
         private const val PRODUCT_FIRESTORE_PATH = "products"
+        private const val PRODUCT_TAG_FIRESTORE_PATH = "productTags"
         private const val RECEIPT_FIRESTORE_PATH = "receipts"
         private const val STORE_FIRESTORE_PATH = "stores"
         private const val CATEGORY_FIRESTORE_PATH = "categories"
+        private const val TAG_FIRESTORE_PATH = "tags"
     }
 }

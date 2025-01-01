@@ -51,6 +51,7 @@ class ListingFragment : Fragment() {
 
         initObserver()
         syncDatabaseViewModel.loadAllList()
+        syncDatabaseViewModel.loadNotAddedList()
         syncDatabaseViewModel.readFirestoreChanges()
 
 
@@ -101,6 +102,22 @@ class ListingFragment : Fragment() {
                 "notSyncedCategoryList"
             )
         }
+        syncDatabaseViewModel.notSyncedTagList.observe(viewLifecycleOwner) {
+            observerForNotSynced(
+                it,
+                { tag -> syncDatabaseViewModel.tagSyncStatusOperation(tag) },
+                { syncDatabaseViewModel.loadNotSyncedTags() },
+                "notSyncedTagList"
+            )
+        }
+        syncDatabaseViewModel.notSyncedProductTagList.observe(viewLifecycleOwner) {
+            observerForNotSynced(
+                it,
+                { productTag -> syncDatabaseViewModel.productTagSyncStatusOperation(productTag) },
+                { syncDatabaseViewModel.loadNotSyncedProductTags() },
+                "notSyncedProductTagList"
+            )
+        }
         syncDatabaseViewModel.notSyncedStoreList.observe(viewLifecycleOwner) {
             observerForNotSynced(
                 it,
@@ -132,6 +149,18 @@ class ListingFragment : Fragment() {
             Log.i("Firebase", "outdatedCategoryList size: ${it.size}")
             it?.forEach { category ->
                 syncDatabaseViewModel.syncOutdatedCategory(category)
+            }
+        }
+        syncDatabaseViewModel.outdatedTagList.observe(viewLifecycleOwner) {
+            Log.i("Firebase", "outdatedTagList size: ${it.size}")
+            it?.forEach { tag ->
+                syncDatabaseViewModel.syncOutdatedTag(tag)
+            }
+        }
+        syncDatabaseViewModel.outdatedProductTagList.observe(viewLifecycleOwner) {
+            Log.i("Firebase", "outdatedProductTagList size: ${it.size}")
+            it?.forEach { productTag ->
+                syncDatabaseViewModel.syncOutdatedProductTag(productTag)
             }
         }
         syncDatabaseViewModel.outdatedStoreList.observe(viewLifecycleOwner) {
@@ -191,6 +220,20 @@ class ListingFragment : Fragment() {
                 syncDatabaseViewModel.productRead.postValue(false)
                 listingViewModel.loadDataByProductFilter()
                 listingViewModel.loadDataByReceiptFilter()
+            }
+        }
+        syncDatabaseViewModel.tagRead.observe(viewLifecycleOwner) {
+            if (it) {
+                syncDatabaseViewModel.tagRead.postValue(false)
+                listingViewModel.loadDataByTagFilter()
+                listingViewModel.loadDataByProductFilter()
+            }
+        }
+        syncDatabaseViewModel.productTagRead.observe(viewLifecycleOwner) {
+            if (it) {
+                syncDatabaseViewModel.productTagRead.postValue(false)
+                listingViewModel.loadDataByProductFilter()
+                listingViewModel.loadDataByTagFilter()
             }
         }
     }
