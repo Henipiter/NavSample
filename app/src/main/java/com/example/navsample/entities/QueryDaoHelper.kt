@@ -33,7 +33,7 @@ class QueryDaoHelper {
             orderBy: SortProperty<ReceiptWithStoreSort>
         ): SupportSQLiteQuery {
             val sql = StringBuilder()
-                .append("SELECT r.id as id, storeId, nip, s.name, s.defaultCategoryId, pln, ptu, date, time, productPriceSum, validProductCount, productCount, r.isSync, r.toUpdate, r.toDelete")
+                .append("SELECT r.id as id, storeId, nip, s.name, s.defaultCategoryId, pln, ptu, date, time, productPriceSum, validProductCount, productCount, r.isSync, r.toUpdate, r.toDelete ")
                 .append("FROM receipt r ")
                 .append("INNER JOIN  store s ON  s.id = r.storeId ")
                 .append("LEFT JOIN (")

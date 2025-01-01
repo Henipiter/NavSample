@@ -26,6 +26,7 @@ import com.example.navsample.entities.firestore.StoreFirebase
 import com.example.navsample.entities.firestore.TagFirebase
 import com.example.navsample.entities.firestore.TranslateFirebaseEntity
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 import kotlinx.coroutines.withContext
@@ -212,6 +213,14 @@ class SyncDatabaseViewModel : ViewModel() {
         outdatedProductList.postValue(listOf())
         outdatedTagList.postValue(listOf())
         outdatedProductTagList.postValue(listOf())
+    }
+
+    fun loadNotAddedAndSync() {
+        viewModelScope.launch {
+            loadNotAddedList()
+            delay(5000)
+            loadAllList()
+        }
     }
 
     fun loadNotAddedList() {
