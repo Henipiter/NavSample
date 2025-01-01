@@ -79,8 +79,8 @@ class AddTagFragment : Fragment() {
             clearInputs()
             Navigation.findNavController(it).popBackStack()
         }
-        binding.tagNameInput.doOnTextChanged { text, _, _, count ->
-            if (count == 0) {
+        binding.tagNameInput.doOnTextChanged { text, _, _, _ ->
+            if (text?.length == 0) {
                 binding.tagNameLayout.error = getString(R.string.empty_value_error)
             } else if (text.toString() == addTagDataViewModel.tagById.value?.name) {
                 binding.tagNameLayout.error = null

@@ -111,8 +111,8 @@ class AddCategoryFragment : Fragment() {
                 binding.categoryColorLayout.error = getString(R.string.invalid_color_format)
             }
         }
-        binding.categoryNameInput.doOnTextChanged { text, _, _, count ->
-            if (count == 0) {
+        binding.categoryNameInput.doOnTextChanged { text, _, _, _ ->
+            if (text?.length == 0) {
                 binding.categoryNameLayout.error = getString(R.string.empty_value_error)
             } else if (text.toString() == addCategoryDataViewModel.categoryById.value?.name) {
                 binding.categoryNameLayout.error = null
