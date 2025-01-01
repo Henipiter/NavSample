@@ -14,6 +14,14 @@ import com.example.navsample.ApplicationContext
 import com.example.navsample.activity.GuideActivity
 import com.example.navsample.adapters.ViewPagerAdapter
 import com.example.navsample.databinding.FragmentListingBinding
+import com.example.navsample.dto.SyncChecker.Companion.checkIfShouldSync
+import com.example.navsample.dto.SyncChecker.Companion.loadRightList
+import com.example.navsample.entities.database.Category
+import com.example.navsample.entities.database.Product
+import com.example.navsample.entities.database.ProductTagCrossRef
+import com.example.navsample.entities.database.Receipt
+import com.example.navsample.entities.database.Store
+import com.example.navsample.entities.database.Tag
 import com.example.navsample.entities.firestore.TranslateFirebaseEntity
 import com.example.navsample.viewmodels.ImageViewModel
 import com.example.navsample.viewmodels.ListingViewModel
@@ -97,48 +105,48 @@ class ListingFragment : Fragment() {
         syncDatabaseViewModel.notSyncedCategoryList.observe(viewLifecycleOwner) {
             observerForNotSynced(
                 it,
-                { category -> syncDatabaseViewModel.categorySyncStatusOperation(category) },
-                { syncDatabaseViewModel.loadNotSyncedCategories() },
+                { category -> syncDatabaseViewModel.syncStatusOperation(category) },
+                { syncDatabaseViewModel.loadNotSynced(Category::class) },
                 "notSyncedCategoryList"
             )
         }
         syncDatabaseViewModel.notSyncedTagList.observe(viewLifecycleOwner) {
             observerForNotSynced(
                 it,
-                { tag -> syncDatabaseViewModel.tagSyncStatusOperation(tag) },
-                { syncDatabaseViewModel.loadNotSyncedTags() },
+                { tag -> syncDatabaseViewModel.syncStatusOperation(tag) },
+                { syncDatabaseViewModel.loadNotSynced(Tag::class) },
                 "notSyncedTagList"
             )
         }
         syncDatabaseViewModel.notSyncedProductTagList.observe(viewLifecycleOwner) {
             observerForNotSynced(
                 it,
-                { productTag -> syncDatabaseViewModel.productTagSyncStatusOperation(productTag) },
-                { syncDatabaseViewModel.loadNotSyncedProductTags() },
+                { productTag -> syncDatabaseViewModel.syncStatusOperation(productTag) },
+                { syncDatabaseViewModel.loadNotSynced(ProductTagCrossRef::class) },
                 "notSyncedProductTagList"
             )
         }
         syncDatabaseViewModel.notSyncedStoreList.observe(viewLifecycleOwner) {
             observerForNotSynced(
                 it,
-                { store -> syncDatabaseViewModel.storeSyncStatusOperation(store) },
-                { syncDatabaseViewModel.loadNotSyncedStores() },
+                { store -> syncDatabaseViewModel.syncStatusOperation(store) },
+                { syncDatabaseViewModel.loadNotSynced(Store::class) },
                 "notSyncedStoreList"
             )
         }
         syncDatabaseViewModel.notSyncedReceiptList.observe(viewLifecycleOwner) {
             observerForNotSynced(
                 it,
-                { receipt -> syncDatabaseViewModel.receiptSyncStatusOperation(receipt) },
-                { syncDatabaseViewModel.loadNotSyncedReceipts() },
+                { receipt -> syncDatabaseViewModel.syncStatusOperation(receipt) },
+                { syncDatabaseViewModel.loadNotSynced(Receipt::class) },
                 "notSyncedReceiptList"
             )
         }
         syncDatabaseViewModel.notSyncedProductList.observe(viewLifecycleOwner) {
             observerForNotSynced(
                 it,
-                { product -> syncDatabaseViewModel.productSyncStatusOperation(product) },
-                { syncDatabaseViewModel.loadNotSyncedProducts() },
+                { product -> syncDatabaseViewModel.syncStatusOperation(product) },
+                { syncDatabaseViewModel.loadNotSynced(Product::class) },
                 "notSyncedProductList"
             )
         }
@@ -190,7 +198,60 @@ class ListingFragment : Fragment() {
         initOutdatedLists()
         initNotSyncedLists()
         readEntitiesList()
+        syncAllList()
     }
+
+    private fun syncAllList() {
+        listingViewModel.categoryList.observe(viewLifecycleOwner) {
+            it?.let { elements ->
+                val syncMarker = checkIfShouldSync(elements)
+                loadRightList(syncMarker,
+                    { syncDatabaseViewModel.loadNotSynced(Category::class) },
+                    { syncDatabaseViewModel.loadOutdated(Category::class) })
+            }
+        }
+        listingViewModel.storeList.observe(viewLifecycleOwner) {
+            it?.let { elements ->
+                val syncMarker = checkIfShouldSync(elements)
+                loadRightList(syncMarker,
+                    { syncDatabaseViewModel.loadNotSynced(Store::class) },
+                    { syncDatabaseViewModel.loadOutdated(Store::class) })
+            }
+        }
+        listingViewModel.receiptList.observe(viewLifecycleOwner) {
+            it?.let { elements ->
+                val syncMarker = checkIfShouldSync(elements)
+                loadRightList(syncMarker,
+                    { syncDatabaseViewModel.loadNotSynced(Receipt::class) },
+                    { syncDatabaseViewModel.loadOutdated(Receipt::class) })
+            }
+        }
+        listingViewModel.productRichList.observe(viewLifecycleOwner) {
+            it?.let { elements ->
+                val syncMarker = checkIfShouldSync(elements)
+                loadRightList(syncMarker,
+                    { syncDatabaseViewModel.loadNotSynced(Product::class) },
+                    { syncDatabaseViewModel.loadOutdated(Product::class) })
+            }
+        }
+        listingViewModel.productTagList.observe(viewLifecycleOwner) {
+            it?.let { elements ->
+                val syncMarker = checkIfShouldSync(elements)
+                loadRightList(syncMarker,
+                    { syncDatabaseViewModel.loadNotSynced(ProductTagCrossRef::class) },
+                    { syncDatabaseViewModel.loadOutdated(ProductTagCrossRef::class) })
+            }
+        }
+        listingViewModel.tagList.observe(viewLifecycleOwner) {
+            it?.let { elements ->
+                val syncMarker = checkIfShouldSync(elements)
+                loadRightList(syncMarker,
+                    { syncDatabaseViewModel.loadNotSynced(Tag::class) },
+                    { syncDatabaseViewModel.loadOutdated(Tag::class) })
+            }
+        }
+    }
+
 
     private fun readEntitiesList() {
         syncDatabaseViewModel.categoryRead.observe(viewLifecycleOwner) {

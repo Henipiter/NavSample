@@ -20,8 +20,10 @@ data class ProductRichData(
     var raw: String,
     var validPrice: Boolean,
     var id: String,
-    @Ignore
-    var collapse: Boolean = true
+    var isSync: Boolean,
+    var toUpdate: Boolean,
+    var toDelete: Boolean,
+    @Ignore var collapse: Boolean = true
 ) {
     constructor(
         storeId: String,
@@ -59,6 +61,9 @@ data class ProductRichData(
         raw,
         validPrice,
         id,
+        false,
+        false,
+        false,
         true
     )
 }

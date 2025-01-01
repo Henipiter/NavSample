@@ -25,7 +25,7 @@
                 android:layout_gravity="center_vertical"
                 android:layout_margin="8dp"
                 android:layout_weight="9"
-                android:text=" dkwadawhd dawidbawdwj d"
+                android:text="@string/category"
                 android:textSize="18sp" />
 
             <View
@@ -35,6 +35,16 @@
                 android:layout_gravity="center_vertical"
                 android:layout_weight="1"
                 android:background="#FFEB58" />
+
+            <ImageView
+                android:id="@+id/sync_status"
+                android:layout_width="36dp"
+                android:layout_height="36dp"
+                android:scaleType="fitCenter"
+                android:layout_gravity="center_vertical"
+                android:src="@drawable/sync_false"
+                app:tint="@color/background_tile_blocked"
+                android:contentDescription="TODO" />
         </LinearLayout>
     </androidx.cardview.widget.CardView>
 </androidx.constraintlayout.widget.ConstraintLayout>

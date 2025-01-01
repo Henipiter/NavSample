@@ -67,12 +67,14 @@ class ListingViewModel : ViewModel() {
     fun clearData() {
         filterCategoryList.postValue(FilterCategoryList())
         filterStoreList.postValue(FilterStoreList())
-        filterProductList.postValue(FilterProductList())
         filterReceiptList.postValue(FilterReceiptList())
-        productRichList.value?.clear()
-        receiptList.value?.clear()
+        filterProductList.postValue(FilterProductList())
+        filterTagList.postValue(FilterTagList())
         categoryList.value?.clear()
         storeList.value?.clear()
+        receiptList.value?.clear()
+        productRichList.value?.clear()
+        tagList.value?.clear()
     }
 
     fun <Sort : ParentSort> updateSorting(sort: SortProperty<Sort>) {

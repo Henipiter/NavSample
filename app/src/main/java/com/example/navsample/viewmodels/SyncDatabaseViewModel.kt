@@ -24,6 +24,7 @@ import com.example.navsample.entities.firestore.ProductTagCrossRefFirebase
 import com.example.navsample.entities.firestore.ReceiptFirebase
 import com.example.navsample.entities.firestore.StoreFirebase
 import com.example.navsample.entities.firestore.TagFirebase
+import com.example.navsample.entities.firestore.TranslateFirebaseEntity
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
@@ -226,19 +227,19 @@ class SyncDatabaseViewModel : ViewModel() {
         if (!isFirebaseActive()) {
             return
         }
-        loadNotSyncedCategories()
-        loadNotSyncedStores()
-        loadNotSyncedReceipts()
-        loadNotSyncedProducts()
-        loadNotSyncedTags()
-        loadNotSyncedProductTags()
+        loadNotSynced(Category::class)
+        loadNotSynced(Store::class)
+        loadNotSynced(Receipt::class)
+        loadNotSynced(Product::class)
+        loadNotSynced(Tag::class)
+        loadNotSynced(ProductTagCrossRef::class)
 
-        loadOutdatedCategories()
-        loadOutdatedStores()
-        loadOutdatedReceipts()
-        loadOutdatedProducts()
-        loadOutdatedTags()
-        loadOutdatedProductTags()
+        loadOutdated(Category::class)
+        loadOutdated(Store::class)
+        loadOutdated(Receipt::class)
+        loadOutdated(Product::class)
+        loadOutdated(Tag::class)
+        loadOutdated(ProductTagCrossRef::class)
     }
 
     /* w listenerze sprawdzac, ze jesli isSync == false
@@ -303,73 +304,68 @@ class SyncDatabaseViewModel : ViewModel() {
         }
     }
 
-    fun loadNotSyncedStores() {
+    fun <T : TranslateEntity> loadNotSynced(entity: KClass<T>) {
         viewModelScope.launch {
-            notSyncedStoreList.postValue(roomDatabaseHelperFirebase.getAllNotSyncedStores())
+            when (entity) {
+                Category::class -> notSyncedCategoryList.postValue(roomDatabaseHelperFirebase.getAllNotSyncedCategories())
+                Store::class -> notSyncedStoreList.postValue(roomDatabaseHelperFirebase.getAllNotSyncedStores())
+                Receipt::class -> notSyncedReceiptList.postValue(roomDatabaseHelperFirebase.getAllNotSyncedReceipts())
+                Product::class -> notSyncedProductList.postValue(roomDatabaseHelperFirebase.getAllNotSyncedProducts())
+                Tag::class -> notSyncedTagList.postValue(roomDatabaseHelperFirebase.getAllNotSyncedTags())
+                ProductTagCrossRef::class ->
+                    notSyncedProductTagList.postValue(roomDatabaseHelperFirebase.getAllNotSyncedProductTags())
+            }
         }
     }
 
-    fun loadNotSyncedCategories() {
+    fun <T : TranslateEntity> loadOutdated(entity: KClass<T>) {
         viewModelScope.launch {
-            notSyncedCategoryList.postValue(roomDatabaseHelperFirebase.getAllNotSyncedCategories())
+            when (entity) {
+                Category::class ->
+                    outdatedCategoryList.postValue(roomDatabaseHelperFirebase.getAllOutdatedCategories())
+
+                Store::class -> outdatedStoreList.postValue(roomDatabaseHelperFirebase.getAllOutdatedStores())
+                Receipt::class -> outdatedReceiptList.postValue(roomDatabaseHelperFirebase.getAllOutdatedReceipts())
+                Product::class -> outdatedProductList.postValue(roomDatabaseHelperFirebase.getAllOutdatedProducts())
+                Tag::class -> outdatedTagList.postValue(roomDatabaseHelperFirebase.getAllOutdatedTags())
+                ProductTagCrossRef::class ->
+                    outdatedProductTagList.postValue(roomDatabaseHelperFirebase.getAllOutdatedProductTags())
+
+            }
         }
     }
 
-    fun loadNotSyncedReceipts() {
-        viewModelScope.launch {
-            notSyncedReceiptList.postValue(roomDatabaseHelperFirebase.getAllNotSyncedReceipts())
-        }
-    }
-
-    fun loadNotSyncedProducts() {
-        viewModelScope.launch {
-            notSyncedProductList.postValue(roomDatabaseHelperFirebase.getAllNotSyncedProducts())
-        }
-    }
-
-    fun loadNotSyncedTags() {
-        viewModelScope.launch {
-            notSyncedTagList.postValue(roomDatabaseHelperFirebase.getAllNotSyncedTags())
-        }
-    }
-
-    fun loadNotSyncedProductTags() {
-        viewModelScope.launch {
-            notSyncedProductTagList.postValue(roomDatabaseHelperFirebase.getAllNotSyncedProductTags())
-        }
-    }
-
-    private fun loadOutdatedStores() {
+    fun loadOutdatedStores() {
         viewModelScope.launch {
             outdatedStoreList.postValue(roomDatabaseHelperFirebase.getAllOutdatedStores())
         }
     }
 
-    private fun loadOutdatedCategories() {
+    fun loadOutdatedCategories() {
         viewModelScope.launch {
             outdatedCategoryList.postValue(roomDatabaseHelperFirebase.getAllOutdatedCategories())
         }
     }
 
-    private fun loadOutdatedReceipts() {
+    fun loadOutdatedReceipts() {
         viewModelScope.launch {
             outdatedReceiptList.postValue(roomDatabaseHelperFirebase.getAllOutdatedReceipts())
         }
     }
 
-    private fun loadOutdatedProducts() {
+    fun loadOutdatedProducts() {
         viewModelScope.launch {
             outdatedProductList.postValue(roomDatabaseHelperFirebase.getAllOutdatedProducts())
         }
     }
 
-    private fun loadOutdatedTags() {
+    fun loadOutdatedTags() {
         viewModelScope.launch {
             outdatedTagList.postValue(roomDatabaseHelperFirebase.getAllOutdatedTags())
         }
     }
 
-    private fun loadOutdatedProductTags() {
+    fun loadOutdatedProductTags() {
         viewModelScope.launch {
             outdatedProductTagList.postValue(roomDatabaseHelperFirebase.getAllOutdatedProductTags())
         }
@@ -501,7 +497,7 @@ class SyncDatabaseViewModel : ViewModel() {
         }
     }
 
-    fun categorySyncStatusOperation(category: CategoryFirebase): Boolean {
+    private fun categorySyncStatusOperation(category: CategoryFirebase): Boolean {
         if (category.firestoreId != "" && category.firestoreId != category.id) {
             updateCategoryFirebaseIdWithDependentStores(category.id)
         } else if (category.id == category.firestoreId) {
@@ -515,7 +511,7 @@ class SyncDatabaseViewModel : ViewModel() {
         return false
     }
 
-    fun storeSyncStatusOperation(store: StoreFirebase): Boolean {
+    private fun storeSyncStatusOperation(store: StoreFirebase): Boolean {
         if (store.firestoreId != "" && store.firestoreId != store.id && store.isCategorySync) {
             updateStoreFirebaseIdWithDependentReceipts(store.id)
         } else if (store.id == store.firestoreId && store.isCategorySync) {
@@ -529,7 +525,7 @@ class SyncDatabaseViewModel : ViewModel() {
         return false
     }
 
-    fun receiptSyncStatusOperation(receipt: ReceiptFirebase): Boolean {
+    private fun receiptSyncStatusOperation(receipt: ReceiptFirebase): Boolean {
         if (receipt.firestoreId != "" && receipt.firestoreId != receipt.id && receipt.isStoreSync) {
             updateReceiptFirebaseIdWithDependentProducts(receipt.id)
         } else if (receipt.id == receipt.firestoreId && receipt.isStoreSync) {
@@ -543,7 +539,19 @@ class SyncDatabaseViewModel : ViewModel() {
         return false
     }
 
-    fun productSyncStatusOperation(product: ProductFirebase): Boolean {
+    fun <T : TranslateFirebaseEntity> syncStatusOperation(entity: T): Boolean {
+        return when (entity) {
+            is CategoryFirebase -> categorySyncStatusOperation(entity)
+            is StoreFirebase -> storeSyncStatusOperation(entity)
+            is ReceiptFirebase -> receiptSyncStatusOperation(entity)
+            is ProductFirebase -> productSyncStatusOperation(entity)
+            is TagFirebase -> tagSyncStatusOperation(entity)
+            is ProductTagCrossRefFirebase -> productTagSyncStatusOperation(entity)
+            else -> true
+        }
+    }
+
+    private fun productSyncStatusOperation(product: ProductFirebase): Boolean {
         if (product.firestoreId != "" && product.firestoreId != product.id && product.isCategorySync) {
             updateProductFirebaseId(product.id)
         } else if (product.id == product.firestoreId && product.isReceiptSync && product.isCategorySync) {
@@ -557,7 +565,7 @@ class SyncDatabaseViewModel : ViewModel() {
         return false
     }
 
-    fun tagSyncStatusOperation(tag: TagFirebase): Boolean {
+    private fun tagSyncStatusOperation(tag: TagFirebase): Boolean {
         if (tag.firestoreId != "" && tag.firestoreId != tag.id) {
             updateTagFirebaseId(tag.id)
         } else if (tag.id == tag.firestoreId) {
@@ -571,7 +579,7 @@ class SyncDatabaseViewModel : ViewModel() {
         return false
     }
 
-    fun productTagSyncStatusOperation(productTag: ProductTagCrossRefFirebase): Boolean {
+    private fun productTagSyncStatusOperation(productTag: ProductTagCrossRefFirebase): Boolean {
         if (productTag.firestoreId != "" && productTag.firestoreId != productTag.id && productTag.isProductSync && productTag.isTagSync) {
             updateProductTagFirebaseId(productTag.id)
         } else if (productTag.id == productTag.firestoreId && productTag.isProductSync && productTag.isTagSync) {
