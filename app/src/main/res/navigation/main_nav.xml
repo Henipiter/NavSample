@@ -98,6 +98,9 @@
         <argument
             android:name="categoryId"
             app:argType="string" />
+        <action
+            android:id="@+id/action_addProductFragment_to_addTagFragment"
+            app:destination="@id/addTagFragment" />
     </fragment>
     <fragment
         android:id="@+id/addReceiptFragment"

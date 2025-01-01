@@ -1,20 +1,20 @@
 package com.example.navsample.viewmodels.fragment
 
-import android.content.Context
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.navsample.ApplicationContext
+import com.example.navsample.dto.TagList
 import com.example.navsample.dto.inputmode.AddingInputType
 import com.example.navsample.entities.FirestoreHelperSingleton
 import com.example.navsample.entities.ReceiptDatabase
 import com.example.navsample.entities.RoomDatabaseHelper
 import com.example.navsample.entities.database.Category
 import com.example.navsample.entities.database.Product
+import com.example.navsample.entities.database.ProductTagCrossRef
 import com.example.navsample.entities.database.Receipt
 import com.example.navsample.entities.database.Store
 import com.example.navsample.entities.database.Tag
-import com.google.android.material.chip.Chip
 import kotlinx.coroutines.launch
 
 class AddProductDataViewModel : ViewModel() {
@@ -28,7 +28,7 @@ class AddProductDataViewModel : ViewModel() {
     var storeId = ""
     var categoryId = ""
 
-    var chips = MutableLiveData<List<Chip>>()
+    var tagList = MutableLiveData<TagList>()
     var categoryList = MutableLiveData<List<Category>>()
     var databaseProductList = MutableLiveData<ArrayList<Product>>()
     var temporaryProductList = MutableLiveData<ArrayList<Product>>()
@@ -58,11 +58,25 @@ class AddProductDataViewModel : ViewModel() {
         }
     }
 
-    fun refreshTagsList(context: Context) {
+
+    fun insertProductTags(productTagCrossRef: ProductTagCrossRef) {
+        viewModelScope.launch {
+            val savedProductTag =
+                roomDatabaseHelper.insertProductTag(productTagCrossRef)
+            FirestoreHelperSingleton.getInstance().addFirestore(savedProductTag) {
+                viewModelScope.launch {
+                    roomDatabaseHelper.updateProductTagFirestoreId(savedProductTag.id, it)
+                }
+            }
+        }
+    }
+
+    fun refreshTagsList() {
         if (productId.isEmpty()) {
             return
         }
         viewModelScope.launch {
+            //TODO change handling selected/non-selected; Get it by db query
             val currentTagList = roomDatabaseHelper.getAllTags()
             val productTagIds = roomDatabaseHelper.getAllProductTags(productId).map { it.tagId }
 
@@ -75,38 +89,25 @@ class AddProductDataViewModel : ViewModel() {
                     notSelectedTags.add(tag)
                 }
             }
-            chips.postValue(createChips(context, selectedTags, notSelectedTags))
-
-
+            tagList.postValue(TagList(selectedTags, notSelectedTags))
         }
     }
 
-    private fun createChips(
-        context: Context, selectedTags: ArrayList<Tag>, notSelectedTags: ArrayList<Tag>
-    ): MutableList<Chip> {
-        val chips = mutableListOf<Chip>()
-        selectedTags.forEach {
-            val chip = Chip(context).apply {
-                text = it.name
-                isCheckable = true
-            }
-            chips.add(chip)
-        }
-        notSelectedTags.forEach {
-            val chip = Chip(context).apply {
-                text = it.name
-                isCheckable = false
-            }
-            chips.add(chip)
-        }
-        return chips
-    }
 
     fun deleteProduct(productId: String) {
         viewModelScope.launch {
             val deletedProduct = roomDatabaseHelper.deleteProductById(productId)
             FirestoreHelperSingleton.getInstance().delete(deletedProduct) { id ->
                 viewModelScope.launch { roomDatabaseHelper.markProductAsDeleted(id) }
+            }
+        }
+    }
+
+    fun deleteProductTags(productId: String, tagId: String) {
+        viewModelScope.launch {
+            val deletedProductTag = roomDatabaseHelper.deleteProductTag(productId, tagId)
+            FirestoreHelperSingleton.getInstance().delete(deletedProductTag) { id ->
+                viewModelScope.launch { roomDatabaseHelper.markProductTagAsDeleted(id) }
             }
         }
     }

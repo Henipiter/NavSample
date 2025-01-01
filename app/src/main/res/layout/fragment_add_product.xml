@@ -71,6 +71,16 @@
                         tools:ignore="LabelFor" />
                 </com.google.android.material.textfield.TextInputLayout>
 
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="8dp"
+                    android:text="@string/tags"
+                    android:textColor="@color/mid_grey200"
+                    android:textSize="12sp"
+                    app:layout_constraintBottom_toTopOf="@+id/horizontalView"
+                    app:layout_constraintStart_toStartOf="@+id/horizontalView" />
+
                 <HorizontalScrollView
                     android:id="@+id/horizontalView"
                     android:layout_width="match_parent"
@@ -92,10 +102,11 @@
                         app:singleLine="false">
 
                         <com.google.android.material.chip.Chip
-                            android:id="@+id/chip_1"
+                            android:id="@+id/single_chip_layout"
                             style="@style/Widget.MaterialComponents.Chip.Choice"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
+                            android:checkable="false"
                             android:text="@string/add_tag" />
                     </com.google.android.material.chip.ChipGroup>
                 </HorizontalScrollView>
@@ -161,8 +172,8 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="32dp"
-                    android:layout_marginEnd="10dp"
                     android:layout_marginTop="32dp"
+                    android:layout_marginEnd="10dp"
                     android:hint="@string/discount_price"
                     app:endIconMode="clear_text"
 
@@ -234,8 +245,8 @@
                         android:id="@+id/ptu_type_input"
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
-                        android:inputType="numberDecimal"
                         android:focusable="false"
+                        android:inputType="numberDecimal"
                         android:padding="13dp"
                         tools:ignore="LabelFor" />
                 </com.google.android.material.textfield.TextInputLayout>
@@ -245,8 +256,8 @@
                     style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="16dp"
                     android:layout_marginStart="32dp"
+                    android:layout_marginTop="16dp"
                     android:layout_marginEnd="10dp"
                     android:hint="@string/quantity"
                     app:endIconMode="clear_text"

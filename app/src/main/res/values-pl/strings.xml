@@ -155,6 +155,7 @@
     <string name="tag_name_stub">Nazwa tagu</string>
     <string name="delete_tag">Usuń tag</string>
     <string name="add_tag">+ Dodaj tag</string>
+    <string name="tags">Tagi</string>
 
 
 </resources>

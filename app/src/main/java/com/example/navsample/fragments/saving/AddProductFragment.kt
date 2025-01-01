@@ -1,6 +1,7 @@
 package com.example.navsample.fragments.saving
 
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -21,16 +22,22 @@ import com.example.navsample.dto.PriceUtils.Companion.doublePriceTextToInt
 import com.example.navsample.dto.PriceUtils.Companion.doubleQuantityTextToInt
 import com.example.navsample.dto.PriceUtils.Companion.intPriceToString
 import com.example.navsample.dto.PriceUtils.Companion.intQuantityToString
+import com.example.navsample.dto.TagList
 import com.example.navsample.dto.inputmode.AddingInputType
 import com.example.navsample.entities.database.Category
 import com.example.navsample.entities.database.Product
+import com.example.navsample.entities.database.ProductTagCrossRef
+import com.example.navsample.entities.database.Tag
 import com.example.navsample.exception.NoCategoryIdException
 import com.example.navsample.exception.NoReceiptIdException
 import com.example.navsample.viewmodels.ImageViewModel
 import com.example.navsample.viewmodels.ListingViewModel
 import com.example.navsample.viewmodels.fragment.AddProductDataViewModel
+import com.google.android.material.chip.Chip
+import com.google.android.material.chip.ChipGroup
 import kotlinx.coroutines.runBlocking
 import kotlin.math.roundToInt
+
 
 class AddProductFragment : Fragment() {
 
@@ -85,7 +92,7 @@ class AddProductFragment : Fragment() {
 
         consumeNavArgs()
         initObserver()
-        addProductDataViewModel.refreshTagsList(requireContext())
+        addProductDataViewModel.refreshTagsList()
         addProductDataViewModel.refreshCategoryList()
         applyInputParameters()
 
@@ -97,6 +104,10 @@ class AddProductFragment : Fragment() {
                 }
             }
         )
+
+        binding.chipGroup.setOnCheckedStateChangeListener { group, checkedIds ->
+            Log.d("EEAARR", "b ${group.checkedChipId} $checkedIds")
+        }
         binding.productCategoryInput.setOnItemClickListener { adapter, _, position, _ ->
             pickedCategory = adapter.getItemAtPosition(position) as Category
 
@@ -327,8 +338,50 @@ class AddProductFragment : Fragment() {
         }
     }
 
+    private fun saveTagConnections() {
+        val checkedChipIds = binding.chipGroup.getTagIds()
+        Log.d("EEAARR", "a $checkedChipIds")
+
+        addProductDataViewModel.tagList.value?.let { tagList ->
+            val selectedTagIds = tagList.selectedTags.map { it.id }
+
+
+            val idToSave = checkedChipIds.filter { !selectedTagIds.contains(it) }
+            Log.d("EEAARR", "toSave $idToSave")
+            val idToDelete = selectedTagIds.filter { !checkedChipIds.contains(it) }
+            Log.d("EEAARR", "toDelete $idToDelete")
+
+            idToSave.forEach {
+                addProductDataViewModel.insertProductTags(
+                    ProductTagCrossRef(addProductDataViewModel.productId, it)
+                )
+            }
+            idToDelete.forEach {
+                addProductDataViewModel.deleteProductTags(addProductDataViewModel.productId, it)
+            }
+
+
+        }
+    }
+
+    private fun ChipGroup.getTagIds(): List<String> {
+        val ids = mutableListOf<String>()
+        for (i in 0 until childCount) {
+            val chip = getChildAt(i) as? Chip
+            if (chip?.isChecked == true) {
+                chip.tag?.let { tag ->
+                    if (tag is String) {
+                        ids.add(tag)
+                    }
+                }
+            }
+        }
+        return ids
+    }
+
     private fun saveChanges() {
         if (mode == DataMode.NEW) {
+            saveTagConnections()
             val product = Product(
                 addProductDataViewModel.receiptId.ifEmpty { throw NoReceiptIdException() },
                 binding.productNameInput.text.toString(),
@@ -350,6 +403,7 @@ class AddProductFragment : Fragment() {
 
 
         } else if (mode == DataMode.EDIT) {
+            saveTagConnections()
             val product = addProductDataViewModel.productById.value!!
             product.name = binding.productNameInput.text.toString()
             product.categoryId = pickedCategory?.id ?: throw NoCategoryIdException()
@@ -597,13 +651,53 @@ class AddProductFragment : Fragment() {
         )
     }
 
+    private fun createChips(tagList: TagList) {
+        tagList.selectedTags.forEach { tag ->
+            binding.chipGroup.addView(createChip(tag, true))
+        }
+        tagList.notSelectedTags.forEach { tag ->
+            binding.chipGroup.addView(createChip(tag, false))
+        }
+        binding.chipGroup.addView(createAddNewChip())
+    }
+
+    private fun createAddNewChip(): Chip {
+        val addTagChip = createChip(Tag(getString(R.string.add_tag)), false)
+        addTagChip.isCheckable = false
+        addTagChip.setOnClickListener {
+            val action =
+                AddProductFragmentDirections.actionAddProductFragmentToAddTagFragment(
+                    tagId = "",
+                    inputType = AddingInputType.EMPTY.name,
+                    sourceFragment = FragmentName.ADD_PRODUCT_FRAGMENT
+                )
+            Navigation.findNavController(requireView()).navigate(action)
+        }
+        return addTagChip
+    }
+
+
+    private fun createChip(tag: Tag, isChecked: Boolean): Chip {
+
+        val chip =
+            layoutInflater.inflate(R.layout.single_chip_layout, binding.chipGroup, false) as Chip
+
+        chip.apply {
+            text = tag.name
+            this.tag = tag.id
+            this.isCheckable = true
+            this.isChecked = isChecked
+        }
+
+        return chip
+    }
+
+
     private fun initObserver() {
-        addProductDataViewModel.chips.observe(viewLifecycleOwner) {
-            it?.let { chips ->
+        addProductDataViewModel.tagList.observe(viewLifecycleOwner) {
+            it?.let { tagList ->
                 binding.chipGroup.removeAllViews()
-                chips.forEach { chip ->
-                    binding.chipGroup.addView(chip)
-                }
+                createChips(tagList)
             }
         }
         imageViewModel.bitmapCroppedProduct.observe(viewLifecycleOwner) {

@@ -194,9 +194,27 @@ class RoomDatabaseHelper(
         val timestamp = DateUtil.getCurrentUtcTime()
         tag.createdAt = timestamp
         tag.updatedAt = timestamp
-        Log.i("Database", "Insert category '${tag.name}' with id '${tag.id}'")
+        Log.i("Database", "Insert tag '${tag.name}' with id '${tag.id}'")
         dao.insertTag(tag)
         return tag
+    }
+
+    suspend fun insertProductTag(
+        productTag: ProductTagCrossRef,
+        generateId: Boolean = true
+    ): ProductTagCrossRef {
+        if (generateId) {
+            productTag.id = UUID.randomUUID().toString()
+        }
+        val timestamp = DateUtil.getCurrentUtcTime()
+        productTag.createdAt = timestamp
+        productTag.updatedAt = timestamp
+        Log.i(
+            "Database",
+            "Insert product tag with tagId '${productTag.tagId}' with productId '${productTag.productId}'"
+        )
+        dao.insertProductTag(productTag)
+        return productTag
     }
 
     suspend fun insertProduct(product: Product, generateId: Boolean = true): Product {
@@ -264,6 +282,11 @@ class RoomDatabaseHelper(
         dao.updateProductFirestoreId(productId, firestoreId)
     }
 
+    suspend fun updateProductTagFirestoreId(id: String, firestoreId: String) {
+        Log.i("Database", "Update product tag '${id}' with firestore id '${firestoreId}'")
+        dao.updateProductTagFirestoreId(id, firestoreId)
+    }
+
 
     suspend fun updateCategory(category: Category): Category {
         Log.i("Database", "Update category '${category.name}' with id '${category.id}'")
@@ -299,6 +322,10 @@ class RoomDatabaseHelper(
 
     suspend fun markTagAsDeleted(id: String) {
         dao.markTagAsDeleted(id)
+    }
+
+    suspend fun markProductTagAsDeleted(id: String) {
+        dao.markProductTagAsDeleted(id)
     }
 
     suspend fun markStoreAsDeleted(id: String) {
@@ -376,10 +403,10 @@ class RoomDatabaseHelper(
     }
 
     // DELETE
-    suspend fun deleteTag(categoryId: String): Category {
-        Log.i("Database", "Delete category with id '${categoryId}'")
+    suspend fun deleteTag(tagId: String): Tag {
+        Log.i("Database", "Delete category with id '${tagId}'")
         val deletedAt = DateUtil.getCurrentUtcTime()
-        return dao.deleteAndSelectCategoryById(categoryId, deletedAt)
+        return dao.deleteAndSelectTagById(tagId, deletedAt)
     }
 
     suspend fun deleteReceiptProducts(receiptId: String): List<Product> {
@@ -416,6 +443,12 @@ class RoomDatabaseHelper(
         Log.i("Database", "Delete product with id '$productId'")
         val deletedAt = DateUtil.getCurrentUtcTime()
         return dao.deleteAndSelectProductById(productId, deletedAt)
+    }
+
+    suspend fun deleteProductTag(productId: String, tagId: String): ProductTagCrossRef {
+        Log.i("Database", "Delete product with id '$productId' and tag id $tagId")
+        val deletedAt = DateUtil.getCurrentUtcTime()
+        return dao.deleteAndSelectProductTag(productId, tagId, deletedAt)
     }
 
     private fun convertDateFormat(date: String): String {

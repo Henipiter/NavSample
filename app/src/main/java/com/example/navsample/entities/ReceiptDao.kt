@@ -42,6 +42,9 @@ interface ReceiptDao {
     suspend fun insertProduct(product: Product)
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertProductTag(productTagCrossRef: ProductTagCrossRef)
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertReceipt(receipt: Receipt)
 
     @Update
@@ -280,6 +283,9 @@ interface ReceiptDao {
     @Query("UPDATE product SET firestoreId = :firestoreId WHERE id = :id")
     suspend fun updateProductFirestoreId(id: String, firestoreId: String)
 
+    @Query("UPDATE ProductTagCrossRef SET firestoreId = :firestoreId WHERE id = :id")
+    suspend fun updateProductTagFirestoreId(id: String, firestoreId: String)
+
     @Query("UPDATE category SET deletedAt = :deletedAt, updatedAt = :deletedAt, toDelete = 1 WHERE id = :id")
     suspend fun deleteCategoryById(id: String, deletedAt: String)
 
@@ -306,8 +312,18 @@ interface ReceiptDao {
     @Query("UPDATE product SET deletedAt = :deletedAt, updatedAt = :deletedAt, toDelete = 1 WHERE id = :id")
     suspend fun deleteProductById(id: String, deletedAt: String)
 
+    @Query(
+        "UPDATE productTagCrossRef " +
+                "SET deletedAt = :deletedAt, updatedAt = :deletedAt, toDelete = 1 " +
+                "WHERE productId = :productId AND tagId = :tagId"
+    )
+    suspend fun deleteProductTag(productId: String, tagId: String, deletedAt: String)
+
     @Query("SELECT * FROM product WHERE toDelete = 1 AND id = :id")
     suspend fun selectDeletedProductById(id: String): Product
+
+    @Query("SELECT * FROM ProductTagCrossRef WHERE toDelete = 1 AND productId = :productId AND tagId = :tagId")
+    suspend fun selectDeletedProductTag(productId: String, tagId: String): ProductTagCrossRef
 
     @Transaction
     suspend fun deleteAndSelectProductById(id: String, deletedAt: String): Product {
@@ -315,16 +331,38 @@ interface ReceiptDao {
         return selectDeletedProductById(id)
     }
 
+    @Transaction
+    suspend fun deleteAndSelectProductTag(
+        productId: String,
+        tagId: String,
+        deletedAt: String
+    ): ProductTagCrossRef {
+        deleteProductTag(productId, tagId, deletedAt)
+        return selectDeletedProductTag(productId, tagId)
+    }
+
     @Query("UPDATE receipt SET deletedAt = :deletedAt, updatedAt = :deletedAt, toDelete = 1 WHERE id = :id")
     suspend fun deleteReceiptById(id: String, deletedAt: String)
 
+    @Query("UPDATE tag SET deletedAt = :deletedAt, updatedAt = :deletedAt, toDelete = 1 WHERE id = :id")
+    suspend fun deleteTagById(id: String, deletedAt: String)
+
     @Query("SELECT * FROM receipt WHERE toDelete = 1 AND id = :id")
     suspend fun selectDeletedReceiptById(id: String): Receipt
+
+    @Query("SELECT * FROM tag WHERE toDelete = 1 AND id = :id")
+    suspend fun selectDeletedTagById(id: String): Tag
 
     @Transaction
     suspend fun deleteAndSelectReceiptById(id: String, deletedAt: String): Receipt {
         deleteReceiptById(id, deletedAt)
         return selectDeletedReceiptById(id)
+    }
+
+    @Transaction
+    suspend fun deleteAndSelectTagById(id: String, deletedAt: String): Tag {
+        deleteTagById(id, deletedAt)
+        return selectDeletedTagById(id)
     }
 
     @Query(
@@ -452,6 +490,9 @@ interface ReceiptDao {
 
     @Query("UPDATE tag SET toDelete = 0 WHERE id = :id")
     suspend fun markTagAsDeleted(id: String)
+
+    @Query("UPDATE productTagCrossRef SET toDelete = 0 WHERE id = :id")
+    suspend fun markProductTagAsDeleted(id: String)
 
     @Query("UPDATE store SET toDelete = 0 WHERE id = :id")
     suspend fun markStoreAsDeleted(id: String)
@@ -661,6 +702,9 @@ interface ReceiptDao {
 
     @Query("DELETE FROM receipt WHERE id = :id")
     suspend fun deleteReceiptById(id: String)
+
+    @Query("DELETE FROM ProductTagCrossRef WHERE id = :id")
+    suspend fun deleteProductTagById(id: String)
 
     @Query("DELETE FROM product WHERE id = :id")
     suspend fun deleteProductById(id: String)
