@@ -339,7 +339,7 @@ class AddProductFragment : Fragment() {
     }
 
     private fun saveTagConnections() {
-        val checkedChipIds = binding.chipGroup.getTagIds()
+        val checkedChipIds = binding.chipGroup.getTagIds().map { it.id }
         Log.d("EEAARR", "a $checkedChipIds")
 
         addProductDataViewModel.tagList.value?.let { tagList ->
@@ -364,13 +364,13 @@ class AddProductFragment : Fragment() {
         }
     }
 
-    private fun ChipGroup.getTagIds(): List<String> {
-        val ids = mutableListOf<String>()
+    private fun ChipGroup.getTagIds(): List<Tag> {
+        val ids = mutableListOf<Tag>()
         for (i in 0 until childCount) {
             val chip = getChildAt(i) as? Chip
             if (chip?.isChecked == true) {
                 chip.tag?.let { tag ->
-                    if (tag is String) {
+                    if (tag is Tag) {
                         ids.add(tag)
                     }
                 }
@@ -395,10 +395,12 @@ class AddProductFragment : Fragment() {
                 "",
                 isValidPrices
             )
+//            val selectedTags  = binding.chipGroup.getTagIds()
             val newList =
                 addProductDataViewModel.temporaryProductList.value?.let { ArrayList(it) }
                     ?: arrayListOf()
             newList.add(product)
+//            addProductDataViewModel.temporaryTagList.postValue(selectedTags)
             addProductDataViewModel.temporaryProductList.postValue(newList)
 
 
@@ -683,7 +685,7 @@ class AddProductFragment : Fragment() {
 
         chip.apply {
             text = tag.name
-            this.tag = tag.id
+            this.tag = tag
             this.isCheckable = true
             this.isChecked = isChecked
         }

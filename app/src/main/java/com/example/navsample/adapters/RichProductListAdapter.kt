@@ -41,7 +41,7 @@ class RichProductListAdapter(
         setColorOfPriceInfo(binding, position)
         val tags = getTags(productList[position].id)
         tags?.let {
-            addWordToFlexbox(holder, tags.tag)
+            addTagsToFlexbox(holder, tags.tag)
         }
 
         binding.mainLayout.setOnClickListener {
@@ -59,8 +59,7 @@ class RichProductListAdapter(
         }
     }
 
-    private fun addWordToFlexbox(holder: MyViewHolder, tags: List<Tag>) {
-
+    private fun addTagsToFlexbox(holder: MyViewHolder, tags: List<Tag>) {
         holder.binding.flexboxLayout.removeAllViews()
         tags.forEach {
             val textView = createTextView(holder, it.name)

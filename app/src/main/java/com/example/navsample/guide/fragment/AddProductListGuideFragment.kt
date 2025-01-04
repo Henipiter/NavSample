@@ -56,6 +56,7 @@ class AddProductListGuideFragment : Fragment(), Guide, ItemClickListener {
         productListAdapter = ProductListAdapter(
             requireContext(),
             productList,
+            listOf(listOf()),
             listOf(category),
             this
         ) { }

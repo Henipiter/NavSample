@@ -15,6 +15,7 @@ import com.example.navsample.entities.database.ProductTagCrossRef
 import com.example.navsample.entities.database.Receipt
 import com.example.navsample.entities.database.Store
 import com.example.navsample.entities.database.Tag
+import com.example.navsample.entities.relations.ProductWithTag
 import kotlinx.coroutines.launch
 
 class AddProductDataViewModel : ViewModel() {
@@ -31,8 +32,11 @@ class AddProductDataViewModel : ViewModel() {
     var tagList = MutableLiveData<TagList>()
     var categoryList = MutableLiveData<List<Category>>()
     var databaseProductList = MutableLiveData<ArrayList<Product>>()
+    var databaseTagList = MutableLiveData<List<List<Tag>>>()
     var temporaryProductList = MutableLiveData<ArrayList<Product>>()
+    var temporaryTagList = MutableLiveData<List<List<Tag>>>()
     var aggregatedProductList = MutableLiveData<ArrayList<Product>>()
+    var aggregatedTagList = MutableLiveData<ArrayList<List<Tag>>>()
     var receiptById = MutableLiveData<Receipt?>()
     var productById = MutableLiveData<Product?>()
     var storeById = MutableLiveData<Store?>()
@@ -49,6 +53,14 @@ class AddProductDataViewModel : ViewModel() {
         databaseProductList.value?.let { aggregatedList.addAll(it) }
         temporaryProductList.value?.let { aggregatedList.addAll(it) }
         aggregatedProductList.postValue(aggregatedList)
+        return aggregatedList
+    }
+
+    fun aggregateTagList(): ArrayList<List<Tag>> {
+        val aggregatedList = arrayListOf<List<Tag>>()
+        databaseTagList.value?.let { aggregatedList.addAll(it) }
+        temporaryTagList.value?.let { aggregatedList.addAll(it) }
+        aggregatedTagList.postValue(aggregatedList)
         return aggregatedList
     }
 
@@ -130,10 +142,43 @@ class AddProductDataViewModel : ViewModel() {
         }
     }
 
-    fun getProductsByReceiptId(receiptId: String) {
+    fun getProductByReceiptIdWithTags(receiptId: String) {
         viewModelScope.launch {
-            databaseProductList.postValue(roomDatabaseHelper.getProductsByReceiptId(receiptId) as ArrayList)
+            val productTagList = roomDatabaseHelper.getProductWithTag()
+            val productList = roomDatabaseHelper.getProductsByReceiptId(receiptId) as ArrayList
+
+
+            val tagIds = getTagsForAllProducts(productList, productTagList)
+
+
+            databaseProductList.postValue(productList)
+            databaseTagList.postValue(tagIds)
         }
+    }
+
+    private fun getTagsForAllProducts(
+        productList: List<Product>, productTags: List<ProductWithTag>?
+    ): ArrayList<List<Tag>> {
+        val tagsList = arrayListOf<List<Tag>>()
+        productList.forEach {
+            tagsList.add(getTagsForProductId(it.id, productTags))
+        }
+        return tagsList
+    }
+
+    private fun getTagsForProductId(
+        productId: String,
+        productTags: List<ProductWithTag>?
+    ): ArrayList<Tag> {
+        val tags = arrayListOf<Tag>()
+        productTags?.forEach {
+            if (it.id == productId && it.tagId != null) {
+                val tag = Tag(it.tagName)
+                tag.id = it.tagId!!
+                tags.add(tag)
+            }
+        }
+        return tags
     }
 
     fun updateSingleProduct(product: Product) {
