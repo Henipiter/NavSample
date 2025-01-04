@@ -1,5 +1,6 @@
 package com.example.navsample.viewmodels.fragment
 
+import android.util.Log
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -32,11 +33,8 @@ class AddProductDataViewModel : ViewModel() {
     var tagList = MutableLiveData<TagList>()
     var categoryList = MutableLiveData<List<Category>>()
     var databaseProductList = MutableLiveData<ArrayList<Product>>()
-    var databaseTagList = MutableLiveData<List<List<Tag>>>()
     var temporaryProductList = MutableLiveData<ArrayList<Product>>()
-    var temporaryTagList = MutableLiveData<List<List<Tag>>>()
     var aggregatedProductList = MutableLiveData<ArrayList<Product>>()
-    var aggregatedTagList = MutableLiveData<ArrayList<List<Tag>>>()
     var receiptById = MutableLiveData<Receipt?>()
     var productById = MutableLiveData<Product?>()
     var storeById = MutableLiveData<Store?>()
@@ -53,14 +51,6 @@ class AddProductDataViewModel : ViewModel() {
         databaseProductList.value?.let { aggregatedList.addAll(it) }
         temporaryProductList.value?.let { aggregatedList.addAll(it) }
         aggregatedProductList.postValue(aggregatedList)
-        return aggregatedList
-    }
-
-    fun aggregateTagList(): ArrayList<List<Tag>> {
-        val aggregatedList = arrayListOf<List<Tag>>()
-        databaseTagList.value?.let { aggregatedList.addAll(it) }
-        temporaryTagList.value?.let { aggregatedList.addAll(it) }
-        aggregatedTagList.postValue(aggregatedList)
         return aggregatedList
     }
 
@@ -146,24 +136,19 @@ class AddProductDataViewModel : ViewModel() {
         viewModelScope.launch {
             val productTagList = roomDatabaseHelper.getProductWithTag()
             val productList = roomDatabaseHelper.getProductsByReceiptId(receiptId) as ArrayList
-
-
-            val tagIds = getTagsForAllProducts(productList, productTagList)
-
-
+            getTagsForAllProducts(productList, productTagList)
             databaseProductList.postValue(productList)
-            databaseTagList.postValue(tagIds)
         }
     }
 
     private fun getTagsForAllProducts(
         productList: List<Product>, productTags: List<ProductWithTag>?
-    ): ArrayList<List<Tag>> {
-        val tagsList = arrayListOf<List<Tag>>()
+    ) {
         productList.forEach {
-            tagsList.add(getTagsForProductId(it.id, productTags))
+            val tagsList = getTagsForProductId(it.id, productTags)
+            it.tagList = tagsList
+            it.originalTagList = tagsList
         }
-        return tagsList
     }
 
     private fun getTagsForProductId(
@@ -184,6 +169,7 @@ class AddProductDataViewModel : ViewModel() {
     fun updateSingleProduct(product: Product) {
         viewModelScope.launch {
             val updatedProduct = roomDatabaseHelper.updateProduct(product)
+            changeProductTags(updatedProduct.id, product)
             if (updatedProduct.firestoreId.isNotEmpty()) {
                 FirestoreHelperSingleton.getInstance().updateFirestore(updatedProduct) {
                     viewModelScope.launch { roomDatabaseHelper.markProductAsUpdated(product.id) }
@@ -205,11 +191,39 @@ class AddProductDataViewModel : ViewModel() {
     private fun insertSingleProduct(product: Product) {
         viewModelScope.launch {
             val savedProduct = roomDatabaseHelper.insertProduct(product)
+            addProductTags(savedProduct.id, product)
             FirestoreHelperSingleton.getInstance().addFirestore(savedProduct) {
                 viewModelScope.launch {
                     roomDatabaseHelper.updateProductFirestoreId(savedProduct.id, it)
                 }
             }
         }
+    }
+
+    private fun addProductTags(productId: String, product: Product) {
+        val idToSave = product.tagList.map { it.id }
+        idToSave.forEach {
+            insertProductTags(ProductTagCrossRef(productId, it))
+        }
+    }
+
+    private fun changeProductTags(productId: String, product: Product) {
+        val originalTagIds = product.originalTagList.map { it.id }
+        val currentTagIds = product.tagList.map { it.id }
+
+
+        val idToSave = currentTagIds.filter { !originalTagIds.contains(it) }
+        Log.d("EEAARR", "toSave $idToSave")
+        val idToDelete = originalTagIds.filter { !currentTagIds.contains(it) }
+        Log.d("EEAARR", "toDelete $idToDelete")
+
+        idToSave.forEach {
+            insertProductTags(ProductTagCrossRef(productId, it))
+        }
+        idToDelete.forEach {
+            deleteProductTags(productId, it)
+        }
+
+
     }
 }

@@ -13,7 +13,6 @@ import com.example.navsample.dto.ColorManager
 import com.example.navsample.dto.PriceUtils.Companion.intPriceToString
 import com.example.navsample.dto.PriceUtils.Companion.intQuantityToString
 import com.example.navsample.entities.database.Tag
-import com.example.navsample.entities.relations.GroupedProductWithTag
 import com.example.navsample.entities.relations.ProductRichData
 import com.google.android.flexbox.FlexboxLayout
 
@@ -21,7 +20,6 @@ import com.google.android.flexbox.FlexboxLayout
 class RichProductListAdapter(
     var context: Context,
     var productList: ArrayList<ProductRichData>,
-    var productTags: ArrayList<GroupedProductWithTag>,
     private var itemClickListener: ItemClickListener,
     private var onDelete: (Int) -> Unit,
 ) : RecyclerView.Adapter<RichProductListAdapter.MyViewHolder>() {
@@ -39,10 +37,7 @@ class RichProductListAdapter(
         setTexts(binding, position)
         setCollapseOrExpandTile(binding, position)
         setColorOfPriceInfo(binding, position)
-        val tags = getTags(productList[position].id)
-        tags?.let {
-            addTagsToFlexbox(holder, tags.tag)
-        }
+        addTagsToFlexbox(holder, productList[position].tagList)
 
         binding.mainLayout.setOnClickListener {
             itemClickListener.onItemClick(position)
@@ -146,13 +141,5 @@ class RichProductListAdapter(
 
     override fun getItemCount(): Int {
         return productList.size
-    }
-
-    private fun getTags(productsId: String): GroupedProductWithTag? {
-        return try {
-            productTags.first { it.id == productsId }
-        } catch (exception: Exception) {
-            null
-        }
     }
 }

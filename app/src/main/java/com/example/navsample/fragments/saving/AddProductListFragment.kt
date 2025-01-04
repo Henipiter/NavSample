@@ -96,7 +96,6 @@ class AddProductListFragment : Fragment(), ItemClickListener {
         productListAdapter = ProductListAdapter(
             requireContext(),
             addProductDataViewModel.aggregatedProductList.value ?: mutableListOf(),
-            addProductDataViewModel.aggregatedTagList.value ?: mutableListOf(),
             addProductDataViewModel.categoryList.value ?: listOf(),
             this
         ) { index: Int ->
@@ -432,22 +431,12 @@ class AddProductListFragment : Fragment(), ItemClickListener {
         addProductDataViewModel.temporaryProductList.observe(viewLifecycleOwner) {
             addProductDataViewModel.aggregateProductList()
         }
-        addProductDataViewModel.databaseTagList.observe(viewLifecycleOwner) {
-            addProductDataViewModel.aggregateTagList()
-        }
-        addProductDataViewModel.temporaryTagList.observe(viewLifecycleOwner) {
-            addProductDataViewModel.aggregateTagList()
-        }
         addProductDataViewModel.aggregatedProductList.observe(viewLifecycleOwner) { productList ->
             productListAdapter.productList = productList
             calculateSumOfProductPrices(productList)
             if (productListAdapter.categoryList.isNotEmpty()) {
                 productListAdapter.notifyDataSetChanged()
             }
-        }
-        addProductDataViewModel.aggregatedTagList.observe(viewLifecycleOwner) { tagList ->
-            productListAdapter.tagList = tagList
-            productListAdapter.notifyDataSetChanged()
         }
         addProductDataViewModel.categoryList.observe(viewLifecycleOwner) { categoryList ->
             productListAdapter.categoryList = categoryList

@@ -26,7 +26,6 @@ import com.example.navsample.dto.TagList
 import com.example.navsample.dto.inputmode.AddingInputType
 import com.example.navsample.entities.database.Category
 import com.example.navsample.entities.database.Product
-import com.example.navsample.entities.database.ProductTagCrossRef
 import com.example.navsample.entities.database.Tag
 import com.example.navsample.exception.NoCategoryIdException
 import com.example.navsample.exception.NoReceiptIdException
@@ -338,32 +337,6 @@ class AddProductFragment : Fragment() {
         }
     }
 
-    private fun saveTagConnections() {
-        val checkedChipIds = binding.chipGroup.getTagIds().map { it.id }
-        Log.d("EEAARR", "a $checkedChipIds")
-
-        addProductDataViewModel.tagList.value?.let { tagList ->
-            val selectedTagIds = tagList.selectedTags.map { it.id }
-
-
-            val idToSave = checkedChipIds.filter { !selectedTagIds.contains(it) }
-            Log.d("EEAARR", "toSave $idToSave")
-            val idToDelete = selectedTagIds.filter { !checkedChipIds.contains(it) }
-            Log.d("EEAARR", "toDelete $idToDelete")
-
-            idToSave.forEach {
-                addProductDataViewModel.insertProductTags(
-                    ProductTagCrossRef(addProductDataViewModel.productId, it)
-                )
-            }
-            idToDelete.forEach {
-                addProductDataViewModel.deleteProductTags(addProductDataViewModel.productId, it)
-            }
-
-
-        }
-    }
-
     private fun ChipGroup.getTagIds(): List<Tag> {
         val ids = mutableListOf<Tag>()
         for (i in 0 until childCount) {
@@ -381,7 +354,6 @@ class AddProductFragment : Fragment() {
 
     private fun saveChanges() {
         if (mode == DataMode.NEW) {
-            saveTagConnections()
             val product = Product(
                 addProductDataViewModel.receiptId.ifEmpty { throw NoReceiptIdException() },
                 binding.productNameInput.text.toString(),
@@ -395,17 +367,15 @@ class AddProductFragment : Fragment() {
                 "",
                 isValidPrices
             )
-//            val selectedTags  = binding.chipGroup.getTagIds()
+            product.tagList = binding.chipGroup.getTagIds()
             val newList =
                 addProductDataViewModel.temporaryProductList.value?.let { ArrayList(it) }
                     ?: arrayListOf()
             newList.add(product)
-//            addProductDataViewModel.temporaryTagList.postValue(selectedTags)
             addProductDataViewModel.temporaryProductList.postValue(newList)
 
 
         } else if (mode == DataMode.EDIT) {
-            saveTagConnections()
             val product = addProductDataViewModel.productById.value!!
             product.name = binding.productNameInput.text.toString()
             product.categoryId = pickedCategory?.id ?: throw NoCategoryIdException()
@@ -418,6 +388,7 @@ class AddProductFragment : Fragment() {
                 doublePriceTextToInt(binding.productFinalPriceInput.text.toString())
             product.ptuType = binding.ptuTypeInput.text.toString()
             product.validPrice = isValidPrices
+            product.tagList = binding.chipGroup.getTagIds()
 
             when (addProductDataViewModel.inputType) {
                 AddingInputType.ID.name -> {
@@ -425,6 +396,7 @@ class AddProductFragment : Fragment() {
                         addProductDataViewModel.updateSingleProduct(product)
                         listingViewModel.loadDataByReceiptFilter()
                         listingViewModel.loadDataByProductFilter()
+                        listingViewModel.loadDataByTagFilter()
                     }
                 }
 

@@ -22,6 +22,7 @@ import com.example.navsample.entities.database.Store
 import com.example.navsample.entities.database.Tag
 import com.example.navsample.entities.relations.GroupedProductWithTag
 import com.example.navsample.entities.relations.ProductRichData
+import com.example.navsample.entities.relations.ProductWithTag
 import com.example.navsample.entities.relations.ReceiptWithStore
 import kotlinx.coroutines.launch
 
@@ -209,17 +210,48 @@ class ListingViewModel : ViewModel() {
         higherPrice: Int
     ) {
         viewModelScope.launch {
-            productRichList.postValue(
-                roomDatabaseHelper.getAllProductsOrderedWithHigherPrice(
-                    storeName,
-                    categoryName,
-                    dateFrom,
-                    dateTo,
-                    lowerPrice,
-                    higherPrice,
-                    richProductSort.value ?: defaultRichProductSort
-                ) as ArrayList<ProductRichData>
-            )
+
+
+            val productTagList = roomDatabaseHelper.getProductWithTag()
+            val productList = roomDatabaseHelper.getAllProductsOrderedWithHigherPrice(
+                storeName,
+                categoryName,
+                dateFrom,
+                dateTo,
+                lowerPrice,
+                higherPrice,
+                richProductSort.value ?: defaultRichProductSort
+            ) as ArrayList<ProductRichData>
+
+            getTagsForAllProducts(productList, productTagList)
+
+
+            productRichList.postValue(productList)
         }
     }
+
+    private fun getTagsForAllProducts(
+        productList: List<ProductRichData>, productTags: List<ProductWithTag>?
+    ) {
+        productList.forEach {
+            val tagsList = getTagsForProductId(it.id, productTags)
+            it.tagList = tagsList
+        }
+    }
+
+    private fun getTagsForProductId(
+        productId: String,
+        productTags: List<ProductWithTag>?
+    ): ArrayList<Tag> {
+        val tags = arrayListOf<Tag>()
+        productTags?.forEach {
+            if (it.id == productId && it.tagId != null) {
+                val tag = Tag(it.tagName)
+                tag.id = it.tagId!!
+                tags.add(tag)
+            }
+        }
+        return tags
+    }
+
 }

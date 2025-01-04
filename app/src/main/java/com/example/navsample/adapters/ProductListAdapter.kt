@@ -14,13 +14,11 @@ import com.example.navsample.dto.PriceUtils.Companion.intPriceToString
 import com.example.navsample.dto.PriceUtils.Companion.intQuantityToString
 import com.example.navsample.entities.database.Category
 import com.example.navsample.entities.database.Product
-import com.example.navsample.entities.database.Tag
 import com.google.android.flexbox.FlexboxLayout
 
 class ProductListAdapter(
     var context: Context,
     var productList: MutableList<Product>,
-    var tagList: List<List<Tag>>,
     var categoryList: List<Category>,
     private var itemClickListener: ItemClickListener,
     private var onDelete: (Int) -> Unit,
@@ -107,7 +105,7 @@ class ProductListAdapter(
 
     private fun addTagsToFlexbox(holder: MyViewHolder, position: Int) {
         holder.binding.flexboxLayout.removeAllViews()
-        tagList[position].forEach {
+        productList[position].tagList.forEach {
             val textView = createTextView(holder, it.name)
             holder.binding.flexboxLayout.addView(textView)
         }
