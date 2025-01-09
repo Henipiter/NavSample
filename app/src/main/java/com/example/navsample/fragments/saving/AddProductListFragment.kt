@@ -111,7 +111,6 @@ class AddProductListFragment : Fragment(), ItemClickListener {
         requireActivity().onBackPressedDispatcher.addCallback(
             viewLifecycleOwner, object : OnBackPressedCallback(true) {
                 override fun handleOnBackPressed() {
-                    clearInputs()
                     Navigation.findNavController(requireView()).popBackStack()
                 }
             }
@@ -124,7 +123,7 @@ class AddProductListFragment : Fragment(), ItemClickListener {
 
         binding.toolbar.setNavigationOnClickListener {
             shouldOpenCropFragment = true
-            clearInputs()
+            addProductDataViewModel.clearProductList()
             Navigation.findNavController(it).popBackStack()
         }
         defineToolbarActions()
@@ -149,12 +148,6 @@ class AddProductListFragment : Fragment(), ItemClickListener {
         )
     }
 
-    private fun clearInputs() {
-        addProductDataViewModel.temporaryProductList.value?.clear()
-        addProductDataViewModel.databaseProductList.value?.clear()
-        addProductDataViewModel.aggregatedProductList.value?.clear()
-        addProductDataViewModel.productById.value = null
-    }
 
     private fun defineToolbarActions() {
         binding.toolbar.setOnMenuItemClickListener {
@@ -303,7 +296,7 @@ class AddProductListFragment : Fragment(), ItemClickListener {
         }
         imageAnalyzerViewModel.clearData()
         imageViewModel.clearData()
-        addProductDataViewModel.cropImageFragmentOnStart = true
+        addProductDataViewModel.clearProductList()
         Navigation.findNavController(binding.root).popBackStack(R.id.listingFragment, false)
     }
 
@@ -426,12 +419,19 @@ class AddProductListFragment : Fragment(), ItemClickListener {
             }
         }
         addProductDataViewModel.databaseProductList.observe(viewLifecycleOwner) {
-            addProductDataViewModel.aggregateProductList()
+            it?.let {
+                addProductDataViewModel.aggregateProductList()
+            }
         }
         addProductDataViewModel.temporaryProductList.observe(viewLifecycleOwner) {
-            addProductDataViewModel.aggregateProductList()
+            it?.let {
+                addProductDataViewModel.aggregateProductList()
+            }
         }
         addProductDataViewModel.aggregatedProductList.observe(viewLifecycleOwner) { productList ->
+            if (productList == null) {
+                return@observe
+            }
             productListAdapter.productList = productList
             calculateSumOfProductPrices(productList)
             if (productListAdapter.categoryList.isNotEmpty()) {
