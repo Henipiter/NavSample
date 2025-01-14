@@ -32,12 +32,18 @@ class AddProductDataViewModel : ViewModel() {
     var receiptById = MutableLiveData<Receipt?>()
     var productById = MutableLiveData<Product?>()
     var storeById = MutableLiveData<Store?>()
-    var cropImageFragmentOnStart = true
 
     init {
         val dao = ApplicationContext.context?.let { ReceiptDatabase.getInstance(it).receiptDao }
             ?: throw Exception("NOT SET DATABASE")
         roomDatabaseHelper = RoomDatabaseHelper(dao)
+    }
+
+    fun clearProductList() {
+        databaseProductList.value?.clear()
+        temporaryProductList.value?.clear()
+        aggregatedProductList.value?.clear()
+        productById.postValue(null)
     }
 
     fun aggregateProductList(): List<Product> {
