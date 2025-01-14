@@ -61,7 +61,7 @@ class AddProductDataViewModel : ViewModel() {
     }
 
 
-    fun insertProductTags(productTagCrossRef: ProductTagCrossRef) {
+    private fun insertProductTags(productTagCrossRef: ProductTagCrossRef) {
         viewModelScope.launch {
             val savedProductTag =
                 roomDatabaseHelper.insertProductTag(productTagCrossRef)
@@ -74,16 +74,18 @@ class AddProductDataViewModel : ViewModel() {
     }
 
     fun refreshTagsList() {
-        if (productId.isEmpty()) {
-            return
-        }
         viewModelScope.launch {
             //TODO change handling selected/non-selected; Get it by db query
             val currentTagList = roomDatabaseHelper.getAllTags()
-            val productTagIds = roomDatabaseHelper.getAllProductTags(productId).map { it.tagId }
 
             val selectedTags = arrayListOf<Tag>()
             val notSelectedTags = arrayListOf<Tag>()
+            if (productId.isEmpty()) {
+                notSelectedTags.addAll(currentTagList)
+                return@launch
+            }
+
+            val productTagIds = roomDatabaseHelper.getAllProductTags(productId).map { it.tagId }
             currentTagList.forEach { tag ->
                 if (productTagIds.contains(tag.id)) {
                     selectedTags.add(tag)

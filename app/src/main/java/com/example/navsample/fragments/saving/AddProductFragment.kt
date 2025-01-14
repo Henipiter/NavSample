@@ -91,9 +91,9 @@ class AddProductFragment : Fragment() {
 
         consumeNavArgs()
         initObserver()
-        addProductDataViewModel.refreshTagsList()
         addProductDataViewModel.refreshCategoryList()
         applyInputParameters()
+        addProductDataViewModel.refreshTagsList()
 
         requireActivity().onBackPressedDispatcher.addCallback(
             viewLifecycleOwner, object : OnBackPressedCallback(true) {
@@ -312,10 +312,11 @@ class AddProductFragment : Fragment() {
                 mode = DataMode.EDIT
                 binding.toolbar.title = getString(R.string.edit_product_title)
                 isArgSetOrThrow(addProductDataViewModel.productIndex, "NO PRODUCT INDEX SET: ") {
-                    addProductDataViewModel.productById.value =
-                        addProductDataViewModel.aggregatedProductList.value?.get(
-                            addProductDataViewModel.productIndex
-                        )
+                    val product = addProductDataViewModel.aggregatedProductList.value?.get(
+                        addProductDataViewModel.productIndex
+                    )
+                    addProductDataViewModel.productId = product?.id ?: ""
+                    addProductDataViewModel.productById.postValue(product)
                 }
             }
 
