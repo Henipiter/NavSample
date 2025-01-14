@@ -104,9 +104,7 @@ class SyncDatabaseViewModel : ViewModel() {
                 if (elements.isNotEmpty()) {
                     var isSaved = false
                     elements.forEach { entity ->
-                        if (entity.isSync) {
-                            isSaved = roomDatabaseHelper.saveEntityFromFirestore(entity)
-                        }
+                        isSaved = roomDatabaseHelper.saveEntityFromFirestore(entity)
                     }
                     if (isSaved) {
                         setPreferencesKey(preferencesKey, elements.last().updatedAt)
@@ -327,7 +325,7 @@ class SyncDatabaseViewModel : ViewModel() {
         }
     }
 
-    fun <T : TranslateEntity> loadOutdated(entity: KClass<T>) {
+    private fun <T : TranslateEntity> loadOutdated(entity: KClass<T>) {
         viewModelScope.launch {
             when (entity) {
                 Category::class ->
@@ -341,42 +339,6 @@ class SyncDatabaseViewModel : ViewModel() {
                     outdatedProductTagList.postValue(roomDatabaseHelperFirebase.getAllOutdatedProductTags())
 
             }
-        }
-    }
-
-    fun loadOutdatedStores() {
-        viewModelScope.launch {
-            outdatedStoreList.postValue(roomDatabaseHelperFirebase.getAllOutdatedStores())
-        }
-    }
-
-    fun loadOutdatedCategories() {
-        viewModelScope.launch {
-            outdatedCategoryList.postValue(roomDatabaseHelperFirebase.getAllOutdatedCategories())
-        }
-    }
-
-    fun loadOutdatedReceipts() {
-        viewModelScope.launch {
-            outdatedReceiptList.postValue(roomDatabaseHelperFirebase.getAllOutdatedReceipts())
-        }
-    }
-
-    fun loadOutdatedProducts() {
-        viewModelScope.launch {
-            outdatedProductList.postValue(roomDatabaseHelperFirebase.getAllOutdatedProducts())
-        }
-    }
-
-    fun loadOutdatedTags() {
-        viewModelScope.launch {
-            outdatedTagList.postValue(roomDatabaseHelperFirebase.getAllOutdatedTags())
-        }
-    }
-
-    fun loadOutdatedProductTags() {
-        viewModelScope.launch {
-            outdatedProductTagList.postValue(roomDatabaseHelperFirebase.getAllOutdatedProductTags())
         }
     }
 

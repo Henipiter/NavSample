@@ -1,6 +1,7 @@
 package com.example.navsample.entities
 
 import android.util.Log
+import com.example.navsample.entities.converters.DocumentToEntityConverter
 import com.example.navsample.entities.database.Category
 import com.example.navsample.entities.database.Product
 import com.example.navsample.entities.database.ProductTagCrossRef
@@ -37,7 +38,7 @@ class FirebaseHelperImpl(
                 "${objectClass.simpleName} docs size: ${snapshot.documents.size}"
             )
             for (document in snapshot.documents) {
-                val entity = document.toObject(objectClass.java)
+                val entity = DocumentToEntityConverter.convert(document, objectClass)
                 entity?.let { list.add(it) }
             }
         } else {
@@ -62,7 +63,7 @@ class FirebaseHelperImpl(
                         "${objectClass.simpleName} docs size: ${snapshot.documents.size}"
                     )
                     for (document in snapshot.documents) {
-                        val entity = document.toObject(objectClass.java)
+                        val entity = DocumentToEntityConverter.convert(document, objectClass)
                         entity?.let {
                             saveEntity(entity)
                         }
@@ -77,6 +78,7 @@ class FirebaseHelperImpl(
     override fun <T : TranslateEntity> getDataByQuery(type: KClass<out T>, date: String): Query {
         var query = getFullFirestorePath(type)
             .whereEqualTo("deletedAt", "")
+            .whereEqualTo("isSync", true)
             .orderBy("updatedAt")
             .limit(100)
 
