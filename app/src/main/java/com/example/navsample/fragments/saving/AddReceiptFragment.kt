@@ -47,7 +47,6 @@ class AddReceiptFragment : Fragment() {
     private var calendarDate = Calendar.getInstance()
     private var calendarTime = Calendar.getInstance()
     private lateinit var dropdownAdapter: StoreDropdownAdapter
-    private var mode = DataMode.NEW
 
     private var goNext = true
     private var firstEntry = true
@@ -132,7 +131,7 @@ class AddReceiptFragment : Fragment() {
         val inputType = AddingInputType.getByName(addReceiptDataViewModel.inputType)
         if (inputType == AddingInputType.EMPTY) {
             addReceiptDataViewModel.receiptById.value = null
-            mode = DataMode.NEW
+            addReceiptDataViewModel.mode = DataMode.NEW
             binding.storeNameInput.setText("")
             binding.receiptPLNInput.setText("")
             binding.receiptPTUInput.setText("")
@@ -144,7 +143,7 @@ class AddReceiptFragment : Fragment() {
         } else if (inputType == AddingInputType.ID) {
             if (addReceiptDataViewModel.receiptId.isNotEmpty()) {
                 binding.toolbar.title = getString(R.string.edit_receipt_title)
-                mode = DataMode.EDIT
+                addReceiptDataViewModel.mode = DataMode.EDIT
                 addReceiptDataViewModel.getReceiptById(addReceiptDataViewModel.receiptId)
                 binding.toolbar.menu.findItem(R.id.add_new).isVisible = true
             } else {
@@ -234,7 +233,7 @@ class AddReceiptFragment : Fragment() {
                 addReceiptDataViewModel.inputType = AddingInputType.ID.name
                 if (goNext && addReceiptDataViewModel.pickedStore?.defaultCategoryId != null) {
                     goNext = false
-                    if (mode == DataMode.NEW) {
+                    if (addReceiptDataViewModel.mode == DataMode.NEW) {
                         val action =
                             AddReceiptFragmentDirections.actionAddReceiptFragmentToAddProductListFragment(
                                 receiptId = it.id,
@@ -295,7 +294,7 @@ class AddReceiptFragment : Fragment() {
         val date = binding.receiptDateInput.text.toString()
         val time = binding.receiptTimeInput.text.toString()
 
-        if (mode == DataMode.NEW) {
+        if (addReceiptDataViewModel.mode == DataMode.NEW) {
             if (addReceiptDataViewModel.pickedStore != null && addReceiptDataViewModel.pickedStore?.id?.isEmpty() == false) {
                 val receipt = Receipt(
                     addReceiptDataViewModel.pickedStore!!.id,
@@ -310,16 +309,11 @@ class AddReceiptFragment : Fragment() {
                 listingViewModel.loadDataByProductFilter()
                 goNext = true
             }
-        } else if (mode == DataMode.EDIT) {
+        } else if (addReceiptDataViewModel.mode == DataMode.EDIT) {
             addReceiptDataViewModel.receiptById.value?.let {
                 if (addReceiptDataViewModel.pickedStore != null && addReceiptDataViewModel.pickedStore?.id?.isEmpty() == false) {
-                    val receipt = Receipt(
-                        addReceiptDataViewModel.pickedStore!!.id,
-                        pln,
-                        ptu,
-                        date,
-                        time
-                    )
+                    val receipt =
+                        Receipt(addReceiptDataViewModel.pickedStore!!.id, pln, ptu, date, time)
                     receipt.id = it.id
                     addReceiptDataViewModel.updateReceipt(receipt)
                     listingViewModel.loadDataByReceiptFilter()

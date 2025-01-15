@@ -35,8 +35,6 @@ class AddStoreFragment : Fragment() {
     private val listingViewModel: ListingViewModel by activityViewModels()
     private val addStoreDataViewModel: AddStoreDataViewModel by activityViewModels()
 
-    private var mode = DataMode.NEW
-
     private var isUniqueNIP = false
     private var firstEntry = true
 
@@ -170,7 +168,7 @@ class AddStoreFragment : Fragment() {
         val inputType = AddingInputType.getByName(addStoreDataViewModel.inputType)
         if (inputType == AddingInputType.EMPTY) {
             addStoreDataViewModel.storeById.value = null
-            mode = DataMode.NEW
+            addStoreDataViewModel.mode = DataMode.NEW
             binding.storeNIPInput.setText("")
             binding.storeNameInput.setText("")
             binding.storeDefaultCategoryInput.setText("")
@@ -179,7 +177,7 @@ class AddStoreFragment : Fragment() {
         } else if (inputType == AddingInputType.ID) {
             if (addStoreDataViewModel.storeId.isNotEmpty()) {
                 binding.toolbar.title = getString(R.string.edit_store_title)
-                mode = DataMode.EDIT
+                addStoreDataViewModel.mode = DataMode.EDIT
                 addStoreDataViewModel.getStoreById(addStoreDataViewModel.storeId)
             } else {
                 throw Exception("NO STORE ID SET")
@@ -204,15 +202,14 @@ class AddStoreFragment : Fragment() {
     }
 
     private fun saveChangesToDatabase() {
-        if (mode == DataMode.NEW) {
+        if (addStoreDataViewModel.mode == DataMode.NEW) {
             val store = Store(
                 binding.storeNIPInput.text.toString(),
                 binding.storeNameInput.text.toString(),
                 addStoreDataViewModel.pickedCategory?.id ?: throw NoCategoryIdException()
             )
             addStoreDataViewModel.insertStore(store)
-        }
-        if (mode == DataMode.EDIT) {
+        } else if (addStoreDataViewModel.mode == DataMode.EDIT) {
             val store = addStoreDataViewModel.storeById.value!!
             store.nip = binding.storeNIPInput.text.toString()
             store.name = binding.storeNameInput.text.toString()

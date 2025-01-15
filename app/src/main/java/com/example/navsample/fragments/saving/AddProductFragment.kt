@@ -49,7 +49,6 @@ class AddProductFragment : Fragment() {
     private val listingViewModel: ListingViewModel by activityViewModels()
     private val addProductDataViewModel: AddProductDataViewModel by activityViewModels()
 
-    private var mode = DataMode.NEW
     private var productOriginalInput = ""
     private var storeDefaultCategoryName = ""
     private var isValidPrices = true
@@ -325,7 +324,7 @@ class AddProductFragment : Fragment() {
         when (AddingInputType.getByName(addProductDataViewModel.inputType)) {
             AddingInputType.EMPTY -> {
                 addProductDataViewModel.productById.value = null
-                mode = DataMode.NEW
+                addProductDataViewModel.mode = DataMode.NEW
                 binding.productNameInput.setText("")
                 binding.productSubtotalPriceInput.setText("")
                 binding.productUnitPriceInput.setText("")
@@ -344,7 +343,7 @@ class AddProductFragment : Fragment() {
             }
 
             AddingInputType.INDEX -> {
-                mode = DataMode.EDIT
+                addProductDataViewModel.mode = DataMode.EDIT
                 binding.toolbar.title = getString(R.string.edit_product_title)
                 isArgSetOrThrow(addProductDataViewModel.productIndex, "NO PRODUCT INDEX SET: ") {
                     val product = addProductDataViewModel.aggregatedProductList.value?.get(
@@ -356,7 +355,7 @@ class AddProductFragment : Fragment() {
             }
 
             AddingInputType.ID -> {
-                mode = DataMode.EDIT
+                addProductDataViewModel.mode = DataMode.EDIT
                 binding.toolbar.title = getString(R.string.edit_product_title)
                 isArgSetOrThrow(addProductDataViewModel.productId, "NO PRODUCT ID  SET: ") {
                     addProductDataViewModel.getProductById(addProductDataViewModel.productId)
@@ -389,7 +388,7 @@ class AddProductFragment : Fragment() {
     }
 
     private fun saveChanges() {
-        if (mode == DataMode.NEW) {
+        if (addProductDataViewModel.mode == DataMode.NEW) {
             val product = Product(
                 addProductDataViewModel.receiptId.ifEmpty { throw NoReceiptIdException() },
                 binding.productNameInput.text.toString(),
@@ -411,7 +410,7 @@ class AddProductFragment : Fragment() {
             addProductDataViewModel.temporaryProductList.postValue(newList)
 
 
-        } else if (mode == DataMode.EDIT) {
+        } else if (addProductDataViewModel.mode == DataMode.EDIT) {
             val product = addProductDataViewModel.productById.value!!
             product.name = binding.productNameInput.text.toString()
             product.categoryId =

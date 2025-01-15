@@ -5,6 +5,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.navsample.ApplicationContext
+import com.example.navsample.dto.DataMode
 import com.example.navsample.dto.TagList
 import com.example.navsample.dto.inputmode.AddingInputType
 import com.example.navsample.entities.FirestoreHelperSingleton
@@ -32,6 +33,7 @@ class AddProductDataViewModel : ViewModel() {
 
     var pickedCategory: Category? = null
     var productInputs: Product = Product()
+    var mode = DataMode.NEW
 
     var tagList = MutableLiveData<TagList>()
     var categoryList = MutableLiveData<List<Category>>()

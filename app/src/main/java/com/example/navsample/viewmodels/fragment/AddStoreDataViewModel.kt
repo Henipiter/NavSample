@@ -4,6 +4,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.navsample.ApplicationContext
+import com.example.navsample.dto.DataMode
 import com.example.navsample.dto.inputmode.AddingInputType
 import com.example.navsample.entities.FirestoreHelperSingleton
 import com.example.navsample.entities.ReceiptDatabase
@@ -23,6 +24,7 @@ class AddStoreDataViewModel : ViewModel() {
     var storeName: String? = null
     var storeNip: String? = null
 
+    var mode = DataMode.NEW
     var pickedCategory: Category? = null
     var storeInputs: Store = Store()
 

@@ -4,6 +4,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.navsample.ApplicationContext
+import com.example.navsample.dto.DataMode
 import com.example.navsample.dto.inputmode.AddingInputType
 import com.example.navsample.entities.FirestoreHelperSingleton
 import com.example.navsample.entities.ReceiptDatabase
@@ -19,8 +20,10 @@ class AddReceiptDataViewModel : ViewModel() {
     var inputType = AddingInputType.EMPTY.name
     var receiptId = ""
     var storeId = ""
+
     var pickedStore: Store? = null
     var receiptInputs: Receipt = Receipt()
+    var mode = DataMode.NEW
 
     var storeList = MutableLiveData<ArrayList<Store>>()
     var receiptById = MutableLiveData<Receipt?>()
