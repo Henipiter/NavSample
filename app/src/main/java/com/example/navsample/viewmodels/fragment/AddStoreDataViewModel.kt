@@ -23,6 +23,9 @@ class AddStoreDataViewModel : ViewModel() {
     var storeName: String? = null
     var storeNip: String? = null
 
+    var pickedCategory: Category? = null
+    var storeInputs: Store = Store()
+
     var storeList = MutableLiveData<ArrayList<Store>>()
     var categoryList = MutableLiveData<ArrayList<Category>>()
     var storeById = MutableLiveData<Store?>()

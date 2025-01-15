@@ -30,6 +30,9 @@ class AddProductDataViewModel : ViewModel() {
     var storeId = ""
     var categoryId = ""
 
+    var pickedCategory: Category? = null
+    var productInputs: Product = Product()
+
     var tagList = MutableLiveData<TagList>()
     var categoryList = MutableLiveData<List<Category>>()
     var databaseProductList = MutableLiveData<ArrayList<Product>>()
@@ -86,6 +89,26 @@ class AddProductDataViewModel : ViewModel() {
             }
 
             val productTagIds = roomDatabaseHelper.getAllProductTags(productId).map { it.tagId }
+            currentTagList.forEach { tag ->
+                if (productTagIds.contains(tag.id)) {
+                    selectedTags.add(tag)
+                } else {
+                    notSelectedTags.add(tag)
+                }
+            }
+            tagList.postValue(TagList(selectedTags, notSelectedTags))
+        }
+    }
+
+    fun refreshTagsList(tags: List<Tag>) {
+        viewModelScope.launch {
+            //TODO change handling selected/non-selected; Get it by db query
+            val currentTagList = roomDatabaseHelper.getAllTags()
+
+            val selectedTags = arrayListOf<Tag>()
+            val notSelectedTags = arrayListOf<Tag>()
+
+            val productTagIds = tags.map { it.id }
             currentTagList.forEach { tag ->
                 if (productTagIds.contains(tag.id)) {
                     selectedTags.add(tag)

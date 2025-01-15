@@ -52,7 +52,6 @@ class AddProductFragment : Fragment() {
     private var mode = DataMode.NEW
     private var productOriginalInput = ""
     private var storeDefaultCategoryName = ""
-    private var pickedCategory: Category? = null
     private var isValidPrices = true
     private var firstEntry = true
     private lateinit var dropdownAdapter: CategoryDropdownAdapter
@@ -92,8 +91,6 @@ class AddProductFragment : Fragment() {
         consumeNavArgs()
         initObserver()
         addProductDataViewModel.refreshCategoryList()
-        applyInputParameters()
-        addProductDataViewModel.refreshTagsList()
 
         requireActivity().onBackPressedDispatcher.addCallback(
             viewLifecycleOwner, object : OnBackPressedCallback(true) {
@@ -108,10 +105,11 @@ class AddProductFragment : Fragment() {
             Log.d("EEAARR", "b ${group.checkedChipId} $checkedIds")
         }
         binding.productCategoryInput.setOnItemClickListener { adapter, _, position, _ ->
-            pickedCategory = adapter.getItemAtPosition(position) as Category
+            addProductDataViewModel.pickedCategory = adapter.getItemAtPosition(position) as Category
 
-            if ("" == pickedCategory?.color && binding.productCategoryInput.adapter.count - 1 == position) {
+            if ("" == addProductDataViewModel.pickedCategory?.color && binding.productCategoryInput.adapter.count - 1 == position) {
                 binding.productCategoryInput.setText("")
+                saveInputsToViewModel()
                 val action =
                     AddProductFragmentDirections.actionAddProductFragmentToAddCategoryFragment(
                         categoryId = "",
@@ -120,11 +118,11 @@ class AddProductFragment : Fragment() {
                     )
                 Navigation.findNavController(requireView()).navigate(action)
             } else {
-                binding.productCategoryInput.setText(pickedCategory?.name)
+                binding.productCategoryInput.setText(addProductDataViewModel.pickedCategory?.name)
                 binding.productCategoryInput.isEnabled = false
 
                 val storeCategory = addProductDataViewModel.storeById.value?.defaultCategoryId
-                if (storeCategory != null && storeCategory != pickedCategory?.id) {
+                if (storeCategory != null && storeCategory != addProductDataViewModel.pickedCategory?.id) {
                     binding.productCategoryHelperText.text = getCategorySuggestionMessage()
                 } else {
                     binding.productCategoryHelperText.text = ""
@@ -139,7 +137,7 @@ class AddProductFragment : Fragment() {
             binding.productCategoryInput.setText("")
             binding.productCategoryLayout.helperText = null
             binding.productCategoryInput.isEnabled = true
-            pickedCategory = null
+            addProductDataViewModel.pickedCategory = null
             binding.productCategoryHelperText.text = getCategorySuggestionMessage()
         }
 
@@ -270,6 +268,38 @@ class AddProductFragment : Fragment() {
         }
     }
 
+    private fun saveInputsToViewModel() {
+        addProductDataViewModel.productInputs.name = binding.productNameInput.text.toString()
+        addProductDataViewModel.productInputs.quantity =
+            doubleQuantityTextToInt(binding.productQuantityInput.text.toString())
+        addProductDataViewModel.productInputs.unitPrice =
+            doublePriceTextToInt(binding.productUnitPriceInput.text.toString())
+        addProductDataViewModel.productInputs.subtotalPrice =
+            doublePriceTextToInt(binding.productSubtotalPriceInput.text.toString())
+        addProductDataViewModel.productInputs.discount =
+            doublePriceTextToInt(binding.productDiscountInput.text.toString())
+        addProductDataViewModel.productInputs.finalPrice =
+            doublePriceTextToInt(binding.productFinalPriceInput.text.toString())
+        addProductDataViewModel.productInputs.ptuType = binding.ptuTypeInput.text.toString()
+
+        addProductDataViewModel.productInputs.tagList = binding.chipGroup.getTagIds()
+    }
+
+    private fun putInputsFromViewModel() {
+        binding.productNameInput.setText(addProductDataViewModel.productInputs.name)
+        binding.productSubtotalPriceInput.setText(intPriceToString(addProductDataViewModel.productInputs.subtotalPrice))
+        binding.productUnitPriceInput.setText(intPriceToString(addProductDataViewModel.productInputs.unitPrice))
+        binding.productQuantityInput.setText(intQuantityToString(addProductDataViewModel.productInputs.quantity))
+        binding.productFinalPriceInput.setText(intPriceToString(addProductDataViewModel.productInputs.finalPrice))
+        binding.productDiscountInput.setText(intPriceToString(addProductDataViewModel.productInputs.discount))
+        binding.ptuTypeInput.setText(addProductDataViewModel.productInputs.ptuType)
+
+        //tags also
+        binding.chipGroup.removeAllViews()
+        addProductDataViewModel.refreshTagsList(addProductDataViewModel.productInputs.tagList)
+
+    }
+
     private fun consumeNavArgs() {
         if (firstEntry && navArgs.sourceFragment != FragmentName.ADD_CATEGORY_FRAGMENT) {
             firstEntry = false
@@ -278,8 +308,13 @@ class AddProductFragment : Fragment() {
             addProductDataViewModel.productId = navArgs.productId
             addProductDataViewModel.receiptId = navArgs.receiptId
             addProductDataViewModel.storeId = navArgs.storeId
-            addProductDataViewModel.categoryId = navArgs.categoryId
+            if (navArgs.categoryId.isNotEmpty()) {
+                addProductDataViewModel.categoryId = navArgs.categoryId
+            }
+            applyInputParameters()
+            addProductDataViewModel.refreshTagsList()
         } else if (navArgs.sourceFragment == FragmentName.ADD_CATEGORY_FRAGMENT) {
+            putInputsFromViewModel()
             if (navArgs.categoryId.isNotEmpty()) {
                 addProductDataViewModel.categoryId = navArgs.categoryId
             }
@@ -358,7 +393,7 @@ class AddProductFragment : Fragment() {
             val product = Product(
                 addProductDataViewModel.receiptId.ifEmpty { throw NoReceiptIdException() },
                 binding.productNameInput.text.toString(),
-                pickedCategory?.id ?: throw NoCategoryIdException(),
+                addProductDataViewModel.pickedCategory?.id ?: throw NoCategoryIdException(),
                 doubleQuantityTextToInt(binding.productQuantityInput.text.toString()),
                 doublePriceTextToInt(binding.productUnitPriceInput.text.toString()),
                 doublePriceTextToInt(binding.productSubtotalPriceInput.text.toString()),
@@ -379,7 +414,8 @@ class AddProductFragment : Fragment() {
         } else if (mode == DataMode.EDIT) {
             val product = addProductDataViewModel.productById.value!!
             product.name = binding.productNameInput.text.toString()
-            product.categoryId = pickedCategory?.id ?: throw NoCategoryIdException()
+            product.categoryId =
+                addProductDataViewModel.pickedCategory?.id ?: throw NoCategoryIdException()
             product.quantity = doubleQuantityTextToInt(binding.productQuantityInput.text.toString())
             product.unitPrice = doublePriceTextToInt(binding.productUnitPriceInput.text.toString())
             product.subtotalPrice =
@@ -615,7 +651,7 @@ class AddProductFragment : Fragment() {
         if (!isValidPrices) {
             succeedValidation = false
         }
-        if (pickedCategory == null) {
+        if (addProductDataViewModel.pickedCategory == null) {
             binding.productCategoryHelperText.text = getEmptyValueText()
             succeedValidation = false
         }
@@ -736,15 +772,17 @@ class AddProductFragment : Fragment() {
 
     private fun clearInputs() {
         addProductDataViewModel.productById.value = null
+        addProductDataViewModel.pickedCategory = null
+        addProductDataViewModel.categoryId = ""
     }
 
     private fun setCategory() {
-        pickedCategory = try {
+        addProductDataViewModel.pickedCategory = try {
             addProductDataViewModel.categoryList.value?.first { category -> category.id == addProductDataViewModel.categoryId }
         } catch (exception: Exception) {
             null
         }
-        pickedCategory?.let {
+        addProductDataViewModel.pickedCategory?.let {
             binding.productCategoryInput.setText(it.name)
             binding.productCategoryInput.isEnabled = false
         }
