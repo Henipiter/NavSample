@@ -82,7 +82,7 @@ class QueryDaoHelper {
 
         fun getProductWithTag(): SupportSQLiteQuery {
             val sql = StringBuilder()
-                .append("SELECT p.id, p.name AS productName, t.id AS tagId, t.name AS tagName ")
+                .append("SELECT p.id, p.name AS productName, t.id AS tagId, t.name AS tagName, pt.deletedAt ")
                 .append("FROM ProductTagCrossRef pt ")
                 .append("INNER JOIN product p ON pt.productId = p.id ")
                 .append("INNER JOIN tag t ON pt.tagId = t.id ")

@@ -245,7 +245,7 @@ class ListingViewModel : ViewModel() {
     ): ArrayList<Tag> {
         val tags = arrayListOf<Tag>()
         productTags?.forEach {
-            if (it.id == productId && it.tagId != null) {
+            if (it.deletedAt.isEmpty() && it.id == productId && it.tagId != null) {
                 val tag = Tag(it.tagName)
                 tag.id = it.tagId!!
                 tags.add(tag)

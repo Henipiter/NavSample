@@ -394,6 +394,8 @@ class AddProductFragment : Fragment() {
             when (addProductDataViewModel.inputType) {
                 AddingInputType.ID.name -> {
                     runBlocking {
+                        product.originalTagList =
+                            addProductDataViewModel.tagList.value?.selectedTags ?: listOf()
                         addProductDataViewModel.updateSingleProduct(product)
                         listingViewModel.loadDataByReceiptFilter()
                         listingViewModel.loadDataByProductFilter()
