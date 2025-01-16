@@ -2,7 +2,7 @@ package com.example.navsample.dto
 
 class NipValidator {
     companion object {
-        fun validate(nip: String?): Boolean {
+        fun validate(nip: CharSequence?): Boolean {
             if (nip == null || !Regex("""[0-9]{10}""").matches(nip)) {
                 return false
             }

@@ -1,9 +1,9 @@
 package com.example.navsample.viewmodels
 
+import android.app.Application
+import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.navsample.ApplicationContext
 import com.example.navsample.dto.filter.FilterCategoryList
 import com.example.navsample.dto.filter.FilterProductList
 import com.example.navsample.dto.filter.FilterReceiptList
@@ -26,9 +26,11 @@ import com.example.navsample.entities.relations.ProductWithTag
 import com.example.navsample.entities.relations.ReceiptWithStore
 import kotlinx.coroutines.launch
 
-class ListingViewModel : ViewModel() {
-    private val dao = ApplicationContext.context?.let { ReceiptDatabase.getInstance(it).receiptDao }
-    private var roomDatabaseHelper = RoomDatabaseHelper(dao!!)
+class ListingViewModel(
+    application: Application
+) : AndroidViewModel(application) {
+    private val dao = ReceiptDatabase.getInstance(application).receiptDao
+    private var roomDatabaseHelper = RoomDatabaseHelper(dao)
 
     val defaultStoreSort = SortProperty<StoreSort>(StoreSort.NAME, Direction.ASCENDING)
     val defaultRichProductSort =

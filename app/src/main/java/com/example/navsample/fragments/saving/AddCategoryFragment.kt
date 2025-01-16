@@ -5,10 +5,8 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
 import androidx.core.widget.doOnTextChanged
-import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.navigation.Navigation
 import androidx.navigation.fragment.navArgs
@@ -19,13 +17,13 @@ import com.example.navsample.dto.ColorManager
 import com.example.navsample.dto.DataMode
 import com.example.navsample.dto.FragmentName
 import com.example.navsample.dto.inputmode.AddingInputType
-import com.example.navsample.entities.database.Category
+import com.example.navsample.entities.inputs.CategoryInputs
 import com.example.navsample.fragments.dialogs.ColorPickerDialog
 import com.example.navsample.viewmodels.ListingViewModel
 import com.example.navsample.viewmodels.fragment.AddCategoryDataViewModel
 
 
-class AddCategoryFragment : Fragment() {
+class AddCategoryFragment : AddingFragment() {
     private var _binding: FragmentAddCategoryBinding? = null
     private val binding get() = _binding!!
     private val navArgs: AddCategoryFragmentArgs by navArgs()
@@ -35,7 +33,6 @@ class AddCategoryFragment : Fragment() {
 
     private var firstEntry = true
     private var stateAfterSave = false
-    private var mode = DataMode.NEW
     private var pickedColor: Int = ChartColors.DEFAULT_CATEGORY_COLOR_INT
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -45,39 +42,18 @@ class AddCategoryFragment : Fragment() {
         return binding.root
     }
 
-
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
-
+    override fun defineToolbar() {
         binding.toolbar.inflateMenu(R.menu.top_menu_basic_add)
         binding.toolbar.setNavigationIcon(R.drawable.back)
         binding.toolbar.menu.findItem(R.id.confirm).isVisible = true
-
-        initObserver()
-        binding.colorSquare.setBackgroundColor(pickedColor)
-        addCategoryDataViewModel.refreshCategoryList()
-
-        consumeNavArgs()
-        applyInputParameters()
-
-
-        requireActivity().onBackPressedDispatcher.addCallback(
-            viewLifecycleOwner, object : OnBackPressedCallback(true) {
-                override fun handleOnBackPressed() {
-                    clearInputs()
-                    Navigation.findNavController(requireView()).popBackStack()
-                }
-            }
-        )
         binding.toolbar.setOnMenuItemClickListener {
             when (it.itemId) {
                 R.id.confirm -> {
-                    if (!isCategoryInputValid()) {
+                    if (!validateObligatoryFields(getInputs())) {
                         return@setOnMenuItemClickListener false
                     }
-
                     stateAfterSave = true
-                    saveChangesToDatabase()
+                    save()
                     true
                 }
 
@@ -89,6 +65,28 @@ class AddCategoryFragment : Fragment() {
             clearInputs()
             Navigation.findNavController(it).popBackStack()
         }
+
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        defineToolbar()
+        initObserver()
+
+        applyColor(ChartColors.DEFAULT_CATEGORY_COLOR_INT)
+        addCategoryDataViewModel.refreshCategoryList()
+
+        consumeNavArgs()
+
+        requireActivity().onBackPressedDispatcher.addCallback(
+            viewLifecycleOwner, object : OnBackPressedCallback(true) {
+                override fun handleOnBackPressed() {
+                    clearInputs()
+                    Navigation.findNavController(requireView()).popBackStack()
+                }
+            }
+        )
+
         binding.colorView.setOnClickListener { _ ->
             colorPicker()
         }
@@ -98,41 +96,26 @@ class AddCategoryFragment : Fragment() {
         binding.categoryColorLayout.setEndIconOnClickListener {
             applyRandomColor()
         }
-        binding.categoryColorInput.doOnTextChanged { text, _, _, count ->
-            if (count == 7 && text != null && text[0] == '#') {
-                try {
-                    pickedColor = Color.parseColor(text.toString())
-                    binding.colorSquare.setBackgroundColor(pickedColor)
-                    binding.categoryColorLayout.error = null
-                } catch (e: Exception) {
-                    binding.categoryColorLayout.error = getString(R.string.invalid_color_format)
-                }
-            } else {
-                binding.categoryColorLayout.error = getString(R.string.invalid_color_format)
-            }
+        binding.categoryColorInput.doOnTextChanged { text, _, _, _ ->
+            val errorMessage = addCategoryDataViewModel.validateColor(text)
+            binding.categoryColorLayout.error = errorMessage
+            binding.categoryColorLayout.errorIconDrawable = null
         }
         binding.categoryNameInput.doOnTextChanged { text, _, _, _ ->
-            if (text?.length == 0) {
-                binding.categoryNameLayout.error = getString(R.string.empty_value_error)
-            } else if (text.toString() == addCategoryDataViewModel.categoryById.value?.name) {
-                binding.categoryNameLayout.error = null
-            } else if (addCategoryDataViewModel.categoryList.value?.find { it.name == text.toString() } != null) {
-                binding.categoryNameLayout.error = getString(R.string.category_already_exists)
-            } else {
-                binding.categoryNameLayout.error = null
-            }
+            binding.categoryNameLayout.error = addCategoryDataViewModel.validateName(text)
         }
     }
 
-    private fun consumeNavArgs() {
+    override fun consumeNavArgs() {
         if (firstEntry) {
             firstEntry = false
             addCategoryDataViewModel.inputType = navArgs.inputType
             addCategoryDataViewModel.categoryId = navArgs.categoryId
         }
+        applyInputParameters()
     }
 
-    private fun clearInputs() {
+    override fun clearInputs() {
         addCategoryDataViewModel.categoryById.value = null
     }
 
@@ -140,7 +123,7 @@ class AddCategoryFragment : Fragment() {
         val inputType = AddingInputType.getByName(addCategoryDataViewModel.inputType)
         if (inputType == AddingInputType.EMPTY) {
             addCategoryDataViewModel.categoryById.value = null
-            mode = DataMode.NEW
+            addCategoryDataViewModel.mode = DataMode.NEW
             applyRandomColor()
             binding.categoryNameInput.setText("")
             binding.toolbar.title = getString(R.string.new_category_title)
@@ -148,7 +131,7 @@ class AddCategoryFragment : Fragment() {
         } else if (inputType == AddingInputType.ID) {
             if (addCategoryDataViewModel.categoryId.isNotEmpty()) {
                 binding.toolbar.title = getString(R.string.edit_category_title)
-                mode = DataMode.EDIT
+                addCategoryDataViewModel.mode = DataMode.EDIT
                 addCategoryDataViewModel.getCategoryById(addCategoryDataViewModel.categoryId)
             } else {
                 throw Exception("NO CATEGORY ID SET")
@@ -165,37 +148,32 @@ class AddCategoryFragment : Fragment() {
         }.show(childFragmentManager, "TAG")
     }
 
-    private fun saveChangesToDatabase() {
-        if (mode == DataMode.NEW) {
-            val category = Category(
-                binding.categoryNameInput.text.toString(),
-                binding.categoryColorInput.text.toString()
-            )
-            addCategoryDataViewModel.insertCategory(category)
-        }
-        if (mode == DataMode.EDIT) {
-            val category = addCategoryDataViewModel.categoryById.value!!
-            category.name = binding.categoryNameInput.text.toString()
-            category.color = binding.categoryColorInput.text.toString()
-            addCategoryDataViewModel.updateCategory(category)
-        }
+    private fun validateObligatoryFields(categoryInputs: CategoryInputs): Boolean {
+        val errors = addCategoryDataViewModel.validateObligatoryFields(categoryInputs)
+        binding.categoryNameLayout.error = errors.name
+        binding.categoryColorLayout.error = errors.color
+        binding.categoryColorLayout.errorIconDrawable = null
+        return errors.isCorrect()
     }
 
-    private fun isCategoryInputValid(): Boolean {
-        if (binding.categoryColorLayout.error != null || binding.categoryNameLayout.error != null) {
-            Toast.makeText(requireContext(), getString(R.string.bad_inputs), Toast.LENGTH_SHORT)
-                .show()
-            return false
-        }
-        return true
+    override fun save() {
+        addCategoryDataViewModel.saveCategory(getInputs())
     }
 
-    private fun initObserver() {
+    private fun getInputs(): CategoryInputs {
+        return CategoryInputs(
+            binding.categoryNameInput.text.toString(),
+            binding.categoryColorInput.text.toString()
+        )
+    }
+
+    override fun initObserver() {
         addCategoryDataViewModel.categoryById.observe(viewLifecycleOwner) {
             it?.let {
                 binding.categoryNameInput.setText(it.name)
-                binding.categoryColorInput.setText(it.color)
-                binding.colorSquare.setBackgroundColor(ColorManager.parseColor(it.color))
+                applyColor(it.color)
+
+                validateObligatoryFields(getInputs())
             }
         }
         addCategoryDataViewModel.savedCategory.observe(viewLifecycleOwner) {
@@ -252,6 +230,12 @@ class AddCategoryFragment : Fragment() {
         pickedColor = color
         binding.colorSquare.setBackgroundColor(pickedColor)
         binding.categoryColorInput.setText(intToColorString(pickedColor))
+    }
+
+    private fun applyColor(color: String) {
+        pickedColor = ColorManager.parseColor(color)
+        binding.colorSquare.setBackgroundColor(pickedColor)
+        binding.categoryColorInput.setText(color)
     }
 
     private fun intToColorString(colorInt: Int): String {

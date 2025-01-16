@@ -414,6 +414,12 @@ class RoomDatabaseHelper(
     }
 
     // DELETE
+    suspend fun deleteCategory(categoryId: String): Category {
+        Log.i("Database", "Delete category with id '${categoryId}'")
+        val deletedAt = DateUtil.getCurrentUtcTime()
+        return dao.deleteAndSelectCategoryById(categoryId, deletedAt)
+    }
+
     suspend fun deleteTag(tagId: String): Tag {
         Log.i("Database", "Delete category with id '${tagId}'")
         val deletedAt = DateUtil.getCurrentUtcTime()

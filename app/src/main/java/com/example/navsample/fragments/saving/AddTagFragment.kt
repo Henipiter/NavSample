@@ -7,7 +7,6 @@ import android.view.ViewGroup
 import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
 import androidx.core.widget.doOnTextChanged
-import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.navigation.Navigation
 import androidx.navigation.fragment.navArgs
@@ -16,10 +15,11 @@ import com.example.navsample.databinding.FragmentAddTagBinding
 import com.example.navsample.dto.DataMode
 import com.example.navsample.dto.inputmode.AddingInputType
 import com.example.navsample.entities.database.Tag
+import com.example.navsample.entities.inputs.TagInputs
 import com.example.navsample.viewmodels.ListingViewModel
 import com.example.navsample.viewmodels.fragment.AddTagDataViewModel
 
-class AddTagFragment : Fragment() {
+class AddTagFragment : AddingFragment() {
     private var _binding: FragmentAddTagBinding? = null
     private val binding get() = _binding!!
     private val navArgs: AddTagFragmentArgs by navArgs()
@@ -39,13 +39,40 @@ class AddTagFragment : Fragment() {
         return binding.root
     }
 
+    private fun getInputs(): TagInputs {
+        return TagInputs(binding.tagNameInput.text)
+    }
 
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
-
+    override fun defineToolbar() {
         binding.toolbar.inflateMenu(R.menu.top_menu_basic_add)
         binding.toolbar.setNavigationIcon(R.drawable.back)
         binding.toolbar.menu.findItem(R.id.confirm).isVisible = true
+
+        binding.toolbar.setOnMenuItemClickListener {
+            when (it.itemId) {
+                R.id.confirm -> {
+                    if (!validateObligatoryFields(getInputs())) {
+                        return@setOnMenuItemClickListener false
+                    }
+
+                    stateAfterSave = true
+                    save()
+                    true
+                }
+
+                else -> false
+            }
+        }
+
+        binding.toolbar.setNavigationOnClickListener {
+            clearInputs()
+            Navigation.findNavController(it).popBackStack()
+        }
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        defineToolbar()
 
         initObserver()
         addTagDataViewModel.refreshTagList()
@@ -59,26 +86,6 @@ class AddTagFragment : Fragment() {
                 }
             }
         )
-        binding.toolbar.setOnMenuItemClickListener {
-            when (it.itemId) {
-                R.id.confirm -> {
-                    if (!isTagInputValid()) {
-                        return@setOnMenuItemClickListener false
-                    }
-
-                    stateAfterSave = true
-                    saveChangesToDatabase()
-                    true
-                }
-
-                else -> false
-            }
-        }
-
-        binding.toolbar.setNavigationOnClickListener {
-            clearInputs()
-            Navigation.findNavController(it).popBackStack()
-        }
         binding.tagNameInput.doOnTextChanged { text, _, _, _ ->
             if (text?.length == 0) {
                 binding.tagNameLayout.error = getString(R.string.empty_value_error)
@@ -92,11 +99,11 @@ class AddTagFragment : Fragment() {
         }
     }
 
-    private fun clearInputs() {
+    override fun clearInputs() {
         addTagDataViewModel.tagById.value = null
     }
 
-    private fun consumeNavArgs() {
+    override fun consumeNavArgs() {
         if (firstEntry) {
             firstEntry = false
             addTagDataViewModel.inputType = navArgs.inputType
@@ -126,7 +133,7 @@ class AddTagFragment : Fragment() {
     }
 
 
-    private fun saveChangesToDatabase() {
+    override fun save() {
         if (mode == DataMode.NEW) {
             val tag = Tag(binding.tagNameInput.text.toString())
             addTagDataViewModel.insertTag(tag)
@@ -147,7 +154,14 @@ class AddTagFragment : Fragment() {
         return true
     }
 
-    private fun initObserver() {
+    private fun validateObligatoryFields(tagInputs: TagInputs): Boolean {
+        val errors = addTagDataViewModel.validateObligatoryFields(tagInputs)
+        binding.tagNameLayout.error = errors.name
+        binding.tagNameLayout.errorIconDrawable = null
+        return errors.isCorrect()
+    }
+
+    override fun initObserver() {
         addTagDataViewModel.tagById.observe(viewLifecycleOwner) {
             it?.let {
                 binding.tagNameInput.setText(it.name)

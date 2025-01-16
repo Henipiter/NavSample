@@ -538,28 +538,28 @@ interface ReceiptDao {
     @Query(
         "SELECT id, firestoreId, isSync, toUpdate, toDelete " +
                 "FROM category " +
-                "WHERE isSync == 0 and firestoreId != '' "
+                "WHERE isSync == 0 AND firestoreId != '' AND toDelete == 0"
     )
     suspend fun getAllNotSyncedCategories(): List<CategoryFirebase>
 
     @Query(
         "SELECT id, firestoreId, isSync, toUpdate, toDelete " +
                 "FROM tag " +
-                "WHERE isSync == 0 and firestoreId != '' "
+                "WHERE isSync == 0 AND firestoreId != '' AND toDelete == 0"
     )
     suspend fun getNotSyncedTagForFirestore(): List<TagFirebase>
 
     @Query(
         "SELECT  s.id, c.id as defaultCategoryId, s.firestoreId, s.isSync, c.isSync as isCategorySync, s.toUpdate, s.toDelete " +
                 "FROM store s INNER JOIN category c ON s.defaultCategoryId = c.id " +
-                "WHERE s.isSync = 0 and s.firestoreId != '' "
+                "WHERE s.isSync = 0 AND s.firestoreId != '' AND s.toDelete == 0 "
     )
     suspend fun getNotSyncedStoreForFirestore(): List<StoreFirebase>
 
     @Query(
         "SELECT r.id, s.id as storeId, r.firestoreId,r.isSync,  s.isSync as isStoreSync, r.toUpdate, r.toDelete " +
                 "FROM receipt r INNER JOIN store s ON r.storeId = s.id " +
-                "WHERE r.isSync = 0 and r.firestoreId != '' "
+                "WHERE r.isSync = 0 AND r.firestoreId != '' AND r.toDelete == 0 "
     )
     suspend fun getNotSyncedReceiptForFirestore(): List<ReceiptFirebase>
 
@@ -567,7 +567,7 @@ interface ReceiptDao {
         "SELECT  p.id,r.id as receiptId, c.id as categoryId,p.firestoreId,p.isSync, r.isSync as isReceiptSync, c.isSync as isCategorySync, p.toUpdate, p.toDelete " +
                 "FROM product p INNER JOIN receipt r ON p.receiptId = r.id " +
                 "INNER JOIN category c ON p.categoryId = c.id " +
-                "WHERE p.isSync = 0 and p.firestoreId != '' "
+                "WHERE p.isSync = 0 AND p.firestoreId != '' AND p.toDelete == 0 "
     )
     suspend fun getNotSyncedProductForFirestore(): List<ProductFirebase>
 
@@ -575,7 +575,7 @@ interface ReceiptDao {
         "SELECT  pt.id,p.id as productId, t.id as categoryId,pt.firestoreId,pt.isSync, p.isSync as isProductSync, t.isSync as isTagSync, pt.toUpdate, pt.toDelete " +
                 "FROM ProductTagCrossRef pt INNER JOIN product p ON pt.productId = p.id " +
                 "INNER JOIN tag t ON pt.tagId = t.id " +
-                "WHERE pt.isSync = 0 and pt.firestoreId != '' "
+                "WHERE pt.isSync = 0 AND pt.firestoreId != '' AND pt.toDelete == 0 "
     )
     suspend fun getNotSyncedProductTagForFirestore(): List<ProductTagCrossRefFirebase>
 

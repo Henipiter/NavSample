@@ -1,9 +1,10 @@
 package com.example.navsample.viewmodels
 
+import android.app.Application
 import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.navsample.ApplicationContext
 import com.example.navsample.entities.FirebaseHelperImpl
@@ -33,7 +34,9 @@ import kotlinx.coroutines.withContext
 import kotlin.reflect.KClass
 
 
-class SyncDatabaseViewModel : ViewModel() {
+class SyncDatabaseViewModel(
+    application: Application
+) : AndroidViewModel(application) {
 
     companion object {
         const val CATEGORY_LAST_UPDATE_KEY = "newestCategoryUpdateDate"
@@ -75,11 +78,9 @@ class SyncDatabaseViewModel : ViewModel() {
     var outdatedProductTagList = MutableLiveData<List<ProductTagCrossRef>>()
 
     init {
-        val dao = ApplicationContext.context?.let { ReceiptDatabase.getInstance(it).receiptDao }
-            ?: throw Exception("NOT SET DATABASE")
+        val dao = ReceiptDatabase.getInstance(application).receiptDao
         roomDatabaseHelper = RoomDatabaseHelper(dao)
         roomDatabaseHelperFirebase = RoomDatabaseHelperFirebaseSync(dao)
-
     }
 
     fun readFirestoreChanges() {
@@ -313,6 +314,7 @@ class SyncDatabaseViewModel : ViewModel() {
 
     fun <T : TranslateEntity> loadNotSynced(entity: KClass<T>) {
         viewModelScope.launch {
+            delay(5000)
             when (entity) {
                 Category::class -> notSyncedCategoryList.postValue(roomDatabaseHelperFirebase.getAllNotSyncedCategories())
                 Store::class -> notSyncedStoreList.postValue(roomDatabaseHelperFirebase.getAllNotSyncedStores())

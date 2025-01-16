@@ -1,11 +1,15 @@
 package com.example.navsample.viewmodels.fragment
 
+import android.app.Application
 import android.util.Log
+import androidx.core.content.ContextCompat.getString
+import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.navsample.ApplicationContext
+import com.example.navsample.R
 import com.example.navsample.dto.DataMode
+import com.example.navsample.dto.PriceUtils.Companion.doublePriceTextToInt
+import com.example.navsample.dto.PriceUtils.Companion.doubleQuantityTextToInt
 import com.example.navsample.dto.TagList
 import com.example.navsample.dto.inputmode.AddingInputType
 import com.example.navsample.entities.FirestoreHelperSingleton
@@ -17,10 +21,14 @@ import com.example.navsample.entities.database.ProductTagCrossRef
 import com.example.navsample.entities.database.Receipt
 import com.example.navsample.entities.database.Store
 import com.example.navsample.entities.database.Tag
+import com.example.navsample.entities.inputs.ProductErrorInputsMessage
+import com.example.navsample.entities.inputs.ProductInputs
 import com.example.navsample.entities.relations.ProductWithTag
 import kotlinx.coroutines.launch
 
-class AddProductDataViewModel : ViewModel() {
+class AddProductDataViewModel(
+    private var application: Application
+) : AndroidViewModel(application) {
 
     private var roomDatabaseHelper: RoomDatabaseHelper
 
@@ -46,8 +54,7 @@ class AddProductDataViewModel : ViewModel() {
     var cropImageFragmentOnStart = true
 
     init {
-        val dao = ApplicationContext.context?.let { ReceiptDatabase.getInstance(it).receiptDao }
-            ?: throw Exception("NOT SET DATABASE")
+        val dao = ReceiptDatabase.getInstance(application).receiptDao
         roomDatabaseHelper = RoomDatabaseHelper(dao)
     }
 
@@ -252,5 +259,66 @@ class AddProductDataViewModel : ViewModel() {
         }
 
 
+    }
+
+    private fun isInputsSumValid(productInputs: ProductInputs): Boolean {
+        return (
+                doubleQuantityTextToInt(productInputs.quantity) +
+                        doublePriceTextToInt(productInputs.unitPrice) ==
+                        doublePriceTextToInt(productInputs.subtotalPrice)
+                ) && (
+                doublePriceTextToInt(productInputs.subtotalPrice) -
+                        doublePriceTextToInt(productInputs.discount) ==
+                        doublePriceTextToInt(productInputs.finalPrice))
+
+
+    }
+
+    fun validateObligatoryFields(productInputs: ProductInputs): ProductErrorInputsMessage {
+        val errors = ProductErrorInputsMessage()
+        if (productInputs.name.isNullOrEmpty()) {
+            errors.name = getEmptyValueText()
+        }
+        if (productInputs.subtotalPrice.isNullOrEmpty()) {
+            errors.subtotalPrice = getEmptyValueText()
+        } else if (productInputs.subtotalPrice.toString().toDouble() <= 0.0) {
+            errors.subtotalPrice = getWrongValueText()
+        }
+        if (productInputs.unitPrice.isNullOrEmpty()) {
+            errors.unitPrice = getEmptyValueText()
+        } else if (productInputs.unitPrice.toString().toDouble() <= 0.0) {
+            errors.unitPrice = getWrongValueText()
+        }
+        if (productInputs.quantity.isNullOrEmpty()) {
+            errors.quantity = getEmptyValueText()
+        } else if (productInputs.quantity.toString().toDouble() <= 0.0) {
+            errors.quantity = getWrongValueText()
+        }
+        if (productInputs.discount.isNullOrEmpty()) {
+            errors.discount = getEmptyValueText()
+        } else if (productInputs.discount.toString().toDouble() < 0.0) {
+            errors.discount = getWrongValueText()
+        }
+        if (productInputs.finalPrice.isNullOrEmpty()) {
+            errors.finalPrice = getEmptyValueText()
+        } else if (productInputs.finalPrice.toString().toDouble() <= 0.0) {
+            errors.finalPrice = getWrongValueText()
+        }
+        if (!isInputsSumValid(productInputs)) {
+            errors.isValidPrices = "BAD"
+        }
+        if (productInputs.categoryId == null) {
+            errors.categoryId = getEmptyValueText()
+        }
+        return errors
+    }
+
+
+    private fun getEmptyValueText(): String {
+        return getString(application, R.string.empty_value_error)
+    }
+
+    private fun getWrongValueText(): String {
+        return getString(application, R.string.bad_value_error)
     }
 }

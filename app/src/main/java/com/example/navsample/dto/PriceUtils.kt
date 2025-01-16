@@ -14,11 +14,31 @@ class PriceUtils {
             return quantityToString(integer / 1000.0)
         }
 
+        fun doublePriceTextToInt(text: CharSequence?): Int {
+            if (text == null) {
+                return 0
+            }
+            return doublePriceTextToInt(text.toString())
+        }
+
         fun doublePriceTextToInt(text: String): Int {
+            if (text == "null" || text == "") {
+                return 0
+            }
             return (text.toDouble() * 100).roundToInt()
         }
 
+        fun doubleQuantityTextToInt(text: CharSequence?): Int {
+            if (text == null) {
+                return 0
+            }
+            return doubleQuantityTextToInt(text.toString())
+        }
+
         fun doubleQuantityTextToInt(text: String): Int {
+            if (text == "null" || text == "") {
+                return 0
+            }
             return (text.toDouble() * 1000).roundToInt()
         }
 

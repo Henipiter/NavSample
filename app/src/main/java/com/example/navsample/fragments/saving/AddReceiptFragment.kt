@@ -8,7 +8,6 @@ import android.view.ViewGroup
 import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
 import androidx.core.widget.doOnTextChanged
-import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.navigation.Navigation
 import androidx.navigation.fragment.navArgs
@@ -17,11 +16,10 @@ import com.example.navsample.adapters.StoreDropdownAdapter
 import com.example.navsample.databinding.FragmentAddReceiptBinding
 import com.example.navsample.dto.DataMode
 import com.example.navsample.dto.FragmentName
-import com.example.navsample.dto.PriceUtils.Companion.doublePriceTextToInt
 import com.example.navsample.dto.PriceUtils.Companion.intPriceToString
 import com.example.navsample.dto.inputmode.AddingInputType
-import com.example.navsample.entities.database.Receipt
 import com.example.navsample.entities.database.Store
+import com.example.navsample.entities.inputs.ReceiptInputs
 import com.example.navsample.viewmodels.ImageAnalyzerViewModel
 import com.example.navsample.viewmodels.ImageViewModel
 import com.example.navsample.viewmodels.ListingViewModel
@@ -34,7 +32,7 @@ import java.util.Calendar
 import java.util.Locale
 
 
-class AddReceiptFragment : Fragment() {
+class AddReceiptFragment : AddingFragment() {
     private var _binding: FragmentAddReceiptBinding? = null
     private val binding get() = _binding!!
     private val navArgs: AddReceiptFragmentArgs by navArgs()
@@ -59,11 +57,7 @@ class AddReceiptFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        binding.toolbar.inflateMenu(R.menu.top_menu_extended_add)
-        binding.toolbar.setNavigationIcon(R.drawable.back)
-        binding.toolbar.menu.findItem(R.id.importImage).isVisible = false
-        binding.toolbar.menu.findItem(R.id.aiAssistant).isVisible = false
-        binding.toolbar.menu.findItem(R.id.reorder).isVisible = false
+        defineToolbar()
 
 
         dropdownAdapter = StoreDropdownAdapter(
@@ -91,13 +85,60 @@ class AddReceiptFragment : Fragment() {
         defineClickListeners()
     }
 
-    private fun clearInputs() {
+    override fun defineToolbar() {
+        binding.toolbar.inflateMenu(R.menu.top_menu_extended_add)
+        binding.toolbar.setNavigationIcon(R.drawable.back)
+        binding.toolbar.menu.findItem(R.id.importImage).isVisible = false
+        binding.toolbar.menu.findItem(R.id.aiAssistant).isVisible = false
+        binding.toolbar.menu.findItem(R.id.reorder).isVisible = false
+
+        binding.toolbar.setOnMenuItemClickListener {
+            when (it.itemId) {
+                R.id.confirm -> {
+                    if (!validateObligatoryFields(getInputs())) {
+                        return@setOnMenuItemClickListener false
+                    }
+                    save()
+                    true
+                }
+
+                R.id.add_new -> {
+                    addReceiptDataViewModel.receiptById.value?.let { receipt ->
+                        val action =
+                            AddReceiptFragmentDirections.actionAddReceiptFragmentToAddProductListFragment(
+                                receiptId = receipt.id,
+                                storeId = receipt.storeId,
+                                categoryId = addReceiptDataViewModel.pickedStore?.defaultCategoryId!!
+                            )
+                        Navigation.findNavController(requireView()).navigate(action)
+                        return@setOnMenuItemClickListener true
+                    }
+                    Toast.makeText(
+                        requireContext(),
+                        getString(R.string.receipt_not_set),
+                        Toast.LENGTH_SHORT
+                    )
+
+                    return@setOnMenuItemClickListener true
+                }
+
+                else -> false
+            }
+        }
+
+        binding.toolbar.setNavigationOnClickListener {
+            clearInputs()
+            Navigation.findNavController(it).popBackStack()
+        }
+    }
+
+    override fun clearInputs() {
         addReceiptDataViewModel.receiptById.value = null
         addReceiptDataViewModel.pickedStore = null
         addReceiptDataViewModel.storeId = ""
     }
 
-    private fun consumeNavArgs() {
+    override fun consumeNavArgs() {
         if (firstEntry && navArgs.sourceFragment != FragmentName.ADD_STORE_FRAGMENT) {
             firstEntry = false
             addReceiptDataViewModel.inputType = navArgs.inputType
@@ -154,7 +195,7 @@ class AddReceiptFragment : Fragment() {
         }
     }
 
-    private fun initObserver() {
+    override fun initObserver() {
         imageViewModel.bitmapCroppedReceipt.observe(viewLifecycleOwner) {
             if (it != null) {
                 binding.receiptImage.visibility = View.VISIBLE
@@ -184,6 +225,8 @@ class AddReceiptFragment : Fragment() {
                 binding.receiptPTUInput.setText(intPriceToString(receipt.ptu))
                 binding.receiptDateInput.setText(receipt.date)
                 binding.receiptTimeInput.setText(receipt.time)
+
+                validateObligatoryFields(getInputs())
             }
         }
 
@@ -250,121 +293,45 @@ class AddReceiptFragment : Fragment() {
         }
     }
 
-    private fun validateObligatoryFields(): Boolean {
-        var succeedValidation = true
-        if (binding.receiptPLNInput.text.isNullOrEmpty()) {
-            binding.receiptPLNLayout.error = getString(R.string.empty_value_error)
-            succeedValidation = false
-        }
-        if (binding.receiptPTUInput.text.isNullOrEmpty()) {
-            binding.receiptPTULayout.error = getString(R.string.empty_value_error)
-            succeedValidation = false
-        }
-        if (binding.receiptDateInput.text.isNullOrEmpty()) {
-            binding.receiptDateLayout.error = getString(R.string.empty_value_error)
-            succeedValidation = false
-        }
-        if (binding.receiptTimeInput.text.isNullOrEmpty()) {
-            binding.receiptTimeLayout.error = getString(R.string.empty_value_error)
-            succeedValidation = false
-        }
-        return succeedValidation
+    private fun validateObligatoryFields(receiptInputs: ReceiptInputs): Boolean {
+        val errors = addReceiptDataViewModel.validateObligatoryFields(receiptInputs)
+        binding.storeNameLayout.error = errors.storeId
+        binding.receiptPLNLayout.error = errors.pln
+        binding.receiptPTULayout.error = errors.ptu
+        binding.receiptDateLayout.error = errors.date
+        binding.receiptTimeLayout.error = errors.time
+        binding.storeNameLayout.errorIconDrawable = null
+        binding.receiptPLNLayout.errorIconDrawable = null
+        binding.receiptPTULayout.errorIconDrawable = null
+        binding.receiptDateLayout.errorIconDrawable = null
+        binding.receiptTimeLayout.errorIconDrawable = null
+        return errors.isCorrect()
     }
 
-    private fun isReceiptInputValid(): Boolean {
-        if (addReceiptDataViewModel.pickedStore == null || addReceiptDataViewModel.pickedStore?.id?.isEmpty() == true) {
-            Toast.makeText(requireContext(), getString(R.string.pick_store), Toast.LENGTH_SHORT)
-                .show()
-            return false
-        }
-        if (!validateObligatoryFields()) {
-            Toast.makeText(
-                requireContext(),
-                getString(R.string.fill_all_fields),
-                Toast.LENGTH_SHORT
-            ).show()
-            return false
-        }
-        return true
+    private fun getInputs(): ReceiptInputs {
+        return ReceiptInputs(
+            addReceiptDataViewModel.pickedStore?.id,
+            binding.receiptPLNInput.text,
+            binding.receiptPTUInput.text,
+            binding.receiptDateInput.text,
+            binding.receiptTimeInput.text
+        )
     }
 
-    private fun saveChangesToDatabase() {
-        val pln = doublePriceTextToInt(binding.receiptPLNInput.text.toString())
-        val ptu = doublePriceTextToInt(binding.receiptPTUInput.text.toString())
-        val date = binding.receiptDateInput.text.toString()
-        val time = binding.receiptTimeInput.text.toString()
-
-        if (addReceiptDataViewModel.mode == DataMode.NEW) {
-            if (addReceiptDataViewModel.pickedStore != null && addReceiptDataViewModel.pickedStore?.id?.isEmpty() == false) {
-                val receipt = Receipt(
-                    addReceiptDataViewModel.pickedStore!!.id,
-                    pln,
-                    ptu,
-                    date,
-                    time
-                )
-                addReceiptDataViewModel.insertReceipt(receipt)
-                //TODO zoptymalizować - odswiezać w zależnosci czy bylo dodane czy zupdatowane
-                listingViewModel.loadDataByReceiptFilter()
-                listingViewModel.loadDataByProductFilter()
-                goNext = true
-            }
-        } else if (addReceiptDataViewModel.mode == DataMode.EDIT) {
-            addReceiptDataViewModel.receiptById.value?.let {
-                if (addReceiptDataViewModel.pickedStore != null && addReceiptDataViewModel.pickedStore?.id?.isEmpty() == false) {
-                    val receipt =
-                        Receipt(addReceiptDataViewModel.pickedStore!!.id, pln, ptu, date, time)
-                    receipt.id = it.id
-                    addReceiptDataViewModel.updateReceipt(receipt)
-                    listingViewModel.loadDataByReceiptFilter()
-                    goNext = true
-                }
-            }
-
+    override fun save() {
+        addReceiptDataViewModel.save(getInputs(), {
+            //TODO zoptymalizować - odswiezać w zależnosci czy bylo dodane czy zupdatowane
+            listingViewModel.loadDataByReceiptFilter()
+            listingViewModel.loadDataByProductFilter()
+            goNext = true
+        }, {
+            listingViewModel.loadDataByReceiptFilter()
+            goNext = true
         }
+        )
     }
-
 
     private fun defineClickListeners() {
-        binding.toolbar.setOnMenuItemClickListener {
-            when (it.itemId) {
-                R.id.confirm -> {
-                    if (!isReceiptInputValid()) {
-                        return@setOnMenuItemClickListener false
-                    }
-                    saveChangesToDatabase()
-                    return@setOnMenuItemClickListener true
-                }
-
-                R.id.add_new -> {
-                    addReceiptDataViewModel.receiptById.value?.let { receipt ->
-                        val action =
-                            AddReceiptFragmentDirections.actionAddReceiptFragmentToAddProductListFragment(
-                                receiptId = receipt.id,
-                                storeId = receipt.storeId,
-                                categoryId = addReceiptDataViewModel.pickedStore?.defaultCategoryId!!
-                            )
-                        Navigation.findNavController(requireView()).navigate(action)
-                        return@setOnMenuItemClickListener true
-                    }
-                    Toast.makeText(
-                        requireContext(),
-                        getString(R.string.receipt_not_set),
-                        Toast.LENGTH_SHORT
-                    )
-
-                    return@setOnMenuItemClickListener true
-                }
-
-                else -> false
-            }
-        }
-
-        binding.toolbar.setNavigationOnClickListener {
-            clearInputs()
-            Navigation.findNavController(it).popBackStack()
-        }
-
         binding.storeNameLayout.setStartIconOnClickListener {
             binding.storeNameInput.setText("")
             binding.storeNameInput.isEnabled = true

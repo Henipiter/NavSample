@@ -1,17 +1,23 @@
 package com.example.navsample.viewmodels.fragment
 
+import android.app.Application
+import androidx.core.content.ContextCompat
+import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.navsample.ApplicationContext
+import com.example.navsample.R
 import com.example.navsample.dto.inputmode.AddingInputType
 import com.example.navsample.entities.FirestoreHelperSingleton
 import com.example.navsample.entities.ReceiptDatabase
 import com.example.navsample.entities.RoomDatabaseHelper
 import com.example.navsample.entities.database.Tag
+import com.example.navsample.entities.inputs.TagErrorInputsMessage
+import com.example.navsample.entities.inputs.TagInputs
 import kotlinx.coroutines.launch
 
-class AddTagDataViewModel : ViewModel() {
+class AddTagDataViewModel(
+    private var application: Application
+) : AndroidViewModel(application) {
 
     private var roomDatabaseHelper: RoomDatabaseHelper
 
@@ -23,9 +29,7 @@ class AddTagDataViewModel : ViewModel() {
     var savedTag = MutableLiveData<Tag>()
 
     init {
-
-        val dao = ApplicationContext.context?.let { ReceiptDatabase.getInstance(it).receiptDao }
-            ?: throw Exception("NOT SET DATABASE")
+        val dao = ReceiptDatabase.getInstance(application).receiptDao
         roomDatabaseHelper = RoomDatabaseHelper(dao)
     }
 
@@ -74,5 +78,26 @@ class AddTagDataViewModel : ViewModel() {
         }
     }
 
+    fun validateObligatoryFields(tagInputs: TagInputs): TagErrorInputsMessage {
+        val errors = TagErrorInputsMessage()
+        errors.name = validateName(tagInputs.name)
+        return errors
+
+    }
+
+    private fun validateName(text: CharSequence?): String? {
+        val currentTagName = tagById.value?.name
+        val tagList = tagList.value
+
+        return if (text.isNullOrEmpty()) {
+            ContextCompat.getString(application, R.string.empty_value_error)
+        } else if (text.toString() == currentTagName) {
+            null
+        } else if (tagList?.find { it.name == text.toString() } != null) {
+            ContextCompat.getString(application, R.string.tag_already_exists)
+        } else {
+            null
+        }
+    }
 
 }
