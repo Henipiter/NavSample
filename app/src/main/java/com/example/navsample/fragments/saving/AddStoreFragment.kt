@@ -46,6 +46,11 @@ class AddStoreFragment : AddingFragment() {
         return binding.root
     }
 
+    private fun isMandatoryFieldCorrect(): Boolean {
+        return binding.storeDefaultCategoryLayout.error == null &&
+                binding.storeNameLayout.error == null
+    }
+
     override fun defineToolbar() {
         binding.toolbar.inflateMenu(R.menu.top_menu_basic_add)
         binding.toolbar.setNavigationIcon(R.drawable.back)
@@ -54,17 +59,16 @@ class AddStoreFragment : AddingFragment() {
             when (it.itemId) {
                 R.id.confirm -> {
                     if (!validateObligatoryFields(getInputs())) {
+                        if (isMandatoryFieldCorrect()) {
+                            ConfirmDialog(
+                                getString(R.string.nip_incorrect),
+                                getString(R.string.should_continue)
+                            ) { save() }.show(childFragmentManager, "TAG")
+                        }
                         return@setOnMenuItemClickListener false
                     }
+                    save()
 
-                    if (binding.storeNIPLayout.error != null) {
-                        ConfirmDialog("Invalid NIP", "Continue?")
-                        {
-                            save()
-                        }.show(childFragmentManager, "TAG")
-                    } else {
-                        save()
-                    }
                     true
                 }
 
@@ -77,29 +81,22 @@ class AddStoreFragment : AddingFragment() {
         }
     }
 
-    private fun validateObligatoryFields(storeInputs: StoreInputs): Boolean {
-        val errors = addStoreDataViewModel.validateObligatoryFields(storeInputs)
-
+    private fun validateObligatoryFields(
+        storeInputs: StoreInputs,
+        validateId: Boolean = true
+    ): Boolean {
+        val errors = addStoreDataViewModel.validateObligatoryFields(storeInputs, validateId)
         binding.storeDefaultCategoryLayout.error = errors.categoryId
         binding.storeNameLayout.error = errors.name
-        setNipValidationMessage(errors.nip)
-
+        binding.storeNIPLayout.error = errors.nip
         return errors.isCorrect()
     }
 
-    private fun setNipValidationMessage(nipError: String?) {
-        binding.storeNIPLayout.error = nipError
-        if (nipError == null) {
-            binding.storeNIPLayout.helperText = getString(R.string.nip_correct)
-        } else {
-            binding.storeNIPLayout.helperText = null
-        }
-    }
 
     private fun getInputs(): StoreInputs {
         return StoreInputs(
-            binding.storeNIPInput.text,
             binding.storeNameInput.text,
+            binding.storeNIPInput.text,
             addStoreDataViewModel.pickedCategory?.id
         )
     }
@@ -125,7 +122,11 @@ class AddStoreFragment : AddingFragment() {
 
         binding.storeNIPInput.doOnTextChanged { text, _, _, _ ->
             val errorMessage = addStoreDataViewModel.validateNip(text)
-            setNipValidationMessage(errorMessage)
+            binding.storeNIPLayout.error = errorMessage
+        }
+        binding.storeNameInput.doOnTextChanged { text, _, _, _ ->
+            val errorMessage = addStoreDataViewModel.validateName(text)
+            binding.storeNameLayout.error = errorMessage
         }
 
         requireActivity().onBackPressedDispatcher.addCallback(
@@ -151,6 +152,7 @@ class AddStoreFragment : AddingFragment() {
                 Navigation.findNavController(requireView()).navigate(action)
             } else {
                 binding.storeDefaultCategoryInput.setText(addStoreDataViewModel.pickedCategory?.name)
+                binding.storeDefaultCategoryLayout.error = null
                 binding.storeDefaultCategoryInput.isEnabled = false
             }
         }
@@ -310,6 +312,7 @@ class AddStoreFragment : AddingFragment() {
         addStoreDataViewModel.pickedCategory?.let {
             binding.storeDefaultCategoryInput.setText(it.name)
             binding.storeDefaultCategoryInput.isEnabled = false
+            binding.storeDefaultCategoryLayout.error = null
         }
     }
 }

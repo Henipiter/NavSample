@@ -137,6 +137,7 @@
     <string name="receipt_not_set">Paragon nie jest wybrany</string>
     <string name="no_image_set">Żaden obraz nie został załadowany</string>
     <string name="export_finisher">Wyeksportowano do pliku</string>
+    <string name="should_continue">Kontynuować?</string>
 
     <!-- menu -->
     <string name="add_new">Dodaj nowy</string>

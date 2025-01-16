@@ -54,6 +54,7 @@ class StoreListFragment : Fragment(), ItemClickListener {
         binding.refreshLayout.setOnRefreshListener {
             refreshList()
         }
+        addStoreDataViewModel.refreshCategoryList()
 
         recyclerViewEvent = binding.recyclerViewEventReceipts
         storeListAdapter = StoreListAdapter(

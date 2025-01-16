@@ -35,7 +35,7 @@ class AddStoreDataViewModel(
     var pickedCategory: Category? = null
     var storeInputs: Store = Store()
 
-    var storeList = MutableLiveData<ArrayList<Store>>()
+    private var storeList = MutableLiveData<ArrayList<Store>>()
     var categoryList = MutableLiveData<ArrayList<Category>>()
     var storeById = MutableLiveData<Store?>()
     var savedStore = MutableLiveData<Store>()
@@ -105,6 +105,9 @@ class AddStoreDataViewModel(
     }
 
     fun validateNip(text: CharSequence?): String? {
+        if (text.isNullOrEmpty()) {
+            return getString(application, R.string.empty_value_error)
+        }
         val error = isNIPUnique(text)
         if (error != null) {
             return error
@@ -116,7 +119,7 @@ class AddStoreDataViewModel(
     }
 
     private fun isNIPUnique(text: CharSequence?): String? {
-        if (storeById.value?.nip == text) {
+        if (storeById.value?.nip == text.toString()) {
             return null
         }
         val index = storeList.value?.map { it.nip }?.indexOf(text) ?: -1
@@ -127,18 +130,33 @@ class AddStoreDataViewModel(
 
     }
 
-    fun validateObligatoryFields(storeInputs: StoreInputs): StoreErrorInputsMessage {
+    fun validateObligatoryFields(
+        storeInputs: StoreInputs,
+        validateId: Boolean = true
+    ): StoreErrorInputsMessage {
         val errors = StoreErrorInputsMessage()
-        if (storeInputs.name.isNullOrEmpty()) {
-            errors.name = getEmptyValueText()
-        }
-        if (storeInputs.categoryId == null) {
+        if (validateId && storeInputs.categoryId == null) {
             errors.categoryId = getEmptyValueText()
         }
+        errors.name = validateName(storeInputs.name)
         errors.nip = validateNip(storeInputs.nip)
-        errors.nip = isNIPUnique(storeInputs.nip)
 
         return errors
+    }
+
+    fun validateName(text: CharSequence?): String? {
+        val currentStoreName = storeById.value?.name
+        val storeList = categoryList.value
+
+        return if (text.isNullOrEmpty()) {
+            getString(application, R.string.empty_value_error)
+        } else if (text.toString() == currentStoreName) {
+            null
+        } else if (storeList?.find { it.name == text.toString() } != null) {
+            getString(application, R.string.category_already_exists)
+        } else {
+            null
+        }
     }
 
     private fun getEmptyValueText(): String {

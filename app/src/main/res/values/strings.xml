@@ -169,6 +169,7 @@
     <string name="receipt_not_set">Receipt is not set</string>
     <string name="no_image_set">No image loaded</string>
     <string name="export_finisher">Exported to file</string>
+    <string name="should_continue">Continue?</string>
 
     <!-- menu -->
     <string name="add_new">Add new</string>
