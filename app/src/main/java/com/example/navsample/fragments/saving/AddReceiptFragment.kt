@@ -356,6 +356,7 @@ class AddReceiptFragment : AddingFragment() {
                 addReceiptDataViewModel.pickedStore = store
                 binding.storeNameInput.setText(store.name)
                 binding.storeNameInput.isEnabled = false
+                binding.storeNameLayout.error = null
             }
 
         }
@@ -428,8 +429,11 @@ class AddReceiptFragment : AddingFragment() {
 
         addReceiptDataViewModel.receiptById.value?.let {
             it.storeId = addReceiptDataViewModel.storeId
+
+            binding.storeNameInput.setText(addReceiptDataViewModel.pickedStore?.name)
+            binding.storeNameInput.isEnabled = false
+            binding.storeNameLayout.error = null
         }
-        binding.storeNameInput.setText(addReceiptDataViewModel.pickedStore?.name)
-        binding.storeNameInput.isEnabled = false
+
     }
 }

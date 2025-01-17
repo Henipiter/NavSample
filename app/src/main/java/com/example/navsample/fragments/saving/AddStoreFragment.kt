@@ -304,11 +304,9 @@ class AddStoreFragment : AddingFragment() {
 
 
     private fun setCategory() {
-        addStoreDataViewModel.pickedCategory = try {
-            addStoreDataViewModel.categoryList.value?.first { category -> category.id == addStoreDataViewModel.categoryId }
-        } catch (exception: Exception) {
-            null
-        }
+        addStoreDataViewModel.pickedCategory =
+            addStoreDataViewModel.categoryList.value?.find { category -> category.id == addStoreDataViewModel.categoryId }
+
         addStoreDataViewModel.pickedCategory?.let {
             binding.storeDefaultCategoryInput.setText(it.name)
             binding.storeDefaultCategoryInput.isEnabled = false

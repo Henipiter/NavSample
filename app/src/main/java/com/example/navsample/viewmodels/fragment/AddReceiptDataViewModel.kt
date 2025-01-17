@@ -79,7 +79,7 @@ class AddReceiptDataViewModel(
         }
     }
 
-    fun updateReceipt(newReceipt: Receipt) {
+    private fun updateReceipt(newReceipt: Receipt) {
         viewModelScope.launch {
             val updatedReceipt = roomDatabaseHelper.updateReceipt(newReceipt)
             savedReceipt.postValue(updatedReceipt)
