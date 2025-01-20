@@ -1,12 +1,12 @@
 package com.example.navsample.entities.inputs
 
-class ProductInputs(
-    var name: CharSequence?,
-    var categoryId: String?,
-    var quantity: CharSequence?,
-    var unitPrice: CharSequence?,
-    var subtotalPrice: CharSequence?,
-    var discount: CharSequence?,
-    var finalPrice: CharSequence?,
-    var ptuType: CharSequence?
+data class ProductInputs(
+    var name: CharSequence? = null,
+    var categoryId: String? = null,
+    var quantity: CharSequence? = null,
+    var unitPrice: CharSequence? = null,
+    var subtotalPrice: CharSequence? = null,
+    var discount: CharSequence? = null,
+    var finalPrice: CharSequence? = null,
+    var ptuType: CharSequence? = null
 )
