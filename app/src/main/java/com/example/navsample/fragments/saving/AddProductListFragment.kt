@@ -43,6 +43,7 @@ import com.example.navsample.viewmodels.ExperimentalDataViewModel
 import com.example.navsample.viewmodels.ImageAnalyzerViewModel
 import com.example.navsample.viewmodels.ImageViewModel
 import com.example.navsample.viewmodels.ListingViewModel
+import com.example.navsample.viewmodels.factory.AddProductDataViewModelFactory
 import com.example.navsample.viewmodels.fragment.AddProductDataViewModel
 import kotlinx.coroutines.runBlocking
 
@@ -58,7 +59,9 @@ class AddProductListFragment : Fragment(), ItemClickListener {
     private val imageAnalyzerViewModel: ImageAnalyzerViewModel by activityViewModels()
     private val imageViewModel: ImageViewModel by activityViewModels()
     private val experimentalDataViewModel: ExperimentalDataViewModel by activityViewModels()
-    private val addProductDataViewModel: AddProductDataViewModel by activityViewModels()
+    private val addProductDataViewModel: AddProductDataViewModel by activityViewModels {
+        AddProductDataViewModelFactory(requireActivity().application)
+    }
     private val listingViewModel: ListingViewModel by activityViewModels()
     private val reorderedProductTiles = MutableLiveData(false)
     private lateinit var recyclerViewEvent: RecyclerView

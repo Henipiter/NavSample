@@ -3,6 +3,7 @@
     <style name="Base.Theme.NavSample" parent="Theme.Material3.DayNight.NoActionBar">
         <item name="colorPrimary">@color/primaryColor</item>
         <item name="colorOnPrimary">@color/colorOnPrimary</item>
+        <item name="colorError">@color/error_color</item>
         <item name="android:textColorHighlight">@color/colorOnPrimary</item>
 
         <item name="bottomSheetDialogTheme">@style/ThemeOverlay.App.BottomSheetDialog</item>

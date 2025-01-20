@@ -22,4 +22,5 @@
     <color name="orange_500">#F4754D</color>
     <color name="orange_800">#FF5C28</color>
     <color name="orange_1000">#611801</color>
+    <color name="error_color">#CC2F2F</color>
 </resources>

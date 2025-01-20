@@ -64,11 +64,9 @@ class ProductListAdapter(
     }
 
     private fun matchCategory(position: Int): Category {
-        return try {
-            categoryList.first { it.id == productList[position].categoryId }
-        } catch (exception: Exception) {
-            Category("-", "#FFFFFF")
-        }
+        return categoryList.find { it.id == productList[position].categoryId }
+            ?: Category("-", "#FFFFFF")
+
     }
 
     private fun setDiscountText(binding: ProductDtoRowBinding, position: Int) {

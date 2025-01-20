@@ -25,12 +25,15 @@ import com.example.navsample.fragments.dialogs.ConfirmDialog
 import com.example.navsample.fragments.dialogs.SortingDialog
 import com.example.navsample.sheets.ProductBottomSheetFragment
 import com.example.navsample.viewmodels.ListingViewModel
+import com.example.navsample.viewmodels.factory.AddProductDataViewModelFactory
 import com.example.navsample.viewmodels.fragment.AddProductDataViewModel
 
 class ProductListFragment : Fragment(), ItemClickListener {
     private var _binding: FragmentProductListBinding? = null
     private val binding get() = _binding!!
-    private val addProductDataViewModel: AddProductDataViewModel by activityViewModels()
+    private val addProductDataViewModel: AddProductDataViewModel by activityViewModels() {
+        AddProductDataViewModelFactory(requireActivity().application)
+    }
     private val listingViewModel: ListingViewModel by activityViewModels()
 
     private lateinit var recyclerViewEvent: RecyclerView
