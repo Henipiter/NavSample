@@ -189,5 +189,6 @@
     <string name="delete_tag">Delete tag</string>
     <string name="add_tag">+ Add tag</string>
     <string name="tags">Tags</string>
+    <string name="second_suggestion_prefix">or</string>
 
 </resources>

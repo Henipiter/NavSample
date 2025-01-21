@@ -168,6 +168,14 @@
                     app:layout_constraintBottom_toBottomOf="@+id/product_subtotal_price_layout"
                     app:layout_constraintStart_toStartOf="@+id/product_subtotal_price_layout" />
 
+                <TextView
+                    android:id="@+id/product_subtotal_price_second_helper_text"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="0dp"
+                    app:layout_constraintBottom_toBottomOf="@+id/product_subtotal_price_layout"
+                    app:layout_constraintStart_toEndOf="@+id/product_subtotal_price_helper_text" />
+
                 <com.google.android.material.textfield.TextInputLayout
                     android:id="@+id/product_discount_layout"
                     style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"

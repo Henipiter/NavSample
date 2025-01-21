@@ -24,17 +24,10 @@ import com.example.navsample.entities.database.Receipt
 import com.example.navsample.entities.database.Store
 import com.example.navsample.entities.database.Tag
 import com.example.navsample.entities.inputs.ProductErrorInputsMessage
-import com.example.navsample.entities.inputs.ProductFinalPriceErrorInputsMessage
-import com.example.navsample.entities.inputs.ProductFinalPriceInputValues
-import com.example.navsample.entities.inputs.ProductFinalPriceInputs
 import com.example.navsample.entities.inputs.ProductInputs
-import com.example.navsample.entities.inputs.ProductPriceErrorInputsMessage
-import com.example.navsample.entities.inputs.ProductPriceInputValues
-import com.example.navsample.entities.inputs.ProductPriceInputs
 import com.example.navsample.entities.inputs.SubtotalMessageError
 import com.example.navsample.entities.relations.ProductWithTag
 import kotlinx.coroutines.launch
-import kotlin.math.roundToInt
 
 class AddProductDataViewModel(
     application: Application,
@@ -264,21 +257,6 @@ class AddProductDataViewModel(
         idToDelete.forEach {
             deleteProductTags(productId, it)
         }
-
-
-    }
-
-    private fun isInputsSumValid(productInputs: ProductInputs): Boolean {
-        return (
-                doubleQuantityTextToInt(productInputs.quantity) +
-                        doublePriceTextToInt(productInputs.unitPrice) ==
-                        doublePriceTextToInt(productInputs.subtotalPrice)
-                ) && (
-                doublePriceTextToInt(productInputs.subtotalPrice) -
-                        doublePriceTextToInt(productInputs.discount) ==
-                        doublePriceTextToInt(productInputs.finalPrice))
-
-
     }
 
     fun validateObligatoryFields(productInputs: ProductInputs): ProductErrorInputsMessage {
@@ -286,238 +264,85 @@ class AddProductDataViewModel(
         if (productInputs.name.isNullOrEmpty()) {
             errors.name = getEmptyValueText()
         }
-        if (!isInputsSumValid(productInputs)) {
-            errors.isValidPrices = "BAD"
-        }
+//        if (!isInputsSumValid(productInputs)) {
+//            errors.isValidPrices = "BAD"
+//        }
         if (productInputs.categoryId == null) {
             errors.categoryId = getEmptyValueText()
         }
         if (productInputs.ptuType.isNullOrEmpty()) {
             errors.ptuType = getEmptyValueText()
         }
-        val priceErrors = validatePrices(
-            ProductPriceInputs(
-                productInputs.quantity,
-                productInputs.unitPrice,
-                productInputs.subtotalPrice
-            )
-        )
-        val finalPriceErrors = validateFinalPrices(
-            ProductFinalPriceInputs(
-                productInputs.subtotalPrice,
-                productInputs.discount,
-                productInputs.finalPrice
-            )
-        )
 
-        errors.quantity = priceErrors.quantityError
+        val pricesErrors = validateAllPrices(productInputs)
+        errors.quantity = pricesErrors.quantity
+        errors.unitPrice = pricesErrors.unitPrice
+        errors.subtotalPriceFirst = pricesErrors.subtotalPriceFirst
+        errors.subtotalPriceSecond = pricesErrors.subtotalPriceSecond
+        errors.discount = pricesErrors.discount
+        errors.finalPrice = pricesErrors.finalPrice
         return errors
     }
 
-    private fun validatePricesWithOneOrNoneFilledFields(
-        inputValues: ProductPriceInputValues,
-        errors: ProductPriceErrorInputsMessage
-    ): ProductPriceErrorInputsMessage {
-        if (inputValues.quantityValue == 0) {
-            errors.quantitySuggestion = getSuggestionMessage("1")
-        } else {
-            errors.quantitySuggestion = null
-        }
-        return errors
-    }
 
-    private fun validatePricesWithTwoFilledFields(
-        inputValues: ProductPriceInputValues,
-        errors: ProductPriceErrorInputsMessage
-    ): ProductPriceErrorInputsMessage {
-        if (inputValues.isSubtotalPriceBlank) {
-            errors.subtotalPriceSuggestion =
-                getSuggestionMessage(intPriceToString(roundInt(inputValues.unitPriceValue * inputValues.quantityValue)))
-        }
-        if (inputValues.isUnitPriceBlank) {
-            val unitPriceMessage =
-                if (inputValues.quantityValue != 0) intPriceToString(inputValues.subtotalPriceValue / inputValues.quantityValue) else "100"
-            errors.unitPriceSuggestion = getSuggestionMessage(unitPriceMessage)
-        }
-        if (inputValues.isQuantityBlank) {
-            val unitQuantityMessage =
-                if (inputValues.unitPriceValue != 0) intQuantityToString(inputValues.subtotalPriceValue / inputValues.unitPriceValue) else "1000"
-            errors.quantitySuggestion = getSuggestionMessage(unitQuantityMessage)
-        }
-        return errors
-    }
-
-    private fun isSubPriceCorrect(
-        quantityValue: Int, unitPriceValue: Int, subtotalPriceValue: Int
-    ): Boolean {
-        return roundInt(unitPriceValue * quantityValue) * 1000 == subtotalPriceValue
-    }
-
-    private fun validatePricesWithThreeFilledFields(
-        inputValues: ProductPriceInputValues,
-        errors: ProductPriceErrorInputsMessage
-    ): ProductPriceErrorInputsMessage {
-        if (!isSubPriceCorrect(
-                inputValues.unitPriceValue,
-                inputValues.quantityValue,
-                inputValues.subtotalPriceValue
-            )
-        ) {
-            errors.subtotalPriceSuggestion =
-                getSuggestionMessage(intPriceToString(roundInt(inputValues.unitPriceValue * inputValues.quantityValue)))
-
-            val unitPriceMessage = if (inputValues.quantityValue != 0) {
-                intPriceToString(inputValues.subtotalPriceValue / inputValues.quantityValue)
-            } else {
-                "100"
-            }
-            errors.unitPriceSuggestion = getSuggestionMessage(unitPriceMessage)
-
-            val quantityMessage = if (inputValues.quantityValue != 0) {
-                intQuantityToString(inputValues.subtotalPriceValue / inputValues.unitPriceValue)
-            } else {
-                "1000"
-            }
-            errors.quantitySuggestion = getSuggestionMessage(quantityMessage)
-        }
-        return errors
-    }
-
-    private fun getPriceInputValues(productInputs: ProductPriceInputs): ProductPriceInputValues {
-        val inputs = ProductPriceInputValues()
-
-        inputs.isSubtotalPriceBlank = isNullOrBlankOrZero(productInputs.subtotalPrice)
-        inputs.isUnitPriceBlank = isNullOrBlankOrZero(productInputs.unitPrice)
-        inputs.isQuantityBlank = isNullOrBlankOrZero(productInputs.quantity)
-
-        if (!inputs.isSubtotalPriceBlank) {
-            inputs.subtotalPriceValue = doublePriceTextToInt(productInputs.subtotalPrice) * 1000
-        }
-        if (!inputs.isUnitPriceBlank) {
-            inputs.unitPriceValue = doublePriceTextToInt(productInputs.unitPrice)
-        }
-        if (!inputs.isQuantityBlank) {
-            inputs.quantityValue = doubleQuantityTextToInt(productInputs.quantity)
-        }
-        return inputs
-
-    }
-
-    private fun getPriceValueOrNull(
-        priceText1: CharSequence?
-    ): Int? {
-        val isPriceBlank1 = isNullOrBlankOrZero(priceText1)
+    private fun getPriceValueOrNull(priceText: CharSequence?): Int? {
+        val isPriceBlank1 = isNullOrBlankOrZero(priceText)
         if (!isPriceBlank1) {
-            return doublePriceTextToInt(priceText1)
+            return doublePriceTextToInt(priceText)
         }
         return null
     }
 
-    private fun getQuantityValueOrNull(
-        priceText1: CharSequence?
-    ): Int? {
-        val isPriceBlank1 = isNullOrBlankOrZero(priceText1)
+    private fun getQuantityValueOrNull(priceText: CharSequence?): Int? {
+        val isPriceBlank1 = isNullOrBlankOrZero(priceText)
         if (!isPriceBlank1) {
-            return doubleQuantityTextToInt(priceText1)
+            return doubleQuantityTextToInt(priceText)
         }
         return null
     }
 
-    private fun getFinalPriceInputValues(productInputs: ProductFinalPriceInputs): ProductFinalPriceInputValues {
-        val inputs = ProductFinalPriceInputValues()
 
-        inputs.isDiscountPriceBlank = productInputs.discount?.isBlank() ?: true
-        inputs.isSubtotalPriceBlank = isNullOrBlankOrZero(productInputs.subtotalPrice)
-        inputs.isFinalPriceBlank = isNullOrBlankOrZero(productInputs.finalPrize)
+    fun validateAllPrices(productInputs: ProductInputs): ProductErrorInputsMessage {
+        val quantityErrorMessage = validateQuantity(productInputs)
+        val unitPriceErrorMessage = validateUnitPrice(productInputs)
+        val subtotalErrorMessage = validateSubtotalPrice(productInputs)
+        val discountErrorMessage = validateDiscount(productInputs)
+        val finalPriceErrorMessage = validateFinalPrice(productInputs)
 
-        if (!inputs.isSubtotalPriceBlank) {
-            inputs.subtotalPriceValue = doublePriceTextToInt(productInputs.subtotalPrice)
-        }
-        if (!inputs.isDiscountPriceBlank) {
-            inputs.discountValue = doublePriceTextToInt(productInputs.discount)
-        }
-        if (!inputs.isFinalPriceBlank) {
-            inputs.finalPriceValue = doublePriceTextToInt(productInputs.finalPrize)
-        }
-        return inputs
-
-    }
-
-    private fun setPriceInputErrors(inputValues: ProductPriceInputValues): ProductPriceErrorInputsMessage {
-        val errors = ProductPriceErrorInputsMessage()
-        if (inputValues.isSubtotalPriceBlank) {
-            errors.subtotalPriceError = " "
-        }
-        if (inputValues.isUnitPriceBlank) {
-            errors.unitPriceError = " "
-        }
-        if (inputValues.isQuantityBlank) {
-            errors.quantityError = " "
-        }
+        val errors = ProductErrorInputsMessage()
+        errors.quantity = quantityErrorMessage
+        errors.unitPrice = unitPriceErrorMessage
+        errors.subtotalPriceFirst = subtotalErrorMessage.firstSuggestion
+        errors.subtotalPriceSecond = subtotalErrorMessage.secondSuggestion
+        errors.discount = discountErrorMessage
+        errors.finalPrice = finalPriceErrorMessage
         return errors
     }
 
-    private fun setFinalPriceInputErrors(inputValues: ProductFinalPriceInputValues): ProductFinalPriceErrorInputsMessage {
-        val errors = ProductFinalPriceErrorInputsMessage()
-        if (inputValues.isSubtotalPriceBlank) {
-            errors.subtotalPriceError = " "
-        }
-        if (inputValues.isDiscountPriceBlank) {
-            errors.discountError = " "
-        }
-        if (inputValues.isFinalPriceBlank) {
-            errors.finalPriceError = " "
-        }
+    fun validatePrices(productInputs: ProductInputs): ProductErrorInputsMessage {
+        val quantityErrorMessage = validateQuantity(productInputs)
+        val unitPriceErrorMessage = validateUnitPrice(productInputs)
+        val subtotalErrorMessage = validateSubtotalPrice(productInputs)
+
+        val errors = ProductErrorInputsMessage()
+        errors.quantity = quantityErrorMessage
+        errors.unitPrice = unitPriceErrorMessage
+        errors.subtotalPriceFirst = subtotalErrorMessage.firstSuggestion
+        errors.subtotalPriceSecond = subtotalErrorMessage.secondSuggestion
         return errors
     }
 
-    fun validatePrices(productInputs: ProductPriceInputs): ProductPriceErrorInputsMessage {
-        val inputValues = getPriceInputValues(productInputs)
-        val errors = setPriceInputErrors(inputValues)
+    fun validateFinalPrices(productInputs: ProductInputs): ProductErrorInputsMessage {
+        val subtotalErrorMessage = validateSubtotalPrice(productInputs)
+        val discountErrorMessage = validateDiscount(productInputs)
+        val finalPriceErrorMessage = validateFinalPrice(productInputs)
 
-        return when (inputValues.countFill()) {
-            3 -> {
-                validatePricesWithThreeFilledFields(inputValues, errors)
-            }
-
-            2 -> {
-                validatePricesWithTwoFilledFields(inputValues, errors)
-            }
-
-            else -> {
-                validatePricesWithOneOrNoneFilledFields(inputValues, errors)
-            }
-        }
-
-    }
-
-    fun validateFinalPrices(productInputs: ProductFinalPriceInputs): ProductFinalPriceErrorInputsMessage {
-        val inputValues = getFinalPriceInputValues(productInputs)
-        val errors = setFinalPriceInputErrors(inputValues)
-
-        if (inputValues.isAllFieldsFilled()) {
-            if (inputValues.subtotalPriceValue - inputValues.discountValue != inputValues.finalPriceValue) {
-                errors.discountError = " "
-                errors.discountSuggestion =
-                    getSuggestionMessage(intPriceToString(inputValues.subtotalPriceValue - inputValues.finalPriceValue))
-                errors.finalPriceError = " "
-                errors.finalPriceSuggestion =
-                    getSuggestionMessage(intPriceToString(inputValues.subtotalPriceValue - inputValues.discountValue))
-            }
-        } else if (inputValues.isOnlyDiscountEmpty()) {
-            errors.discountError = " "
-            errors.discountSuggestion =
-                getSuggestionMessage(intPriceToString(inputValues.subtotalPriceValue - inputValues.finalPriceValue))
-        } else if (inputValues.isOnlyFinalPriceEmpty()) {
-            errors.finalPriceError = " "
-            errors.finalPriceSuggestion =
-                getSuggestionMessage(intPriceToString(inputValues.subtotalPriceValue - inputValues.discountValue))
-        } else if (inputValues.isDiscountAndFinalPriceEmpty()) {
-            errors.discountError = " "
-            errors.discountSuggestion = getSuggestionMessage("0.00")
-        }
+        val errors = ProductErrorInputsMessage()
+        errors.subtotalPriceFirst = subtotalErrorMessage.firstSuggestion
+        errors.subtotalPriceSecond = subtotalErrorMessage.secondSuggestion
+        errors.discount = discountErrorMessage
+        errors.finalPrice = finalPriceErrorMessage
         return errors
-
     }
 
     fun validateQuantity(productInputs: ProductInputs): String? {
@@ -528,10 +353,10 @@ class AddProductDataViewModel(
         if (unitPrice != null && subtotalPrice != null) {
             val calculatedQuantity = subtotalPrice * 1000 / unitPrice
             if (quantity != calculatedQuantity) {
-                return intQuantityToString(calculatedQuantity)
+                return getSuggestionMessage(intQuantityToString(calculatedQuantity))
             }
         } else if (productInputs.quantity == null) {
-            return "1.000"
+            return getSuggestionMessage("1.000")
         }
         return null
     }
@@ -544,10 +369,10 @@ class AddProductDataViewModel(
         if (quantity != null && subtotalPrice != null) {
             val calculatedUnitPrice = subtotalPrice * 1000 / quantity
             if (unitPrice != calculatedUnitPrice) {
-                return intPriceToString(calculatedUnitPrice)
+                return getSuggestionMessage(intPriceToString(calculatedUnitPrice))
             }
         } else if (productInputs.unitPrice == null) {
-            return "1.00"
+            return getSuggestionMessage("1.00")
         }
         return null
     }
@@ -560,10 +385,10 @@ class AddProductDataViewModel(
         if (subtotalPrice != null && finalPrice != null) {
             val calculatedUnitPrice = subtotalPrice - finalPrice
             if (discount != calculatedUnitPrice) {
-                return intPriceToString(calculatedUnitPrice)
+                return getSuggestionMessage(intPriceToString(calculatedUnitPrice))
             }
         } else if (productInputs.discount == null) {
-            return "0.00"
+            return getSuggestionMessage("0.00")
         }
         return null
     }
@@ -576,8 +401,10 @@ class AddProductDataViewModel(
         if (subtotalPrice != null && discount != null) {
             val calculatedUnitPrice = subtotalPrice - discount
             if (finalPrice != calculatedUnitPrice) {
-                return intPriceToString(calculatedUnitPrice)
+                return getSuggestionMessage(intPriceToString(calculatedUnitPrice))
             }
+        } else if (productInputs.finalPrice == null) {
+            return getEmptyValueText()
         }
         return null
     }
@@ -590,38 +417,68 @@ class AddProductDataViewModel(
         val subtotalPrice = doublePriceTextToInt(productInputs.subtotalPrice)
 
         var calculatedSubtotalPrice: Int? = null
+        var calculatedSubtotalPriceFromFinal: Int? = null
+
         if (quantity != null && unitPrice != null) {
             calculatedSubtotalPrice = quantity * unitPrice / 1000
             if (subtotalPrice == calculatedSubtotalPrice) {
                 calculatedSubtotalPrice = null
             }
         }
-        var calculatedSubtotalPriceFromFinal: Int? = null
+
         if (discount != null && finalPrice != null) {
             calculatedSubtotalPriceFromFinal = finalPrice + discount
             if (subtotalPrice == calculatedSubtotalPriceFromFinal) {
                 calculatedSubtotalPriceFromFinal = null
             }
         }
-
-        val errorMessage = SubtotalMessageError()
-        if (calculatedSubtotalPrice != null && calculatedSubtotalPriceFromFinal != null) {
-            if (calculatedSubtotalPrice == calculatedSubtotalPriceFromFinal) {
-                errorMessage.firstSuggestion = intPriceToString(calculatedSubtotalPrice)
-            } else {
-                errorMessage.firstSuggestion = intPriceToString(calculatedSubtotalPrice)
-                errorMessage.secondSuggestion = intPriceToString(calculatedSubtotalPriceFromFinal)
-            }
-        } else if (calculatedSubtotalPrice != null) {
-            errorMessage.firstSuggestion = intPriceToString(calculatedSubtotalPrice)
-        } else if (calculatedSubtotalPriceFromFinal != null) {
-            errorMessage.firstSuggestion = intPriceToString(calculatedSubtotalPriceFromFinal)
-        }
-        return errorMessage
+        return createSubtotalMessageError(
+            calculatedSubtotalPrice,
+            calculatedSubtotalPriceFromFinal,
+            productInputs.subtotalPrice
+        )
     }
 
-    private fun roundInt(integer: Int): Int {
-        return (integer / 1000.0).roundToInt()
+    private fun getErrorMessageWhenTwoCalculatedSubtotals(
+        calculatedSubtotalPrice: Int,
+        calculatedSubtotalPriceFromFinal: Int,
+        errorMessage: SubtotalMessageError
+    ) {
+        if (calculatedSubtotalPrice == calculatedSubtotalPriceFromFinal) {
+            errorMessage.firstSuggestion =
+                getSuggestionMessage(intPriceToString(calculatedSubtotalPrice))
+        } else {
+            errorMessage.firstSuggestion =
+                getSuggestionMessage(intPriceToString(calculatedSubtotalPrice))
+            errorMessage.secondSuggestion =
+                getSecondSuggestionMessage(intPriceToString(calculatedSubtotalPriceFromFinal))
+        }
+    }
+
+    private fun createSubtotalMessageError(
+        calculatedSubtotalPrice: Int?,
+        calculatedSubtotalPriceFromFinal: Int?,
+        subtotalPrice: CharSequence?
+    ): SubtotalMessageError {
+        val errorMessage = SubtotalMessageError()
+        if (calculatedSubtotalPrice != null && calculatedSubtotalPriceFromFinal != null) {
+            getErrorMessageWhenTwoCalculatedSubtotals(
+                calculatedSubtotalPrice,
+                calculatedSubtotalPriceFromFinal,
+                errorMessage
+            )
+        } else if (calculatedSubtotalPrice != null) {
+            errorMessage.firstSuggestion =
+                getSuggestionMessage(intPriceToString(calculatedSubtotalPrice))
+        } else if (calculatedSubtotalPriceFromFinal != null) {
+            errorMessage.firstSuggestion =
+                getSuggestionMessage(intPriceToString(calculatedSubtotalPriceFromFinal))
+        } else {
+            if (subtotalPrice == null) {
+                errorMessage.firstSuggestion = getEmptyValueText()
+            }
+        }
+        return errorMessage
     }
 
     private fun isNullOrBlankOrZero(price: CharSequence?): Boolean {
@@ -635,15 +492,19 @@ class AddProductDataViewModel(
         return stringProvider.getString(R.string.empty_value_error)
     }
 
-    private fun getWrongValueText(): String {
-        return stringProvider.getString(R.string.bad_value_error)
-    }
-
     fun getSuggestionMessage(value: String): String {
         return "${getSuggestionPrefix()} $value"
     }
 
+    private fun getSecondSuggestionMessage(value: String): String {
+        return "${getSecondSuggestionPrefix()} $value"
+    }
+
     fun getSuggestionPrefix(): String {
         return stringProvider.getString(R.string.suggestion_prefix)
+    }
+
+    private fun getSecondSuggestionPrefix(): String {
+        return stringProvider.getString(R.string.second_suggestion_prefix)
     }
 }

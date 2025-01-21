@@ -25,9 +25,7 @@ import com.example.navsample.dto.inputmode.AddingInputType
 import com.example.navsample.entities.database.Category
 import com.example.navsample.entities.database.Product
 import com.example.navsample.entities.database.Tag
-import com.example.navsample.entities.inputs.ProductFinalPriceInputs
 import com.example.navsample.entities.inputs.ProductInputs
-import com.example.navsample.entities.inputs.ProductPriceInputs
 import com.example.navsample.exception.NoCategoryIdException
 import com.example.navsample.exception.NoReceiptIdException
 import com.example.navsample.viewmodels.ImageViewModel
@@ -485,53 +483,73 @@ class AddProductFragment : AddingFragment() {
         }
     }
 
-    private fun validateFinalPrice() {
 
-        val inputs = ProductFinalPriceInputs(
-            binding.productSubtotalPriceInput.text,
-            binding.productDiscountInput.text,
-            binding.productFinalPriceInput.text
+    private fun getAllPriceInputs(): ProductInputs {
+        return ProductInputs(
+            quantity = binding.productQuantityInput.text,
+            unitPrice = binding.productUnitPriceInput.text,
+            subtotalPrice = binding.productSubtotalPriceInput.text,
+            discount = binding.productDiscountInput.text,
+            finalPrice = binding.productFinalPriceInput.text
         )
+    }
+
+    private fun errorTextBySuggestions(suggestion: String?): String? {
+        if (suggestion == null) {
+            return null
+        }
+        return " "
+    }
+
+    private fun validateFinalPrice() {
+        val inputs = getAllPriceInputs()
         val suggestions = addProductDataViewModel.validateFinalPrices(inputs)
-        binding.productSubtotalPriceHelperText.text = suggestions.subtotalPriceSuggestion
-        binding.productDiscountHelperText.text = suggestions.discountSuggestion
-        binding.productFinalPriceHelperText.text = suggestions.finalPriceSuggestion
-        binding.productSubtotalPriceLayout.error = suggestions.subtotalPriceError
-        binding.productDiscountLayout.error = suggestions.discountError
-        binding.productFinalPriceLayout.error = suggestions.finalPriceError
+        binding.productSubtotalPriceHelperText.text = suggestions.subtotalPriceFirst
+        binding.productSubtotalPriceSecondHelperText.text = suggestions.subtotalPriceSecond
+        binding.productDiscountHelperText.text = suggestions.discount
+        binding.productFinalPriceHelperText.text = suggestions.finalPrice
+
+        binding.productSubtotalPriceLayout.error =
+            errorTextBySuggestions(suggestions.subtotalPriceFirst)
+        binding.productDiscountLayout.error = errorTextBySuggestions(suggestions.discount)
+        binding.productFinalPriceLayout.error = errorTextBySuggestions(suggestions.finalPrice)
     }
 
     private fun validatePrices() {
-        val inputs = ProductPriceInputs(
-            binding.productQuantityInput.text,
-            binding.productUnitPriceInput.text,
-            binding.productSubtotalPriceInput.text
-        )
+        val inputs = getAllPriceInputs()
         val suggestions = addProductDataViewModel.validatePrices(inputs)
-        binding.productSubtotalPriceHelperText.text = suggestions.subtotalPriceSuggestion
-        binding.productUnitPriceHelperText.text = suggestions.unitPriceSuggestion
-        binding.productQuantityHelperText.text = suggestions.quantitySuggestion
-        binding.productSubtotalPriceLayout.error = suggestions.subtotalPriceError
-        binding.productUnitPriceLayout.error = suggestions.unitPriceError
-        binding.productQuantityLayout.error = suggestions.quantityError
+        binding.productQuantityHelperText.text = suggestions.quantity
+        binding.productUnitPriceHelperText.text = suggestions.unitPrice
+        binding.productSubtotalPriceHelperText.text = suggestions.subtotalPriceFirst
+        binding.productSubtotalPriceSecondHelperText.text = suggestions.subtotalPriceSecond
+
+        binding.productQuantityLayout.error = errorTextBySuggestions(suggestions.quantity)
+        binding.productUnitPriceLayout.error = errorTextBySuggestions(suggestions.unitPrice)
+        binding.productSubtotalPriceLayout.error =
+            errorTextBySuggestions(suggestions.subtotalPriceFirst)
 
     }
 
     private fun validateObligatoryFields(): Boolean {
         val errors = addProductDataViewModel.validateObligatoryFields(getInputs())
         binding.productNameLayout.error = errors.name
-        binding.productSubtotalPriceHelperText.text = errors.subtotalPrice
-        binding.productUnitPriceHelperText.text = errors.unitPrice
-        binding.productQuantityHelperText.text = errors.quantity
-        binding.productDiscountHelperText.text = errors.discount
-        binding.productFinalPriceHelperText.text = errors.finalPrice
         binding.productCategoryHelperText.text = errors.categoryId
         binding.ptuTypeLayout.error = errors.ptuType
         binding.productCategoryLayout.error = " "
         binding.productCategoryLayout.errorIconDrawable = null
 
-        validatePrices()
-        validateFinalPrice()
+        binding.productQuantityHelperText.text = errors.quantity
+        binding.productUnitPriceHelperText.text = errors.unitPrice
+        binding.productSubtotalPriceHelperText.text = errors.subtotalPriceFirst
+        binding.productSubtotalPriceSecondHelperText.text = errors.subtotalPriceSecond
+        binding.productDiscountHelperText.text = errors.discount
+        binding.productFinalPriceHelperText.text = errors.finalPrice
+
+        binding.productQuantityLayout.error = errorTextBySuggestions(errors.quantity)
+        binding.productUnitPriceLayout.error = errorTextBySuggestions(errors.unitPrice)
+        binding.productSubtotalPriceLayout.error = errorTextBySuggestions(errors.subtotalPriceFirst)
+        binding.productDiscountLayout.error = errorTextBySuggestions(errors.discount)
+        binding.productFinalPriceLayout.error = errorTextBySuggestions(errors.finalPrice)
         return errors.isCorrect()
     }
 
@@ -636,15 +654,15 @@ class AddProductFragment : AddingFragment() {
                 validatePrices()
             }
         }
-        addProductDataViewModel.storeById.observe(viewLifecycleOwner) {
-            it?.let { store ->
+        addProductDataViewModel.storeById.observe(viewLifecycleOwner) { store ->
+            store?.let {
                 binding.toolbar.title = store.name
                 if (addProductDataViewModel.receiptById.value == null && addProductDataViewModel.categoryId == "") {
                     addProductDataViewModel.categoryId = store.defaultCategoryId
                     setCategory()
                 }
                 addProductDataViewModel.categoryList.value?.find { category -> category.id == store.defaultCategoryId }?.name.let { name ->
-                    name?.let { storeDefaultCategoryName = it }
+                    name?.let { storeDefaultCategoryName = name }
                 }
             }
         }

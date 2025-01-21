@@ -157,6 +157,7 @@
     <string name="delete_tag">Usuń tag</string>
     <string name="add_tag">+ Dodaj tag</string>
     <string name="tags">Tagi</string>
+    <string name="second_suggestion_prefix">lub</string>
 
 
 </resources>

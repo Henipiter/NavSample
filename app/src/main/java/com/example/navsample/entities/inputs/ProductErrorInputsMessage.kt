@@ -5,7 +5,8 @@ class ProductErrorInputsMessage(
     var categoryId: String? = null,
     var quantity: String? = null,
     var unitPrice: String? = null,
-    var subtotalPrice: String? = null,
+    var subtotalPriceFirst: String? = null,
+    var subtotalPriceSecond: String? = null,
     var discount: String? = null,
     var finalPrice: String? = null,
     var ptuType: String? = null,
@@ -16,7 +17,8 @@ class ProductErrorInputsMessage(
                 categoryId == null &&
                 quantity == null &&
                 unitPrice == null &&
-                subtotalPrice == null &&
+                subtotalPriceFirst == null &&
+                subtotalPriceSecond == null &&
                 discount == null &&
                 finalPrice == null &&
                 ptuType == null &&
