@@ -13,12 +13,18 @@ import com.example.navsample.entities.database.Store
 class StoreDropdownAdapter(
     ctx: Context,
     res: Int,
-    var storeList: ArrayList<Store>
+    var storeList: List<Store>
 ) : ArrayAdapter<Store>(ctx, res, storeList), Filterable {
     private var filteredList: ArrayList<Store>
     private val addNewStoreHolder = Store("", "+ ADD NEW", "")
 
     init {
+        filteredList = ArrayList(storeList)
+        filteredList.add(addNewStoreHolder)
+    }
+
+    fun updateList(storeList: List<Store>) {
+        this.storeList = storeList
         filteredList = ArrayList(storeList)
         filteredList.add(addNewStoreHolder)
     }

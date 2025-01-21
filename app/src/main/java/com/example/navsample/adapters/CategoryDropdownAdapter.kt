@@ -13,12 +13,18 @@ import com.example.navsample.entities.database.Category
 class CategoryDropdownAdapter(
     ctx: Context,
     res: Int,
-    var categoryList: ArrayList<Category>
+    var categoryList: List<Category>
 ) : ArrayAdapter<Category>(ctx, res, categoryList), Filterable {
     private var filteredList = ArrayList<Category>(categoryList)
     private val addNewCategoryHolder = Category("+ ADD NEW", "")
 
     init {
+        filteredList = ArrayList(categoryList)
+        filteredList.add(addNewCategoryHolder)
+    }
+
+    fun updateList(categoryList: List<Category>) {
+        this.categoryList = categoryList
         filteredList = ArrayList(categoryList)
         filteredList.add(addNewCategoryHolder)
     }

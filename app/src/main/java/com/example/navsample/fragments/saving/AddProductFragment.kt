@@ -1,7 +1,6 @@
 package com.example.navsample.fragments.saving
 
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -95,13 +94,11 @@ class AddProductFragment : AddingFragment() {
 
 
         dropdownAdapter = CategoryDropdownAdapter(
-            requireContext(), R.layout.array_adapter_row, arrayListOf()
+            requireContext(), R.layout.array_adapter_row, listOf()
         ).also { adapter ->
             binding.productCategoryInput.setAdapter(adapter)
         }
-        PtuTypeDropdownAdapter(
-            requireContext(), R.layout.array_adapter_row
-        ).also { adapter ->
+        PtuTypeDropdownAdapter(requireContext(), R.layout.array_adapter_row).also { adapter ->
             binding.ptuTypeInput.setAdapter(adapter)
         }
 
@@ -118,9 +115,6 @@ class AddProductFragment : AddingFragment() {
             }
         )
 
-        binding.chipGroup.setOnCheckedStateChangeListener { group, checkedIds ->
-            Log.d("EEAARR", "b ${group.checkedChipId} $checkedIds")
-        }
         binding.productCategoryInput.setOnItemClickListener { adapter, _, position, _ ->
             addProductDataViewModel.pickedCategory = adapter.getItemAtPosition(position) as Category
 
@@ -626,8 +620,7 @@ class AddProductFragment : AddingFragment() {
         }
         addProductDataViewModel.categoryList.observe(viewLifecycleOwner) { categoryList ->
             categoryList?.let {
-                dropdownAdapter.categoryList = it as ArrayList<Category>
-                dropdownAdapter.notifyDataSetChanged()
+                dropdownAdapter.updateList(categoryList)
 
                 if (addProductDataViewModel.categoryId.isNotEmpty()) {
                     setCategory()

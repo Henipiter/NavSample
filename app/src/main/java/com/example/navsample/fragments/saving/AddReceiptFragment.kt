@@ -61,7 +61,7 @@ class AddReceiptFragment : AddingFragment() {
 
 
         dropdownAdapter = StoreDropdownAdapter(
-            requireContext(), R.layout.array_adapter_row, arrayListOf()
+            requireContext(), R.layout.array_adapter_row, listOf()
         ).also { adapter ->
             binding.storeNameInput.setAdapter(adapter)
         }
@@ -206,8 +206,7 @@ class AddReceiptFragment : AddingFragment() {
         }
         addReceiptDataViewModel.storeList.observe(viewLifecycleOwner) { storeList ->
             storeList?.let {
-                dropdownAdapter.storeList = storeList
-                dropdownAdapter.notifyDataSetChanged()
+                dropdownAdapter.updateList(storeList)
             }
             if (addReceiptDataViewModel.storeId.isNotEmpty()) {
                 setStore()

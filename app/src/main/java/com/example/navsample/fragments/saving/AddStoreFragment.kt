@@ -106,7 +106,7 @@ class AddStoreFragment : AddingFragment() {
         defineToolbar()
 
         dropdownAdapter = CategoryDropdownAdapter(
-            requireContext(), R.layout.array_adapter_row, arrayListOf()
+            requireContext(), R.layout.array_adapter_row, listOf()
         ).also { adapter ->
             binding.storeDefaultCategoryInput.setAdapter(adapter)
         }
@@ -250,8 +250,7 @@ class AddStoreFragment : AddingFragment() {
 
         addStoreDataViewModel.categoryList.observe(viewLifecycleOwner) { categoryList ->
             categoryList?.let {
-                dropdownAdapter.categoryList = it
-                dropdownAdapter.notifyDataSetChanged()
+                dropdownAdapter.updateList(categoryList)
             }
             if (addStoreDataViewModel.categoryId.isNotEmpty()) {
                 setCategory()
