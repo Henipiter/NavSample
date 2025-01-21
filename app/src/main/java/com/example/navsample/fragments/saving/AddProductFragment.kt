@@ -50,7 +50,6 @@ class AddProductFragment : AddingFragment() {
         AddProductDataViewModelFactory(requireActivity().application)
     }
 
-    private var storeDefaultCategoryName = ""
     private var isValidPrices = true
     private var firstEntry = true
     private lateinit var dropdownAdapter: CategoryDropdownAdapter
@@ -60,10 +59,6 @@ class AddProductFragment : AddingFragment() {
     ): View {
         _binding = FragmentAddProductBinding.inflate(inflater, container, false)
         return binding.root
-    }
-
-    private fun getCategorySuggestionMessage(): String {
-        return "${getString(R.string.use_default_category)} $storeDefaultCategoryName"
     }
 
     override fun defineToolbar() {
@@ -141,29 +136,20 @@ class AddProductFragment : AddingFragment() {
                 Navigation.findNavController(requireView()).navigate(action)
             } else {
                 binding.productCategoryInput.setText(addProductDataViewModel.pickedCategory?.name)
-                binding.productCategoryInput.isEnabled = false
-
-                val storeCategory = addProductDataViewModel.storeById.value?.defaultCategoryId
-                if (storeCategory != null && storeCategory != addProductDataViewModel.pickedCategory?.id) {
-                    binding.productCategoryHelperText.text = getCategorySuggestionMessage()
-                    binding.productCategoryLayout.error = " "
-                    binding.productCategoryLayout.errorIconDrawable = null
-                } else {
-                    binding.productCategoryHelperText.text = ""
-                    binding.productCategoryLayout.error = null
-                }
+                validateCategory()
             }
         }
         binding.ptuTypeInput.setOnItemClickListener { adapter, _, i, _ ->
             binding.ptuTypeInput.setText(adapter.getItemAtPosition(i) as String)
+
+            val error = addProductDataViewModel.validatePtuType(binding.ptuTypeInput.text)
+            binding.ptuTypeLayout.error = error
         }
 
         binding.productCategoryLayout.setStartIconOnClickListener {
             binding.productCategoryInput.setText("")
-            binding.productCategoryLayout.helperText = null
-            binding.productCategoryInput.isEnabled = true
             addProductDataViewModel.pickedCategory = null
-            binding.productCategoryHelperText.text = getCategorySuggestionMessage()
+            validateCategory()
         }
 
         binding.productFinalPriceLayout.setEndIconOnClickListener {
@@ -189,9 +175,8 @@ class AddProductFragment : AddingFragment() {
         }
 
         binding.productNameInput.doOnTextChanged { actual, _, _, _ ->
-            if (!actual.isNullOrEmpty()) {
-                binding.productNameLayout.error = null
-            }
+            val error = addProductDataViewModel.validateName(actual)
+            binding.productNameLayout.error = error
         }
         binding.productSubtotalPriceInput.doOnTextChanged { _, _, _, _ ->
             validatePrices()
@@ -216,9 +201,6 @@ class AddProductFragment : AddingFragment() {
                 if (storeCategory != null) {
                     addProductDataViewModel.categoryId = storeCategory
                     setCategory()
-                    binding.productCategoryHelperText.text = ""
-                    binding.productCategoryLayout.error = " "
-                    binding.productCategoryLayout.errorIconDrawable = null
                 }
 
             }
@@ -231,6 +213,18 @@ class AddProductFragment : AddingFragment() {
                     convertSuggestionToValue(binding.productSubtotalPriceHelperText.text.toString())
                 )
                 validatePrices()
+                validateFinalPrice()
+            }
+        }
+        binding.productSubtotalPriceSecondHelperText.setOnClickListener {
+            if (binding.productSubtotalPriceSecondHelperText.text.toString()
+                    .contains(addProductDataViewModel.getSecondSuggestionPrefix())
+            ) {
+                binding.productSubtotalPriceInput.setText(
+                    convertSecondSuggestionToValue(binding.productSubtotalPriceSecondHelperText.text.toString())
+                )
+                validatePrices()
+                validateFinalPrice()
             }
         }
         binding.productUnitPriceHelperText.setOnClickListener {
@@ -260,7 +254,7 @@ class AddProductFragment : AddingFragment() {
                 binding.productDiscountInput.setText(
                     convertSuggestionToValue(binding.productDiscountHelperText.text.toString())
                 )
-                validatePrices()
+                validateFinalPrice()
             }
         }
         binding.productFinalPriceHelperText.setOnClickListener {
@@ -270,7 +264,7 @@ class AddProductFragment : AddingFragment() {
                 binding.productFinalPriceInput.setText(
                     convertSuggestionToValue(binding.productFinalPriceHelperText.text.toString())
                 )
-                validatePrices()
+                validateFinalPrice()
             }
         }
     }
@@ -349,6 +343,7 @@ class AddProductFragment : AddingFragment() {
 
                     addProductDataViewModel.getStoreById(addProductDataViewModel.storeId)
                 }
+                validateObligatoryFields()
             }
 
             AddingInputType.INDEX -> {
@@ -399,7 +394,7 @@ class AddProductFragment : AddingFragment() {
     private fun getInputs(): ProductInputs {
         return ProductInputs(
             binding.productNameInput.text,
-            addProductDataViewModel.pickedCategory?.id,
+            binding.productCategoryInput.text,
             binding.productQuantityInput.text,
             binding.productUnitPriceInput.text,
             binding.productSubtotalPriceInput.text,
@@ -533,10 +528,12 @@ class AddProductFragment : AddingFragment() {
     private fun validateObligatoryFields(): Boolean {
         val errors = addProductDataViewModel.validateObligatoryFields(getInputs())
         binding.productNameLayout.error = errors.name
-        binding.productCategoryHelperText.text = errors.categoryId
+
+        binding.productCategoryHelperText.text = errors.categoryName
+        binding.productCategoryLayout.error = errorTextBySuggestions(errors.categoryName)
+
+
         binding.ptuTypeLayout.error = errors.ptuType
-        binding.productCategoryLayout.error = " "
-        binding.productCategoryLayout.errorIconDrawable = null
 
         binding.productQuantityHelperText.text = errors.quantity
         binding.productUnitPriceHelperText.text = errors.unitPrice
@@ -550,12 +547,24 @@ class AddProductFragment : AddingFragment() {
         binding.productSubtotalPriceLayout.error = errorTextBySuggestions(errors.subtotalPriceFirst)
         binding.productDiscountLayout.error = errorTextBySuggestions(errors.discount)
         binding.productFinalPriceLayout.error = errorTextBySuggestions(errors.finalPrice)
+
+        binding.productQuantityLayout.errorIconDrawable = null
+        binding.productUnitPriceLayout.errorIconDrawable = null
+        binding.productSubtotalPriceLayout.errorIconDrawable = null
+        binding.productDiscountLayout.errorIconDrawable = null
+        binding.productFinalPriceLayout.errorIconDrawable = null
         return errors.isCorrect()
     }
 
     private fun convertSuggestionToValue(suggestion: String): String {
         return suggestion.substring(
             addProductDataViewModel.getSuggestionPrefix().length + 1, suggestion.lastIndex + 1
+        )
+    }
+
+    private fun convertSecondSuggestionToValue(suggestion: String): String {
+        return suggestion.substring(
+            addProductDataViewModel.getSecondSuggestionPrefix().length + 1, suggestion.lastIndex + 1
         )
     }
 
@@ -627,7 +636,7 @@ class AddProductFragment : AddingFragment() {
             val storeCategoryId = addProductDataViewModel.storeById.value?.defaultCategoryId
             if (storeCategoryId != null) {
                 categoryList.find { category -> category.id == storeCategoryId }?.name.let { name ->
-                    name?.let { storeDefaultCategoryName = it }
+                    name?.let { addProductDataViewModel.storeDefaultCategoryName = it }
                 }
             }
 
@@ -650,8 +659,7 @@ class AddProductFragment : AddingFragment() {
                 binding.productDiscountInput.setText(intPriceToString(product.discount))
                 binding.ptuTypeInput.setText(product.ptuType)
 
-                validateFinalPrice()
-                validatePrices()
+                validateObligatoryFields()
             }
         }
         addProductDataViewModel.storeById.observe(viewLifecycleOwner) { store ->
@@ -662,7 +670,7 @@ class AddProductFragment : AddingFragment() {
                     setCategory()
                 }
                 addProductDataViewModel.categoryList.value?.find { category -> category.id == store.defaultCategoryId }?.name.let { name ->
-                    name?.let { storeDefaultCategoryName = name }
+                    name?.let { addProductDataViewModel.storeDefaultCategoryName = name }
                 }
             }
         }
@@ -680,9 +688,19 @@ class AddProductFragment : AddingFragment() {
 
         addProductDataViewModel.pickedCategory?.let {
             binding.productCategoryInput.setText(it.name)
-            binding.productCategoryInput.isEnabled = false
-            binding.productCategoryLayout.error = null
+            validateCategory()
         }
     }
 
+    private fun validateCategory() {
+        val categoryName = binding.productCategoryInput.text
+
+        val message = addProductDataViewModel.validateCategory(categoryName)
+
+        binding.productCategoryInput.isEnabled = message != null
+        binding.productCategoryHelperText.text = message
+        binding.productCategoryLayout.error = errorTextBySuggestions(message)
+        binding.productCategoryLayout.errorIconDrawable = null
+
+    }
 }

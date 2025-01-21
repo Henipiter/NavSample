@@ -2,7 +2,7 @@ package com.example.navsample.entities.inputs
 
 class ProductErrorInputsMessage(
     var name: String? = null,
-    var categoryId: String? = null,
+    var categoryName: String? = null,
     var quantity: String? = null,
     var unitPrice: String? = null,
     var subtotalPriceFirst: String? = null,
@@ -14,7 +14,7 @@ class ProductErrorInputsMessage(
 ) {
     fun isCorrect(): Boolean {
         return name == null &&
-                categoryId == null &&
+                categoryName == null &&
                 quantity == null &&
                 unitPrice == null &&
                 subtotalPriceFirst == null &&

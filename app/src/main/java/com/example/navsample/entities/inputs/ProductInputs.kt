@@ -2,7 +2,7 @@ package com.example.navsample.entities.inputs
 
 data class ProductInputs(
     var name: CharSequence? = null,
-    var categoryId: String? = null,
+    var categoryName: CharSequence? = null,
     var quantity: CharSequence? = null,
     var unitPrice: CharSequence? = null,
     var subtotalPrice: CharSequence? = null,

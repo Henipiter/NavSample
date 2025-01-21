@@ -43,6 +43,7 @@ class AddProductDataViewModel(
     var receiptId = ""
     var storeId = ""
     var categoryId = ""
+    var storeDefaultCategoryName = ""
 
     var pickedCategory: Category? = null
     var productInputs: Product = Product()
@@ -259,20 +260,19 @@ class AddProductDataViewModel(
         }
     }
 
+    fun validateName(name: CharSequence?): String? {
+        if (name.isNullOrEmpty()) {
+            return getEmptyValueText()
+        }
+        return null
+    }
+
     fun validateObligatoryFields(productInputs: ProductInputs): ProductErrorInputsMessage {
         val errors = ProductErrorInputsMessage()
-        if (productInputs.name.isNullOrEmpty()) {
-            errors.name = getEmptyValueText()
-        }
-//        if (!isInputsSumValid(productInputs)) {
-//            errors.isValidPrices = "BAD"
-//        }
-        if (productInputs.categoryId == null) {
-            errors.categoryId = getEmptyValueText()
-        }
-        if (productInputs.ptuType.isNullOrEmpty()) {
-            errors.ptuType = getEmptyValueText()
-        }
+
+        errors.name = validateName(productInputs.name)
+        errors.categoryName = validateCategory(productInputs.categoryName)
+        errors.ptuType = validatePtuType(productInputs.ptuType)
 
         val pricesErrors = validateAllPrices(productInputs)
         errors.quantity = pricesErrors.quantity
@@ -284,6 +284,34 @@ class AddProductDataViewModel(
         return errors
     }
 
+    fun validateCategory(categoryName: CharSequence?): String? {
+        val storeCategory = storeById.value?.defaultCategoryId
+        if (storeCategory != null && storeCategory != pickedCategory?.id) {
+            if (categoryName.isNullOrEmpty()) {
+                return getDefaultCategoryPrefix() + " " + storeDefaultCategoryName
+            }
+        }
+        return null
+    }
+
+    fun validatePtuType(ptuInput: CharSequence?): String? {
+        if (ptuInput.isNullOrEmpty()) {
+            return getEmptyValueText()
+        }
+        val validLetters = setOf("A", "B", "C", "D", "E", "F", "G")
+        if (ptuInput.toString() in validLetters) {
+            return null
+        }
+        return getWrongValueText()
+    }
+
+    private fun getPriceValueOrZeroOrNull(priceText: CharSequence?): Int? {
+        val isPriceBlank1 = isNullOrBlank(priceText)
+        if (!isPriceBlank1) {
+            return doublePriceTextToInt(priceText)
+        }
+        return null
+    }
 
     private fun getPriceValueOrNull(priceText: CharSequence?): Int? {
         val isPriceBlank1 = isNullOrBlankOrZero(priceText)
@@ -380,7 +408,7 @@ class AddProductDataViewModel(
     fun validateDiscount(productInputs: ProductInputs): String? {
         val subtotalPrice = getPriceValueOrNull(productInputs.subtotalPrice)
         val finalPrice = getPriceValueOrNull(productInputs.finalPrice)
-        val discount = getPriceValueOrNull(productInputs.discount)
+        val discount = getPriceValueOrZeroOrNull(productInputs.discount)
 
         if (subtotalPrice != null && finalPrice != null) {
             val calculatedUnitPrice = subtotalPrice - finalPrice
@@ -395,7 +423,7 @@ class AddProductDataViewModel(
 
     fun validateFinalPrice(productInputs: ProductInputs): String? {
         val subtotalPrice = getPriceValueOrNull(productInputs.subtotalPrice)
-        val discount = getPriceValueOrNull(productInputs.discount)
+        val discount = getPriceValueOrZeroOrNull(productInputs.discount)
         val finalPrice = getPriceValueOrNull(productInputs.finalPrice)
 
         if (subtotalPrice != null && discount != null) {
@@ -412,7 +440,7 @@ class AddProductDataViewModel(
     fun validateSubtotalPrice(productInputs: ProductInputs): SubtotalMessageError {
         val quantity = getQuantityValueOrNull(productInputs.quantity)
         val unitPrice = getPriceValueOrNull(productInputs.unitPrice)
-        val discount = getPriceValueOrNull(productInputs.discount)
+        val discount = getPriceValueOrZeroOrNull(productInputs.discount)
         val finalPrice = getPriceValueOrNull(productInputs.finalPrice)
         val subtotalPrice = getPriceValueOrNull(productInputs.subtotalPrice)
 
@@ -481,6 +509,13 @@ class AddProductDataViewModel(
         return errorMessage
     }
 
+    private fun isNullOrBlank(price: CharSequence?): Boolean {
+        if (price == null) {
+            return true
+        }
+        return price.isBlank()
+    }
+
     private fun isNullOrBlankOrZero(price: CharSequence?): Boolean {
         if (price == null) {
             return true
@@ -497,14 +532,23 @@ class AddProductDataViewModel(
     }
 
     private fun getSecondSuggestionMessage(value: String): String {
-        return "${getSecondSuggestionPrefix()} $value"
+        return " ${getSecondSuggestionPrefix()} $value"
     }
+
+    private fun getWrongValueText(): String {
+        return stringProvider.getString(R.string.bad_value_error)
+    }
+
 
     fun getSuggestionPrefix(): String {
         return stringProvider.getString(R.string.suggestion_prefix)
     }
 
-    private fun getSecondSuggestionPrefix(): String {
+    fun getDefaultCategoryPrefix(): String {
+        return stringProvider.getString(R.string.use_default_category)
+    }
+
+    fun getSecondSuggestionPrefix(): String {
         return stringProvider.getString(R.string.second_suggestion_prefix)
     }
 }

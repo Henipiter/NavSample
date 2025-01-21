@@ -448,7 +448,6 @@ class AddProductDataViewModelTest {
         @JvmStatic
         fun subtotalPriceWithAllValuesProviderWithNull(): Stream<Arguments> {
             return Stream.of(
-
                 Arguments.of(getForSubtotal("1.055", "2", "2.11", "0.21", "1.9"), null),
 
                 Arguments.of(getForSubtotal("1.055", "2", null, "0.21", "1.9"), "Maybe 2.11"),
@@ -466,16 +465,12 @@ class AddProductDataViewModelTest {
                 Arguments.of(getForSubtotal("1.055", null, null, null, "1.9"), "Empty"),
                 Arguments.of(getForSubtotal("1.055", null, null, "0.21", null), "Empty"),
                 Arguments.of(getForSubtotal(null, "2", null, null, "1.9"), "Empty"),
-
-
-                )
+            )
         }
 
         @JvmStatic
         fun subtotalPriceWithAllValuesProviderWithEmpty(): Stream<Arguments> {
             return Stream.of(
-
-
                 Arguments.of(getForSubtotal("1.055", "2", "", "0.21", "1.9"), "Maybe 2.11"),
                 Arguments.of(getForSubtotal("1.055", "", "2.11", "0.21", "1.9"), null),
                 Arguments.of(getForSubtotal("", "2", "2.11", "0.21", "1.9"), null),
@@ -491,9 +486,7 @@ class AddProductDataViewModelTest {
                 Arguments.of(getForSubtotal("1.055", "", "", "", "1.9"), "Empty"),
                 Arguments.of(getForSubtotal("1.055", "", "", "0.21", ""), "Empty"),
                 Arguments.of(getForSubtotal("", "2", "", "", "1.9"), "Empty"),
-
-
-                )
+            )
         }
 
         @JvmStatic
@@ -501,11 +494,11 @@ class AddProductDataViewModelTest {
             return Stream.of(
                 Arguments.of(
                     getForSubtotal("1.055", "2", null, "0.5", "1.1"),
-                    "Maybe 2.11", "or 1.60"
+                    "Maybe 2.11", " or 1.60"
                 ),
                 Arguments.of(
                     getForSubtotal("1.055", "2", "0.5", "0.5", "1.1"),
-                    "Maybe 2.11", "or 1.60"
+                    "Maybe 2.11", " or 1.60"
                 ),
 
                 )
@@ -516,7 +509,7 @@ class AddProductDataViewModelTest {
             return Stream.of(
                 Arguments.of(
                     getForSubtotal("1.055", "2", "", "0.5", "1.1"),
-                    "Maybe 2.11", "or 1.60"
+                    "Maybe 2.11", " or 1.60"
                 )
 
             )

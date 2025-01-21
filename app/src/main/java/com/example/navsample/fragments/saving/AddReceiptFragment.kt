@@ -95,7 +95,7 @@ class AddReceiptFragment : AddingFragment() {
         binding.toolbar.setOnMenuItemClickListener {
             when (it.itemId) {
                 R.id.confirm -> {
-                    if (!validateObligatoryFields(getInputs())) {
+                    if (!validateObligatoryFields()) {
                         return@setOnMenuItemClickListener false
                     }
                     save()
@@ -226,7 +226,7 @@ class AddReceiptFragment : AddingFragment() {
                 binding.receiptDateInput.setText(receipt.date)
                 binding.receiptTimeInput.setText(receipt.time)
 
-                validateObligatoryFields(getInputs())
+                validateObligatoryFields()
             }
         }
 
@@ -293,8 +293,8 @@ class AddReceiptFragment : AddingFragment() {
         }
     }
 
-    private fun validateObligatoryFields(receiptInputs: ReceiptInputs): Boolean {
-        val errors = addReceiptDataViewModel.validateObligatoryFields(receiptInputs)
+    private fun validateObligatoryFields(): Boolean {
+        val errors = addReceiptDataViewModel.validateObligatoryFields(getInputs())
         binding.storeNameLayout.error = errors.storeId
         binding.receiptPLNLayout.error = errors.pln
         binding.receiptPTULayout.error = errors.ptu
