@@ -348,14 +348,14 @@ class AddProductDataViewModel(
     fun validateQuantity(productInputs: ProductInputs): String? {
         val unitPrice = getPriceValueOrNull(productInputs.unitPrice)
         val subtotalPrice = getPriceValueOrNull(productInputs.subtotalPrice)
-        val quantity = doubleQuantityTextToInt(productInputs.quantity)
+        val quantity = getQuantityValueOrNull(productInputs.quantity)
 
         if (unitPrice != null && subtotalPrice != null) {
             val calculatedQuantity = subtotalPrice * 1000 / unitPrice
             if (quantity != calculatedQuantity) {
                 return getSuggestionMessage(intQuantityToString(calculatedQuantity))
             }
-        } else if (productInputs.quantity == null) {
+        } else if (quantity == null) {
             return getSuggestionMessage("1.000")
         }
         return null
@@ -364,14 +364,14 @@ class AddProductDataViewModel(
     fun validateUnitPrice(productInputs: ProductInputs): String? {
         val quantity = getQuantityValueOrNull(productInputs.quantity)
         val subtotalPrice = getPriceValueOrNull(productInputs.subtotalPrice)
-        val unitPrice = doublePriceTextToInt(productInputs.unitPrice)
+        val unitPrice = getPriceValueOrNull(productInputs.unitPrice)
 
         if (quantity != null && subtotalPrice != null) {
             val calculatedUnitPrice = subtotalPrice * 1000 / quantity
             if (unitPrice != calculatedUnitPrice) {
                 return getSuggestionMessage(intPriceToString(calculatedUnitPrice))
             }
-        } else if (productInputs.unitPrice == null) {
+        } else if (unitPrice == null) {
             return getSuggestionMessage("1.00")
         }
         return null
@@ -380,14 +380,14 @@ class AddProductDataViewModel(
     fun validateDiscount(productInputs: ProductInputs): String? {
         val subtotalPrice = getPriceValueOrNull(productInputs.subtotalPrice)
         val finalPrice = getPriceValueOrNull(productInputs.finalPrice)
-        val discount = doublePriceTextToInt(productInputs.discount)
+        val discount = getPriceValueOrNull(productInputs.discount)
 
         if (subtotalPrice != null && finalPrice != null) {
             val calculatedUnitPrice = subtotalPrice - finalPrice
             if (discount != calculatedUnitPrice) {
                 return getSuggestionMessage(intPriceToString(calculatedUnitPrice))
             }
-        } else if (productInputs.discount == null) {
+        } else if (discount == null) {
             return getSuggestionMessage("0.00")
         }
         return null
@@ -396,14 +396,14 @@ class AddProductDataViewModel(
     fun validateFinalPrice(productInputs: ProductInputs): String? {
         val subtotalPrice = getPriceValueOrNull(productInputs.subtotalPrice)
         val discount = getPriceValueOrNull(productInputs.discount)
-        val finalPrice = doublePriceTextToInt(productInputs.finalPrice)
+        val finalPrice = getPriceValueOrNull(productInputs.finalPrice)
 
         if (subtotalPrice != null && discount != null) {
             val calculatedUnitPrice = subtotalPrice - discount
             if (finalPrice != calculatedUnitPrice) {
                 return getSuggestionMessage(intPriceToString(calculatedUnitPrice))
             }
-        } else if (productInputs.finalPrice == null) {
+        } else if (finalPrice == null) {
             return getEmptyValueText()
         }
         return null
@@ -414,7 +414,7 @@ class AddProductDataViewModel(
         val unitPrice = getPriceValueOrNull(productInputs.unitPrice)
         val discount = getPriceValueOrNull(productInputs.discount)
         val finalPrice = getPriceValueOrNull(productInputs.finalPrice)
-        val subtotalPrice = doublePriceTextToInt(productInputs.subtotalPrice)
+        val subtotalPrice = getPriceValueOrNull(productInputs.subtotalPrice)
 
         var calculatedSubtotalPrice: Int? = null
         var calculatedSubtotalPriceFromFinal: Int? = null
@@ -435,7 +435,7 @@ class AddProductDataViewModel(
         return createSubtotalMessageError(
             calculatedSubtotalPrice,
             calculatedSubtotalPriceFromFinal,
-            productInputs.subtotalPrice
+            subtotalPrice
         )
     }
 
@@ -458,7 +458,7 @@ class AddProductDataViewModel(
     private fun createSubtotalMessageError(
         calculatedSubtotalPrice: Int?,
         calculatedSubtotalPriceFromFinal: Int?,
-        subtotalPrice: CharSequence?
+        subtotalPrice: Int?
     ): SubtotalMessageError {
         val errorMessage = SubtotalMessageError()
         if (calculatedSubtotalPrice != null && calculatedSubtotalPriceFromFinal != null) {

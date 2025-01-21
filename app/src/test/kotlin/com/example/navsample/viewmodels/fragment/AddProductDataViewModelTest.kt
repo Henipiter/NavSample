@@ -30,7 +30,6 @@ class AddProductDataViewModelTest {
     }
 
 
-
     private fun setStringProviderMock() {
         `when`(stringProvider.getString(R.string.suggestion_prefix)).thenReturn("Maybe")
         `when`(stringProvider.getString(R.string.second_suggestion_prefix)).thenReturn("or")
@@ -40,8 +39,8 @@ class AddProductDataViewModelTest {
     }
 
     @ParameterizedTest
-    @MethodSource("quantityValuesProvider")
-    fun validateQuantity(
+    @MethodSource("quantityValuesProviderWithNull")
+    fun validateQuantityWithNull(
         productInputs: ProductInputs,
         expectedSuggestion: String?
     ) {
@@ -53,8 +52,21 @@ class AddProductDataViewModelTest {
     }
 
     @ParameterizedTest
-    @MethodSource("unitPriceValuesProvider")
-    fun validateUnitPrice(
+    @MethodSource("quantityValuesProviderWithEmpty")
+    fun validateQuantityWithEmpty(
+        productInputs: ProductInputs,
+        expectedSuggestion: String?
+    ) {
+        //when
+        val suggestionMessage = addProductDataViewModel.validateQuantity(productInputs)
+
+        //then
+        assertEquals(expectedSuggestion, suggestionMessage)
+    }
+
+    @ParameterizedTest
+    @MethodSource("unitPriceValuesProviderWithNull")
+    fun validateUnitPriceWithNull(
         productInputs: ProductInputs,
         expectedSuggestion: String?
     ) {
@@ -66,8 +78,21 @@ class AddProductDataViewModelTest {
     }
 
     @ParameterizedTest
-    @MethodSource("finalPriceValuesProvider")
-    fun validateFinalPrice(
+    @MethodSource("unitPriceValuesProviderWithEmpty")
+    fun validateUnitPriceWithEmpty(
+        productInputs: ProductInputs,
+        expectedSuggestion: String?
+    ) {
+        //when
+        val suggestionMessage = addProductDataViewModel.validateUnitPrice(productInputs)
+
+        //then
+        assertEquals(expectedSuggestion, suggestionMessage)
+    }
+
+    @ParameterizedTest
+    @MethodSource("finalPriceValuesProviderWithNull")
+    fun validateFinalPriceWithNull(
         productInputs: ProductInputs,
         expectedSuggestion: String?
     ) {
@@ -79,8 +104,21 @@ class AddProductDataViewModelTest {
     }
 
     @ParameterizedTest
-    @MethodSource("discountPriceValuesProvider")
-    fun validateDiscount(
+    @MethodSource("finalPriceValuesProviderWithEmpty")
+    fun validateFinalPriceWithEmpty(
+        productInputs: ProductInputs,
+        expectedSuggestion: String?
+    ) {
+        //when
+        val suggestionMessage = addProductDataViewModel.validateFinalPrice(productInputs)
+
+        //then
+        assertEquals(expectedSuggestion, suggestionMessage)
+    }
+
+    @ParameterizedTest
+    @MethodSource("discountPriceValuesProviderWithNull")
+    fun validateDiscountWithNull(
         productInputs: ProductInputs,
         expectedSuggestion: String?
     ) {
@@ -92,8 +130,21 @@ class AddProductDataViewModelTest {
     }
 
     @ParameterizedTest
-    @MethodSource("subtotalPriceWithUnitAndQuantityValuesProvider")
-    fun validateSubtotalWithUnitAndQuantityValues(
+    @MethodSource("discountPriceValuesProviderWithEmpty")
+    fun validateDiscountWithEmpty(
+        productInputs: ProductInputs,
+        expectedSuggestion: String?
+    ) {
+        //when
+        val suggestionMessage = addProductDataViewModel.validateDiscount(productInputs)
+
+        //then
+        assertEquals(expectedSuggestion, suggestionMessage)
+    }
+
+    @ParameterizedTest
+    @MethodSource("subtotalPriceWithUnitAndQuantityValuesProviderWithNull")
+    fun validateSubtotalWithUnitAndQuantityValuesWithNull(
         productInputs: ProductInputs,
         expectedSuggestion: String?
     ) {
@@ -108,8 +159,8 @@ class AddProductDataViewModelTest {
     }
 
     @ParameterizedTest
-    @MethodSource("subtotalPriceWithFinalAndDiscountValuesProvider")
-    fun validateSubtotalWithFinalAndDiscountValues(
+    @MethodSource("subtotalPriceWithUnitAndQuantityValuesProviderWithEmpty")
+    fun validateSubtotalWithUnitAndQuantityValuesWithEmpty(
         productInputs: ProductInputs,
         expectedSuggestion: String?
     ) {
@@ -124,8 +175,40 @@ class AddProductDataViewModelTest {
     }
 
     @ParameterizedTest
-    @MethodSource("subtotalPriceWithAllValuesWithTwoSuggestionsProvider")
-    fun validateSubtotalWithAllValues(
+    @MethodSource("subtotalPriceWithFinalAndDiscountValuesProviderWithNull")
+    fun validateSubtotalWithFinalAndDiscountValuesWithNull(
+        productInputs: ProductInputs,
+        expectedSuggestion: String?
+    ) {
+        //when
+        val suggestionMessage = addProductDataViewModel.validateSubtotalPrice(productInputs)
+
+        //then
+        assertAll(
+            { assertEquals(expectedSuggestion, suggestionMessage.firstSuggestion) },
+            { assertNull(suggestionMessage.secondSuggestion) }
+        )
+    }
+
+    @ParameterizedTest
+    @MethodSource("subtotalPriceWithFinalAndDiscountValuesProviderWithEmpty")
+    fun validateSubtotalWithFinalAndDiscountValuesWithEmpty(
+        productInputs: ProductInputs,
+        expectedSuggestion: String?
+    ) {
+        //when
+        val suggestionMessage = addProductDataViewModel.validateSubtotalPrice(productInputs)
+
+        //then
+        assertAll(
+            { assertEquals(expectedSuggestion, suggestionMessage.firstSuggestion) },
+            { assertNull(suggestionMessage.secondSuggestion) }
+        )
+    }
+
+    @ParameterizedTest
+    @MethodSource("subtotalPriceWithAllValuesWithTwoSuggestionsProviderWithNull")
+    fun validateSubtotalWithAllValuesWithNull(
         productInputs: ProductInputs,
         expectedSuggestion1: String?,
         expectedSuggestion2: String?
@@ -141,8 +224,41 @@ class AddProductDataViewModelTest {
     }
 
     @ParameterizedTest
-    @MethodSource("subtotalPriceWithAllValuesProvider")
-    fun validateSubtotalWithAllValues(
+    @MethodSource("subtotalPriceWithAllValuesWithTwoSuggestionsProviderWithEmpty")
+    fun validateSubtotalWithAllValuesWithEmpty(
+        productInputs: ProductInputs,
+        expectedSuggestion1: String?,
+        expectedSuggestion2: String?
+    ) {
+        //when
+        val suggestionMessage = addProductDataViewModel.validateSubtotalPrice(productInputs)
+
+        //then
+        assertAll(
+            { assertEquals(expectedSuggestion1, suggestionMessage.firstSuggestion) },
+            { assertEquals(expectedSuggestion2, suggestionMessage.secondSuggestion) }
+        )
+    }
+
+    @ParameterizedTest
+    @MethodSource("subtotalPriceWithAllValuesProviderWithNull")
+    fun validateSubtotalWithAllValuesWithNull(
+        productInputs: ProductInputs,
+        expectedSuggestion: String?
+    ) {
+        //when
+        val suggestionMessage = addProductDataViewModel.validateSubtotalPrice(productInputs)
+
+        //then
+        assertAll(
+            { assertEquals(expectedSuggestion, suggestionMessage.firstSuggestion) },
+            { assertNull(suggestionMessage.secondSuggestion) }
+        )
+    }
+
+    @ParameterizedTest
+    @MethodSource("subtotalPriceWithAllValuesProviderWithEmpty")
+    fun validateSubtotalWithAllValuesWithEmpty(
         productInputs: ProductInputs,
         expectedSuggestion: String?
     ) {
@@ -159,7 +275,7 @@ class AddProductDataViewModelTest {
 
     companion object {
         @JvmStatic
-        fun quantityValuesProvider(): Stream<Arguments> {
+        fun quantityValuesProviderWithNull(): Stream<Arguments> {
             return Stream.of(
                 Arguments.of(getForPrice("1.055", "2", "2.11"), null),
                 Arguments.of(getForPrice(null, "2", "2.11"), "Maybe 1.055"),
@@ -173,9 +289,22 @@ class AddProductDataViewModelTest {
             )
         }
 
+        @JvmStatic
+        fun quantityValuesProviderWithEmpty(): Stream<Arguments> {
+            return Stream.of(
+                Arguments.of(getForPrice("", "2", "2.11"), "Maybe 1.055"),
+                Arguments.of(getForPrice("1", "", "2.11"), null),
+                Arguments.of(getForPrice("1", "2", ""), null),
+                Arguments.of(getForPrice("1", "", ""), null),
+                Arguments.of(getForPrice("", "", "2.11"), "Maybe 1.000"),
+                Arguments.of(getForPrice("", "2", ""), "Maybe 1.000"),
+                Arguments.of(getForPrice("", "", ""), "Maybe 1.000")
+            )
+        }
+
 
         @JvmStatic
-        fun unitPriceValuesProvider(): Stream<Arguments> {
+        fun unitPriceValuesProviderWithNull(): Stream<Arguments> {
             return Stream.of(
                 Arguments.of(getForPrice("1.055", "2", "2.11"), null),
                 Arguments.of(getForPrice("1.055", null, "2.11"), "Maybe 2.00"),
@@ -190,7 +319,20 @@ class AddProductDataViewModelTest {
         }
 
         @JvmStatic
-        fun finalPriceValuesProvider(): Stream<Arguments> {
+        fun unitPriceValuesProviderWithEmpty(): Stream<Arguments> {
+            return Stream.of(
+                Arguments.of(getForPrice("1.055", "", "2.11"), "Maybe 2.00"),
+                Arguments.of(getForPrice("", "2", "2.11"), null),
+                Arguments.of(getForPrice("1.055", "2", ""), null),
+                Arguments.of(getForPrice("", "2", ""), null),
+                Arguments.of(getForPrice("", "", "2.11"), "Maybe 1.00"),
+                Arguments.of(getForPrice("1.055", "", ""), "Maybe 1.00"),
+                Arguments.of(getForPrice("", "", ""), "Maybe 1.00")
+            )
+        }
+
+        @JvmStatic
+        fun finalPriceValuesProviderWithNull(): Stream<Arguments> {
             return Stream.of(
                 Arguments.of(getForFinal("1.05", "0.15", "0.9"), null),
                 Arguments.of(getForFinal("1.05", "0.15", null), "Maybe 0.90"),
@@ -205,7 +347,20 @@ class AddProductDataViewModelTest {
         }
 
         @JvmStatic
-        fun discountPriceValuesProvider(): Stream<Arguments> {
+        fun finalPriceValuesProviderWithEmpty(): Stream<Arguments> {
+            return Stream.of(
+                Arguments.of(getForFinal("1.05", "0.15", ""), "Maybe 0.90"),
+                Arguments.of(getForFinal("", "0.15", "0.9"), null),
+                Arguments.of(getForFinal("1.05", "", "0.9"), null),
+                Arguments.of(getForFinal("", "", "0.9"), null),
+                Arguments.of(getForFinal("", "0.15", ""), "Empty"),
+                Arguments.of(getForFinal("1.05", "", ""), "Empty"),
+                Arguments.of(getForFinal("", "", ""), "Empty"),
+            )
+        }
+
+        @JvmStatic
+        fun discountPriceValuesProviderWithNull(): Stream<Arguments> {
             return Stream.of(
                 Arguments.of(getForFinal("1.05", "0.15", "0.9"), null),
                 Arguments.of(getForFinal("1.05", null, "0.9"), "Maybe 0.15"),
@@ -220,7 +375,35 @@ class AddProductDataViewModelTest {
         }
 
         @JvmStatic
-        fun subtotalPriceWithUnitAndQuantityValuesProvider(): Stream<Arguments> {
+        fun discountPriceValuesProviderWithEmpty(): Stream<Arguments> {
+            return Stream.of(
+                Arguments.of(getForFinal("1.05", "0.15", "0.9"), null),
+                Arguments.of(getForFinal("1.05", null, "0.9"), "Maybe 0.15"),
+                Arguments.of(getForFinal("1.05", "0.5", "0.9"), "Maybe 0.15"),
+                Arguments.of(getForFinal(null, "0.15", "0.9"), null),
+                Arguments.of(getForFinal("1.05", "0.15", null), null),
+                Arguments.of(getForFinal(null, "0.15", null), null),
+                Arguments.of(getForFinal(null, null, "0.9"), "Maybe 0.00"),
+                Arguments.of(getForFinal("1.05", null, null), "Maybe 0.00"),
+                Arguments.of(getForFinal(null, null, null), "Maybe 0.00"),
+            )
+        }
+
+        @JvmStatic
+        fun subtotalPriceWithUnitAndQuantityValuesProviderWithNull(): Stream<Arguments> {
+            return Stream.of(
+                Arguments.of(getForPrice("1.055", "2", ""), "Maybe 2.11"),
+                Arguments.of(getForPrice("", "2", "2"), null),
+                Arguments.of(getForPrice("1.055", "", "2"), null),
+                Arguments.of(getForPrice("", "", "2"), null),
+                Arguments.of(getForPrice("", "2", ""), "Empty"),
+                Arguments.of(getForPrice("1.055", "", ""), "Empty"),
+                Arguments.of(getForPrice("", "", ""), "Empty"),
+            )
+        }
+
+        @JvmStatic
+        fun subtotalPriceWithUnitAndQuantityValuesProviderWithEmpty(): Stream<Arguments> {
             return Stream.of(
                 Arguments.of(getForPrice("1.055", "2", "2.11"), null),
                 Arguments.of(getForPrice("1.055", "2", null), "Maybe 2.11"),
@@ -235,23 +418,35 @@ class AddProductDataViewModelTest {
         }
 
         @JvmStatic
-        fun subtotalPriceWithFinalAndDiscountValuesProvider(): Stream<Arguments> {
+        fun subtotalPriceWithFinalAndDiscountValuesProviderWithNull(): Stream<Arguments> {
             return Stream.of(
-                Arguments.of(getForFinal("1.05", "0.15", "0.9"), null),
-                Arguments.of(getForFinal(null, "0.15", "0.9"), "Maybe 1.05"),
+                Arguments.of(getForFinal("", "0.15", "0.9"), "Maybe 1.05"),
+                Arguments.of(getForFinal("1.05", "", "0.9"), null),
+                Arguments.of(getForFinal("1.05", "0.15", ""), null),
+                Arguments.of(getForFinal("1.05", "", ""), null),
+                Arguments.of(getForFinal("", "", "0.9"), "Empty"),
+                Arguments.of(getForFinal("", "0.15", ""), "Empty"),
+                Arguments.of(getForFinal("", "", ""), "Empty"),
+            )
+        }
+
+        @JvmStatic
+        fun subtotalPriceWithFinalAndDiscountValuesProviderWithEmpty(): Stream<Arguments> {
+            return Stream.of(
+                Arguments.of(getForFinal("", "0.15", "0.9"), "Maybe 1.05"),
                 Arguments.of(getForFinal("1", "0.15", "0.9"), "Maybe 1.05"),
-                Arguments.of(getForFinal("1.05", null, "0.9"), null),
-                Arguments.of(getForFinal("1.05", "0.15", null), null),
-                Arguments.of(getForFinal("1.05", null, null), null),
-                Arguments.of(getForFinal(null, null, "0.9"), "Empty"),
-                Arguments.of(getForFinal(null, "0.15", null), "Empty"),
-                Arguments.of(getForFinal(null, null, null), "Empty"),
+                Arguments.of(getForFinal("1.05", "", "0.9"), null),
+                Arguments.of(getForFinal("1.05", "0.15", ""), null),
+                Arguments.of(getForFinal("1.05", "", ""), null),
+                Arguments.of(getForFinal("", "", "0.9"), "Empty"),
+                Arguments.of(getForFinal("", "0.15", ""), "Empty"),
+                Arguments.of(getForFinal("", "", ""), "Empty"),
             )
         }
 
 
         @JvmStatic
-        fun subtotalPriceWithAllValuesProvider(): Stream<Arguments> {
+        fun subtotalPriceWithAllValuesProviderWithNull(): Stream<Arguments> {
             return Stream.of(
 
                 Arguments.of(getForSubtotal("1.055", "2", "2.11", "0.21", "1.9"), null),
@@ -277,20 +472,54 @@ class AddProductDataViewModelTest {
         }
 
         @JvmStatic
-        fun subtotalPriceWithAllValuesWithTwoSuggestionsProvider(): Stream<Arguments> {
+        fun subtotalPriceWithAllValuesProviderWithEmpty(): Stream<Arguments> {
+            return Stream.of(
+
+
+                Arguments.of(getForSubtotal("1.055", "2", "", "0.21", "1.9"), "Maybe 2.11"),
+                Arguments.of(getForSubtotal("1.055", "", "2.11", "0.21", "1.9"), null),
+                Arguments.of(getForSubtotal("", "2", "2.11", "0.21", "1.9"), null),
+                Arguments.of(getForSubtotal("1.055", "2", "2.11", "", "1.9"), null),
+                Arguments.of(getForSubtotal("1.055", "2", "2.11", "0.21", ""), null),
+
+                Arguments.of(getForSubtotal("", "2", "2.11", "0.21", ""), null),
+                Arguments.of(getForSubtotal("1.055", "", "2.11", "", "1.9"), null),
+                Arguments.of(getForSubtotal("1.055", "", "2.11", "0.21", ""), null),
+                Arguments.of(getForSubtotal("", "2", "2.11", "", "1.9"), null),
+
+                Arguments.of(getForSubtotal("", "2", "", "0.21", ""), "Empty"),
+                Arguments.of(getForSubtotal("1.055", "", "", "", "1.9"), "Empty"),
+                Arguments.of(getForSubtotal("1.055", "", "", "0.21", ""), "Empty"),
+                Arguments.of(getForSubtotal("", "2", "", "", "1.9"), "Empty"),
+
+
+                )
+        }
+
+        @JvmStatic
+        fun subtotalPriceWithAllValuesWithTwoSuggestionsProviderWithNull(): Stream<Arguments> {
             return Stream.of(
                 Arguments.of(
                     getForSubtotal("1.055", "2", null, "0.5", "1.1"),
-                    "Maybe 2.11",
-                    "or 1.60"
+                    "Maybe 2.11", "or 1.60"
                 ),
                 Arguments.of(
                     getForSubtotal("1.055", "2", "0.5", "0.5", "1.1"),
-                    "Maybe 2.11",
-                    "or 1.60"
+                    "Maybe 2.11", "or 1.60"
                 ),
 
                 )
+        }
+
+        @JvmStatic
+        fun subtotalPriceWithAllValuesWithTwoSuggestionsProviderWithEmpty(): Stream<Arguments> {
+            return Stream.of(
+                Arguments.of(
+                    getForSubtotal("1.055", "2", "", "0.5", "1.1"),
+                    "Maybe 2.11", "or 1.60"
+                )
+
+            )
         }
 
 
