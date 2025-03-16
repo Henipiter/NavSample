@@ -28,6 +28,7 @@ import com.example.navsample.entities.inputs.ProductInputs
 import com.example.navsample.entities.inputs.SubtotalMessageError
 import com.example.navsample.entities.relations.ProductWithTag
 import kotlinx.coroutines.launch
+import kotlin.math.round
 
 class AddProductDataViewModel(
     application: Application,
@@ -330,7 +331,7 @@ class AddProductDataViewModel(
     }
 
 
-    fun validateAllPrices(productInputs: ProductInputs): ProductErrorInputsMessage {
+    private fun validateAllPrices(productInputs: ProductInputs): ProductErrorInputsMessage {
         val quantityErrorMessage = validateQuantity(productInputs)
         val unitPriceErrorMessage = validateUnitPrice(productInputs)
         val subtotalErrorMessage = validateSubtotalPrice(productInputs)
@@ -338,8 +339,12 @@ class AddProductDataViewModel(
         val finalPriceErrorMessage = validateFinalPrice(productInputs)
 
         val errors = ProductErrorInputsMessage()
-        errors.quantity = quantityErrorMessage
-        errors.unitPrice = unitPriceErrorMessage
+        if (unitPriceErrorMessage != null || subtotalErrorMessage.subtotalUnit) {
+            errors.quantity = quantityErrorMessage
+        }
+        if (quantityErrorMessage != null || subtotalErrorMessage.subtotalUnit) {
+            errors.unitPrice = unitPriceErrorMessage
+        }
         errors.subtotalPriceFirst = subtotalErrorMessage.firstSuggestion
         errors.subtotalPriceSecond = subtotalErrorMessage.secondSuggestion
         errors.discount = discountErrorMessage
@@ -353,8 +358,12 @@ class AddProductDataViewModel(
         val subtotalErrorMessage = validateSubtotalPrice(productInputs)
 
         val errors = ProductErrorInputsMessage()
-        errors.quantity = quantityErrorMessage
-        errors.unitPrice = unitPriceErrorMessage
+        if (unitPriceErrorMessage != null || subtotalErrorMessage.subtotalUnit) {
+            errors.quantity = quantityErrorMessage
+        }
+        if (quantityErrorMessage != null || subtotalErrorMessage.subtotalUnit) {
+            errors.unitPrice = unitPriceErrorMessage
+        }
         errors.subtotalPriceFirst = subtotalErrorMessage.firstSuggestion
         errors.subtotalPriceSecond = subtotalErrorMessage.secondSuggestion
         return errors
@@ -379,7 +388,7 @@ class AddProductDataViewModel(
         val quantity = getQuantityValueOrNull(productInputs.quantity)
 
         if (unitPrice != null && subtotalPrice != null) {
-            val calculatedQuantity = subtotalPrice * 1000 / unitPrice
+            val calculatedQuantity = round(subtotalPrice * 1000.0 / unitPrice).toInt()
             if (quantity != calculatedQuantity) {
                 return getSuggestionMessage(intQuantityToString(calculatedQuantity))
             }
@@ -395,7 +404,7 @@ class AddProductDataViewModel(
         val unitPrice = getPriceValueOrNull(productInputs.unitPrice)
 
         if (quantity != null && subtotalPrice != null) {
-            val calculatedUnitPrice = subtotalPrice * 1000 / quantity
+            val calculatedUnitPrice = round(subtotalPrice * 1000 / quantity.toDouble()).toInt()
             if (unitPrice != calculatedUnitPrice) {
                 return getSuggestionMessage(intPriceToString(calculatedUnitPrice))
             }
@@ -448,7 +457,7 @@ class AddProductDataViewModel(
         var calculatedSubtotalPriceFromFinal: Int? = null
 
         if (quantity != null && unitPrice != null) {
-            calculatedSubtotalPrice = quantity * unitPrice / 1000
+            calculatedSubtotalPrice = round(quantity * unitPrice / 1000.0).toInt()
             if (subtotalPrice == calculatedSubtotalPrice) {
                 calculatedSubtotalPrice = null
             }
@@ -495,12 +504,16 @@ class AddProductDataViewModel(
                 calculatedSubtotalPriceFromFinal,
                 errorMessage
             )
+            errorMessage.subtotalUnit = true
+            errorMessage.subtotalFinal = true
         } else if (calculatedSubtotalPrice != null) {
             errorMessage.firstSuggestion =
                 getSuggestionMessage(intPriceToString(calculatedSubtotalPrice))
+            errorMessage.subtotalUnit = true
         } else if (calculatedSubtotalPriceFromFinal != null) {
             errorMessage.firstSuggestion =
                 getSuggestionMessage(intPriceToString(calculatedSubtotalPriceFromFinal))
+            errorMessage.subtotalFinal = true
         } else {
             if (subtotalPrice == null) {
                 errorMessage.firstSuggestion = getEmptyValueText()

@@ -39,6 +39,31 @@ class AddProductDataViewModelTest {
     }
 
     @ParameterizedTest
+    @MethodSource("validateObligatoryFields")
+    fun validateObligatoryFields(
+        productInputs: ProductInputs,
+        expectedSuggestion: String?
+    ) {
+        //when
+        val errors = addProductDataViewModel.validateObligatoryFields(productInputs)
+
+        //then
+        assertAll(
+            { assertNull(errors.name) },
+            { assertNull(errors.categoryName) },
+            { assertNull(errors.quantity) },
+            { assertNull(errors.unitPrice) },
+            { assertNull(errors.subtotalPriceFirst) },
+            { assertNull(errors.subtotalPriceSecond) },
+            { assertNull(errors.discount) },
+            { assertNull(errors.finalPrice) },
+            { assertNull(errors.ptuType) },
+            { assertNull(errors.isValidPrices) },
+        )
+
+    }
+
+    @ParameterizedTest
     @MethodSource("quantityValuesProviderWithNull")
     fun validateQuantityWithNull(
         productInputs: ProductInputs,
@@ -277,6 +302,7 @@ class AddProductDataViewModelTest {
         @JvmStatic
         fun quantityValuesProviderWithNull(): Stream<Arguments> {
             return Stream.of(
+                Arguments.of(getForPrice("0.3", "14.99", "4.50"), null),
                 Arguments.of(getForPrice("1.055", "2", "2.11"), null),
                 Arguments.of(getForPrice(null, "2", "2.11"), "Maybe 1.055"),
                 Arguments.of(getForPrice("1", "2", "2.11"), "Maybe 1.055"),
@@ -286,6 +312,17 @@ class AddProductDataViewModelTest {
                 Arguments.of(getForPrice(null, null, "2.11"), "Maybe 1.000"),
                 Arguments.of(getForPrice(null, "2", null), "Maybe 1.000"),
                 Arguments.of(getForPrice(null, null, null), "Maybe 1.000")
+            )
+        }
+
+        @JvmStatic
+        fun validateObligatoryFields(): Stream<Arguments> {
+            return Stream.of(
+                Arguments.of(
+                    ProductInputs(
+                        "Ogorek", "JEDZENIE", "0.3", "14.99", "4.5", "0.00", "4.5", "C"
+                    ), null
+                ),
             )
         }
 
@@ -306,6 +343,7 @@ class AddProductDataViewModelTest {
         @JvmStatic
         fun unitPriceValuesProviderWithNull(): Stream<Arguments> {
             return Stream.of(
+                Arguments.of(getForPrice("0.765", "14.99", "11.47"), null),
                 Arguments.of(getForPrice("1.055", "2", "2.11"), null),
                 Arguments.of(getForPrice("1.055", null, "2.11"), "Maybe 2.00"),
                 Arguments.of(getForPrice("1.055", "3", "2.11"), "Maybe 2.00"),
@@ -392,6 +430,7 @@ class AddProductDataViewModelTest {
         @JvmStatic
         fun subtotalPriceWithUnitAndQuantityValuesProviderWithNull(): Stream<Arguments> {
             return Stream.of(
+                Arguments.of(getForPrice("0.3", "14.99", "4.50"), null),
                 Arguments.of(getForPrice("1.055", "2", ""), "Maybe 2.11"),
                 Arguments.of(getForPrice("", "2", "2"), null),
                 Arguments.of(getForPrice("1.055", "", "2"), null),
