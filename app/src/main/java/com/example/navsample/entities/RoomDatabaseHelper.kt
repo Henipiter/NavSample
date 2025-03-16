@@ -499,6 +499,14 @@ class RoomDatabaseHelper(
             is Product -> {
                 return dao.saveProductFromFirestore(entity as Product)
             }
+
+            is Tag -> {
+                return dao.saveTagFromFirestore(entity as Tag)
+            }
+
+            is ProductTagCrossRef -> {
+                return dao.saveProductTagFromFirestore(entity as ProductTagCrossRef)
+            }
         }
         return false
     }

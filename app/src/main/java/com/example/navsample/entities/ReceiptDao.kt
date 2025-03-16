@@ -162,6 +162,22 @@ interface ReceiptDao {
         toUpdate: Boolean = true
     )
 
+    @Query(
+        "UPDATE ProductTagCrossRef " +
+                "SET productId = :productId, " +
+                "tagId = :tagId, " +
+                "updatedAt = :updatedAt, " +
+                "toUpdate = :toUpdate " +
+                "WHERE id = :id"
+    )
+    suspend fun updateProductTagFields(
+        id: String,
+        productId: String,
+        tagId: String,
+        updatedAt: String,
+        toUpdate: Boolean = true
+    )
+
 
     @Transaction
     suspend fun saveCategoryFromFirestore(category: Category): Boolean {
@@ -263,6 +279,53 @@ interface ReceiptDao {
                     product.ptuType,
                     product.validPrice,
                     product.updatedAt,
+                    false
+                )
+                return true
+            }
+        }
+        return false
+    }
+
+    @Transaction
+    suspend fun saveTagFromFirestore(tag: Tag): Boolean {
+        if (tag.id == "") {
+            return false
+        }
+        val localProduct = getProductById(tag.id)
+        if (localProduct == null) {
+            insertTag(tag)
+            return true
+        } else {
+            if (localProduct.updatedAt < tag.updatedAt) {
+                updateTagFields(
+                    tag.id,
+                    tag.name,
+                    tag.updatedAt,
+                    false
+                )
+                return true
+            }
+        }
+        return false
+    }
+
+    @Transaction
+    suspend fun saveProductTagFromFirestore(productTag: ProductTagCrossRef): Boolean {
+        if (productTag.id == "") {
+            return false
+        }
+        val localProduct = getProductTagById(productTag.id)
+        if (localProduct == null) {
+            insertProductTag(productTag)
+            return true
+        } else {
+            if (localProduct.updatedAt < productTag.updatedAt) {
+                updateProductTagFields(
+                    productTag.id,
+                    productTag.productId,
+                    productTag.tagId,
+                    productTag.updatedAt,
                     false
                 )
                 return true
