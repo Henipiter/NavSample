@@ -35,8 +35,8 @@ class ImageKeywordAnalyzer {
     private var indexOfCellWithNipEmergency = -1
 
     var companyName: String = ""
-    var valueTotalSum: Double = 0.0
-    var valueTaxSum: Double = 0.0
+    var valueTotalSum: Int = 0
+    var valueTaxSum: Int = 0
     var valueDate: String = ""
     var valueTime: String = ""
     var valueNIP: String = ""
@@ -60,7 +60,7 @@ class ImageKeywordAnalyzer {
         }
     }
 
-    private fun collectPricesBetweenBoundaries(data: List<Cell>): List<Double> {
+    private fun collectPricesBetweenBoundaries(data: List<Cell>): List<Int> {
         val cellsInBounds = ArrayList<Cell>()
         data.forEach {
             if (it.getMaxY() > topBoundary && it.getMinY() < bottomBoundary && it.getMinX() > leftBoundary) {
@@ -68,11 +68,13 @@ class ImageKeywordAnalyzer {
             }
         }
         cellsInBounds.sortByDescending { it.getMaxY() }
-        val prices = ArrayList<Double>()
+        val prices = ArrayList<Int>()
         cellsInBounds.forEach {
             val foundPrice = Regex(REGEX_PRICE).find(it.content)?.value
             if (foundPrice != null) {
-                prices.add(foundPrice.replace(",", ".").replace("\\s".toRegex(), "").toDouble())
+                val priceInDouble =
+                    foundPrice.replace(",", ".").replace("\\s".toRegex(), "").toDouble()
+                prices.add((priceInDouble * 100).toInt())
             }
         }
         Log.i("ImageKeywordAnalyzer", "prices $prices")

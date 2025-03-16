@@ -1,7 +1,6 @@
 package com.example.navsample.fragments.saving
 
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -233,16 +232,9 @@ class AddReceiptFragment : AddingFragment() {
             if (analyzedReceipt == null) {
                 return@observe
             }
-            Log.i("ImageProcess", "valueNIP ${analyzedReceipt.valueNIP}")
-            Log.i("ImageProcess", "companyName ${analyzedReceipt.companyName}")
-            Log.i("ImageProcess", "valuePTU ${analyzedReceipt.valuePTU}")
-            Log.i("ImageProcess", "valuePLN ${analyzedReceipt.valuePLN}")
-            Log.i("ImageProcess", "valueDate ${analyzedReceipt.valueDate}")
-            Log.i("ImageProcess", "valueTime ${analyzedReceipt.valueTime}")
             imageAnalyzerViewModel.receiptAnalyzed.value = null
-
-            binding.receiptPLNInput.setText(analyzedReceipt.valuePLN.toString())
-            binding.receiptPTUInput.setText(analyzedReceipt.valuePTU.toString())
+            binding.receiptPLNInput.setText(intPriceToString(analyzedReceipt.valuePLN))
+            binding.receiptPTUInput.setText(intPriceToString(analyzedReceipt.valuePTU))
             binding.receiptDateInput.setText(analyzedReceipt.valueDate)
             binding.receiptTimeInput.setText(analyzedReceipt.valueTime)
 
