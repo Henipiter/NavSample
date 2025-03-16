@@ -128,7 +128,10 @@ class FirebaseHelperImpl(
     }
 
     override fun <T : TranslateEntity> delete(entity: T, updateDb: (String) -> Unit) {
-        if (entity.firestoreId != "") {
+        if (entity.firestoreId == "") {
+            return
+        }
+        try {
             getFullFirestorePath(entity::class)
                 .document(entity.firestoreId)
                 .update(entity.deleteData())
@@ -145,11 +148,16 @@ class FirebaseHelperImpl(
                         "Updating field deletedAt for '${entity.javaClass.simpleName} error: ${e.message}"
                     )
                 }
+        } catch (exception: Exception) {
+            Log.e("Firebase", exception.message ?: "Error at deleting")
         }
     }
 
     override fun <T : TranslateFirebaseEntity> synchronize(entity: T, updateDb: (String) -> Unit) {
-        if (entity.firestoreId != "") {
+        if (entity.firestoreId == "") {
+            return
+        }
+        try {
             getFullFirestorePath(entity::class)
                 .document(entity.firestoreId)
                 .update(entity.synchronizeEntity())
@@ -163,6 +171,8 @@ class FirebaseHelperImpl(
                 .addOnFailureListener { e ->
                     Log.e("Firebase", "Sync error for '${entity::class.simpleName}': ${e.message}")
                 }
+        } catch (exception: Exception) {
+            Log.e("Firebase", exception.message ?: "Error at synchronizeing")
         }
     }
 
