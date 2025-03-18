@@ -8,6 +8,7 @@ class FragmentName {
         const val RECEIPT_LIST_FRAGMENT = "ReceiptListFragment"
         const val STORE_LIST_FRAGMENT = "StoreListFragment"
 
+        const val ADD_TAG_FRAGMENT = "AddTagFragment"
         const val ADD_CATEGORY_FRAGMENT = "AddCategoryFragment"
         const val ADD_PRODUCT_FRAGMENT = "AddProductFragment"
         const val ADD_PRODUCT_LIST_FRAGMENT = "AddProductListFragment"

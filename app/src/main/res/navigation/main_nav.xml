@@ -79,13 +79,11 @@
             android:defaultValue="-1"
             app:argType="integer" />
         <argument
+            android:name="sourceFragment"
+            app:argType="string" />
+        <argument
             android:name="productId"
             app:argType="string" />
-        <action
-            android:id="@+id/action_addProductFragment_to_addCategoryFragment"
-            app:destination="@id/addCategoryFragment">
-            <argument android:name="inputType" />
-        </action>
         <argument
             android:name="receiptId"
             app:argType="string" />
@@ -93,11 +91,16 @@
             android:name="storeId"
             app:argType="string" />
         <argument
-            android:name="sourceFragment"
-            app:argType="string" />
-        <argument
             android:name="categoryId"
             app:argType="string" />
+        <argument
+            android:name="tagId"
+            app:argType="string" />
+        <action
+            android:id="@+id/action_addProductFragment_to_addCategoryFragment"
+            app:destination="@id/addCategoryFragment">
+            <argument android:name="inputType" />
+        </action>
         <action
             android:id="@+id/action_addProductFragment_to_addTagFragment"
             app:destination="@id/addTagFragment" />
@@ -343,13 +346,18 @@
         android:label="AddTagFragment">
         <argument
             android:name="inputType"
-            app:argType="string"
-            android:defaultValue="EMPTY" />
+            android:defaultValue="EMPTY"
+            app:argType="string" />
         <argument
             android:name="tagId"
             app:argType="string" />
         <argument
             android:name="sourceFragment"
             app:argType="string" />
+        <action
+            android:id="@+id/action_addTagFragment_to_addProductFragment"
+            app:destination="@id/addProductFragment"
+            app:popUpTo="@id/addProductFragment"
+            app:popUpToInclusive="true" />
     </fragment>
 </navigation>

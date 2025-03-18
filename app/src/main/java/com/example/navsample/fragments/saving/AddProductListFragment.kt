@@ -203,6 +203,7 @@ class AddProductListFragment : Fragment(), ItemClickListener {
                             storeId = navArgs.storeId,
                             sourceFragment = FragmentName.ADD_PRODUCT_LIST_FRAGMENT,
                             productId = "",
+                            tagId = "",
                             categoryId = ""
                         )
                     Navigation.findNavController(requireView()).navigate(action)
@@ -354,6 +355,7 @@ class AddProductListFragment : Fragment(), ItemClickListener {
                 storeId = navArgs.storeId,
                 sourceFragment = FragmentName.ADD_PRODUCT_LIST_FRAGMENT,
                 productId = "",
+                tagId = "",
                 categoryId = ""
             )
         Navigation.findNavController(requireView()).navigate(action)

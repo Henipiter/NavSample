@@ -301,11 +301,10 @@ class AddProductFragment : AddingFragment() {
         binding.ptuTypeInput.setText(addProductDataViewModel.productInputs.ptuType)
 
         binding.chipGroup.removeAllViews()
-        addProductDataViewModel.refreshTagsList(addProductDataViewModel.productInputs.tagList)
     }
 
     override fun consumeNavArgs() {
-        if (firstEntry && navArgs.sourceFragment != FragmentName.ADD_CATEGORY_FRAGMENT) {
+        if (firstEntry && navArgs.sourceFragment != FragmentName.ADD_CATEGORY_FRAGMENT && navArgs.sourceFragment != FragmentName.ADD_TAG_FRAGMENT) {
             firstEntry = false
             addProductDataViewModel.inputType = navArgs.inputType
             addProductDataViewModel.productIndex = navArgs.productIndex
@@ -319,9 +318,18 @@ class AddProductFragment : AddingFragment() {
             addProductDataViewModel.refreshTagsList()
         } else if (navArgs.sourceFragment == FragmentName.ADD_CATEGORY_FRAGMENT) {
             putInputsFromViewModel()
+            addProductDataViewModel.refreshTagsList(addProductDataViewModel.productInputs.tagList)
+
             if (navArgs.categoryId.isNotEmpty()) {
                 addProductDataViewModel.categoryId = navArgs.categoryId
             }
+        } else if (navArgs.sourceFragment == FragmentName.ADD_TAG_FRAGMENT) {
+            putInputsFromViewModel()
+            if (navArgs.tagId.isNotEmpty()) {
+                addProductDataViewModel.tagId = navArgs.tagId
+            }
+            addProductDataViewModel.refreshTagsList(addProductDataViewModel.productInputs.tagList)
+
         }
     }
 

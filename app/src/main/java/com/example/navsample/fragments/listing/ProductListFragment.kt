@@ -224,6 +224,7 @@ class ProductListFragment : Fragment(), ItemClickListener {
                     productId = it.id,
                     receiptId = it.receiptId,
                     storeId = it.storeId,
+                    tagId = "",
                     sourceFragment = FragmentName.PRODUCT_LIST_FRAGMENT,
                     categoryId = ""
                 )

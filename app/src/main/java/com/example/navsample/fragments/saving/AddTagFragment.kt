@@ -4,7 +4,6 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
 import androidx.core.widget.doOnTextChanged
 import androidx.fragment.app.activityViewModels
@@ -13,6 +12,7 @@ import androidx.navigation.fragment.navArgs
 import com.example.navsample.R
 import com.example.navsample.databinding.FragmentAddTagBinding
 import com.example.navsample.dto.DataMode
+import com.example.navsample.dto.FragmentName
 import com.example.navsample.dto.inputmode.AddingInputType
 import com.example.navsample.entities.database.Tag
 import com.example.navsample.entities.inputs.TagInputs
@@ -145,15 +145,6 @@ class AddTagFragment : AddingFragment() {
         }
     }
 
-    private fun isTagInputValid(): Boolean {
-        if (binding.tagNameLayout.error != null) {
-            Toast.makeText(requireContext(), getString(R.string.bad_inputs), Toast.LENGTH_SHORT)
-                .show()
-            return false
-        }
-        return true
-    }
-
     private fun validateObligatoryFields(tagInputs: TagInputs): Boolean {
         val errors = addTagDataViewModel.validateObligatoryFields(tagInputs)
         binding.tagNameLayout.error = errors.name
@@ -172,8 +163,24 @@ class AddTagFragment : AddingFragment() {
                 //TODO zoptymalizować - odswiezać w zależnosci czy bylo dodane czy zupdatowane
                 listingViewModel.loadDataByProductFilter()
                 listingViewModel.loadDataByTagFilter()
+                when (navArgs.sourceFragment) {
+                    FragmentName.ADD_PRODUCT_FRAGMENT -> {
+                        val action =
+                            AddTagFragmentDirections.actionAddTagFragmentToAddProductFragment(
+                                sourceFragment = FragmentName.ADD_TAG_FRAGMENT,
+                                categoryId = "",
+                                tagId = it.id,
+                                storeId = "",
+                                receiptId = "",
+                                productId = ""
+                            )
+                        Navigation.findNavController(requireView()).navigate(action)
+                    }
 
-                Navigation.findNavController(requireView()).popBackStack()
+                    else -> {
+                        Navigation.findNavController(requireView()).popBackStack()
+                    }
+                }
                 addTagDataViewModel.savedTag.value = null
             }
         }

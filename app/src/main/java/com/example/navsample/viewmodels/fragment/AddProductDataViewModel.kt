@@ -44,6 +44,7 @@ class AddProductDataViewModel(
     var receiptId = ""
     var storeId = ""
     var categoryId = ""
+    var tagId = ""
     var storeDefaultCategoryName = ""
 
     var pickedCategory: Category? = null
@@ -123,6 +124,9 @@ class AddProductDataViewModel(
             currentTagList.forEach { tag ->
                 if (productTagIds.contains(tag.id)) {
                     selectedTags.add(tag)
+                } else if (tagId.isNotEmpty() && tagId == tag.id) {
+                    selectedTags.add(tag)
+                    tagId = ""
                 } else {
                     notSelectedTags.add(tag)
                 }

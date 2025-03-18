@@ -201,6 +201,7 @@ class AddCategoryFragment : AddingFragment() {
                                 categoryId = it.id,
                                 storeId = "",
                                 receiptId = "",
+                                tagId = "",
                                 productId = ""
                             )
                         Navigation.findNavController(requireView()).navigate(action)
