@@ -137,7 +137,9 @@ class AddProductListFragment : Fragment(), ItemClickListener {
         val databaseSize = addProductDataViewModel.databaseProductList.value?.size ?: 0
         if (index < databaseSize) {
             addProductDataViewModel.databaseProductList.value?.let { productList ->
-                addProductDataViewModel.deleteProduct(productList[index].id)
+                addProductDataViewModel.deleteProduct(productList[index].id) {
+                    listingViewModel.loadDataByReceiptFilter()
+                }
                 productList.removeAt(index)
             }
         } else {

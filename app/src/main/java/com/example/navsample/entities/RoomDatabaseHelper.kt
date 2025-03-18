@@ -432,6 +432,12 @@ class RoomDatabaseHelper(
         return dao.deleteAndSelectProductTagsOfTag(tagId, deletedAt)
     }
 
+    suspend fun deleteProductProductTag(productId: String): List<ProductTagCrossRef> {
+        Log.i("Database", "Delete tag of product tag with id '$productId'")
+        val deletedAt = DateUtil.getCurrentUtcTime()
+        return dao.deleteAndSelectProductTagsOfProduct(productId, deletedAt)
+    }
+
     suspend fun deleteReceiptProducts(receiptId: String): List<Product> {
         Log.i("Database", "Delete receipt with id '$receiptId'")
         val deletedAt = DateUtil.getCurrentUtcTime()

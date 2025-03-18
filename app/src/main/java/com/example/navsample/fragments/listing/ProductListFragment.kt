@@ -6,6 +6,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.navigation.Navigation
@@ -176,17 +177,23 @@ class ProductListFragment : Fragment(), ItemClickListener {
             getString(R.string.delete_confirmation_title),
             getString(R.string.delete_product_confirmation_dialog)
         ) {
-            if (productRichData.id.isNotEmpty()) {
-                addProductDataViewModel.deleteProduct(productRichData.id)
+            if (productRichData.id.isEmpty()) {
+                Toast.makeText(requireContext(), "Unexpected error", Toast.LENGTH_SHORT).show()
+                return@ConfirmDialog
             }
-            listingViewModel.productRichList.value?.let { productRichList ->
-                productRichList.removeAt(index)
-                richProductListAdapter.productList = productRichList
-                richProductListAdapter.notifyItemRemoved(index)
-                richProductListAdapter.notifyItemRangeChanged(
-                    index, richProductListAdapter.productList.size
-                )
+            addProductDataViewModel.deleteProduct(productRichData.id) {
+
+                listingViewModel.productRichList.value?.let { productRichList ->
+                    productRichList.removeAt(index)
+                    richProductListAdapter.productList = productRichList
+                    richProductListAdapter.notifyItemRemoved(index)
+                    richProductListAdapter.notifyItemRangeChanged(
+                        index, richProductListAdapter.productList.size
+                    )
+                }
+                listingViewModel.loadDataByReceiptFilter()
             }
+
 
         }.show(childFragmentManager, "TAG")
     }

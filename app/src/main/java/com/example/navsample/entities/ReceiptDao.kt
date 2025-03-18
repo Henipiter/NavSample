@@ -440,10 +440,17 @@ interface ReceiptDao {
 
     @Query(
         "UPDATE ProductTagCrossRef SET deletedAt = :deletedAt, updatedAt = :deletedAt, toDelete = 1 WHERE id IN (" +
-                "SELECT p.id FROM ProductTagCrossRef p, tag t " +
-                "WHERE p.tagId = t.id AND t.id = :id)"
+                "SELECT pt.id FROM ProductTagCrossRef pt, tag t " +
+                "WHERE pt.tagId = t.id AND t.id = :id)"
     )
     suspend fun deleteProductTagsOfTag(id: String, deletedAt: String)
+
+    @Query(
+        "UPDATE ProductTagCrossRef SET deletedAt = :deletedAt, updatedAt = :deletedAt, toDelete = 1 WHERE id IN (" +
+                "SELECT pt.id FROM ProductTagCrossRef pt, product p " +
+                "WHERE pt.productId = p.id AND p.id = :id)"
+    )
+    suspend fun deleteProductTagsOfProduct(id: String, deletedAt: String)
 
     @Query(
         "SELECT * FROM product WHERE deletedAt = :deletedAt AND id IN (" +
@@ -454,10 +461,20 @@ interface ReceiptDao {
 
     @Query(
         "SELECT * FROM ProductTagCrossRef WHERE deletedAt = :deletedAt AND id IN (" +
-                "SELECT p.id FROM ProductTagCrossRef p, tag t " +
-                "WHERE p.tagId = t.id AND t.id = :id)"
+                "SELECT pt.id FROM ProductTagCrossRef pt, tag t " +
+                "WHERE pt.tagId = t.id AND t.id = :id)"
     )
     suspend fun selectDeletedProductTagsOfTag(
+        id: String,
+        deletedAt: String
+    ): List<ProductTagCrossRef>
+
+    @Query(
+        "SELECT * FROM ProductTagCrossRef WHERE deletedAt = :deletedAt AND id IN (" +
+                "SELECT pt.id FROM ProductTagCrossRef pt, product p " +
+                "WHERE pt.productId = p.id AND p.id = :id)"
+    )
+    suspend fun selectDeletedProductTagsOfProduct(
         id: String,
         deletedAt: String
     ): List<ProductTagCrossRef>
@@ -475,6 +492,15 @@ interface ReceiptDao {
     ): List<ProductTagCrossRef> {
         deleteProductTagsOfTag(id, deletedAt)
         return selectDeletedProductTagsOfTag(id, deletedAt)
+    }
+
+    @Transaction
+    suspend fun deleteAndSelectProductTagsOfProduct(
+        id: String,
+        deletedAt: String
+    ): List<ProductTagCrossRef> {
+        deleteProductTagsOfProduct(id, deletedAt)
+        return selectDeletedProductTagsOfProduct(id, deletedAt)
     }
 
     @Query(

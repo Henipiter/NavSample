@@ -136,12 +136,19 @@ class AddProductDataViewModel(
     }
 
 
-    fun deleteProduct(productId: String) {
+    fun deleteProduct(productId: String, onFinish: () -> Unit) {
         viewModelScope.launch {
+            val deletedProductTags = roomDatabaseHelper.deleteProductProductTag(productId)
+            FirestoreHelperSingleton.getInstance().delete(deletedProductTags) { id ->
+                viewModelScope.launch { roomDatabaseHelper.markProductTagAsDeleted(id) }
+            }
+
+
             val deletedProduct = roomDatabaseHelper.deleteProductById(productId)
             FirestoreHelperSingleton.getInstance().delete(deletedProduct) { id ->
                 viewModelScope.launch { roomDatabaseHelper.markProductAsDeleted(id) }
             }
+            onFinish.invoke()
         }
     }
 
