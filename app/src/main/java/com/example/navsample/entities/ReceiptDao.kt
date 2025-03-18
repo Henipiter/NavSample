@@ -439,16 +439,42 @@ interface ReceiptDao {
     suspend fun deleteProductsOfReceipt(id: String, deletedAt: String)
 
     @Query(
+        "UPDATE ProductTagCrossRef SET deletedAt = :deletedAt, updatedAt = :deletedAt, toDelete = 1 WHERE id IN (" +
+                "SELECT p.id FROM ProductTagCrossRef p, tag t " +
+                "WHERE p.tagId = t.id AND t.id = :id)"
+    )
+    suspend fun deleteProductTagsOfTag(id: String, deletedAt: String)
+
+    @Query(
         "SELECT * FROM product WHERE deletedAt = :deletedAt AND id IN (" +
                 "SELECT p.id FROM product p, receipt r " +
                 "WHERE p.receiptId = r.id AND r.id = :id)"
     )
     suspend fun selectDeletedProductsOfReceipt(id: String, deletedAt: String): List<Product>
 
+    @Query(
+        "SELECT * FROM ProductTagCrossRef WHERE deletedAt = :deletedAt AND id IN (" +
+                "SELECT p.id FROM ProductTagCrossRef p, tag t " +
+                "WHERE p.tagId = t.id AND t.id = :id)"
+    )
+    suspend fun selectDeletedProductTagsOfTag(
+        id: String,
+        deletedAt: String
+    ): List<ProductTagCrossRef>
+
     @Transaction
     suspend fun deleteAndSelectProductsOfReceipt(id: String, deletedAt: String): List<Product> {
         deleteProductsOfReceipt(id, deletedAt)
         return selectDeletedProductsOfReceipt(id, deletedAt)
+    }
+
+    @Transaction
+    suspend fun deleteAndSelectProductTagsOfTag(
+        id: String,
+        deletedAt: String
+    ): List<ProductTagCrossRef> {
+        deleteProductTagsOfTag(id, deletedAt)
+        return selectDeletedProductTagsOfTag(id, deletedAt)
     }
 
     @Query(

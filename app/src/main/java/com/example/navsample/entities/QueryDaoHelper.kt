@@ -86,6 +86,8 @@ class QueryDaoHelper {
                 .append("FROM ProductTagCrossRef pt ")
                 .append("INNER JOIN product p ON pt.productId = p.id ")
                 .append("INNER JOIN tag t ON pt.tagId = t.id ")
+                .append("WHERE pt.deletedAt == '' ")
+                .append("AND t.deletedAt == '' ")
                 .append("ORDER BY p.name")
                 .toString()
             return SimpleSQLiteQuery(sql)

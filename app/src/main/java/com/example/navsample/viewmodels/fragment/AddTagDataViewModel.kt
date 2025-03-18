@@ -39,12 +39,18 @@ class AddTagDataViewModel(
         }
     }
 
-    fun deleteTag(tagId: String) {
+    fun deleteTag(tagId: String, onFinish: () -> Unit) {
         viewModelScope.launch {
+            val deletedProductTags = roomDatabaseHelper.deleteTagProductTag(tagId)
+            FirestoreHelperSingleton.getInstance().delete(deletedProductTags) { id ->
+                viewModelScope.launch { roomDatabaseHelper.markProductTagAsDeleted(id) }
+            }
+
             val deletedTag = roomDatabaseHelper.deleteTag(tagId)
             FirestoreHelperSingleton.getInstance().delete(deletedTag) { id ->
                 viewModelScope.launch { roomDatabaseHelper.markTagAsDeleted(id) }
             }
+            onFinish.invoke()
         }
     }
 

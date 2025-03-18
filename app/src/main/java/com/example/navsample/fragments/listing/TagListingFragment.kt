@@ -134,14 +134,16 @@ class TagListingFragment : Fragment(), ItemClickListener {
                 ).show()
 
             } else {
-                addTagDataViewModel.deleteTag(tag.id)
-                listingViewModel.tagList.value?.let { tagList ->
-                    tagList.removeAt(index)
-                    tagListAdapter.tagList = tagList
-                    tagListAdapter.notifyItemRemoved(index)
-                    tagListAdapter.notifyItemRangeChanged(
-                        index, tagListAdapter.tagList.size
-                    )
+                addTagDataViewModel.deleteTag(tag.id) {
+                    listingViewModel.tagList.value?.let { tagList ->
+                        tagList.removeAt(index)
+                        tagListAdapter.tagList = tagList
+                        tagListAdapter.notifyItemRemoved(index)
+                        tagListAdapter.notifyItemRangeChanged(
+                            index, tagListAdapter.tagList.size
+                        )
+                    }
+                    listingViewModel.loadDataByProductFilter()
                 }
 
             }
