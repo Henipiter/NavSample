@@ -27,6 +27,7 @@ import com.example.navsample.entities.database.Tag
 import com.example.navsample.entities.inputs.ProductInputs
 import com.example.navsample.exception.NoCategoryIdException
 import com.example.navsample.exception.NoReceiptIdException
+import com.example.navsample.fragments.dialogs.ConfirmDialog
 import com.example.navsample.viewmodels.ImageViewModel
 import com.example.navsample.viewmodels.ListingViewModel
 import com.example.navsample.viewmodels.factory.AddProductDataViewModelFactory
@@ -76,11 +77,21 @@ class AddProductFragment : AddingFragment() {
             when (it.itemId) {
                 R.id.confirm -> {
                     if (!validateObligatoryFields()) {
-                        return@setOnMenuItemClickListener false
+                        ConfirmDialog(
+                            "Invalid prices",
+                            "Some products have invalid prices. Continue?"
+                        )
+                        {
+                            isValidPrices = false
+                            save()
+                            Navigation.findNavController(requireView()).popBackStack()
+                        }.show(childFragmentManager, "TAG")
+                    } else {
+                        isValidPrices = true
+                        save()
+                        Navigation.findNavController(requireView()).popBackStack()
                     }
-
-                    save()
-                    Navigation.findNavController(requireView()).popBackStack()
+                    true
                 }
 
                 else -> false
