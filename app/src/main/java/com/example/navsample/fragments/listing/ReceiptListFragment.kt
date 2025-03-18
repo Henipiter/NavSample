@@ -137,16 +137,17 @@ class ReceiptListFragment : Fragment(), ItemClickListener {
             getString(R.string.delete_confirmation_title),
             getString(R.string.delete_receipt_confirmation_dialog)
         ) {
-            addReceiptDataViewModel.deleteReceipt(receiptWithStore.id)
-            listingViewModel.receiptList.value?.let { receiptList ->
-                receiptList.removeAt(index)
-                receiptListAdapter.receiptList = receiptList
-                receiptListAdapter.notifyItemRemoved(index)
-                receiptListAdapter.notifyItemRangeChanged(
-                    index, receiptListAdapter.receiptList.size
-                )
+            addReceiptDataViewModel.deleteReceipt(receiptWithStore.id) {
+                listingViewModel.receiptList.value?.let { receiptList ->
+                    receiptList.removeAt(index)
+                    receiptListAdapter.receiptList = receiptList
+                    receiptListAdapter.notifyItemRemoved(index)
+                    receiptListAdapter.notifyItemRangeChanged(
+                        index, receiptListAdapter.receiptList.size
+                    )
+                }
+                listingViewModel.loadDataByProductFilter()
             }
-            listingViewModel.loadDataByProductFilter()
 
 
         }.show(childFragmentManager, "TAG")

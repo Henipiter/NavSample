@@ -173,17 +173,18 @@ class StoreListFragment : Fragment(), ItemClickListener {
             getString(R.string.delete_confirmation_title),
             getString(R.string.delete_store_confirmation_dialog)
         ) {
-            addStoreDataViewModel.deleteStore(store.id)
-            listingViewModel.storeList.value?.let { storeList ->
-                storeList.removeAt(index)
-                storeListAdapter.storeList = storeList
-                storeListAdapter.notifyItemRemoved(index)
-                storeListAdapter.notifyItemRangeChanged(
-                    index, storeListAdapter.storeList.size
-                )
+            addStoreDataViewModel.deleteStore(store.id) {
+                listingViewModel.storeList.value?.let { storeList ->
+                    storeList.removeAt(index)
+                    storeListAdapter.storeList = storeList
+                    storeListAdapter.notifyItemRemoved(index)
+                    storeListAdapter.notifyItemRangeChanged(
+                        index, storeListAdapter.storeList.size
+                    )
+                }
+                listingViewModel.loadDataByProductFilter()
+                listingViewModel.loadDataByReceiptFilter()
             }
-            listingViewModel.loadDataByProductFilter()
-            listingViewModel.loadDataByReceiptFilter()
         }.show(childFragmentManager, "TAG")
     }
 

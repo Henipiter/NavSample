@@ -57,7 +57,7 @@ class AddStoreDataViewModel(
         }
     }
 
-    fun deleteStore(storeId: String) {
+    fun deleteStore(storeId: String, onFinish: () -> Unit) {
         viewModelScope.launch {
             val deletedProducts = roomDatabaseHelper.deleteStoreProducts(storeId)
             FirestoreHelperSingleton.getInstance().delete(deletedProducts) { id ->
@@ -71,6 +71,7 @@ class AddStoreDataViewModel(
             FirestoreHelperSingleton.getInstance().delete(deletedStore) { id ->
                 viewModelScope.launch { roomDatabaseHelper.markStoreAsDeleted(id) }
             }
+            onFinish.invoke()
         }
     }
 

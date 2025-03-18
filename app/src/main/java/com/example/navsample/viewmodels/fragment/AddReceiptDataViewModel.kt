@@ -54,7 +54,7 @@ class AddReceiptDataViewModel(
     }
 
 
-    fun deleteReceipt(receiptId: String) {
+    fun deleteReceipt(receiptId: String, onFinish: () -> Unit) {
         viewModelScope.launch {
             val deletedProducts = roomDatabaseHelper.deleteReceiptProducts(receiptId)
             FirestoreHelperSingleton.getInstance().delete(deletedProducts) { id ->
@@ -64,6 +64,7 @@ class AddReceiptDataViewModel(
             FirestoreHelperSingleton.getInstance().delete(deletedReceipt) { id ->
                 viewModelScope.launch { roomDatabaseHelper.markReceiptAsDeleted(id) }
             }
+            onFinish.invoke()
         }
     }
 
