@@ -15,6 +15,7 @@ import com.example.navsample.adapters.StoreDropdownAdapter
 import com.example.navsample.databinding.FragmentAddReceiptBinding
 import com.example.navsample.dto.DataMode
 import com.example.navsample.dto.FragmentName
+import com.example.navsample.dto.PriceUtils.Companion.doublePriceTextToInt
 import com.example.navsample.dto.PriceUtils.Companion.intPriceToString
 import com.example.navsample.dto.inputmode.AddingInputType
 import com.example.navsample.entities.database.Store
@@ -156,15 +157,17 @@ class AddReceiptFragment : AddingFragment() {
     private fun saveInputsToViewModel() {
         addReceiptDataViewModel.receiptInputs.date = binding.receiptDateInput.text.toString()
         addReceiptDataViewModel.receiptInputs.time = binding.receiptTimeInput.text.toString()
-        addReceiptDataViewModel.receiptInputs.pln = binding.receiptPLNInput.text.toString().toInt()
-        addReceiptDataViewModel.receiptInputs.ptu = binding.receiptPTUInput.text.toString().toInt()
+        addReceiptDataViewModel.receiptInputs.pln =
+            doublePriceTextToInt(binding.receiptPLNInput.text.toString())
+        addReceiptDataViewModel.receiptInputs.ptu =
+            doublePriceTextToInt(binding.receiptPTUInput.text.toString())
     }
 
     private fun putInputsFromViewModel() {
         binding.receiptDateInput.setText(addReceiptDataViewModel.receiptInputs.date)
         binding.receiptTimeInput.setText(addReceiptDataViewModel.receiptInputs.time)
-        binding.receiptPLNInput.setText(addReceiptDataViewModel.receiptInputs.pln.toString())
-        binding.receiptPTUInput.setText(addReceiptDataViewModel.receiptInputs.ptu.toString())
+        binding.receiptPLNInput.setText(intPriceToString(addReceiptDataViewModel.receiptInputs.pln))
+        binding.receiptPTUInput.setText(intPriceToString(addReceiptDataViewModel.receiptInputs.ptu))
     }
 
     private fun applyInputParameters() {
