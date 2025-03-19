@@ -428,12 +428,12 @@ class SyncDatabaseViewModel(
     fun syncOutdatedReceipt(receipt: Receipt) {
         if (receipt.isSync && receipt.toUpdate) {
             FirestoreHelperSingleton.getInstance().updateFirestore(receipt) { id ->
-                viewModelScope.launch { roomDatabaseHelper.markCategoryAsUpdated(id) }
+                viewModelScope.launch { roomDatabaseHelper.markReceiptAsUpdated(id) }
             }
         }
         if (receipt.isSync && receipt.toDelete) {
             FirestoreHelperSingleton.getInstance().delete(receipt) { id ->
-                viewModelScope.launch { roomDatabaseHelper.markCategoryAsDeleted(id) }
+                viewModelScope.launch { roomDatabaseHelper.markReceiptAsDeleted(id) }
             }
         }
     }
