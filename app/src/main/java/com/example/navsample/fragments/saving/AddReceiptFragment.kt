@@ -421,12 +421,15 @@ class AddReceiptFragment : AddingFragment() {
         addReceiptDataViewModel.pickedStore =
             addReceiptDataViewModel.storeList.value?.find { it.id == addReceiptDataViewModel.storeId }
 
+        addReceiptDataViewModel.pickedStore?.let {
+            binding.storeNameInput.setText(it.name)
+            binding.storeNameInput.isEnabled = false
+            binding.storeNameLayout.error = null
+        }
+
         addReceiptDataViewModel.receiptById.value?.let {
             it.storeId = addReceiptDataViewModel.storeId
 
-            binding.storeNameInput.setText(addReceiptDataViewModel.pickedStore?.name)
-            binding.storeNameInput.isEnabled = false
-            binding.storeNameLayout.error = null
         }
 
     }
