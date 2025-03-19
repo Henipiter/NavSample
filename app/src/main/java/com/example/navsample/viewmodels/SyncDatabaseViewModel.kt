@@ -102,19 +102,26 @@ class SyncDatabaseViewModel(
                 val snapshot = query.get().await()
                 val elements = FirestoreHelperSingleton.getInstance()
                     .convertQueryResponse(entityClass, snapshot)
-                if (elements.isNotEmpty()) {
+                if (elements.isEmpty()) {
+                    markAsFinished(entityClass)
+                } else {
                     var isSaved = false
                     elements.forEach { entity ->
                         isSaved = roomDatabaseHelper.saveEntityFromFirestore(entity)
                     }
                     if (isSaved) {
-                        setPreferencesKey(preferencesKey, elements.last().updatedAt)
-                        readFirebaseChangesTemplate(entityClass, preferencesKey)
+                        if (date == elements.last().updatedAt) {
+                            markAsFinished(entityClass)
+                        } else {
+                            setPreferencesKey(preferencesKey, elements.last().updatedAt)
+                            readFirebaseChangesTemplate(entityClass, preferencesKey)
+                        }
                     } else {
+                        if (date == "" || date < elements.last().updatedAt) {
+                            setPreferencesKey(preferencesKey, elements.last().updatedAt)
+                        }
                         markAsFinished(entityClass)
                     }
-                } else {
-                    markAsFinished(entityClass)
                 }
             }
         }
