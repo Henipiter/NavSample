@@ -38,11 +38,12 @@ import com.example.navsample.dto.sorting.AlgorithmItemAdapterArgument
 import com.example.navsample.entities.database.Product
 import com.example.navsample.fragments.dialogs.ConfirmDialog
 import com.example.navsample.sheets.ImportImageBottomSheetFragment
-import com.example.navsample.sheets.ReceiptBottomSheetFragment
+import com.example.navsample.sheets.ProductBottomSheetFragment
 import com.example.navsample.viewmodels.ExperimentalDataViewModel
 import com.example.navsample.viewmodels.ImageAnalyzerViewModel
 import com.example.navsample.viewmodels.ImageViewModel
 import com.example.navsample.viewmodels.ListingViewModel
+import com.example.navsample.viewmodels.factory.AddProductDataViewModelFactory
 import com.example.navsample.viewmodels.fragment.AddProductDataViewModel
 import kotlinx.coroutines.runBlocking
 
@@ -58,7 +59,9 @@ class AddProductListFragment : Fragment(), ItemClickListener {
     private val imageAnalyzerViewModel: ImageAnalyzerViewModel by activityViewModels()
     private val imageViewModel: ImageViewModel by activityViewModels()
     private val experimentalDataViewModel: ExperimentalDataViewModel by activityViewModels()
-    private val addProductDataViewModel: AddProductDataViewModel by activityViewModels()
+    private val addProductDataViewModel: AddProductDataViewModel by activityViewModels {
+        AddProductDataViewModelFactory(requireActivity().application)
+    }
     private val listingViewModel: ListingViewModel by activityViewModels()
     private val reorderedProductTiles = MutableLiveData(false)
     private lateinit var recyclerViewEvent: RecyclerView
@@ -134,7 +137,9 @@ class AddProductListFragment : Fragment(), ItemClickListener {
         val databaseSize = addProductDataViewModel.databaseProductList.value?.size ?: 0
         if (index < databaseSize) {
             addProductDataViewModel.databaseProductList.value?.let { productList ->
-                addProductDataViewModel.deleteProduct(productList[index].id)
+                addProductDataViewModel.deleteProduct(productList[index].id) {
+                    listingViewModel.loadDataByReceiptFilter()
+                }
                 productList.removeAt(index)
             }
         } else {
@@ -200,6 +205,7 @@ class AddProductListFragment : Fragment(), ItemClickListener {
                             storeId = navArgs.storeId,
                             sourceFragment = FragmentName.ADD_PRODUCT_LIST_FRAGMENT,
                             productId = "",
+                            tagId = "",
                             categoryId = ""
                         )
                     Navigation.findNavController(requireView()).navigate(action)
@@ -262,7 +268,7 @@ class AddProductListFragment : Fragment(), ItemClickListener {
         }
         if (navArgs.receiptId.isNotEmpty()) {
             addProductDataViewModel.getReceiptById(navArgs.receiptId)
-            addProductDataViewModel.getProductsByReceiptId(navArgs.receiptId)
+            addProductDataViewModel.getProductByReceiptIdWithTags(navArgs.receiptId)
         } else {
             throw Exception("NO RECEIPT ID SET")
         }
@@ -329,7 +335,7 @@ class AddProductListFragment : Fragment(), ItemClickListener {
             onCrop = { delegateToCropImage(true) },
             visibleOnCrop = imageViewModel.bitmapCroppedReceipt.value != null
         )
-        modalBottomSheet.show(parentFragmentManager, ReceiptBottomSheetFragment.TAG)
+        modalBottomSheet.show(parentFragmentManager, ProductBottomSheetFragment.TAG)
     }
 
     private fun reorderTilesWithProducts() {
@@ -351,6 +357,7 @@ class AddProductListFragment : Fragment(), ItemClickListener {
                 storeId = navArgs.storeId,
                 sourceFragment = FragmentName.ADD_PRODUCT_LIST_FRAGMENT,
                 productId = "",
+                tagId = "",
                 categoryId = ""
             )
         Navigation.findNavController(requireView()).navigate(action)

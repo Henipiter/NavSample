@@ -1,6 +1,7 @@
 package com.example.navsample.entities.relations
 
 import androidx.room.Ignore
+import com.example.navsample.entities.database.Tag
 
 data class ProductRichData(
     var storeId: String,
@@ -20,8 +21,11 @@ data class ProductRichData(
     var raw: String,
     var validPrice: Boolean,
     var id: String,
-    @Ignore
-    var collapse: Boolean = true
+    var isSync: Boolean,
+    var toUpdate: Boolean,
+    var toDelete: Boolean,
+    @Ignore var collapse: Boolean = true,
+    @Ignore var tagList: List<Tag> = listOf()
 ) {
     constructor(
         storeId: String,
@@ -59,6 +63,9 @@ data class ProductRichData(
         raw,
         validPrice,
         id,
+        false,
+        false,
+        false,
         true
     )
 }

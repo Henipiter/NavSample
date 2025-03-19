@@ -2,6 +2,7 @@
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    app:tabTextAppearance="@style/CustomTabTextStyle"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="horizontal"
@@ -9,6 +10,7 @@
 
     <com.google.android.material.tabs.TabLayout
         android:id="@+id/tabLayout"
+        app:tabTextAppearance="@style/CustomTabTextStyle"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         app:layout_constraintEnd_toEndOf="parent"
@@ -16,24 +18,34 @@
         app:layout_constraintTop_toTopOf="parent">
 
         <com.google.android.material.tabs.TabItem
+            android:icon="@drawable/receipt"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/receipts_bar" />
 
         <com.google.android.material.tabs.TabItem
+            android:icon="@drawable/product"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/products_bar" />
 
         <com.google.android.material.tabs.TabItem
+            android:icon="@drawable/store"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/stores_bar" />
 
         <com.google.android.material.tabs.TabItem
+            android:icon="@drawable/category"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/categories_bar" />
+
+        <com.google.android.material.tabs.TabItem
+            android:icon="@drawable/tag"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/tags_bar" />
 
     </com.google.android.material.tabs.TabLayout>
 

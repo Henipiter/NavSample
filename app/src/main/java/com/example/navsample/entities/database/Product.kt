@@ -1,6 +1,7 @@
 package com.example.navsample.entities.database
 
 import androidx.room.Entity
+import androidx.room.Ignore
 import androidx.room.PrimaryKey
 import com.example.navsample.entities.TranslateEntity
 
@@ -23,12 +24,16 @@ data class Product(
     override var firestoreId: String = "",
     override var isSync: Boolean = false,
     override var toUpdate: Boolean = false,
-    override var toDelete: Boolean = false
+    override var toDelete: Boolean = false,
+    @Ignore var tagList: List<Tag> = listOf(),
+    @Ignore var originalTagList: List<Tag> = listOf()
 ) : TranslateEntity {
+
     @PrimaryKey
     var id: String = ""
 
     constructor() : this("", "", "", -1, -1, -1, -1, -1, "", "", false)
+
     override fun insertData(): HashMap<String, Any?> {
         return hashMapOf(
             "receiptId" to this.receiptId,

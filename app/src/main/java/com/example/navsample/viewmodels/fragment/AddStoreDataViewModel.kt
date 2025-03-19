@@ -1,18 +1,26 @@
 package com.example.navsample.viewmodels.fragment
 
+import android.app.Application
+import androidx.core.content.ContextCompat.getString
+import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.navsample.ApplicationContext
+import com.example.navsample.R
+import com.example.navsample.dto.DataMode
+import com.example.navsample.dto.NipValidator
 import com.example.navsample.dto.inputmode.AddingInputType
 import com.example.navsample.entities.FirestoreHelperSingleton
 import com.example.navsample.entities.ReceiptDatabase
 import com.example.navsample.entities.RoomDatabaseHelper
 import com.example.navsample.entities.database.Category
 import com.example.navsample.entities.database.Store
+import com.example.navsample.entities.inputs.StoreErrorInputsMessage
+import com.example.navsample.entities.inputs.StoreInputs
 import kotlinx.coroutines.launch
 
-class AddStoreDataViewModel : ViewModel() {
+class AddStoreDataViewModel(
+    private var application: Application
+) : AndroidViewModel(application) {
 
     private var roomDatabaseHelper: RoomDatabaseHelper
 
@@ -23,14 +31,17 @@ class AddStoreDataViewModel : ViewModel() {
     var storeName: String? = null
     var storeNip: String? = null
 
-    var storeList = MutableLiveData<ArrayList<Store>>()
+    var mode = DataMode.NEW
+    var pickedCategory: Category? = null
+    var storeInputs: Store = Store()
+
+    private var storeList = MutableLiveData<ArrayList<Store>>()
     var categoryList = MutableLiveData<ArrayList<Category>>()
     var storeById = MutableLiveData<Store?>()
     var savedStore = MutableLiveData<Store>()
 
     init {
-        val dao = ApplicationContext.context?.let { ReceiptDatabase.getInstance(it).receiptDao }
-            ?: throw Exception("NOT SET DATABASE")
+        val dao = ReceiptDatabase.getInstance(application).receiptDao
         roomDatabaseHelper = RoomDatabaseHelper(dao)
     }
 
@@ -46,7 +57,7 @@ class AddStoreDataViewModel : ViewModel() {
         }
     }
 
-    fun deleteStore(storeId: String) {
+    fun deleteStore(storeId: String, onFinish: () -> Unit) {
         viewModelScope.launch {
             val deletedProducts = roomDatabaseHelper.deleteStoreProducts(storeId)
             FirestoreHelperSingleton.getInstance().delete(deletedProducts) { id ->
@@ -60,6 +71,7 @@ class AddStoreDataViewModel : ViewModel() {
             FirestoreHelperSingleton.getInstance().delete(deletedStore) { id ->
                 viewModelScope.launch { roomDatabaseHelper.markStoreAsDeleted(id) }
             }
+            onFinish.invoke()
         }
     }
 
@@ -93,5 +105,66 @@ class AddStoreDataViewModel : ViewModel() {
         }
     }
 
+    fun validateNip(text: CharSequence?): String? {
+        if (text.isNullOrEmpty()) {
+            return getString(application, R.string.empty_value_error)
+        }
+        val error = isNIPUnique(text)
+        if (error != null) {
+            return error
+        }
+        if (!NipValidator.validate(text)) {
+            return getString(application, R.string.nip_incorrect)
+        }
+        return null
+    }
 
+    private fun isNIPUnique(text: CharSequence?): String? {
+        if (storeById.value?.nip == text.toString()) {
+            return null
+        }
+        val index = storeList.value?.map { it.nip }?.indexOf(text) ?: -1
+        if (storeList.value?.find { it.nip == text } != null) {
+            return getNipExistText() + " " + storeList.value?.get(index)?.name
+        }
+        return null
+
+    }
+
+    fun validateObligatoryFields(
+        storeInputs: StoreInputs,
+        validateId: Boolean = true
+    ): StoreErrorInputsMessage {
+        val errors = StoreErrorInputsMessage()
+        if (validateId && storeInputs.categoryId == null) {
+            errors.categoryId = getEmptyValueText()
+        }
+        errors.name = validateName(storeInputs.name)
+        errors.nip = validateNip(storeInputs.nip)
+
+        return errors
+    }
+
+    fun validateName(text: CharSequence?): String? {
+        val currentStoreName = storeById.value?.name
+        val storeList = categoryList.value
+
+        return if (text.isNullOrEmpty()) {
+            getString(application, R.string.empty_value_error)
+        } else if (text.toString() == currentStoreName) {
+            null
+        } else if (storeList?.find { it.name == text.toString() } != null) {
+            getString(application, R.string.category_already_exists)
+        } else {
+            null
+        }
+    }
+
+    private fun getEmptyValueText(): String {
+        return getString(application, R.string.empty_value_error)
+    }
+
+    private fun getNipExistText(): String {
+        return getString(application, R.string.nip_already_exists)
+    }
 }

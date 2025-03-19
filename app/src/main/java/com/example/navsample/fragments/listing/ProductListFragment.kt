@@ -6,6 +6,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.navigation.Navigation
@@ -24,14 +25,16 @@ import com.example.navsample.entities.relations.ProductRichData
 import com.example.navsample.fragments.dialogs.ConfirmDialog
 import com.example.navsample.fragments.dialogs.SortingDialog
 import com.example.navsample.sheets.ProductBottomSheetFragment
-import com.example.navsample.sheets.ReceiptBottomSheetFragment
 import com.example.navsample.viewmodels.ListingViewModel
+import com.example.navsample.viewmodels.factory.AddProductDataViewModelFactory
 import com.example.navsample.viewmodels.fragment.AddProductDataViewModel
 
 class ProductListFragment : Fragment(), ItemClickListener {
     private var _binding: FragmentProductListBinding? = null
     private val binding get() = _binding!!
-    private val addProductDataViewModel: AddProductDataViewModel by activityViewModels()
+    private val addProductDataViewModel: AddProductDataViewModel by activityViewModels() {
+        AddProductDataViewModelFactory(requireActivity().application)
+    }
     private val listingViewModel: ListingViewModel by activityViewModels()
 
     private lateinit var recyclerViewEvent: RecyclerView
@@ -55,8 +58,7 @@ class ProductListFragment : Fragment(), ItemClickListener {
 
         recyclerViewEvent = binding.recyclerViewEventProducts
         richProductListAdapter = RichProductListAdapter(
-            requireContext(),
-            listingViewModel.productRichList.value ?: arrayListOf(), this
+            requireContext(), listingViewModel.productRichList.value ?: arrayListOf(), this
         ) { index ->
             listingViewModel.productRichList.value?.get(index)?.let { productRichData ->
                 popUpButtonSheet(index, productRichData)
@@ -135,7 +137,7 @@ class ProductListFragment : Fragment(), ItemClickListener {
             onJumpToStore = { onJumpToStore(productRichData.storeId) },
             onJumpToReceipt = { onJumpToReceipt(productRichData.receiptId) }
         )
-        modalBottomSheet.show(parentFragmentManager, ReceiptBottomSheetFragment.TAG)
+        modalBottomSheet.show(parentFragmentManager, ProductBottomSheetFragment.TAG)
     }
 
     private fun onJumpToReceipt(receiptId: String) {
@@ -175,17 +177,23 @@ class ProductListFragment : Fragment(), ItemClickListener {
             getString(R.string.delete_confirmation_title),
             getString(R.string.delete_product_confirmation_dialog)
         ) {
-            if (productRichData.id.isNotEmpty()) {
-                addProductDataViewModel.deleteProduct(productRichData.id)
+            if (productRichData.id.isEmpty()) {
+                Toast.makeText(requireContext(), "Unexpected error", Toast.LENGTH_SHORT).show()
+                return@ConfirmDialog
             }
-            listingViewModel.productRichList.value?.let { productRichList ->
-                productRichList.removeAt(index)
-                richProductListAdapter.productList = productRichList
-                richProductListAdapter.notifyItemRemoved(index)
-                richProductListAdapter.notifyItemRangeChanged(
-                    index, richProductListAdapter.productList.size
-                )
+            addProductDataViewModel.deleteProduct(productRichData.id) {
+
+                listingViewModel.productRichList.value?.let { productRichList ->
+                    productRichList.removeAt(index)
+                    richProductListAdapter.productList = productRichList
+                    richProductListAdapter.notifyItemRemoved(index)
+                    richProductListAdapter.notifyItemRangeChanged(
+                        index, richProductListAdapter.productList.size
+                    )
+                }
+                listingViewModel.loadDataByReceiptFilter()
             }
+
 
         }.show(childFragmentManager, "TAG")
     }
@@ -223,6 +231,7 @@ class ProductListFragment : Fragment(), ItemClickListener {
                     productId = it.id,
                     receiptId = it.receiptId,
                     storeId = it.storeId,
+                    tagId = "",
                     sourceFragment = FragmentName.PRODUCT_LIST_FRAGMENT,
                     categoryId = ""
                 )

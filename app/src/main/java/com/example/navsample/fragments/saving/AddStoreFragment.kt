@@ -4,10 +4,8 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
 import androidx.core.widget.doOnTextChanged
-import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.navigation.Navigation
 import androidx.navigation.fragment.navArgs
@@ -16,17 +14,17 @@ import com.example.navsample.adapters.CategoryDropdownAdapter
 import com.example.navsample.databinding.FragmentAddStoreBinding
 import com.example.navsample.dto.DataMode
 import com.example.navsample.dto.FragmentName
-import com.example.navsample.dto.NipValidator
 import com.example.navsample.dto.inputmode.AddingInputType
 import com.example.navsample.entities.database.Category
 import com.example.navsample.entities.database.Store
+import com.example.navsample.entities.inputs.StoreInputs
 import com.example.navsample.exception.NoCategoryIdException
 import com.example.navsample.fragments.dialogs.ConfirmDialog
 import com.example.navsample.viewmodels.ImageViewModel
 import com.example.navsample.viewmodels.ListingViewModel
 import com.example.navsample.viewmodels.fragment.AddStoreDataViewModel
 
-class AddStoreFragment : Fragment() {
+class AddStoreFragment : AddingFragment() {
     private var _binding: FragmentAddStoreBinding? = null
     private val binding get() = _binding!!
 
@@ -35,10 +33,6 @@ class AddStoreFragment : Fragment() {
     private val listingViewModel: ListingViewModel by activityViewModels()
     private val addStoreDataViewModel: AddStoreDataViewModel by activityViewModels()
 
-    private var mode = DataMode.NEW
-
-    private var pickedCategory: Category? = null
-    private var isUniqueNIP = false
     private var firstEntry = true
 
     private lateinit var dropdownAdapter: CategoryDropdownAdapter
@@ -52,14 +46,67 @@ class AddStoreFragment : Fragment() {
         return binding.root
     }
 
+    private fun isMandatoryFieldCorrect(): Boolean {
+        return binding.storeDefaultCategoryLayout.error == null &&
+                binding.storeNameLayout.error == null
+    }
 
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
+    override fun defineToolbar() {
         binding.toolbar.inflateMenu(R.menu.top_menu_basic_add)
         binding.toolbar.setNavigationIcon(R.drawable.back)
 
+        binding.toolbar.setOnMenuItemClickListener {
+            when (it.itemId) {
+                R.id.confirm -> {
+                    if (!validateObligatoryFields(getInputs())) {
+                        if (isMandatoryFieldCorrect()) {
+                            ConfirmDialog(
+                                getString(R.string.nip_incorrect),
+                                getString(R.string.should_continue)
+                            ) { save() }.show(childFragmentManager, "TAG")
+                        }
+                        return@setOnMenuItemClickListener false
+                    }
+                    save()
+
+                    true
+                }
+
+                else -> false
+            }
+        }
+        binding.toolbar.setNavigationOnClickListener {
+            clearInputs()
+            Navigation.findNavController(it).popBackStack()
+        }
+    }
+
+    private fun validateObligatoryFields(
+        storeInputs: StoreInputs,
+        validateId: Boolean = true
+    ): Boolean {
+        val errors = addStoreDataViewModel.validateObligatoryFields(storeInputs, validateId)
+        binding.storeDefaultCategoryLayout.error = errors.categoryId
+        binding.storeNameLayout.error = errors.name
+        binding.storeNIPLayout.error = errors.nip
+        return errors.isCorrect()
+    }
+
+
+    private fun getInputs(): StoreInputs {
+        return StoreInputs(
+            binding.storeNameInput.text,
+            binding.storeNIPInput.text,
+            addStoreDataViewModel.pickedCategory?.id
+        )
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        defineToolbar()
+
         dropdownAdapter = CategoryDropdownAdapter(
-            requireContext(), R.layout.array_adapter_row, arrayListOf()
+            requireContext(), R.layout.array_adapter_row, listOf()
         ).also { adapter ->
             binding.storeDefaultCategoryInput.setAdapter(adapter)
         }
@@ -69,38 +116,18 @@ class AddStoreFragment : Fragment() {
         addStoreDataViewModel.refreshStoreList()
         addStoreDataViewModel.refreshCategoryList()
 
-        applyInputParameters()
-
         imageViewModel.bitmapCroppedReceipt.value?.let {
             binding.receiptImage.setImageBitmap(it)
         }
 
         binding.storeNIPInput.doOnTextChanged { text, _, _, _ ->
-            validateNip(text.toString())
-            isUniqueNIP = isNIPUnique(text.toString())
+            val errorMessage = addStoreDataViewModel.validateNip(text)
+            binding.storeNIPLayout.error = errorMessage
         }
-        binding.toolbar.setOnMenuItemClickListener {
-            when (it.itemId) {
-                R.id.confirm -> {
-                    if (!isStoreInputValid()) {
-                        return@setOnMenuItemClickListener false
-                    }
-
-                    if (binding.storeNIPLayout.error != null) {
-                        ConfirmDialog("Invalid NIP", "Continue?")
-                        {
-                            saveChangesToDatabase()
-                        }.show(childFragmentManager, "TAG")
-                    } else {
-                        saveChangesToDatabase()
-                    }
-                    true
-                }
-
-                else -> false
-            }
+        binding.storeNameInput.doOnTextChanged { text, _, _, _ ->
+            val errorMessage = addStoreDataViewModel.validateName(text)
+            binding.storeNameLayout.error = errorMessage
         }
-
 
         requireActivity().onBackPressedDispatcher.addCallback(
             viewLifecycleOwner, object : OnBackPressedCallback(true) {
@@ -110,17 +137,13 @@ class AddStoreFragment : Fragment() {
                 }
             }
         )
-        binding.toolbar.setNavigationOnClickListener {
-            clearInputs()
-            Navigation.findNavController(it).popBackStack()
-        }
 
         binding.storeDefaultCategoryInput.setOnItemClickListener { adapter, _, position, _ ->
-            pickedCategory = adapter.getItemAtPosition(position) as Category
+            addStoreDataViewModel.pickedCategory = adapter.getItemAtPosition(position) as Category
 
-            if ("" == pickedCategory?.color && binding.storeDefaultCategoryInput.adapter.count - 1 == position) {
+            if ("" == addStoreDataViewModel.pickedCategory?.color && binding.storeDefaultCategoryInput.adapter.count - 1 == position) {
                 binding.storeDefaultCategoryInput.setText("")
-
+                saveInputsToViewModel()
                 val action = AddStoreFragmentDirections.actionAddStoreFragmentToAddCategoryFragment(
                     categoryId = "",
                     inputType = AddingInputType.EMPTY.name,
@@ -128,19 +151,30 @@ class AddStoreFragment : Fragment() {
                 )
                 Navigation.findNavController(requireView()).navigate(action)
             } else {
-                binding.storeDefaultCategoryInput.setText(pickedCategory?.name)
+                binding.storeDefaultCategoryInput.setText(addStoreDataViewModel.pickedCategory?.name)
+                binding.storeDefaultCategoryLayout.error = null
                 binding.storeDefaultCategoryInput.isEnabled = false
             }
         }
 
         binding.storeDefaultCategoryLayout.setStartIconOnClickListener {
             binding.storeDefaultCategoryInput.setText("")
-            pickedCategory = null
+            addStoreDataViewModel.pickedCategory = null
             binding.storeDefaultCategoryInput.isEnabled = true
         }
     }
 
-    private fun consumeNavArgs() {
+    private fun saveInputsToViewModel() {
+        addStoreDataViewModel.storeInputs.nip = binding.storeNIPInput.text.toString()
+        addStoreDataViewModel.storeInputs.name = binding.storeNameInput.text.toString()
+    }
+
+    private fun putInputsFromViewModel() {
+        binding.storeNIPInput.setText(addStoreDataViewModel.storeInputs.nip)
+        binding.storeNameInput.setText(addStoreDataViewModel.storeInputs.name)
+    }
+
+    override fun consumeNavArgs() {
         if (firstEntry && navArgs.sourceFragment != FragmentName.ADD_CATEGORY_FRAGMENT) {
             firstEntry = false
             addStoreDataViewModel.inputType = navArgs.inputType
@@ -150,7 +184,9 @@ class AddStoreFragment : Fragment() {
             if (navArgs.categoryId.isNotEmpty()) {
                 addStoreDataViewModel.categoryId = navArgs.categoryId
             }
+            applyInputParameters()
         } else if (navArgs.sourceFragment == FragmentName.ADD_CATEGORY_FRAGMENT) {
+            putInputsFromViewModel()
             if (navArgs.categoryId.isNotEmpty()) {
                 addStoreDataViewModel.categoryId = navArgs.categoryId
             }
@@ -161,7 +197,7 @@ class AddStoreFragment : Fragment() {
         val inputType = AddingInputType.getByName(addStoreDataViewModel.inputType)
         if (inputType == AddingInputType.EMPTY) {
             addStoreDataViewModel.storeById.value = null
-            mode = DataMode.NEW
+            addStoreDataViewModel.mode = DataMode.NEW
             binding.storeNIPInput.setText("")
             binding.storeNameInput.setText("")
             binding.storeDefaultCategoryInput.setText("")
@@ -170,7 +206,7 @@ class AddStoreFragment : Fragment() {
         } else if (inputType == AddingInputType.ID) {
             if (addStoreDataViewModel.storeId.isNotEmpty()) {
                 binding.toolbar.title = getString(R.string.edit_store_title)
-                mode = DataMode.EDIT
+                addStoreDataViewModel.mode = DataMode.EDIT
                 addStoreDataViewModel.getStoreById(addStoreDataViewModel.storeId)
             } else {
                 throw Exception("NO STORE ID SET")
@@ -184,35 +220,25 @@ class AddStoreFragment : Fragment() {
         }
     }
 
-    private fun validateNip(text: String) {
-        if (!NipValidator.validate(text)) {
-            binding.storeNIPLayout.error = getString(R.string.nip_incorrect)
-            binding.storeNIPLayout.helperText = null
-        } else {
-            binding.storeNIPLayout.error = null
-            binding.storeNIPLayout.helperText = getString(R.string.nip_correct)
-        }
-    }
-
-    private fun saveChangesToDatabase() {
-        if (mode == DataMode.NEW) {
+    override fun save() {
+        if (addStoreDataViewModel.mode == DataMode.NEW) {
             val store = Store(
                 binding.storeNIPInput.text.toString(),
                 binding.storeNameInput.text.toString(),
-                pickedCategory?.id ?: throw NoCategoryIdException()
+                addStoreDataViewModel.pickedCategory?.id ?: throw NoCategoryIdException()
             )
             addStoreDataViewModel.insertStore(store)
-        }
-        if (mode == DataMode.EDIT) {
+        } else if (addStoreDataViewModel.mode == DataMode.EDIT) {
             val store = addStoreDataViewModel.storeById.value!!
             store.nip = binding.storeNIPInput.text.toString()
             store.name = binding.storeNameInput.text.toString()
-            store.defaultCategoryId = pickedCategory?.id ?: throw NoCategoryIdException()
+            store.defaultCategoryId =
+                addStoreDataViewModel.pickedCategory?.id ?: throw NoCategoryIdException()
             addStoreDataViewModel.updateStore(store)
         }
     }
 
-    private fun initObserver() {
+    override fun initObserver() {
         imageViewModel.bitmapCroppedReceipt.observe(viewLifecycleOwner) {
             if (it != null) {
                 binding.receiptImage.visibility = View.VISIBLE
@@ -224,8 +250,7 @@ class AddStoreFragment : Fragment() {
 
         addStoreDataViewModel.categoryList.observe(viewLifecycleOwner) { categoryList ->
             categoryList?.let {
-                dropdownAdapter.categoryList = it
-                dropdownAdapter.notifyDataSetChanged()
+                dropdownAdapter.updateList(categoryList)
             }
             if (addStoreDataViewModel.categoryId.isNotEmpty()) {
                 setCategory()
@@ -242,7 +267,8 @@ class AddStoreFragment : Fragment() {
                 binding.storeNameInput.setText(store.name)
                 binding.storeNIPInput.setText(store.nip)
 
-                validateNip(store.nip)
+                validateObligatoryFields(getInputs())
+
             }
         }
 
@@ -269,60 +295,21 @@ class AddStoreFragment : Fragment() {
         }
     }
 
-    private fun isNIPUnique(text: String): Boolean {
-        if (addStoreDataViewModel.storeById.value?.nip == text) {
-            return true
-        }
-        val index = addStoreDataViewModel.storeList.value?.map { it.nip }?.indexOf(text) ?: -1
-        if (addStoreDataViewModel.storeList.value?.find { it.nip == text } != null) {
-            binding.storeNIPLayout.error =
-                "NIP exist in store " + (addStoreDataViewModel.storeList.value?.get(index)?.name)
-            return false
-        }
-        return true
-
-    }
-
-    private fun clearInputs() {
+    override fun clearInputs() {
         addStoreDataViewModel.storeById.value = null
+        addStoreDataViewModel.pickedCategory = null
+        addStoreDataViewModel.categoryId = ""
     }
 
-    private fun isStoreInputValid(): Boolean {
-        if (binding.storeNameInput.text.toString() == "") {
-            Toast.makeText(requireContext(), getString(R.string.empty_name), Toast.LENGTH_SHORT)
-                .show()
-            return false
-        }
-        if (binding.storeNIPInput.text.toString() == "") {
-            Toast.makeText(requireContext(), getString(R.string.empty_nip), Toast.LENGTH_SHORT)
-                .show()
-            return false
-        }
-        if (pickedCategory?.id == null || pickedCategory?.id?.isEmpty() == true) {
-            Toast.makeText(requireContext(), getString(R.string.pick_category), Toast.LENGTH_SHORT)
-                .show()
-            return false
-        }
-        if (!isNIPUnique(binding.storeNIPInput.text.toString())) {
-            Toast.makeText(
-                requireContext(),
-                getString(R.string.nip_already_exists),
-                Toast.LENGTH_SHORT
-            ).show()
-            return false
-        }
-        return true
-    }
 
     private fun setCategory() {
-        pickedCategory = try {
-            addStoreDataViewModel.categoryList.value?.first { category -> category.id == addStoreDataViewModel.categoryId }
-        } catch (exception: Exception) {
-            null
-        }
-        pickedCategory?.let {
+        addStoreDataViewModel.pickedCategory =
+            addStoreDataViewModel.categoryList.value?.find { category -> category.id == addStoreDataViewModel.categoryId }
+
+        addStoreDataViewModel.pickedCategory?.let {
             binding.storeDefaultCategoryInput.setText(it.name)
             binding.storeDefaultCategoryInput.isEnabled = false
+            binding.storeDefaultCategoryLayout.error = null
         }
     }
 }

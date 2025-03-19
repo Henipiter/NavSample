@@ -1,14 +1,19 @@
 package com.example.navsample.entities
 
 import android.util.Log
+import com.example.navsample.entities.converters.DocumentToEntityConverter
 import com.example.navsample.entities.database.Category
 import com.example.navsample.entities.database.Product
+import com.example.navsample.entities.database.ProductTagCrossRef
 import com.example.navsample.entities.database.Receipt
 import com.example.navsample.entities.database.Store
+import com.example.navsample.entities.database.Tag
 import com.example.navsample.entities.firestore.CategoryFirebase
 import com.example.navsample.entities.firestore.ProductFirebase
+import com.example.navsample.entities.firestore.ProductTagCrossRefFirebase
 import com.example.navsample.entities.firestore.ReceiptFirebase
 import com.example.navsample.entities.firestore.StoreFirebase
+import com.example.navsample.entities.firestore.TagFirebase
 import com.example.navsample.entities.firestore.TranslateFirebaseEntity
 import com.google.firebase.Firebase
 import com.google.firebase.firestore.CollectionReference
@@ -33,7 +38,7 @@ class FirebaseHelperImpl(
                 "${objectClass.simpleName} docs size: ${snapshot.documents.size}"
             )
             for (document in snapshot.documents) {
-                val entity = document.toObject(objectClass.java)
+                val entity = DocumentToEntityConverter.convert(document, objectClass)
                 entity?.let { list.add(it) }
             }
         } else {
@@ -58,7 +63,7 @@ class FirebaseHelperImpl(
                         "${objectClass.simpleName} docs size: ${snapshot.documents.size}"
                     )
                     for (document in snapshot.documents) {
-                        val entity = document.toObject(objectClass.java)
+                        val entity = DocumentToEntityConverter.convert(document, objectClass)
                         entity?.let {
                             saveEntity(entity)
                         }
@@ -73,6 +78,7 @@ class FirebaseHelperImpl(
     override fun <T : TranslateEntity> getDataByQuery(type: KClass<out T>, date: String): Query {
         var query = getFullFirestorePath(type)
             .whereEqualTo("deletedAt", "")
+            .whereEqualTo("isSync", true)
             .orderBy("updatedAt")
             .limit(100)
 
@@ -122,7 +128,10 @@ class FirebaseHelperImpl(
     }
 
     override fun <T : TranslateEntity> delete(entity: T, updateDb: (String) -> Unit) {
-        if (entity.firestoreId != "") {
+        if (entity.firestoreId == "") {
+            return
+        }
+        try {
             getFullFirestorePath(entity::class)
                 .document(entity.firestoreId)
                 .update(entity.deleteData())
@@ -139,11 +148,16 @@ class FirebaseHelperImpl(
                         "Updating field deletedAt for '${entity.javaClass.simpleName} error: ${e.message}"
                     )
                 }
+        } catch (exception: Exception) {
+            Log.e("Firebase", exception.message ?: "Error at deleting")
         }
     }
 
     override fun <T : TranslateFirebaseEntity> synchronize(entity: T, updateDb: (String) -> Unit) {
-        if (entity.firestoreId != "") {
+        if (entity.firestoreId == "") {
+            return
+        }
+        try {
             getFullFirestorePath(entity::class)
                 .document(entity.firestoreId)
                 .update(entity.synchronizeEntity())
@@ -157,6 +171,8 @@ class FirebaseHelperImpl(
                 .addOnFailureListener { e ->
                     Log.e("Firebase", "Sync error for '${entity::class.simpleName}': ${e.message}")
                 }
+        } catch (exception: Exception) {
+            Log.e("Firebase", exception.message ?: "Error at synchronizeing")
         }
     }
 
@@ -192,6 +208,14 @@ class FirebaseHelperImpl(
             Product::class, ProductFirebase::class -> {
                 return PRODUCT_FIRESTORE_PATH
             }
+
+            Tag::class, TagFirebase::class -> {
+                return TAG_FIRESTORE_PATH
+            }
+
+            ProductTagCrossRef::class, ProductTagCrossRefFirebase::class -> {
+                return PRODUCT_TAG_FIRESTORE_PATH
+            }
         }
         return "null"
     }
@@ -200,8 +224,10 @@ class FirebaseHelperImpl(
 
         private const val COLLECTION_PATH = "userTest2"
         private const val PRODUCT_FIRESTORE_PATH = "products"
+        private const val PRODUCT_TAG_FIRESTORE_PATH = "productTags"
         private const val RECEIPT_FIRESTORE_PATH = "receipts"
         private const val STORE_FIRESTORE_PATH = "stores"
         private const val CATEGORY_FIRESTORE_PATH = "categories"
+        private const val TAG_FIRESTORE_PATH = "tags"
     }
 }

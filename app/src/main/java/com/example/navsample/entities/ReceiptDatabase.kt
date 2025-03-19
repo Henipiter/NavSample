@@ -6,8 +6,10 @@ import androidx.room.Room
 import androidx.room.RoomDatabase
 import com.example.navsample.entities.database.Category
 import com.example.navsample.entities.database.Product
+import com.example.navsample.entities.database.ProductTagCrossRef
 import com.example.navsample.entities.database.Receipt
 import com.example.navsample.entities.database.Store
+import com.example.navsample.entities.database.Tag
 
 @Database(
     entities = [
@@ -15,7 +17,8 @@ import com.example.navsample.entities.database.Store
         Product::class,
         Receipt::class,
         Store::class,
-        User::class
+        Tag::class,
+        ProductTagCrossRef::class
     ],
     version = 1
 )

@@ -23,7 +23,6 @@ import com.example.navsample.dto.sort.StoreSort
 import com.example.navsample.entities.database.Store
 import com.example.navsample.fragments.dialogs.ConfirmDialog
 import com.example.navsample.fragments.dialogs.SortingDialog
-import com.example.navsample.sheets.ReceiptBottomSheetFragment
 import com.example.navsample.sheets.StoreBottomSheetFragment
 import com.example.navsample.viewmodels.ListingViewModel
 import com.example.navsample.viewmodels.fragment.AddStoreDataViewModel
@@ -55,6 +54,7 @@ class StoreListFragment : Fragment(), ItemClickListener {
         binding.refreshLayout.setOnRefreshListener {
             refreshList()
         }
+        addStoreDataViewModel.refreshCategoryList()
 
         recyclerViewEvent = binding.recyclerViewEventReceipts
         storeListAdapter = StoreListAdapter(
@@ -165,7 +165,7 @@ class StoreListFragment : Fragment(), ItemClickListener {
             { onDelete(index, store) },
             { onJumpToCategory(store.defaultCategoryId) }
         )
-        modalBottomSheet.show(parentFragmentManager, ReceiptBottomSheetFragment.TAG)
+        modalBottomSheet.show(parentFragmentManager, StoreBottomSheetFragment.TAG)
     }
 
     private fun onDelete(index: Int, store: Store) {
@@ -173,17 +173,18 @@ class StoreListFragment : Fragment(), ItemClickListener {
             getString(R.string.delete_confirmation_title),
             getString(R.string.delete_store_confirmation_dialog)
         ) {
-            addStoreDataViewModel.deleteStore(store.id)
-            listingViewModel.storeList.value?.let { storeList ->
-                storeList.removeAt(index)
-                storeListAdapter.storeList = storeList
-                storeListAdapter.notifyItemRemoved(index)
-                storeListAdapter.notifyItemRangeChanged(
-                    index, storeListAdapter.storeList.size
-                )
+            addStoreDataViewModel.deleteStore(store.id) {
+                listingViewModel.storeList.value?.let { storeList ->
+                    storeList.removeAt(index)
+                    storeListAdapter.storeList = storeList
+                    storeListAdapter.notifyItemRemoved(index)
+                    storeListAdapter.notifyItemRangeChanged(
+                        index, storeListAdapter.storeList.size
+                    )
+                }
+                listingViewModel.loadDataByProductFilter()
+                listingViewModel.loadDataByReceiptFilter()
             }
-            listingViewModel.loadDataByProductFilter()
-            listingViewModel.loadDataByReceiptFilter()
         }.show(childFragmentManager, "TAG")
     }
 

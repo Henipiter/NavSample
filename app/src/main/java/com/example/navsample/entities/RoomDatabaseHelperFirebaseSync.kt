@@ -3,12 +3,16 @@ package com.example.navsample.entities
 import android.util.Log
 import com.example.navsample.entities.database.Category
 import com.example.navsample.entities.database.Product
+import com.example.navsample.entities.database.ProductTagCrossRef
 import com.example.navsample.entities.database.Receipt
 import com.example.navsample.entities.database.Store
+import com.example.navsample.entities.database.Tag
 import com.example.navsample.entities.firestore.CategoryFirebase
 import com.example.navsample.entities.firestore.ProductFirebase
+import com.example.navsample.entities.firestore.ProductTagCrossRefFirebase
 import com.example.navsample.entities.firestore.ReceiptFirebase
 import com.example.navsample.entities.firestore.StoreFirebase
+import com.example.navsample.entities.firestore.TagFirebase
 
 class RoomDatabaseHelperFirebaseSync(
     private var dao: ReceiptDao
@@ -35,6 +39,16 @@ class RoomDatabaseHelperFirebaseSync(
         return dao.getAllNotAddedProduct()
     }
 
+    suspend fun getAllNotAddedTag(): List<Tag> {
+        Log.i("Database", "getAllNotAddedTag")
+        return dao.getAllNotAddedTag()
+    }
+
+    suspend fun getAllNotAddedProductTags(): List<ProductTagCrossRef> {
+        Log.i("Database", "getAllNotAddedProductTags")
+        return dao.getAllNotAddedProductTag()
+    }
+
     suspend fun getAllNotSyncedCategories(): List<CategoryFirebase> {
         Log.i("Database", "getAllNotSyncedCategories")
         return dao.getAllNotSyncedCategories()
@@ -50,6 +64,16 @@ class RoomDatabaseHelperFirebaseSync(
         return dao.getNotSyncedProductForFirestore()
     }
 
+    suspend fun getAllNotSyncedTags(): List<TagFirebase> {
+        Log.i("Database", "getAllNotSyncedTags")
+        return dao.getNotSyncedTagForFirestore()
+    }
+
+    suspend fun getAllNotSyncedProductTags(): List<ProductTagCrossRefFirebase> {
+        Log.i("Database", "getAllNotSyncedProductTags")
+        return dao.getNotSyncedProductTagForFirestore()
+    }
+
     suspend fun getAllNotSyncedReceipts(): List<ReceiptFirebase> {
         Log.i("Database", "getAllNotSyncedReceipts")
         return dao.getNotSyncedReceiptForFirestore()
@@ -63,6 +87,16 @@ class RoomDatabaseHelperFirebaseSync(
     suspend fun getAllOutdatedStores(): List<Store> {
         Log.i("Database", "getAllOutdatedStores")
         return dao.getOutdatedStoreForFirestore()
+    }
+
+    suspend fun getAllOutdatedTags(): List<Tag> {
+        Log.i("Database", "getAllOutdatedTags")
+        return dao.getOutdatedTagForFirestore()
+    }
+
+    suspend fun getAllOutdatedProductTags(): List<ProductTagCrossRef> {
+        Log.i("Database", "getAllOutdatedProductTags")
+        return dao.getOutdatedProductTagForFirestore()
     }
 
     suspend fun getAllOutdatedProducts(): List<Product> {
@@ -95,6 +129,16 @@ class RoomDatabaseHelperFirebaseSync(
         dao.syncProduct(id)
     }
 
+    suspend fun syncTag(id: String) {
+        Log.i("Database", "syncTag")
+        dao.syncTag(id)
+    }
+
+    suspend fun syncProductTag(id: String) {
+        Log.i("Database", "syncProductTag")
+        dao.syncProductTag(id)
+    }
+
     suspend fun replaceCategoryWithDependencies(oldId: String) {
         dao.replaceCategoryWithDependencies(oldId)
     }
@@ -109,5 +153,13 @@ class RoomDatabaseHelperFirebaseSync(
 
     suspend fun replaceProductWithDependencies(oldId: String) {
         return dao.replaceProductWithDependencies(oldId)
+    }
+
+    suspend fun replaceTagWithDependencies(oldId: String) {
+        return dao.replaceTagWithDependencies(oldId)
+    }
+
+    suspend fun replaceProductTagWithDependencies(oldId: String) {
+        return dao.replaceProductTagWithDependencies(oldId)
     }
 }

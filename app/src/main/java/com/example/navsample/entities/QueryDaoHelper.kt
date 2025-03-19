@@ -33,7 +33,7 @@ class QueryDaoHelper {
             orderBy: SortProperty<ReceiptWithStoreSort>
         ): SupportSQLiteQuery {
             val sql = StringBuilder()
-                .append("SELECT r.id as id, storeId, nip, s.name, s.defaultCategoryId, pln, ptu, date, time, productPriceSum, validProductCount, productCount ")
+                .append("SELECT r.id as id, storeId, nip, s.name, s.defaultCategoryId, pln, ptu, date, time, productPriceSum, validProductCount, productCount, r.isSync, r.toUpdate, r.toDelete ")
                 .append("FROM receipt r ")
                 .append("INNER JOIN  store s ON  s.id = r.storeId ")
                 .append("LEFT JOIN (")
@@ -79,7 +79,21 @@ class QueryDaoHelper {
             sql.append("ORDER BY $orderBy")
             return SimpleSQLiteQuery(sql.toString())
         }
+
+        fun getProductWithTag(): SupportSQLiteQuery {
+            val sql = StringBuilder()
+                .append("SELECT p.id, p.name AS productName, t.id AS tagId, t.name AS tagName, pt.deletedAt ")
+                .append("FROM ProductTagCrossRef pt ")
+                .append("INNER JOIN product p ON pt.productId = p.id ")
+                .append("INNER JOIN tag t ON pt.tagId = t.id ")
+                .append("WHERE pt.deletedAt == '' ")
+                .append("AND t.deletedAt == '' ")
+                .append("ORDER BY p.name")
+                .toString()
+            return SimpleSQLiteQuery(sql)
+        }
     }
+
 }
 /*
 select isValidd, * from receipt r left join (

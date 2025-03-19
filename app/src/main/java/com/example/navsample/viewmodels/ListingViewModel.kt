@@ -1,13 +1,14 @@
 package com.example.navsample.viewmodels
 
+import android.app.Application
+import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.navsample.ApplicationContext
 import com.example.navsample.dto.filter.FilterCategoryList
 import com.example.navsample.dto.filter.FilterProductList
 import com.example.navsample.dto.filter.FilterReceiptList
 import com.example.navsample.dto.filter.FilterStoreList
+import com.example.navsample.dto.filter.FilterTagList
 import com.example.navsample.dto.sort.Direction
 import com.example.navsample.dto.sort.ParentSort
 import com.example.navsample.dto.sort.ReceiptWithStoreSort
@@ -18,13 +19,18 @@ import com.example.navsample.entities.ReceiptDatabase
 import com.example.navsample.entities.RoomDatabaseHelper
 import com.example.navsample.entities.database.Category
 import com.example.navsample.entities.database.Store
+import com.example.navsample.entities.database.Tag
+import com.example.navsample.entities.relations.GroupedProductWithTag
 import com.example.navsample.entities.relations.ProductRichData
+import com.example.navsample.entities.relations.ProductWithTag
 import com.example.navsample.entities.relations.ReceiptWithStore
 import kotlinx.coroutines.launch
 
-class ListingViewModel : ViewModel() {
-    private val dao = ApplicationContext.context?.let { ReceiptDatabase.getInstance(it).receiptDao }
-    private var roomDatabaseHelper = RoomDatabaseHelper(dao!!)
+class ListingViewModel(
+    application: Application
+) : AndroidViewModel(application) {
+    private val dao = ReceiptDatabase.getInstance(application).receiptDao
+    private var roomDatabaseHelper = RoomDatabaseHelper(dao)
 
     val defaultStoreSort = SortProperty<StoreSort>(StoreSort.NAME, Direction.ASCENDING)
     val defaultRichProductSort =
@@ -37,6 +43,7 @@ class ListingViewModel : ViewModel() {
     val richProductSort = MutableLiveData(defaultRichProductSort)
 
 
+    val filterTagList = MutableLiveData(FilterTagList())
     val filterCategoryList = MutableLiveData(FilterCategoryList())
     val filterStoreList = MutableLiveData(FilterStoreList())
     val filterProductList = MutableLiveData(FilterProductList())
@@ -45,6 +52,8 @@ class ListingViewModel : ViewModel() {
     var productRichList = MutableLiveData<ArrayList<ProductRichData>>()
     var receiptList = MutableLiveData<ArrayList<ReceiptWithStore>>()
     var categoryList = MutableLiveData<ArrayList<Category>>()
+    var productTagList = MutableLiveData<ArrayList<GroupedProductWithTag>>()
+    var tagList = MutableLiveData<ArrayList<Tag>>()
     var storeList = MutableLiveData<ArrayList<Store>>()
 
     init {
@@ -54,18 +63,22 @@ class ListingViewModel : ViewModel() {
         loadDataByStoreFilter()
         loadDataByReceiptFilter()
         loadDataByProductFilter()
+        refreshProductTagList()
         loadDataByCategoryFilter()
+        loadDataByTagFilter()
     }
 
     fun clearData() {
         filterCategoryList.postValue(FilterCategoryList())
         filterStoreList.postValue(FilterStoreList())
-        filterProductList.postValue(FilterProductList())
         filterReceiptList.postValue(FilterReceiptList())
-        productRichList.value?.clear()
-        receiptList.value?.clear()
+        filterProductList.postValue(FilterProductList())
+        filterTagList.postValue(FilterTagList())
         categoryList.value?.clear()
         storeList.value?.clear()
+        receiptList.value?.clear()
+        productRichList.value?.clear()
+        tagList.value?.clear()
     }
 
     fun <Sort : ParentSort> updateSorting(sort: SortProperty<Sort>) {
@@ -81,6 +94,12 @@ class ListingViewModel : ViewModel() {
             is RichProductSort -> {
                 loadDataByProductFilter()
             }
+        }
+    }
+
+    fun loadDataByTagFilter() {
+        filterTagList.value?.let {
+            refreshTagList(it.tagName)
         }
     }
 
@@ -142,6 +161,30 @@ class ListingViewModel : ViewModel() {
         }
     }
 
+    fun refreshTagList() { //TODO wywolanie w hookUpFragment
+        viewModelScope.launch {
+            tagList.postValue(roomDatabaseHelper.getAllTags() as ArrayList<Tag>)
+        }
+    }
+
+    private fun refreshTagList(tagName: String) {
+        viewModelScope.launch {
+            tagList.postValue(roomDatabaseHelper.getAllTags(tagName) as ArrayList<Tag>)
+        }
+    }
+
+    fun refreshProductTagList() {
+        viewModelScope.launch {
+            val list = roomDatabaseHelper.getProductWithTag()
+            val ids = list?.map { it.id }
+            val groupedProductWithTags = arrayListOf<GroupedProductWithTag>()
+            ids?.forEach {
+                groupedProductWithTags.add(GroupedProductWithTag.convert(it, list))
+            }
+            productTagList.postValue(groupedProductWithTags)
+        }
+    }
+
     fun refreshStoreList() {
         viewModelScope.launch {
             storeList.postValue(roomDatabaseHelper.getAllStores() as ArrayList<Store>)
@@ -169,17 +212,48 @@ class ListingViewModel : ViewModel() {
         higherPrice: Int
     ) {
         viewModelScope.launch {
-            productRichList.postValue(
-                roomDatabaseHelper.getAllProductsOrderedWithHigherPrice(
-                    storeName,
-                    categoryName,
-                    dateFrom,
-                    dateTo,
-                    lowerPrice,
-                    higherPrice,
-                    richProductSort.value ?: defaultRichProductSort
-                ) as ArrayList<ProductRichData>
-            )
+
+
+            val productTagList = roomDatabaseHelper.getProductWithTag()
+            val productList = roomDatabaseHelper.getAllProductsOrderedWithHigherPrice(
+                storeName,
+                categoryName,
+                dateFrom,
+                dateTo,
+                lowerPrice,
+                higherPrice,
+                richProductSort.value ?: defaultRichProductSort
+            ) as ArrayList<ProductRichData>
+
+            getTagsForAllProducts(productList, productTagList)
+
+
+            productRichList.postValue(productList)
         }
     }
+
+    private fun getTagsForAllProducts(
+        productList: List<ProductRichData>, productTags: List<ProductWithTag>?
+    ) {
+        productList.forEach {
+            val tagsList = getTagsForProductId(it.id, productTags)
+            it.tagList = tagsList
+        }
+    }
+
+    private fun getTagsForProductId(
+        productId: String,
+        productTags: List<ProductWithTag>?
+    ): ArrayList<Tag> {
+        val tags = arrayListOf<Tag>()
+        productTags?.forEach {
+            if (it.deletedAt.isEmpty() && it.id == productId && it.tagId != null) {
+                val tag = Tag(it.tagName)
+                tag.id = it.tagId!!
+                tags.add(tag)
+            }
+        }
+        return tags
+    }
+
 }

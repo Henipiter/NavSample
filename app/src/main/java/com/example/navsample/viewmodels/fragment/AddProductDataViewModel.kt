@@ -1,22 +1,42 @@
 package com.example.navsample.viewmodels.fragment
 
+import android.app.Application
+import android.util.Log
+import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.navsample.ApplicationContext
+import com.example.navsample.R
+import com.example.navsample.dto.DataMode
+import com.example.navsample.dto.PriceUtils.Companion.doublePriceTextToInt
+import com.example.navsample.dto.PriceUtils.Companion.doubleQuantityTextToInt
+import com.example.navsample.dto.PriceUtils.Companion.intPriceToString
+import com.example.navsample.dto.PriceUtils.Companion.intQuantityToString
+import com.example.navsample.dto.StringProvider
+import com.example.navsample.dto.TagList
 import com.example.navsample.dto.inputmode.AddingInputType
 import com.example.navsample.entities.FirestoreHelperSingleton
-import com.example.navsample.entities.ReceiptDatabase
+import com.example.navsample.entities.ReceiptDao
 import com.example.navsample.entities.RoomDatabaseHelper
 import com.example.navsample.entities.database.Category
 import com.example.navsample.entities.database.Product
+import com.example.navsample.entities.database.ProductTagCrossRef
 import com.example.navsample.entities.database.Receipt
 import com.example.navsample.entities.database.Store
+import com.example.navsample.entities.database.Tag
+import com.example.navsample.entities.inputs.ProductErrorInputsMessage
+import com.example.navsample.entities.inputs.ProductInputs
+import com.example.navsample.entities.inputs.SubtotalMessageError
+import com.example.navsample.entities.relations.ProductWithTag
 import kotlinx.coroutines.launch
+import kotlin.math.round
 
-class AddProductDataViewModel : ViewModel() {
+class AddProductDataViewModel(
+    application: Application,
+    receiptDao: ReceiptDao,
+    private var stringProvider: StringProvider
+) : AndroidViewModel(application) {
 
-    private var roomDatabaseHelper: RoomDatabaseHelper
+    private var roomDatabaseHelper = RoomDatabaseHelper(receiptDao)
 
     var inputType = AddingInputType.EMPTY.name
     var productIndex = -1
@@ -24,7 +44,14 @@ class AddProductDataViewModel : ViewModel() {
     var receiptId = ""
     var storeId = ""
     var categoryId = ""
+    var tagId = ""
+    var storeDefaultCategoryName = ""
 
+    var pickedCategory: Category? = null
+    var productInputs: Product = Product()
+    var mode = DataMode.NEW
+
+    var tagList = MutableLiveData<TagList>()
     var categoryList = MutableLiveData<List<Category>>()
     var databaseProductList = MutableLiveData<ArrayList<Product>>()
     var temporaryProductList = MutableLiveData<ArrayList<Product>>()
@@ -33,12 +60,6 @@ class AddProductDataViewModel : ViewModel() {
     var productById = MutableLiveData<Product?>()
     var storeById = MutableLiveData<Store?>()
     var cropImageFragmentOnStart = true
-
-    init {
-        val dao = ApplicationContext.context?.let { ReceiptDatabase.getInstance(it).receiptDao }
-            ?: throw Exception("NOT SET DATABASE")
-        roomDatabaseHelper = RoomDatabaseHelper(dao)
-    }
 
     fun aggregateProductList(): List<Product> {
         val aggregatedList = arrayListOf<Product>()
@@ -54,11 +75,88 @@ class AddProductDataViewModel : ViewModel() {
         }
     }
 
-    fun deleteProduct(productId: String) {
+
+    private fun insertProductTags(productTagCrossRef: ProductTagCrossRef) {
         viewModelScope.launch {
+            val savedProductTag =
+                roomDatabaseHelper.insertProductTag(productTagCrossRef)
+            FirestoreHelperSingleton.getInstance().addFirestore(savedProductTag) {
+                viewModelScope.launch {
+                    roomDatabaseHelper.updateProductTagFirestoreId(savedProductTag.id, it)
+                }
+            }
+        }
+    }
+
+    fun refreshTagsList() {
+        viewModelScope.launch {
+            //TODO change handling selected/non-selected; Get it by db query
+            val currentTagList = roomDatabaseHelper.getAllTags()
+
+            val selectedTags = arrayListOf<Tag>()
+            val notSelectedTags = arrayListOf<Tag>()
+            if (productId.isEmpty()) {
+                notSelectedTags.addAll(currentTagList)
+                return@launch
+            }
+
+            val productTagIds = roomDatabaseHelper.getAllProductTags(productId).map { it.tagId }
+            currentTagList.forEach { tag ->
+                if (productTagIds.contains(tag.id)) {
+                    selectedTags.add(tag)
+                } else {
+                    notSelectedTags.add(tag)
+                }
+            }
+            tagList.postValue(TagList(selectedTags, notSelectedTags))
+        }
+    }
+
+    fun refreshTagsList(tags: List<Tag>) {
+        viewModelScope.launch {
+            //TODO change handling selected/non-selected; Get it by db query
+            val currentTagList = roomDatabaseHelper.getAllTags()
+
+            val selectedTags = arrayListOf<Tag>()
+            val notSelectedTags = arrayListOf<Tag>()
+
+            val productTagIds = tags.map { it.id }
+            currentTagList.forEach { tag ->
+                if (productTagIds.contains(tag.id)) {
+                    selectedTags.add(tag)
+                } else if (tagId.isNotEmpty() && tagId == tag.id) {
+                    selectedTags.add(tag)
+                    tagId = ""
+                } else {
+                    notSelectedTags.add(tag)
+                }
+            }
+            tagList.postValue(TagList(selectedTags, notSelectedTags))
+        }
+    }
+
+
+    fun deleteProduct(productId: String, onFinish: () -> Unit) {
+        viewModelScope.launch {
+            val deletedProductTags = roomDatabaseHelper.deleteProductProductTag(productId)
+            FirestoreHelperSingleton.getInstance().delete(deletedProductTags) { id ->
+                viewModelScope.launch { roomDatabaseHelper.markProductTagAsDeleted(id) }
+            }
+
+
             val deletedProduct = roomDatabaseHelper.deleteProductById(productId)
             FirestoreHelperSingleton.getInstance().delete(deletedProduct) { id ->
                 viewModelScope.launch { roomDatabaseHelper.markProductAsDeleted(id) }
+            }
+            onFinish.invoke()
+        }
+    }
+
+    fun deleteProductTags(productId: String, tagId: String) {
+        viewModelScope.launch {
+            val deletedProductTag = roomDatabaseHelper.deleteProductTag(productId, tagId)
+            FirestoreHelperSingleton.getInstance().delete(deletedProductTag) { id ->
+                viewModelScope.launch { roomDatabaseHelper.markProductTagAsDeleted(id) }
             }
         }
     }
@@ -81,15 +179,44 @@ class AddProductDataViewModel : ViewModel() {
         }
     }
 
-    fun getProductsByReceiptId(receiptId: String) {
+    fun getProductByReceiptIdWithTags(receiptId: String) {
         viewModelScope.launch {
-            databaseProductList.postValue(roomDatabaseHelper.getProductsByReceiptId(receiptId) as ArrayList)
+            val productTagList = roomDatabaseHelper.getProductWithTag()
+            val productList = roomDatabaseHelper.getProductsByReceiptId(receiptId) as ArrayList
+            getTagsForAllProducts(productList, productTagList)
+            databaseProductList.postValue(productList)
         }
+    }
+
+    private fun getTagsForAllProducts(
+        productList: List<Product>, productTags: List<ProductWithTag>?
+    ) {
+        productList.forEach {
+            val tagsList = getTagsForProductId(it.id, productTags)
+            it.tagList = tagsList
+            it.originalTagList = tagsList
+        }
+    }
+
+    private fun getTagsForProductId(
+        productId: String,
+        productTags: List<ProductWithTag>?
+    ): ArrayList<Tag> {
+        val tags = arrayListOf<Tag>()
+        productTags?.forEach {
+            if (it.deletedAt.isEmpty() && it.id == productId && it.tagId != null) {
+                val tag = Tag(it.tagName)
+                tag.id = it.tagId!!
+                tags.add(tag)
+            }
+        }
+        return tags
     }
 
     fun updateSingleProduct(product: Product) {
         viewModelScope.launch {
             val updatedProduct = roomDatabaseHelper.updateProduct(product)
+            changeProductTags(updatedProduct.id, product)
             if (updatedProduct.firestoreId.isNotEmpty()) {
                 FirestoreHelperSingleton.getInstance().updateFirestore(updatedProduct) {
                     viewModelScope.launch { roomDatabaseHelper.markProductAsUpdated(product.id) }
@@ -111,11 +238,341 @@ class AddProductDataViewModel : ViewModel() {
     private fun insertSingleProduct(product: Product) {
         viewModelScope.launch {
             val savedProduct = roomDatabaseHelper.insertProduct(product)
+            addProductTags(savedProduct.id, product)
             FirestoreHelperSingleton.getInstance().addFirestore(savedProduct) {
                 viewModelScope.launch {
                     roomDatabaseHelper.updateProductFirestoreId(savedProduct.id, it)
                 }
             }
         }
+    }
+
+    private fun addProductTags(productId: String, product: Product) {
+        val idToSave = product.tagList.map { it.id }
+        idToSave.forEach {
+            insertProductTags(ProductTagCrossRef(productId, it))
+        }
+    }
+
+    private fun changeProductTags(productId: String, product: Product) {
+        val originalTagIds = product.originalTagList.map { it.id }
+        val currentTagIds = product.tagList.map { it.id }
+
+
+        val idToSave = currentTagIds.filter { !originalTagIds.contains(it) }
+        Log.d("EEAARR", "toSave $idToSave")
+        val idToDelete = originalTagIds.filter { !currentTagIds.contains(it) }
+        Log.d("EEAARR", "toDelete $idToDelete")
+
+        idToSave.forEach {
+            insertProductTags(ProductTagCrossRef(productId, it))
+        }
+        idToDelete.forEach {
+            deleteProductTags(productId, it)
+        }
+    }
+
+    fun validateName(name: CharSequence?): String? {
+        if (name.isNullOrEmpty()) {
+            return getEmptyValueText()
+        }
+        return null
+    }
+
+    fun validateObligatoryFields(productInputs: ProductInputs): ProductErrorInputsMessage {
+        val errors = ProductErrorInputsMessage()
+
+        errors.name = validateName(productInputs.name)
+        errors.categoryName = validateCategory(productInputs.categoryName)
+        errors.ptuType = validatePtuType(productInputs.ptuType)
+
+        val pricesErrors = validateAllPrices(productInputs)
+        errors.quantity = pricesErrors.quantity
+        errors.unitPrice = pricesErrors.unitPrice
+        errors.subtotalPriceFirst = pricesErrors.subtotalPriceFirst
+        errors.subtotalPriceSecond = pricesErrors.subtotalPriceSecond
+        errors.discount = pricesErrors.discount
+        errors.finalPrice = pricesErrors.finalPrice
+        return errors
+    }
+
+    fun validateCategory(categoryName: CharSequence?): String? {
+        val storeCategory = storeById.value?.defaultCategoryId
+        if (storeCategory != null && storeCategory != pickedCategory?.id) {
+            if (categoryName.isNullOrEmpty()) {
+                return getDefaultCategoryPrefix() + " " + storeDefaultCategoryName
+            }
+        }
+        return null
+    }
+
+    fun validatePtuType(ptuInput: CharSequence?): String? {
+        if (ptuInput.isNullOrEmpty()) {
+            return getEmptyValueText()
+        }
+        val validLetters = setOf("A", "B", "C", "D", "E", "F", "G")
+        if (ptuInput.toString() in validLetters) {
+            return null
+        }
+        return getWrongValueText()
+    }
+
+    private fun getPriceValueOrZeroOrNull(priceText: CharSequence?): Int? {
+        val isPriceBlank1 = isNullOrBlank(priceText)
+        if (!isPriceBlank1) {
+            return doublePriceTextToInt(priceText)
+        }
+        return null
+    }
+
+    private fun getPriceValueOrNull(priceText: CharSequence?): Int? {
+        val isPriceBlank1 = isNullOrBlankOrZero(priceText)
+        if (!isPriceBlank1) {
+            return doublePriceTextToInt(priceText)
+        }
+        return null
+    }
+
+    private fun getQuantityValueOrNull(priceText: CharSequence?): Int? {
+        val isPriceBlank1 = isNullOrBlankOrZero(priceText)
+        if (!isPriceBlank1) {
+            return doubleQuantityTextToInt(priceText)
+        }
+        return null
+    }
+
+
+    private fun validateAllPrices(productInputs: ProductInputs): ProductErrorInputsMessage {
+        val quantityErrorMessage = validateQuantity(productInputs)
+        val unitPriceErrorMessage = validateUnitPrice(productInputs)
+        val subtotalErrorMessage = validateSubtotalPrice(productInputs)
+        val discountErrorMessage = validateDiscount(productInputs)
+        val finalPriceErrorMessage = validateFinalPrice(productInputs)
+
+        val errors = ProductErrorInputsMessage()
+        if (unitPriceErrorMessage != null || subtotalErrorMessage.subtotalUnit) {
+            errors.quantity = quantityErrorMessage
+        }
+        if (quantityErrorMessage != null || subtotalErrorMessage.subtotalUnit) {
+            errors.unitPrice = unitPriceErrorMessage
+        }
+        errors.subtotalPriceFirst = subtotalErrorMessage.firstSuggestion
+        errors.subtotalPriceSecond = subtotalErrorMessage.secondSuggestion
+        errors.discount = discountErrorMessage
+        errors.finalPrice = finalPriceErrorMessage
+        return errors
+    }
+
+    fun validatePrices(productInputs: ProductInputs): ProductErrorInputsMessage {
+        val quantityErrorMessage = validateQuantity(productInputs)
+        val unitPriceErrorMessage = validateUnitPrice(productInputs)
+        val subtotalErrorMessage = validateSubtotalPrice(productInputs)
+
+        val errors = ProductErrorInputsMessage()
+        if (unitPriceErrorMessage != null || subtotalErrorMessage.subtotalUnit) {
+            errors.quantity = quantityErrorMessage
+        }
+        if (quantityErrorMessage != null || subtotalErrorMessage.subtotalUnit) {
+            errors.unitPrice = unitPriceErrorMessage
+        }
+        errors.subtotalPriceFirst = subtotalErrorMessage.firstSuggestion
+        errors.subtotalPriceSecond = subtotalErrorMessage.secondSuggestion
+        return errors
+    }
+
+    fun validateFinalPrices(productInputs: ProductInputs): ProductErrorInputsMessage {
+        val subtotalErrorMessage = validateSubtotalPrice(productInputs)
+        val discountErrorMessage = validateDiscount(productInputs)
+        val finalPriceErrorMessage = validateFinalPrice(productInputs)
+
+        val errors = ProductErrorInputsMessage()
+        errors.subtotalPriceFirst = subtotalErrorMessage.firstSuggestion
+        errors.subtotalPriceSecond = subtotalErrorMessage.secondSuggestion
+        errors.discount = discountErrorMessage
+        errors.finalPrice = finalPriceErrorMessage
+        return errors
+    }
+
+    fun validateQuantity(productInputs: ProductInputs): String? {
+        val unitPrice = getPriceValueOrNull(productInputs.unitPrice)
+        val subtotalPrice = getPriceValueOrNull(productInputs.subtotalPrice)
+        val quantity = getQuantityValueOrNull(productInputs.quantity)
+
+        if (unitPrice != null && subtotalPrice != null) {
+            val calculatedQuantity = round(subtotalPrice * 1000.0 / unitPrice).toInt()
+            if (quantity != calculatedQuantity) {
+                return getSuggestionMessage(intQuantityToString(calculatedQuantity))
+            }
+        } else if (quantity == null) {
+            return getSuggestionMessage("1.000")
+        }
+        return null
+    }
+
+    fun validateUnitPrice(productInputs: ProductInputs): String? {
+        val quantity = getQuantityValueOrNull(productInputs.quantity)
+        val subtotalPrice = getPriceValueOrNull(productInputs.subtotalPrice)
+        val unitPrice = getPriceValueOrNull(productInputs.unitPrice)
+
+        if (quantity != null && subtotalPrice != null) {
+            val calculatedUnitPrice = round(subtotalPrice * 1000 / quantity.toDouble()).toInt()
+            if (unitPrice != calculatedUnitPrice) {
+                return getSuggestionMessage(intPriceToString(calculatedUnitPrice))
+            }
+        } else if (unitPrice == null) {
+            return getSuggestionMessage("1.00")
+        }
+        return null
+    }
+
+    fun validateDiscount(productInputs: ProductInputs): String? {
+        val subtotalPrice = getPriceValueOrNull(productInputs.subtotalPrice)
+        val finalPrice = getPriceValueOrNull(productInputs.finalPrice)
+        val discount = getPriceValueOrZeroOrNull(productInputs.discount)
+
+        if (subtotalPrice != null && finalPrice != null) {
+            val calculatedUnitPrice = subtotalPrice - finalPrice
+            if (discount != calculatedUnitPrice) {
+                return getSuggestionMessage(intPriceToString(calculatedUnitPrice))
+            }
+        } else if (discount == null) {
+            return getSuggestionMessage("0.00")
+        }
+        return null
+    }
+
+    fun validateFinalPrice(productInputs: ProductInputs): String? {
+        val subtotalPrice = getPriceValueOrNull(productInputs.subtotalPrice)
+        val discount = getPriceValueOrZeroOrNull(productInputs.discount)
+        val finalPrice = getPriceValueOrNull(productInputs.finalPrice)
+
+        if (subtotalPrice != null && discount != null) {
+            val calculatedUnitPrice = subtotalPrice - discount
+            if (finalPrice != calculatedUnitPrice) {
+                return getSuggestionMessage(intPriceToString(calculatedUnitPrice))
+            }
+        } else if (finalPrice == null) {
+            return getEmptyValueText()
+        }
+        return null
+    }
+
+    fun validateSubtotalPrice(productInputs: ProductInputs): SubtotalMessageError {
+        val quantity = getQuantityValueOrNull(productInputs.quantity)
+        val unitPrice = getPriceValueOrNull(productInputs.unitPrice)
+        val discount = getPriceValueOrZeroOrNull(productInputs.discount)
+        val finalPrice = getPriceValueOrNull(productInputs.finalPrice)
+        val subtotalPrice = getPriceValueOrNull(productInputs.subtotalPrice)
+
+        var calculatedSubtotalPrice: Int? = null
+        var calculatedSubtotalPriceFromFinal: Int? = null
+
+        if (quantity != null && unitPrice != null) {
+            calculatedSubtotalPrice = round(quantity * unitPrice / 1000.0).toInt()
+            if (subtotalPrice == calculatedSubtotalPrice) {
+                calculatedSubtotalPrice = null
+            }
+        }
+
+        if (discount != null && finalPrice != null) {
+            calculatedSubtotalPriceFromFinal = finalPrice + discount
+            if (subtotalPrice == calculatedSubtotalPriceFromFinal) {
+                calculatedSubtotalPriceFromFinal = null
+            }
+        }
+        return createSubtotalMessageError(
+            calculatedSubtotalPrice,
+            calculatedSubtotalPriceFromFinal,
+            subtotalPrice
+        )
+    }
+
+    private fun getErrorMessageWhenTwoCalculatedSubtotals(
+        calculatedSubtotalPrice: Int,
+        calculatedSubtotalPriceFromFinal: Int,
+        errorMessage: SubtotalMessageError
+    ) {
+        if (calculatedSubtotalPrice == calculatedSubtotalPriceFromFinal) {
+            errorMessage.firstSuggestion =
+                getSuggestionMessage(intPriceToString(calculatedSubtotalPrice))
+        } else {
+            errorMessage.firstSuggestion =
+                getSuggestionMessage(intPriceToString(calculatedSubtotalPrice))
+            errorMessage.secondSuggestion =
+                getSecondSuggestionMessage(intPriceToString(calculatedSubtotalPriceFromFinal))
+        }
+    }
+
+    private fun createSubtotalMessageError(
+        calculatedSubtotalPrice: Int?,
+        calculatedSubtotalPriceFromFinal: Int?,
+        subtotalPrice: Int?
+    ): SubtotalMessageError {
+        val errorMessage = SubtotalMessageError()
+        if (calculatedSubtotalPrice != null && calculatedSubtotalPriceFromFinal != null) {
+            getErrorMessageWhenTwoCalculatedSubtotals(
+                calculatedSubtotalPrice,
+                calculatedSubtotalPriceFromFinal,
+                errorMessage
+            )
+            errorMessage.subtotalUnit = true
+            errorMessage.subtotalFinal = true
+        } else if (calculatedSubtotalPrice != null) {
+            errorMessage.firstSuggestion =
+                getSuggestionMessage(intPriceToString(calculatedSubtotalPrice))
+            errorMessage.subtotalUnit = true
+        } else if (calculatedSubtotalPriceFromFinal != null) {
+            errorMessage.firstSuggestion =
+                getSuggestionMessage(intPriceToString(calculatedSubtotalPriceFromFinal))
+            errorMessage.subtotalFinal = true
+        } else {
+            if (subtotalPrice == null) {
+                errorMessage.firstSuggestion = getEmptyValueText()
+            }
+        }
+        return errorMessage
+    }
+
+    private fun isNullOrBlank(price: CharSequence?): Boolean {
+        if (price == null) {
+            return true
+        }
+        return price.isBlank()
+    }
+
+    private fun isNullOrBlankOrZero(price: CharSequence?): Boolean {
+        if (price == null) {
+            return true
+        }
+        return price.isBlank() || price.toString().toDouble() == 0.0
+    }
+
+    private fun getEmptyValueText(): String {
+        return stringProvider.getString(R.string.empty_value_error)
+    }
+
+    fun getSuggestionMessage(value: String): String {
+        return "${getSuggestionPrefix()} $value"
+    }
+
+    private fun getSecondSuggestionMessage(value: String): String {
+        return " ${getSecondSuggestionPrefix()} $value"
+    }
+
+    private fun getWrongValueText(): String {
+        return stringProvider.getString(R.string.bad_value_error)
+    }
+
+
+    fun getSuggestionPrefix(): String {
+        return stringProvider.getString(R.string.suggestion_prefix)
+    }
+
+    fun getDefaultCategoryPrefix(): String {
+        return stringProvider.getString(R.string.use_default_category)
+    }
+
+    fun getSecondSuggestionPrefix(): String {
+        return stringProvider.getString(R.string.second_suggestion_prefix)
     }
 }

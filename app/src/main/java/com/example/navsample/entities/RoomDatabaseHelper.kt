@@ -8,11 +8,14 @@ import com.example.navsample.dto.sort.SortProperty
 import com.example.navsample.dto.sort.StoreSort
 import com.example.navsample.entities.database.Category
 import com.example.navsample.entities.database.Product
+import com.example.navsample.entities.database.ProductTagCrossRef
 import com.example.navsample.entities.database.Receipt
 import com.example.navsample.entities.database.Store
+import com.example.navsample.entities.database.Tag
 import com.example.navsample.entities.relations.AllData
 import com.example.navsample.entities.relations.PriceByCategory
 import com.example.navsample.entities.relations.ProductRichData
+import com.example.navsample.entities.relations.ProductWithTag
 import com.example.navsample.entities.relations.ReceiptWithStore
 import com.example.navsample.entities.relations.TableCounts
 import java.util.UUID
@@ -36,6 +39,17 @@ class RoomDatabaseHelper(
         Log.i("Database", "Refresh category list")
         return dao.getAllCategories()
     }
+
+    suspend fun getAllTags(): List<Tag> {
+        Log.i("Database", "Refresh tag list")
+        return dao.getAllTags()
+    }
+
+    suspend fun getAllProductTags(): List<ProductTagCrossRef> {
+        Log.i("Database", "Refresh product tag list")
+        return dao.getAllProductTags()
+    }
+
 
     suspend fun getAllStores(): List<Store> {
         Log.i("Database", "Refresh store list")
@@ -65,6 +79,16 @@ class RoomDatabaseHelper(
         return dao.getAllCategories(categoryName)
     }
 
+    suspend fun getAllTags(tagName: String): List<Tag> {
+        Log.i("Database", "Refresh tag list filtered by name '$tagName'")
+        return dao.getAllTags(tagName)
+    }
+
+    suspend fun getAllProductTags(productId: String): List<ProductTagCrossRef> {
+        Log.i("Database", "Refresh product tag list filtered by name '$productId'")
+        return dao.getAllProductTags(productId)
+    }
+
     suspend fun getAllStoresOrdered(
         storeName: String, nip: String, sort: SortProperty<StoreSort>
     ): List<Store> {
@@ -74,6 +98,12 @@ class RoomDatabaseHelper(
         )
         val query = QueryDaoHelper.getAllStoresOrdered(storeName, nip, sort)
         return dao.getAllStoresOrdered(query)
+    }
+
+    suspend fun getProductWithTag(): List<ProductWithTag>? {
+        Log.i("Database", "Get product with tag")
+        val query = QueryDaoHelper.getProductWithTag()
+        return dao.getProductWithTag(query)
     }
 
     suspend fun getReceiptWithStoreOrdered(
@@ -131,6 +161,11 @@ class RoomDatabaseHelper(
         return dao.getReceiptById(id)
     }
 
+    suspend fun getTagById(id: String): Tag? {
+        Log.i("Database", "Get tag by id '$id'")
+        return dao.getTagById(id)
+    }
+
     suspend fun getStoreById(id: String): Store? {
         Log.i("Database", "Get store by id '$id'")
         return dao.getStoreById(id)
@@ -157,6 +192,36 @@ class RoomDatabaseHelper(
         Log.i("Database", "Insert category '${category.name}' with id '${category.id}'")
         dao.insertCategory(category)
         return category
+    }
+
+    suspend fun insertTag(tag: Tag, generateId: Boolean = true): Tag {
+        if (generateId) {
+            tag.id = UUID.randomUUID().toString()
+        }
+        val timestamp = DateUtil.getCurrentUtcTime()
+        tag.createdAt = timestamp
+        tag.updatedAt = timestamp
+        Log.i("Database", "Insert tag '${tag.name}' with id '${tag.id}'")
+        dao.insertTag(tag)
+        return tag
+    }
+
+    suspend fun insertProductTag(
+        productTag: ProductTagCrossRef,
+        generateId: Boolean = true
+    ): ProductTagCrossRef {
+        if (generateId) {
+            productTag.id = UUID.randomUUID().toString()
+        }
+        val timestamp = DateUtil.getCurrentUtcTime()
+        productTag.createdAt = timestamp
+        productTag.updatedAt = timestamp
+        Log.i(
+            "Database",
+            "Insert product tag with tagId '${productTag.tagId}' with productId '${productTag.productId}'"
+        )
+        dao.insertProductTag(productTag)
+        return productTag
     }
 
     suspend fun insertProduct(product: Product, generateId: Boolean = true): Product {
@@ -204,6 +269,11 @@ class RoomDatabaseHelper(
         dao.updateCategoryFirestoreId(categoryId, firestoreId)
     }
 
+    suspend fun updateTagFirestoreId(tagId: String, firestoreId: String) {
+        Log.i("Database", "Update tag '${tagId}' with firestore id '${firestoreId}'")
+        dao.updateTagFirestoreId(tagId, firestoreId)
+    }
+
     suspend fun updateStoreFirestoreId(storeId: String, firestoreId: String) {
         Log.i("Database", "Update store '${storeId}' with firestore id '${firestoreId}'")
         dao.updateStoreFirestoreId(storeId, firestoreId)
@@ -219,6 +289,11 @@ class RoomDatabaseHelper(
         dao.updateProductFirestoreId(productId, firestoreId)
     }
 
+    suspend fun updateProductTagFirestoreId(id: String, firestoreId: String) {
+        Log.i("Database", "Update product tag '${id}' with firestore id '${firestoreId}'")
+        dao.updateProductTagFirestoreId(id, firestoreId)
+    }
+
 
     suspend fun updateCategory(category: Category): Category {
         Log.i("Database", "Update category '${category.name}' with id '${category.id}'")
@@ -230,6 +305,14 @@ class RoomDatabaseHelper(
 
     suspend fun markCategoryAsUpdated(id: String) {
         dao.markCategoryAsUpdated(id)
+    }
+
+    suspend fun markTagAsUpdated(id: String) {
+        dao.markTagAsUpdated(id)
+    }
+
+    suspend fun markProductTagAsUpdated(id: String) {
+        dao.markProductTagAsUpdated(id)
     }
 
     suspend fun markStoreAsUpdated(id: String) {
@@ -246,6 +329,14 @@ class RoomDatabaseHelper(
 
     suspend fun markCategoryAsDeleted(id: String) {
         dao.markCategoryAsDeleted(id)
+    }
+
+    suspend fun markTagAsDeleted(id: String) {
+        dao.markTagAsDeleted(id)
+    }
+
+    suspend fun markProductTagAsDeleted(id: String) {
+        dao.markProductTagAsDeleted(id)
     }
 
     suspend fun markStoreAsDeleted(id: String) {
@@ -293,6 +384,17 @@ class RoomDatabaseHelper(
         return store
     }
 
+    suspend fun updateTag(tag: Tag): Tag {
+        Log.i("Database", "Update tag '${tag.name}' with id '${tag.id}'")
+        tag.updatedAt = DateUtil.getCurrentUtcTime()
+        dao.updateTagFields(
+            tag.id,
+            tag.name,
+            tag.updatedAt
+        )
+        return tag
+    }
+
     suspend fun updateReceipt(receipt: Receipt): Receipt {
         Log.i(
             "Database",
@@ -316,6 +418,24 @@ class RoomDatabaseHelper(
         Log.i("Database", "Delete category with id '${categoryId}'")
         val deletedAt = DateUtil.getCurrentUtcTime()
         return dao.deleteAndSelectCategoryById(categoryId, deletedAt)
+    }
+
+    suspend fun deleteTag(tagId: String): Tag {
+        Log.i("Database", "Delete tag with id '${tagId}'")
+        val deletedAt = DateUtil.getCurrentUtcTime()
+        return dao.deleteAndSelectTagById(tagId, deletedAt)
+    }
+
+    suspend fun deleteTagProductTag(tagId: String): List<ProductTagCrossRef> {
+        Log.i("Database", "Delete tag of product tag with id '$tagId'")
+        val deletedAt = DateUtil.getCurrentUtcTime()
+        return dao.deleteAndSelectProductTagsOfTag(tagId, deletedAt)
+    }
+
+    suspend fun deleteProductProductTag(productId: String): List<ProductTagCrossRef> {
+        Log.i("Database", "Delete tag of product tag with id '$productId'")
+        val deletedAt = DateUtil.getCurrentUtcTime()
+        return dao.deleteAndSelectProductTagsOfProduct(productId, deletedAt)
     }
 
     suspend fun deleteReceiptProducts(receiptId: String): List<Product> {
@@ -354,6 +474,12 @@ class RoomDatabaseHelper(
         return dao.deleteAndSelectProductById(productId, deletedAt)
     }
 
+    suspend fun deleteProductTag(productId: String, tagId: String): ProductTagCrossRef {
+        Log.i("Database", "Delete product with id '$productId' and tag id $tagId")
+        val deletedAt = DateUtil.getCurrentUtcTime()
+        return dao.deleteAndSelectProductTag(productId, tagId, deletedAt)
+    }
+
     private fun convertDateFormat(date: String): String {
         val newDate = date.replace(".", "-")
         val splitDate = newDate.split("-")
@@ -384,6 +510,14 @@ class RoomDatabaseHelper(
 
             is Product -> {
                 return dao.saveProductFromFirestore(entity as Product)
+            }
+
+            is Tag -> {
+                return dao.saveTagFromFirestore(entity as Tag)
+            }
+
+            is ProductTagCrossRef -> {
+                return dao.saveProductTagFromFirestore(entity as ProductTagCrossRef)
             }
         }
         return false

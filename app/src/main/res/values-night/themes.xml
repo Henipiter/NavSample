@@ -4,6 +4,7 @@
         <!-- Customize your dark theme here. -->
         <item name="colorPrimary">@color/primaryColor</item>
         <item name="colorOnPrimary">@color/colorOnPrimary</item>
+        <item name="colorError">@color/error_color</item>
         <item name="android:textColorHighlight">@color/colorOnPrimary</item>
         <item name="bottomSheetDialogTheme">@style/ThemeOverlay.App.BottomSheetDialog</item>
     </style>

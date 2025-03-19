@@ -2,11 +2,13 @@ package com.example.navsample.dto
 
 class FragmentName {
     companion object {
+        const val TAG_LIST_FRAGMENT = "TagListFragment"
         const val CATEGORY_LIST_FRAGMENT = "CategoryListFragment"
         const val PRODUCT_LIST_FRAGMENT = "ProductListFragment"
         const val RECEIPT_LIST_FRAGMENT = "ReceiptListFragment"
         const val STORE_LIST_FRAGMENT = "StoreListFragment"
 
+        const val ADD_TAG_FRAGMENT = "AddTagFragment"
         const val ADD_CATEGORY_FRAGMENT = "AddCategoryFragment"
         const val ADD_PRODUCT_FRAGMENT = "AddProductFragment"
         const val ADD_PRODUCT_LIST_FRAGMENT = "AddProductListFragment"
