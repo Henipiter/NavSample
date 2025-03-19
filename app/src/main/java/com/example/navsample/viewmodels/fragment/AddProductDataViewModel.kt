@@ -59,7 +59,13 @@ class AddProductDataViewModel(
     var receiptById = MutableLiveData<Receipt?>()
     var productById = MutableLiveData<Product?>()
     var storeById = MutableLiveData<Store?>()
-    var cropImageFragmentOnStart = true
+
+    fun clearProductList() {
+        databaseProductList.value?.clear()
+        temporaryProductList.value?.clear()
+        aggregatedProductList.value?.clear()
+        productById.postValue(null)
+    }
 
     fun aggregateProductList(): List<Product> {
         val aggregatedList = arrayListOf<Product>()
