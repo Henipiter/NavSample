@@ -1,7 +1,6 @@
 package com.example.navsample.viewmodels.fragment
 
 import android.app.Application
-import android.util.Log
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
@@ -14,7 +13,6 @@ import com.example.navsample.dto.PriceUtils.Companion.intQuantityToString
 import com.example.navsample.dto.StringProvider
 import com.example.navsample.dto.TagList
 import com.example.navsample.dto.inputmode.AddingInputType
-import com.example.navsample.entities.FirestoreHelperSingleton
 import com.example.navsample.entities.ReceiptDao
 import com.example.navsample.entities.RoomDatabaseHelper
 import com.example.navsample.entities.database.Category
@@ -84,13 +82,7 @@ class AddProductDataViewModel(
 
     private fun insertProductTags(productTagCrossRef: ProductTagCrossRef) {
         viewModelScope.launch {
-            val savedProductTag =
-                roomDatabaseHelper.insertProductTag(productTagCrossRef)
-            FirestoreHelperSingleton.getInstance().addFirestore(savedProductTag) {
-                viewModelScope.launch {
-                    roomDatabaseHelper.updateProductTagFirestoreId(savedProductTag.id, it)
-                }
-            }
+            roomDatabaseHelper.insertProductTag(productTagCrossRef)
         }
     }
 
@@ -144,26 +136,15 @@ class AddProductDataViewModel(
 
     fun deleteProduct(productId: String, onFinish: () -> Unit) {
         viewModelScope.launch {
-            val deletedProductTags = roomDatabaseHelper.deleteProductProductTag(productId)
-            FirestoreHelperSingleton.getInstance().delete(deletedProductTags) { id ->
-                viewModelScope.launch { roomDatabaseHelper.markProductTagAsDeleted(id) }
-            }
-
-
-            val deletedProduct = roomDatabaseHelper.deleteProductById(productId)
-            FirestoreHelperSingleton.getInstance().delete(deletedProduct) { id ->
-                viewModelScope.launch { roomDatabaseHelper.markProductAsDeleted(id) }
-            }
+            roomDatabaseHelper.deleteProductProductTag(productId)
+            roomDatabaseHelper.deleteProductById(productId)
             onFinish.invoke()
         }
     }
 
-    fun deleteProductTags(productId: String, tagId: String) {
+    private fun deleteProductTags(productId: String, tagId: String) {
         viewModelScope.launch {
-            val deletedProductTag = roomDatabaseHelper.deleteProductTag(productId, tagId)
-            FirestoreHelperSingleton.getInstance().delete(deletedProductTag) { id ->
-                viewModelScope.launch { roomDatabaseHelper.markProductTagAsDeleted(id) }
-            }
+            roomDatabaseHelper.deleteProductTag(productId, tagId)
         }
     }
 
@@ -223,11 +204,6 @@ class AddProductDataViewModel(
         viewModelScope.launch {
             val updatedProduct = roomDatabaseHelper.updateProduct(product)
             changeProductTags(updatedProduct.id, product)
-            if (updatedProduct.firestoreId.isNotEmpty()) {
-                FirestoreHelperSingleton.getInstance().updateFirestore(updatedProduct) {
-                    viewModelScope.launch { roomDatabaseHelper.markProductAsUpdated(product.id) }
-                }
-            }
         }
     }
 
@@ -245,11 +221,6 @@ class AddProductDataViewModel(
         viewModelScope.launch {
             val savedProduct = roomDatabaseHelper.insertProduct(product)
             addProductTags(savedProduct.id, product)
-            FirestoreHelperSingleton.getInstance().addFirestore(savedProduct) {
-                viewModelScope.launch {
-                    roomDatabaseHelper.updateProductFirestoreId(savedProduct.id, it)
-                }
-            }
         }
     }
 
@@ -266,9 +237,7 @@ class AddProductDataViewModel(
 
 
         val idToSave = currentTagIds.filter { !originalTagIds.contains(it) }
-        Log.d("EEAARR", "toSave $idToSave")
         val idToDelete = originalTagIds.filter { !currentTagIds.contains(it) }
-        Log.d("EEAARR", "toDelete $idToDelete")
 
         idToSave.forEach {
             insertProductTags(ProductTagCrossRef(productId, it))

@@ -9,7 +9,6 @@ import com.example.navsample.R
 import com.example.navsample.dto.DataMode
 import com.example.navsample.dto.PriceUtils.Companion.doublePriceTextToInt
 import com.example.navsample.dto.inputmode.AddingInputType
-import com.example.navsample.entities.FirestoreHelperSingleton
 import com.example.navsample.entities.ReceiptDatabase
 import com.example.navsample.entities.RoomDatabaseHelper
 import com.example.navsample.entities.database.Receipt
@@ -56,27 +55,16 @@ class AddReceiptDataViewModel(
 
     fun deleteReceipt(receiptId: String, onFinish: () -> Unit) {
         viewModelScope.launch {
-            val deletedProducts = roomDatabaseHelper.deleteReceiptProducts(receiptId)
-            FirestoreHelperSingleton.getInstance().delete(deletedProducts) { id ->
-                viewModelScope.launch { roomDatabaseHelper.markProductAsDeleted(id) }
-            }
-            val deletedReceipt = roomDatabaseHelper.deleteReceipt(receiptId)
-            FirestoreHelperSingleton.getInstance().delete(deletedReceipt) { id ->
-                viewModelScope.launch { roomDatabaseHelper.markReceiptAsDeleted(id) }
-            }
+            roomDatabaseHelper.deleteReceiptProducts(receiptId)
+            roomDatabaseHelper.deleteReceipt(receiptId)
             onFinish.invoke()
         }
     }
 
-    fun insertReceipt(newReceipt: Receipt, generateId: Boolean = true) {
+    private fun insertReceipt(newReceipt: Receipt, generateId: Boolean = true) {
         viewModelScope.launch {
             val insertedReceipt = roomDatabaseHelper.insertReceipt(newReceipt, generateId)
             savedReceipt.postValue(insertedReceipt)
-            FirestoreHelperSingleton.getInstance().addFirestore(insertedReceipt) {
-                viewModelScope.launch {
-                    roomDatabaseHelper.updateReceiptFirestoreId(insertedReceipt.id, it)
-                }
-            }
         }
     }
 
@@ -84,11 +72,6 @@ class AddReceiptDataViewModel(
         viewModelScope.launch {
             val updatedReceipt = roomDatabaseHelper.updateReceipt(newReceipt)
             savedReceipt.postValue(updatedReceipt)
-            if (newReceipt.firestoreId.isNotEmpty()) {
-                FirestoreHelperSingleton.getInstance().updateFirestore(updatedReceipt) { id ->
-                    viewModelScope.launch { roomDatabaseHelper.markReceiptAsUpdated(id) }
-                }
-            }
         }
     }
 

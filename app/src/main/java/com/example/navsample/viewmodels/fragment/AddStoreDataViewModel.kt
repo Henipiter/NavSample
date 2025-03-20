@@ -9,7 +9,6 @@ import com.example.navsample.R
 import com.example.navsample.dto.DataMode
 import com.example.navsample.dto.NipValidator
 import com.example.navsample.dto.inputmode.AddingInputType
-import com.example.navsample.entities.FirestoreHelperSingleton
 import com.example.navsample.entities.ReceiptDatabase
 import com.example.navsample.entities.RoomDatabaseHelper
 import com.example.navsample.entities.database.Category
@@ -59,18 +58,9 @@ class AddStoreDataViewModel(
 
     fun deleteStore(storeId: String, onFinish: () -> Unit) {
         viewModelScope.launch {
-            val deletedProducts = roomDatabaseHelper.deleteStoreProducts(storeId)
-            FirestoreHelperSingleton.getInstance().delete(deletedProducts) { id ->
-                viewModelScope.launch { roomDatabaseHelper.markProductAsDeleted(id) }
-            }
-            val deletedReceipts = roomDatabaseHelper.deleteStoreReceipts(storeId)
-            FirestoreHelperSingleton.getInstance().delete(deletedReceipts) { id ->
-                viewModelScope.launch { roomDatabaseHelper.markReceiptAsDeleted(id) }
-            }
-            val deletedStore = roomDatabaseHelper.deleteStore(storeId)
-            FirestoreHelperSingleton.getInstance().delete(deletedStore) { id ->
-                viewModelScope.launch { roomDatabaseHelper.markStoreAsDeleted(id) }
-            }
+            roomDatabaseHelper.deleteStoreProducts(storeId)
+            roomDatabaseHelper.deleteStoreReceipts(storeId)
+            roomDatabaseHelper.deleteStore(storeId)
             onFinish.invoke()
         }
     }
@@ -85,11 +75,6 @@ class AddStoreDataViewModel(
         viewModelScope.launch {
             val insertedStore = roomDatabaseHelper.insertStore(newStore, generateId)
             savedStore.postValue(insertedStore)
-            FirestoreHelperSingleton.getInstance().addFirestore(insertedStore) {
-                viewModelScope.launch {
-                    roomDatabaseHelper.updateStoreFirestoreId(insertedStore.id, it)
-                }
-            }
         }
     }
 
@@ -97,11 +82,6 @@ class AddStoreDataViewModel(
         viewModelScope.launch {
             val updateStore = roomDatabaseHelper.updateStore(newStore)
             savedStore.postValue(updateStore)
-            if (newStore.firestoreId.isNotEmpty()) {
-                FirestoreHelperSingleton.getInstance().updateFirestore(updateStore) {
-                    viewModelScope.launch { roomDatabaseHelper.markStoreAsUpdated(newStore.id) }
-                }
-            }
         }
     }
 

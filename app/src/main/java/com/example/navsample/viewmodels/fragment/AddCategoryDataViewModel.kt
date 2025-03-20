@@ -9,7 +9,6 @@ import androidx.lifecycle.viewModelScope
 import com.example.navsample.R
 import com.example.navsample.dto.DataMode
 import com.example.navsample.dto.inputmode.AddingInputType
-import com.example.navsample.entities.FirestoreHelperSingleton
 import com.example.navsample.entities.ReceiptDatabase
 import com.example.navsample.entities.RoomDatabaseHelper
 import com.example.navsample.entities.database.Category
@@ -45,10 +44,7 @@ class AddCategoryDataViewModel(
 
     fun deleteCategory(categoryId: String) {
         viewModelScope.launch {
-            val deletedCategory = roomDatabaseHelper.deleteCategory(categoryId)
-            FirestoreHelperSingleton.getInstance().delete(deletedCategory) { id ->
-                viewModelScope.launch { roomDatabaseHelper.markCategoryAsDeleted(id) }
-            }
+            roomDatabaseHelper.deleteCategory(categoryId)
         }
     }
 
@@ -58,15 +54,10 @@ class AddCategoryDataViewModel(
         }
     }
 
-    fun insertCategory(newCategory: Category, generateId: Boolean = true) {
+    private fun insertCategory(newCategory: Category, generateId: Boolean = true) {
         viewModelScope.launch {
             val insertedCategory = roomDatabaseHelper.insertCategory(newCategory, generateId)
             savedCategory.postValue(insertedCategory)
-            FirestoreHelperSingleton.getInstance().addFirestore(insertedCategory) {
-                viewModelScope.launch {
-                    roomDatabaseHelper.updateCategoryFirestoreId(insertedCategory.id, it)
-                }
-            }
         }
     }
 
@@ -74,11 +65,6 @@ class AddCategoryDataViewModel(
         viewModelScope.launch {
             val updatedCategory = roomDatabaseHelper.updateCategory(newCategory)
             savedCategory.postValue(updatedCategory)
-            if (newCategory.firestoreId.isNotEmpty()) {
-                FirestoreHelperSingleton.getInstance().updateFirestore(updatedCategory) {
-                    viewModelScope.launch { roomDatabaseHelper.markCategoryAsUpdated(updatedCategory.id) }
-                }
-            }
         }
     }
 

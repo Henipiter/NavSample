@@ -7,7 +7,6 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import com.example.navsample.R
 import com.example.navsample.dto.inputmode.AddingInputType
-import com.example.navsample.entities.FirestoreHelperSingleton
 import com.example.navsample.entities.ReceiptDatabase
 import com.example.navsample.entities.RoomDatabaseHelper
 import com.example.navsample.entities.database.Tag
@@ -41,15 +40,8 @@ class AddTagDataViewModel(
 
     fun deleteTag(tagId: String, onFinish: () -> Unit) {
         viewModelScope.launch {
-            val deletedProductTags = roomDatabaseHelper.deleteTagProductTag(tagId)
-            FirestoreHelperSingleton.getInstance().delete(deletedProductTags) { id ->
-                viewModelScope.launch { roomDatabaseHelper.markProductTagAsDeleted(id) }
-            }
-
-            val deletedTag = roomDatabaseHelper.deleteTag(tagId)
-            FirestoreHelperSingleton.getInstance().delete(deletedTag) { id ->
-                viewModelScope.launch { roomDatabaseHelper.markTagAsDeleted(id) }
-            }
+            roomDatabaseHelper.deleteTagProductTag(tagId)
+            roomDatabaseHelper.deleteTag(tagId)
             onFinish.invoke()
         }
     }
@@ -64,11 +56,6 @@ class AddTagDataViewModel(
         viewModelScope.launch {
             val insertedTag = roomDatabaseHelper.insertTag(newTag, generateId)
             savedTag.postValue(insertedTag)
-            FirestoreHelperSingleton.getInstance().addFirestore(insertedTag) {
-                viewModelScope.launch {
-                    roomDatabaseHelper.updateTagFirestoreId(insertedTag.id, it)
-                }
-            }
         }
     }
 
@@ -76,11 +63,6 @@ class AddTagDataViewModel(
         viewModelScope.launch {
             val updatedTag = roomDatabaseHelper.updateTag(newTag)
             savedTag.postValue(updatedTag)
-            if (newTag.firestoreId.isNotEmpty()) {
-                FirestoreHelperSingleton.getInstance().updateFirestore(updatedTag) {
-                    viewModelScope.launch { roomDatabaseHelper.markTagAsUpdated(updatedTag.id) }
-                }
-            }
         }
     }
 
