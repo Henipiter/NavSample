@@ -477,21 +477,27 @@ class SyncDatabaseViewModel(
         }
     }
 
-    private fun categorySyncStatusOperation(category: CategoryFirebase): Boolean {
+    private fun categorySyncStatusOperation(
+        category: CategoryFirebase,
+        refresh: () -> Unit
+    ): Boolean {
         if (category.firestoreId != "" && category.firestoreId != category.id) {
             updateCategoryFirebaseIdWithDependentStores(category.id)
         } else if (category.id == category.firestoreId) {
             category.isSync = true
             Log.i("Firebase", "Syncing category ${category}. categorySyncStatusOperation")
             FirestoreHelperSingleton.getInstance().synchronize(category) { id ->
-                viewModelScope.launch { roomDatabaseHelperFirebase.syncCategory(id) }
+                viewModelScope.launch {
+                    roomDatabaseHelperFirebase.syncCategory(id)
+                    refresh.invoke()
+                }
             }
             return true
         }
         return false
     }
 
-    private fun storeSyncStatusOperation(store: StoreFirebase): Boolean {
+    private fun storeSyncStatusOperation(store: StoreFirebase, refresh: () -> Unit): Boolean {
         if (store.firestoreId != "" && store.firestoreId != store.id && store.isCategorySync) {
             updateStoreFirebaseIdWithDependentReceipts(store.id)
         } else if (store.id == store.firestoreId && store.isCategorySync) {
@@ -499,13 +505,14 @@ class SyncDatabaseViewModel(
             Log.i("Firebase", "Syncing store $store. storeSyncStatusOperation")
             FirestoreHelperSingleton.getInstance().synchronize(store) { id ->
                 viewModelScope.launch { roomDatabaseHelperFirebase.syncStore(id) }
+                refresh.invoke()
             }
             return true
         }
         return false
     }
 
-    private fun receiptSyncStatusOperation(receipt: ReceiptFirebase): Boolean {
+    private fun receiptSyncStatusOperation(receipt: ReceiptFirebase, refresh: () -> Unit): Boolean {
         if (receipt.firestoreId != "" && receipt.firestoreId != receipt.id && receipt.isStoreSync) {
             updateReceiptFirebaseIdWithDependentProducts(receipt.id)
         } else if (receipt.id == receipt.firestoreId && receipt.isStoreSync) {
@@ -513,25 +520,26 @@ class SyncDatabaseViewModel(
             Log.i("Firebase", "Syncing recei[t $receipt. receiptSyncStatusOperation")
             FirestoreHelperSingleton.getInstance().synchronize(receipt) { id ->
                 viewModelScope.launch { roomDatabaseHelperFirebase.syncReceipt(id) }
+                refresh.invoke()
             }
             return true
         }
         return false
     }
 
-    fun <T : TranslateFirebaseEntity> syncStatusOperation(entity: T): Boolean {
+    fun <T : TranslateFirebaseEntity> syncStatusOperation(entity: T, refresh: () -> Unit): Boolean {
         return when (entity) {
-            is CategoryFirebase -> categorySyncStatusOperation(entity)
-            is StoreFirebase -> storeSyncStatusOperation(entity)
-            is ReceiptFirebase -> receiptSyncStatusOperation(entity)
-            is ProductFirebase -> productSyncStatusOperation(entity)
-            is TagFirebase -> tagSyncStatusOperation(entity)
-            is ProductTagCrossRefFirebase -> productTagSyncStatusOperation(entity)
+            is CategoryFirebase -> categorySyncStatusOperation(entity, refresh)
+            is StoreFirebase -> storeSyncStatusOperation(entity, refresh)
+            is ReceiptFirebase -> receiptSyncStatusOperation(entity, refresh)
+            is ProductFirebase -> productSyncStatusOperation(entity, refresh)
+            is TagFirebase -> tagSyncStatusOperation(entity, refresh)
+            is ProductTagCrossRefFirebase -> productTagSyncStatusOperation(entity, refresh)
             else -> true
         }
     }
 
-    private fun productSyncStatusOperation(product: ProductFirebase): Boolean {
+    private fun productSyncStatusOperation(product: ProductFirebase, refresh: () -> Unit): Boolean {
         if (product.firestoreId != "" && product.firestoreId != product.id && product.isCategorySync) {
             updateProductFirebaseId(product.id)
         } else if (product.id == product.firestoreId && product.isReceiptSync && product.isCategorySync) {
@@ -539,13 +547,14 @@ class SyncDatabaseViewModel(
             Log.i("Firebase", "Syncing product $product. productSyncStatusOperation")
             FirestoreHelperSingleton.getInstance().synchronize(product) { id ->
                 viewModelScope.launch { roomDatabaseHelperFirebase.syncProduct(id) }
+                refresh.invoke()
             }
             return true
         }
         return false
     }
 
-    private fun tagSyncStatusOperation(tag: TagFirebase): Boolean {
+    private fun tagSyncStatusOperation(tag: TagFirebase, refresh: () -> Unit): Boolean {
         if (tag.firestoreId != "" && tag.firestoreId != tag.id) {
             updateTagFirebaseId(tag.id)
         } else if (tag.id == tag.firestoreId) {
@@ -553,13 +562,17 @@ class SyncDatabaseViewModel(
             Log.i("Firebase", "Syncing tag $tag. tagSyncStatusOperation")
             FirestoreHelperSingleton.getInstance().synchronize(tag) { id ->
                 viewModelScope.launch { roomDatabaseHelperFirebase.syncTag(id) }
+                refresh.invoke()
             }
             return true
         }
         return false
     }
 
-    private fun productTagSyncStatusOperation(productTag: ProductTagCrossRefFirebase): Boolean {
+    private fun productTagSyncStatusOperation(
+        productTag: ProductTagCrossRefFirebase,
+        refresh: () -> Unit
+    ): Boolean {
         if (productTag.firestoreId != "" && productTag.firestoreId != productTag.id && productTag.isProductSync && productTag.isTagSync) {
             updateProductTagFirebaseId(productTag.id)
         } else if (productTag.id == productTag.firestoreId && productTag.isProductSync && productTag.isTagSync) {
@@ -567,6 +580,7 @@ class SyncDatabaseViewModel(
             Log.i("Firebase", "Syncing product tag $productTag. productTagSyncStatusOperation")
             FirestoreHelperSingleton.getInstance().synchronize(productTag) { id ->
                 viewModelScope.launch { roomDatabaseHelperFirebase.syncProductTag(id) }
+                refresh.invoke()
             }
             return true
         }

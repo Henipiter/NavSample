@@ -103,7 +103,11 @@ class ListingFragment : Fragment() {
         syncDatabaseViewModel.notSyncedCategoryList.observe(viewLifecycleOwner) {
             observerForNotSynced(
                 it,
-                { category -> syncDatabaseViewModel.syncStatusOperation(category) },
+                { category ->
+                    syncDatabaseViewModel.syncStatusOperation(category) {
+                        listingViewModel.loadDataByCategoryFilter()
+                    }
+                },
                 { syncDatabaseViewModel.loadNotSynced(Category::class) },
                 "notSyncedCategoryList"
             )
@@ -111,7 +115,10 @@ class ListingFragment : Fragment() {
         syncDatabaseViewModel.notSyncedTagList.observe(viewLifecycleOwner) {
             observerForNotSynced(
                 it,
-                { tag -> syncDatabaseViewModel.syncStatusOperation(tag) },
+                { tag ->
+                    syncDatabaseViewModel.syncStatusOperation(tag)
+                    { listingViewModel.loadDataByTagFilter() }
+                },
                 { syncDatabaseViewModel.loadNotSynced(Tag::class) },
                 "notSyncedTagList"
             )
@@ -119,7 +126,10 @@ class ListingFragment : Fragment() {
         syncDatabaseViewModel.notSyncedProductTagList.observe(viewLifecycleOwner) {
             observerForNotSynced(
                 it,
-                { productTag -> syncDatabaseViewModel.syncStatusOperation(productTag) },
+                { productTag ->
+                    syncDatabaseViewModel.syncStatusOperation(productTag)
+                    { listingViewModel.refreshProductTagList() }
+                },
                 { syncDatabaseViewModel.loadNotSynced(ProductTagCrossRef::class) },
                 "notSyncedProductTagList"
             )
@@ -127,7 +137,10 @@ class ListingFragment : Fragment() {
         syncDatabaseViewModel.notSyncedStoreList.observe(viewLifecycleOwner) {
             observerForNotSynced(
                 it,
-                { store -> syncDatabaseViewModel.syncStatusOperation(store) },
+                { store ->
+                    syncDatabaseViewModel.syncStatusOperation(store)
+                    { listingViewModel.loadDataByStoreFilter() }
+                },
                 { syncDatabaseViewModel.loadNotSynced(Store::class) },
                 "notSyncedStoreList"
             )
@@ -135,7 +148,10 @@ class ListingFragment : Fragment() {
         syncDatabaseViewModel.notSyncedReceiptList.observe(viewLifecycleOwner) {
             observerForNotSynced(
                 it,
-                { receipt -> syncDatabaseViewModel.syncStatusOperation(receipt) },
+                { receipt ->
+                    syncDatabaseViewModel.syncStatusOperation(receipt)
+                    { listingViewModel.loadDataByReceiptFilter() }
+                },
                 { syncDatabaseViewModel.loadNotSynced(Receipt::class) },
                 "notSyncedReceiptList"
             )
@@ -143,7 +159,10 @@ class ListingFragment : Fragment() {
         syncDatabaseViewModel.notSyncedProductList.observe(viewLifecycleOwner) {
             observerForNotSynced(
                 it,
-                { product -> syncDatabaseViewModel.syncStatusOperation(product) },
+                { product ->
+                    syncDatabaseViewModel.syncStatusOperation(product)
+                    { listingViewModel.loadDataByProductFilter() }
+                },
                 { syncDatabaseViewModel.loadNotSynced(Product::class) },
                 "notSyncedProductList"
             )
