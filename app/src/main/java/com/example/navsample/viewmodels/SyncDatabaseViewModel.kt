@@ -419,7 +419,7 @@ class SyncDatabaseViewModel(
             }
         }
         if (store.isSync && store.toDelete) {
-            FirestoreHelperSingleton.getInstance().updateFirestore(store) { id ->
+            FirestoreHelperSingleton.getInstance().delete(store) { id ->
                 viewModelScope.launch { roomDatabaseHelper.markStoreAsDeleted(id) }
             }
         }
