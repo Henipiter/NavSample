@@ -56,6 +56,13 @@ class ListingViewModel(
     var tagList = MutableLiveData<ArrayList<Tag>>()
     var storeList = MutableLiveData<ArrayList<Store>>()
 
+    var reloadOutdatedProductRichList = MutableLiveData<Boolean>()
+    var reloadOutdatedReceiptList = MutableLiveData<Boolean>()
+    var reloadOutdatedCategoryList = MutableLiveData<Boolean>()
+    var reloadOutdatedProductTagList = MutableLiveData<Boolean>()
+    var reloadOutdatedTagList = MutableLiveData<Boolean>()
+    var reloadOutdatedStoreList = MutableLiveData<Boolean>()
+
     init {
         storeSort.value = defaultStoreSort
         receiptWithStoreSort.value = defaultReceiptWithStoreSort

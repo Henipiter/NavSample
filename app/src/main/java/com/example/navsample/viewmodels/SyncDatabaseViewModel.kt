@@ -334,7 +334,7 @@ class SyncDatabaseViewModel(
         }
     }
 
-    private fun <T : TranslateEntity> loadOutdated(entity: KClass<T>) {
+    fun <T : TranslateEntity> loadOutdated(entity: KClass<T>) {
         viewModelScope.launch {
             when (entity) {
                 Category::class ->

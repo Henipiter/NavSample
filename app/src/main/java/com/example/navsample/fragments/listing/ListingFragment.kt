@@ -196,6 +196,41 @@ class ListingFragment : Fragment() {
         initOutdatedLists()
         initNotSyncedLists()
         readEntitiesList()
+        reloadOutdatedLists()
+
+    }
+
+    private fun reloadOutdatedLists() {
+        listingViewModel.reloadOutdatedCategoryList.observe(viewLifecycleOwner) {
+            if (it) {
+                syncDatabaseViewModel.loadOutdated(Category::class)
+            }
+        }
+        listingViewModel.reloadOutdatedStoreList.observe(viewLifecycleOwner) {
+            if (it) {
+                syncDatabaseViewModel.loadOutdated(Store::class)
+            }
+        }
+        listingViewModel.reloadOutdatedReceiptList.observe(viewLifecycleOwner) {
+            if (it) {
+                syncDatabaseViewModel.loadOutdated(Receipt::class)
+            }
+        }
+        listingViewModel.reloadOutdatedProductRichList.observe(viewLifecycleOwner) {
+            if (it) {
+                syncDatabaseViewModel.loadOutdated(Product::class)
+            }
+        }
+        listingViewModel.reloadOutdatedTagList.observe(viewLifecycleOwner) {
+            if (it) {
+                syncDatabaseViewModel.loadOutdated(Tag::class)
+            }
+        }
+        listingViewModel.reloadOutdatedProductTagList.observe(viewLifecycleOwner) {
+            if (it) {
+                syncDatabaseViewModel.loadOutdated(ProductTagCrossRef::class)
+            }
+        }
     }
 
     private fun readEntitiesList() {

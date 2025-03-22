@@ -135,6 +135,8 @@ class TagListingFragment : Fragment(), ItemClickListener {
 
             } else {
                 addTagDataViewModel.deleteTag(tag.id) {
+                    listingViewModel.reloadOutdatedTagList.postValue(true)
+                    listingViewModel.reloadOutdatedProductTagList.postValue(true)
                     listingViewModel.tagList.value?.let { tagList ->
                         tagList.removeAt(index)
                         tagListAdapter.tagList = tagList

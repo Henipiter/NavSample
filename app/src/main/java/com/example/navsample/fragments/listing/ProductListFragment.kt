@@ -182,6 +182,8 @@ class ProductListFragment : Fragment(), ItemClickListener {
                 return@ConfirmDialog
             }
             addProductDataViewModel.deleteProduct(productRichData.id) {
+                listingViewModel.reloadOutdatedProductRichList.postValue(true)
+                listingViewModel.reloadOutdatedProductTagList.postValue(true)
 
                 listingViewModel.productRichList.value?.let { productRichList ->
                     productRichList.removeAt(index)

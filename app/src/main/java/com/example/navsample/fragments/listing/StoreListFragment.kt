@@ -174,6 +174,7 @@ class StoreListFragment : Fragment(), ItemClickListener {
             getString(R.string.delete_store_confirmation_dialog)
         ) {
             addStoreDataViewModel.deleteStore(store.id) {
+                listingViewModel.reloadOutdatedStoreList.postValue(true)
                 listingViewModel.storeList.value?.let { storeList ->
                     storeList.removeAt(index)
                     storeListAdapter.storeList = storeList

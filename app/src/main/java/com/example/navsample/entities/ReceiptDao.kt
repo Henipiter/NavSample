@@ -694,22 +694,22 @@ interface ReceiptDao {
     )
     suspend fun getNotSyncedProductTagForFirestore(): List<ProductTagCrossRefFirebase>
 
-    @Query("SELECT * FROM category WHERE toUpdate == 1 OR toDelete == 1")
+    @Query("SELECT * FROM category WHERE toUpdate == 1 OR toDelete == 1 AND firestoreId != ''")
     suspend fun getAllOutdatedCategories(): List<Category>
 
-    @Query("SELECT * FROM store WHERE toUpdate == 1 OR toDelete == 1")
+    @Query("SELECT * FROM store WHERE toUpdate == 1 OR toDelete == 1 AND firestoreId != ''")
     suspend fun getOutdatedStoreForFirestore(): List<Store>
 
-    @Query("SELECT * FROM receipt WHERE toUpdate == 1 OR toDelete == 1")
+    @Query("SELECT * FROM receipt WHERE toUpdate == 1 OR toDelete == 1 AND firestoreId != ''")
     suspend fun getOutdatedReceiptForFirestore(): List<Receipt>
 
-    @Query("SELECT * FROM product WHERE toUpdate == 1 OR toDelete == 1")
+    @Query("SELECT * FROM product WHERE toUpdate == 1 OR toDelete == 1 AND firestoreId != ''")
     suspend fun getOutdatedProductForFirestore(): List<Product>
 
-    @Query("SELECT * FROM ProductTagCrossRef WHERE toUpdate == 1 OR toDelete == 1")
+    @Query("SELECT * FROM ProductTagCrossRef WHERE toUpdate == 1 OR toDelete == 1 AND firestoreId != ''")
     suspend fun getOutdatedProductTagForFirestore(): List<ProductTagCrossRef>
 
-    @Query("SELECT * FROM tag WHERE toUpdate == 1 OR toDelete == 1")
+    @Query("SELECT * FROM tag WHERE toUpdate == 1 OR toDelete == 1 AND firestoreId != ''")
     suspend fun getOutdatedTagForFirestore(): List<Tag>
 
 

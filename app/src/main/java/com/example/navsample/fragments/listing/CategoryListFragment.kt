@@ -133,7 +133,9 @@ class CategoryListFragment : Fragment(), ItemClickListener {
                 ).show()
 
             } else {
-                addCategoryDataViewModel.deleteCategory(category.id)
+                addCategoryDataViewModel.deleteCategory(category.id) {
+                    listingViewModel.reloadOutdatedCategoryList.postValue(true)
+                }
                 listingViewModel.categoryList.value?.let { categoryList ->
                     categoryList.removeAt(index)
                     categoryListAdapter.categoryList = categoryList

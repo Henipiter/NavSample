@@ -138,6 +138,7 @@ class ReceiptListFragment : Fragment(), ItemClickListener {
             getString(R.string.delete_receipt_confirmation_dialog)
         ) {
             addReceiptDataViewModel.deleteReceipt(receiptWithStore.id) {
+                listingViewModel.reloadOutdatedReceiptList.postValue(true)
                 listingViewModel.receiptList.value?.let { receiptList ->
                     receiptList.removeAt(index)
                     receiptListAdapter.receiptList = receiptList

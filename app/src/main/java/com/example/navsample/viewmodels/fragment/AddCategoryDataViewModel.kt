@@ -42,9 +42,10 @@ class AddCategoryDataViewModel(
         }
     }
 
-    fun deleteCategory(categoryId: String) {
+    fun deleteCategory(categoryId: String, onFinish: () -> Unit) {
         viewModelScope.launch {
             roomDatabaseHelper.deleteCategory(categoryId)
+            onFinish.invoke()
         }
     }
 
