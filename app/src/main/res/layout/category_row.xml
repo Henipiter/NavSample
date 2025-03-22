@@ -18,6 +18,17 @@
             android:layout_height="wrap_content"
             android:layout_marginHorizontal="8dp">
 
+            <View
+                android:layout_marginTop="4dp"
+                android:paddingHorizontal="4dp"
+                android:layout_marginHorizontal="4dp"
+                android:id="@+id/sync_status"
+                android:layout_width="1dp"
+                android:layout_height="5dp"
+                android:layout_gravity="top"
+                android:layout_weight="0.05"
+                android:background="#FFEB58" />
+
             <TextView
                 android:id="@+id/category_name"
                 android:layout_width="0dp"
@@ -36,15 +47,6 @@
                 android:layout_weight="1"
                 android:background="#FFEB58" />
 
-            <ImageView
-                android:id="@+id/sync_status"
-                android:layout_width="36dp"
-                android:layout_height="36dp"
-                android:scaleType="fitCenter"
-                android:layout_gravity="center_vertical"
-                android:src="@drawable/sync_false"
-                app:tint="@color/background_tile_blocked"
-                android:contentDescription="TODO" />
         </LinearLayout>
     </androidx.cardview.widget.CardView>
 </androidx.constraintlayout.widget.ConstraintLayout>

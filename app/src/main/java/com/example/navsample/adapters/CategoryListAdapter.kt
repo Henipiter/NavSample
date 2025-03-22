@@ -40,6 +40,15 @@ class CategoryListAdapter(
     private fun setTexts(binding: CategoryRowBinding, position: Int) {
         binding.categoryName.text = categoryList[position].name
         binding.colorSquare.setBackgroundColor(ColorManager.parseColor(categoryList[position].color))
+        if (!categoryList[position].isSync) {
+            binding.syncStatus.setBackgroundColor(ColorManager.parseColor("#FF0000"))
+        } else {
+            if (categoryList[position].toUpdate || categoryList[position].toDelete) {
+                binding.syncStatus.setBackgroundColor(ColorManager.parseColor("#FFFF00"))
+            } else {
+                binding.syncStatus.setBackgroundColor(ColorManager.parseColor("#00FF00"))
+            }
+        }
     }
 
     override fun getItemCount(): Int {
