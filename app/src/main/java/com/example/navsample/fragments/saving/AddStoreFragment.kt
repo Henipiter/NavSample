@@ -77,7 +77,7 @@ class AddStoreFragment : AddingFragment() {
         }
         binding.toolbar.setNavigationOnClickListener {
             clearInputs()
-            Navigation.findNavController(it).popBackStack()
+            leaveFragment("")
         }
     }
 
@@ -133,7 +133,7 @@ class AddStoreFragment : AddingFragment() {
             viewLifecycleOwner, object : OnBackPressedCallback(true) {
                 override fun handleOnBackPressed() {
                     clearInputs()
-                    Navigation.findNavController(requireView()).popBackStack()
+                    leaveFragment("")
                 }
             }
         )
@@ -277,21 +277,24 @@ class AddStoreFragment : AddingFragment() {
                 //TODO zoptymalizować - odswiezać w zależnosci czy bylo dodane czy zupdatowane
                 listingViewModel.loadDataByStoreFilter()
                 listingViewModel.loadDataByReceiptFilter()
-                if (navArgs.sourceFragment == FragmentName.ADD_RECEIPT_FRAGMENT) {
-
-                    val action =
-                        AddStoreFragmentDirections.actionAddStoreFragmentToAddReceiptFragment(
-                            inputType = AddingInputType.ID.name,
-                            receiptId = "",
-                            storeId = it.id,
-                            sourceFragment = FragmentName.ADD_STORE_FRAGMENT
-                        )
-                    Navigation.findNavController(requireView()).navigate(action)
-                } else {
-                    Navigation.findNavController(requireView()).popBackStack()
-                }
+                leaveFragment(it.id)
                 addStoreDataViewModel.savedStore.value = null
             }
+        }
+    }
+
+    private fun leaveFragment(storeId: String) {
+        if (navArgs.sourceFragment == FragmentName.ADD_RECEIPT_FRAGMENT) {
+            val action =
+                AddStoreFragmentDirections.actionAddStoreFragmentToAddReceiptFragment(
+                    inputType = AddingInputType.EMPTY.name,
+                    receiptId = "",
+                    storeId = storeId,
+                    sourceFragment = FragmentName.ADD_STORE_FRAGMENT
+                )
+            Navigation.findNavController(requireView()).navigate(action)
+        } else {
+            Navigation.findNavController(requireView()).popBackStack()
         }
     }
 

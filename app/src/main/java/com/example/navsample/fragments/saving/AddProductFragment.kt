@@ -62,7 +62,7 @@ class AddProductFragment : AddingFragment() {
     }
 
     override fun defineToolbar() {
-        binding.toolbar.inflateMenu(R.menu.top_menu_extended_add)
+        binding.toolbar.inflateMenu(R.menu.top_menu_add_products)
         binding.toolbar.setNavigationIcon(R.drawable.back)
         binding.toolbar.menu.findItem(R.id.importImage).isVisible = false
         binding.toolbar.menu.findItem(R.id.reorder).isVisible = false

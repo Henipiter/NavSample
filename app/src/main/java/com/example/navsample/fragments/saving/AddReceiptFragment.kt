@@ -86,11 +86,8 @@ class AddReceiptFragment : AddingFragment() {
     }
 
     override fun defineToolbar() {
-        binding.toolbar.inflateMenu(R.menu.top_menu_extended_add)
+        binding.toolbar.inflateMenu(R.menu.top_menu_add_receipt)
         binding.toolbar.setNavigationIcon(R.drawable.back)
-        binding.toolbar.menu.findItem(R.id.importImage).isVisible = false
-        binding.toolbar.menu.findItem(R.id.aiAssistant).isVisible = false
-        binding.toolbar.menu.findItem(R.id.reorder).isVisible = false
 
         binding.toolbar.setOnMenuItemClickListener {
             when (it.itemId) {
@@ -147,6 +144,7 @@ class AddReceiptFragment : AddingFragment() {
             }
             applyInputParameters()
         } else if (navArgs.sourceFragment == FragmentName.ADD_STORE_FRAGMENT) {
+            binding.toolbar.menu.findItem(R.id.add_new).isVisible = false
             putInputsFromViewModel()
             if (navArgs.storeId.isNotEmpty()) {
                 addReceiptDataViewModel.storeId = navArgs.storeId
@@ -330,6 +328,7 @@ class AddReceiptFragment : AddingFragment() {
             binding.storeNameInput.setText("")
             binding.storeNameInput.isEnabled = true
             addReceiptDataViewModel.pickedStore = null
+            addReceiptDataViewModel.storeId = ""
         }
 
         binding.storeNameInput.setOnItemClickListener { adapter, _, position, _ ->

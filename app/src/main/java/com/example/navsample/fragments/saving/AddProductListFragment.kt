@@ -80,7 +80,7 @@ class AddProductListFragment : Fragment(), ItemClickListener {
     @SuppressLint("NotifyDataSetChanged")
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        binding.toolbar.inflateMenu(R.menu.top_menu_extended_add)
+        binding.toolbar.inflateMenu(R.menu.top_menu_add_products)
         binding.toolbar.setNavigationIcon(R.drawable.back)
 
         addProductDataViewModel.refreshCategoryList()
